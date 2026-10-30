@@ -28,3 +28,9 @@ Production safety. The plugin skips production. `npm run test:attribute`, 2 pass
 ## Consequences
 
 `locate()` reads `data-src` on the host element. Development and test builds stamp `data-src="file:line:col"`. Production builds do not emit the attribute. The dcortex checkout was not edited. `apps/canvas/vite.config.ts` still has `sourcemap: true` and does not register this plugin.
+
+## Verifier follow-up (2026-10-31)
+
+The decision stands. Two statements above were fixture-only and are now backed by a run on the real Canvas. `packages/dom2src-plugin/canvas/` adds this plugin to a detached worktree of dcortex-platform at `ac86acc75` (the platform repo's working tree is untouched) and serves it with that repo's own Vite 6.4.3. With `/api` answered by a synthetic session and 403 for reads, 12 routes of the five flows were opened in Chromium: `/login` (and the sign-in modal), `/ops/login`, `/ops/radar`, `/ops/operations`, `/ops/launchpad`, `/ops/rules`, `/desk?sel=console|timeline|crew|brief`, `/admin/users`, `/admin/audit`. 12 passed. On each route the screen's own file carries `data-src`, and every stamped value points at the matching opening tag in the source file.
+
+What this does not show: elements rendered by the prebuilt workspace package `@dcortex/canvas-ui` (the page shell and desk header, 61 to 122 elements per route) and SVG nodes from `lucide-react` carry no `data-src`, so `locate()` would return `no-source-info` for them. The desk console tab showed only shell elements because the synthetic desk-monitor reply has no rows. Responses were synthetic, so this says nothing about data-dependent markup. `apps/canvas/vite.config.ts` in the platform repo is still unchanged. Commands and counts: `docs/notes/p2-conformance-fixes.md`.
