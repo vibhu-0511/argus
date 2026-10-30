@@ -1,14 +1,32 @@
 name: golden
 
+# Manual only. The golden patches apply to the private dcortex-ai/dcortex-platform repo, which the default
+# GITHUB_TOKEN cannot read. Add a read-only token for it as the repo secret PLATFORM_REPO_TOKEN, then run this
+# from the Actions tab. The push-time checks are in repro.yml.
 on:
-  push:
+  workflow_dispatch:
 
 jobs:
   golden:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: dcortex-ai/dcortex-platform
+          token: ${{ secrets.PLATFORM_REPO_TOKEN }}
+          path: platform
       - uses: astral-sh/setup-uv@v5
         with:
           python-version: "3.12"
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: uv sync --all-packages --locked
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @argus/bench exec playwright install --with-deps chromium
       - run: uv run bench golden --all
+        env:
+          ARGUS_PLATFORM_REPO: ${{ github.workspace }}/platform

@@ -39,7 +39,7 @@ A task directory contains:
 | `checks.json` | List of checks. Each has `type` (`pixel_diff`, `bounding_box`, `computed_style`) and `params` |
 | `meta.json` | `source` (`seeded` or `mutated`), `archetype`, `tier` (`easy`, `medium`, `hard`), optional `seed` |
 
-`bench validate <dir>` exits 0 when the directory matches the Task schema. It exits 1 when a file is missing, empty, or rejected by the schema. `bench golden --all` applies every golden patch on a worktree of the platform repo and scores it. It prints `passed/total` and exits 0 only when every task passes.
+`bench validate <dir>` exits 0 when the directory matches the Task schema. It exits 1 when a file is missing, empty, or rejected by the schema. `bench golden --all` applies every golden patch on a worktree of the platform repo (the checkout in `ARGUS_PLATFORM_REPO`) and scores it, seeded and mutated tasks together. GitHub Actions cannot reach that private repo, so only you run it, locally or by hand from the `golden` workflow. It prints `passed/total` and exits 0 only when every task passes.
 
 `tasks/seeded/bug-17` is BUG-17 from the dcortex bug report: text under 12 px. The patches touch `apps/canvas/src/ops/radar.css` only.
 

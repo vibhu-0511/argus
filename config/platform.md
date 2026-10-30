@@ -10,7 +10,7 @@ Use the synthetic cell only. Live Copa (Option E, VPN, database `copa_local_aims
 
 | | |
 |---|---|
-| Repo | `C:\Users\vibha\Downloads\data\dcortex\dcortex_claude\dcortex-platform` |
+| Repo | `dcortex-ai/dcortex-platform` on GitHub. The local checkout path is the env var `ARGUS_PLATFORM_REPO` |
 | Compose | `docker compose --profile copa-local up --build` |
 | Tenant | `copa-local` (`BFF_TENANT_ID`, `MIGRATE_TENANT_ID`) |
 | Console | `http://localhost:19080` |
