@@ -23,3 +23,11 @@ When the caller has a supported selector and HTML stamped with `data-src`, `loca
 ## Consequences
 
 A ticket with no DOM goes to pgvector. A caller that already has a selector and stamped HTML calls `locate()`. Repo-map stays the symbol index. It is not the file ranker for a CSS bug. No LLM was called. Tokens, dollars, and quota were not measured.
+
+## Verifier finding (2026-10-31)
+
+The decision above is unchanged and is the owner's to confirm. The plan-verifier found that the comparison it rests on was not a three-way comparison, and run `p2-abl-20261030T204633Z` (`docs/notes/results/p2-abl-20261030T204633Z.txt`) reproduced the same counts.
+
+- All 30 golden paths are CSS files. Repo-map's index has no CSS, and `locate()` was given no selector and no DOM. A and C could not score above 0 by construction. Only pgvector could score, so "pgvector is the default" is a statement about CSS tickets with no DOM, not about the three retrievers.
+- The default order here (pgvector, then `locate()`) conflicts with the approved design in `analysis/swarm/hld-edges.json` edge 9: `locate()` first, `ambiguous` returns ranked candidates, `no-source-info` falls back to text retrieval. Neither order has been measured on JSX-origin bugs.
+- Redoing the ablation on JSX-origin tasks is an open item (`phases/P02-dom2src.md`, Verifier finding).

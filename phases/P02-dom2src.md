@@ -70,9 +70,11 @@ Map a rendered DOM element back to its source file and line, expose that as a `l
 
 | Variant | Resolve rate (95% CI) | Tokens/bug (in, out, cached) | $-equivalent/bug | Quota share/bug | p50 latency | p95 latency | Top-1 file accuracy |
 |---|---|---|---|---|---|---|---|
-| A | — | — | — | — | 0.006171s | 0.011220s | 0/30 [0.000000, 0.113517] |
-| B | — | — | — | — | 0.822504s | 2.906274s | 15/30 [0.331539, 0.668461] |
-| C | — | — | — | — | 0.001800s | 0.006850s | 0/30 [0.000000, 0.113517] |
+| A | — | — | — | — | 0.003275s | 0.006280s | 0/30 [0.000000, 0.113517] |
+| B | — | — | — | — | 0.415103s | 0.717434s | 15/30 [0.331539, 0.668461] |
+| C | — | — | — | — | 0.000941s | 0.005071s | 0/30 [0.000000, 0.113517] |
+
+Run `p2-abl-20261030T204633Z`: `uv run python -m dom2src_mcp.ablation --reindex --out-dir docs/notes/results`. The raw command, commit, per-task ranks and output are in `docs/notes/results/p2-abl-20261030T204633Z.txt`. The accuracy cells reproduce the earlier unrecorded run exactly; the earlier latency cells (A 0.006171s/0.011220s, B 0.822504s/2.906274s, C 0.001800s/0.006850s) had no run behind them and are replaced by this run's.
 
 The 30 tasks are `packages/bench/tasks/seeded`: 10 easy, 10 medium, 10 hard. Every golden path is a CSS file. Repo-map ranks symbol names in the tsserver index. That index has no `.css` files, and the run scored top-1 and top-3 at 0/30. No ticket contains a `#id` or `data-testid` selector, and no task directory has an HTML file, so `locate()` returned no file. That run also scored 0/30 and 0/30. pgvector top-1 is 15/30 and top-3 is 19/30. Eleven tasks touch only `apps/canvas/src/styles`, which the embed scope does not index. Nineteen touch a file under `apps/canvas/src/ops`. Those counts describe the subset. They are not the hit list. Latency is the nearest-rank percentile, index `ceil(p/100*n)-1`, on the 30 timed calls after one warmup call that is not included. No LLM was called, so resolve rate, tokens, dollars, and quota stay —. Model load printed a Hugging Face hub warning about unauthenticated requests. The weight progress completed from the local cache, 103 of 103.
 
@@ -81,10 +83,16 @@ The 30 tasks are `packages/bench/tasks/seeded`: 10 easy, 10 medium, 10 hard. Eve
 | Report | Resolve rate | Tokens/bug | $-equivalent | p50 latency | p95 latency |
 |---|---|---|---|---|---|
 | Previous phase | 28/30 [0.786762, 0.981523] | 1.0000, 1.0000, 0.0000 | — | — | — |
-| This phase | — | — | — | 0.822504s | 2.906274s |
+| This phase | — | — | — | 0.415103s | 0.717434s |
 | Delta | — | — | — | — | — |
 
-The previous row is P1's text-only batch. This phase did not resolve bugs. Its measured rate is top-1 file accuracy in the ablation table, so the resolve cell stays — and is not subtracted from 28/30. The latency cells are the pgvector per-task times. P1 left latency blank, so the latency delta stays —.
+The previous row is P1's text-only batch. Its 28/30 is fixture replay (`host` is `fixture`), not a live-model result, so it is not a baseline for anything measured here. This phase did not resolve bugs. Its measured rate is top-1 file accuracy in the ablation table, so the resolve cell stays — and is not subtracted from 28/30. The latency cells are the pgvector per-task times from run `p2-abl-20261030T204633Z`. P1 left latency blank, so the latency delta stays —.
+
+## Verifier finding (2026-10-31)
+The plan-verifier's report (2026-10-30) found, and the re-run `p2-abl-20261030T204633Z` confirmed, that the three-way comparison was not actually run.
+- All 30 golden paths are CSS files. Variant A's index has no CSS, and variant C got no selector and no DOM (no ticket has a `#id` or `data-testid`, no task directory has an HTML file). A and C could not score above 0 by construction, so their 0/30 says nothing about repo-map or `locate()` on JSX bugs. Only B had a chance to score.
+- The default order in ADR-007 (pgvector first, `locate()` as the fallback) conflicts with the approved design (`analysis/swarm/hld-edges.json` edge 9: `locate()` first; `ambiguous` returns ranked candidates; `no-source-info` falls back to text retrieval). Which is right is an owner decision and neither is changed here.
+- Open: redo the ablation on tasks whose bug is in JSX, with a ticket and a DOM. bugsmith's JSX operators (`remove-class`, `swap-flex-direction`, `drop-prop`, `change-element`) make the bug patch cheap, but each task also needs a ticket text and rendered HTML, which that package does not produce. Not done.
 
 ## ADRs to write
 All [ME].
@@ -92,7 +100,7 @@ All [ME].
 - **ADR-007 — Retrieval strategy.** Which retriever is the default for "which file has the bug", and when does the fallback apply?
 
 ## Deploy checkpoint
-GitHub Actions runs the golden-fix run, the repro-agent fixture tests, and now the plugin and MCP server tests on every push. Still no LLM calls in CI.
+GitHub Actions runs the repro-agent fixture tests and now the plugin and MCP server tests (`dom2src.yml`, without the `live` tests) on every push; the golden-fix run is manual-dispatch (see P0). Still no LLM calls in CI. `dom2src.yml` has not run on GitHub, so P2-T14 stays unticked until a green run id exists.
 
 ## Portfolio artifact
 A small, reusable Vite plugin plus MCP server repo for "DOM element to source line", with the three-way retrieval ablation.
