@@ -60,7 +60,7 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 - [x] P1-T04 Define repro tool schemas (navigate, snapshot, click, type, assert-visible, screenshot) [ME] 2h
 - [x] P1-T05 Build Docker image to run Playwright repro scripts with no network egress beyond the app [CLAUDE] 2h
 - [x] P1-T06 Assemble ticket and screenshot prompt (text-only and text-plus-image modes) [PAIR] 2h
-- [ ] P1-T07 Build repro agent loop: generate script, run it, revise on error, hard retry cap [ME] 4h
+- [x] P1-T07 Build repro agent loop: generate script, run it, revise on error, hard retry cap [ME] 4h
 - [ ] P1-T08 Build repro verifier: script must fail on buggy tree and pass on golden tree [ME] 2h
 - [ ] P1-T09 Add CI job for repro-agent tests on recorded fixtures, no LLM calls [CLAUDE] 2h
 - [ ] P1-T10 Run repro-agent on 30 seeded tasks, text only [ME] 2h
