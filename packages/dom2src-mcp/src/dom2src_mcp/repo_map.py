@@ -112,12 +112,13 @@ def _server_version(js: Path) -> str:
 def _file_hash(path: Path) -> str | None:
     if not path.is_file():
         return None
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    # CRLF working trees (Windows autocrlf) must hash like the LF files in git.
+    return hashlib.sha256(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
 
 
 def _stale_files(index: dict, root: Path) -> list[str]:
     # ponytail: hash the files the index already names; do not walk the monorepo.
-    # An index with no content_hashes is left alone (this index.json predates hashes).
+    # An index with no content_hashes is left alone; the committed index.json has them (test_repo_map checks).
     # Upgrade: incremental re-index on hash mismatch.
     stored = index.get("content_hashes")
     if not isinstance(stored, dict):

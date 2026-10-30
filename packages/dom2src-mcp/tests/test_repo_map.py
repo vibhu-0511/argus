@@ -7,7 +7,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from dom2src_mcp.repo_map import INDEX_PATH, StaleIndex, query
+from dom2src_mcp.repo_map import INDEX_PATH, StaleIndex, _stale_files, platform_repo, query
 
 USER_ADMIN = "apps/canvas/src/screens/UserAdmin.tsx"
 
@@ -55,3 +55,31 @@ def test_query_refuses_when_a_named_file_changes_after_its_hash_was_stored(tmp_p
     with pytest.raises(StaleIndex) as caught:
         query("Widget", index=index, root=tmp_path)
     assert caught.value.files == [rel]
+
+
+def test_committed_index_is_checked_for_staleness(tmp_path):
+    index = json.loads(INDEX_PATH.read_text(encoding="utf-8"))
+    assert set(index["content_hashes"]) == set(index["files"])
+    # Against a tree where none of the indexed files exist, every one of them is stale.
+    with pytest.raises(StaleIndex) as caught:
+        query("UserAdmin", index=index, root=tmp_path)
+    assert sorted(caught.value.files) == sorted(index["files"])
+    # One edited byte in one file is reported, and only that file.
+    rel = USER_ADMIN
+    source = tmp_path / rel
+    source.parent.mkdir(parents=True)
+    source.write_bytes(b"x")
+    index["content_hashes"][rel] = hashlib.sha256(b"x").hexdigest()
+    assert _stale_files(index, tmp_path) == sorted_without(index["files"], rel)
+    source.write_bytes(b"y")
+    assert rel in _stale_files(index, tmp_path)
+
+
+@pytest.mark.live
+def test_committed_index_matches_the_platform_checkout():
+    index = json.loads(INDEX_PATH.read_text(encoding="utf-8"))
+    assert _stale_files(index, platform_repo()) == []
+
+
+def sorted_without(files, rel):
+    return [name for name in files if name != rel]
