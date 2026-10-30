@@ -1,0 +1,14 @@
+name: repro
+
+on:
+  push:
+
+jobs:
+  fixtures:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+      - run: uv run pytest packages/repro-agent/tests/test_replay.py packages/repro-agent/tests/test_loop.py packages/repro-agent/tests/test_tools.py packages/repro-agent/tests/test_prompt.py packages/repro-agent/tests/test_tool_unavailable.py packages/repro-agent/tests/test_batch.py packages/repro-agent/tests/test_break.py -q

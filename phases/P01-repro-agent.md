@@ -51,7 +51,9 @@ Turn a ticket (text, optionally a screenshot) into a Playwright reproduction scr
 
 ## Break it on purpose
 1. **Vague ticket (P1-T13).** *Induced failure:* a ticket that says "the page looks wrong" with no route or element. *Expected signal:* the retry cap is hit, stop reason `retry-cap`, no valid script. *Fix:* add a clarification step that asks for the missing route/element, or fail fast with a typed reason.
+   Observed: ticket text `the page looks wrong`, two empty replies, stop reason `retry-cap` on the last trajectory step, no script saved.
 2. **Script passes on the buggy tree (P1-T14).** *Induced failure:* a selector so loose that it matches in both trees. *Expected signal:* verifier verdict `passes-on-bug`. *Fix:* require the agent's script to include an assertion on the symptom, and feed the verdict back to the next attempt.
+   Observed: the hand-made script only asserts that the Sign in heading is visible. Both trees pass. The verifier returned `passes-on-bug`. An assertion that is true on the bug is not enough; the verdict still has to be fed into the next attempt.
 3. **MCP server dies mid-run (P1-T15).** *Induced failure:* the Playwright MCP process dies during a tool call, or it has already exited when the next call starts. *Expected signal:* stop reason `tool-unavailable` within the timeout, no hang. *Fix:* restart the server once, then stop with `tool-unavailable`. Direct Playwright is not the fallback (ADR-004).
 
 ## Ablation
