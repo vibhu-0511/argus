@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 
 import psycopg
+import pytest
 import sentence_transformers
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
@@ -46,6 +47,7 @@ def _probe(path: Path) -> str:
     raise AssertionError(f"no probe line in {path}")
 
 
+@pytest.mark.live
 def test_query_returns_ranked_canvas_files():
     files = canvas_files()
     root = platform_worktree()

@@ -4,7 +4,23 @@ version = "0.1.0"
 description = "locate() MCP server and the P2 retrieval variants."
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = ["mcp==2.3.0"]
+dependencies = [
+    "mcp==2.3.0",
+    "psycopg[binary]>=3.2",
+    "sentence-transformers>=3",
+    # torch is named so the sources table below can pin its wheel index.
+    "torch",
+    "jsonschema>=4",
+]
+
+# CI is Linux: take the CPU wheels there instead of the CUDA build (about 2.5 GB of nvidia packages).
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu", marker = "sys_platform == 'linux'" }]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
 
 [build-system]
 requires = ["uv_build>=0.12.2,<0.13.0"]

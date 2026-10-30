@@ -1,0 +1,12 @@
+# Local pgvector for the P2 file retriever. Not the copa-local database (port 5433, db-copa-local).
+# Trust auth, bound to loopback only: this holds embeddings of source files and nothing else.
+name: argus-canvas-embed
+services:
+  canvas-embed:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: argus
+      POSTGRES_DB: canvas_embed
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "127.0.0.1:${CANVAS_EMBED_PORT:-5436}:5432"

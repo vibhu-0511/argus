@@ -22,4 +22,5 @@ dev = ["pytest>=8"]
 markers = [
     "docker: needs a Docker daemon and builds or runs the sandbox image",
     "live_app: needs the Playwright MCP server via npx",
+    "live: needs a dcortex-platform checkout (ARGUS_PLATFORM_REPO) and, for the embed test, the pgvector container on port 5436",
 ]

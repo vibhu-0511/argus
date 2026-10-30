@@ -12,6 +12,7 @@ from dom2src_mcp.repo_map import INDEX_PATH, StaleIndex, query
 USER_ADMIN = "apps/canvas/src/screens/UserAdmin.tsx"
 
 
+@pytest.mark.live
 def test_query_returns_definition_and_references_from_language_server():
     index = json.loads(INDEX_PATH.read_text(encoding="utf-8"))
     files = index["files"]
