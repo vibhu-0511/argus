@@ -77,9 +77,9 @@ def main(argv: list[str] | None = None) -> None:
         with contextlib.redirect_stdout(buffer):
             score(tasks, retriever)  # runs the retriever again and prints the accuracy line
         emit(buffer.getvalue().strip())
-    if args.out:
-        args.out.parent.mkdir(parents=True, exist_ok=True)
-        args.out.write_text("\n".join(out) + "\n", encoding="utf-8")
+    if args.out_dir:
+        args.out_dir.mkdir(parents=True, exist_ok=True)
+        (args.out_dir / f"{run_id}.txt").write_text("\n".join(out) + "\n", encoding="utf-8")
 
 
 if __name__ == "__main__":
