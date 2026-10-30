@@ -73,32 +73,32 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 - [x] P1-T14 Break it: make the script pass on the buggy tree (selector too loose) [ME] 2h
 - [x] P1-T15 Break it: kill the MCP server mid-run [ME] 2h
 - [x] P1-T16 Write package README and phase report against P0 [CLAUDE] 1h
-- [ ] P2-T00 Re-verify pinned versions via web search [CLAUDE] 1h
-- [ ] P2-T01 Read React issue #32574 and the Aider repo-map docs, write notes [ME] 1h
-- [ ] P2-T02 Build Vite plugin that injects `data-src` on JSX host elements [PAIR] 4h
-- [ ] P2-T03 Add plugin tests: attribute on every host element, stripped in production build [CLAUDE] 2h
-- [ ] P2-T04 Write ADR-006: `data-src` attribute vs source maps [ME] 1h
-- [ ] P2-T05 Implement locate() core: selector to DOM node to `data-src` to file and line [ME] 3h
+- [x] P2-T00 Re-verify pinned versions via web search [CLAUDE] 1h
+- [x] P2-T01 Read React issue #32574 and the Aider repo-map docs, write notes [ME] 1h
+- [x] P2-T02 Build Vite plugin that injects `data-src` on JSX host elements [PAIR] 4h
+- [x] P2-T03 Add plugin tests: attribute on every host element, stripped in production build [CLAUDE] 2h
+- [x] P2-T04 Write ADR-006: `data-src` attribute vs source maps [ME] 1h
+- [x] P2-T05 Implement locate() core: selector to DOM node to `data-src` to file and line [ME] 3h
 
 ## Week 7 — P2 (20 h scheduled)
 
-- [ ] P2-T06 Define MCP tool schema for locate() (input, output, typed errors) [ME] 2h
-- [ ] P2-T07 Build the MCP server for locate() on the 2026-07-28 spec with SDK v2 [ME] 4h
-- [ ] P2-T08 Handle ambiguity: wrapper components and repeated elements return candidates [ME] 2h
-- [ ] P2-T09 Build repo-map plus LSP index of the dcortex Canvas worktree [PAIR] 4h
-- [ ] P2-T10 Build pgvector variant with a local embedding model (CPU) [PAIR] 3h
-- [ ] P2-T11 Build retrieval harness: top-1 and top-3 file accuracy against the golden patch's file [ME] 2h
-- [ ] P2-T12 Run ablation: repo-map/LSP vs pgvector vs data-src locate() on 30-task stratified subset [ME] 3h
+- [x] P2-T06 Define MCP tool schema for locate() (input, output, typed errors) [ME] 2h
+- [x] P2-T07 Build the MCP server for locate() on the 2026-07-28 spec with SDK v2 [ME] 4h
+- [x] P2-T08 Handle ambiguity: wrapper components and repeated elements return candidates [ME] 2h
+- [x] P2-T09 Build repo-map plus LSP index of the dcortex Canvas worktree [PAIR] 4h
+- [x] P2-T10 Build pgvector variant with a local embedding model (CPU) [PAIR] 3h
+- [x] P2-T11 Build retrieval harness: top-1 and top-3 file accuracy against the golden patch's file [ME] 2h
+- [x] P2-T12 Run ablation: repo-map/LSP vs pgvector vs data-src locate() on 30-task stratified subset [ME] 3h
 
 ## Week 8 — P2, P3 (22 h scheduled)
 
-- [ ] P2-T13 Write ADR-007: Retrieval strategy [ME] 1h
-- [ ] P2-T14 Add CI job for plugin and MCP server tests, no LLM calls [CLAUDE] 2h
-- [ ] P2-T15 Break it: render a button through a wrapper component [ME] 2h
-- [ ] P2-T16 Break it: run locate() against a production build [ME] 2h
-- [ ] P2-T17 Break it: edit a file after the repo-map is built [ME] 2h
-- [ ] P2-T18 Break it: connect with a client that speaks an older MCP spec [ME] 2h
-- [ ] P2-T19 Write package READMEs and phase report against P1 [CLAUDE] 1h
+- [x] P2-T13 Write ADR-007: Retrieval strategy [ME] 1h
+- [x] P2-T14 Add CI job for plugin and MCP server tests, no LLM calls [CLAUDE] 2h
+- [x] P2-T15 Break it: render a button through a wrapper component [ME] 2h
+- [x] P2-T16 Break it: run locate() against a production build [ME] 2h
+- [x] P2-T17 Break it: edit a file after the repo-map is built [ME] 2h
+- [x] P2-T18 Break it: connect with a client that speaks an older MCP spec [ME] 2h
+- [x] P2-T19 Write package READMEs and phase report against P1 [CLAUDE] 1h
 - [ ] P3-T00 Re-verify pinned versions via web search [CLAUDE] 1h
 - [ ] P3-T01 Read the mini-swe-agent source and the context-engineering post, write notes [ME] 2h
 - [ ] P3-T02 Define agent tool schemas: read_file, list_dir, search, edit, run_cmd, submit [ME] 4h
