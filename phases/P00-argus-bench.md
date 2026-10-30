@@ -6,7 +6,7 @@
 Build a deterministic benchmark of UI bug tasks (hand-seeded plus mutation-generated) against the dcortex Canvas and Postgres named in `config/platform.md`. Score a fix with no LLM in the loop, and keep a quota ledger that holds every later phase inside the free tiers. `target-app` is that binding, not a second UI.
 
 ## Done when
-- The golden-fix run passes on 100% of the 30 hand-seeded tasks, in GitHub Actions on every push, with zero LLM calls.
+- The golden-fix run passes on 100% of the 30 hand-seeded tasks, with zero LLM calls. It runs in GitHub Actions by manual dispatch (`golden.yml`), not on every push, because the golden patches apply to the private dcortex-platform repo, which the default `GITHUB_TOKEN` cannot read. Push-time CI is `repro.yml`.
 - `bugsmith` emits 300 or more tasks. Each one fails its Playwright checks on the buggy tree and passes them on the golden-fixed tree, confirmed by the bench scorer, not by eye.
 - Two bugsmith runs with the same seed produce an identical task-set hash.
 - A call that would exceed a provider's measured daily limit is refused by the quota ledger before any HTTP request is sent (unit test).
@@ -98,7 +98,7 @@ All [ME].
 - **ADR-003 — Mutation validity and flake policy.** What exactly makes a generated mutant a valid task, and what is done with flaky ones?
 
 ## Deploy checkpoint
-GitHub Actions runs `bench golden --all` on every push of a public repo. It is a deterministic golden-fix run with no LLM calls, no secrets and no provider keys in the workflow.
+GitHub Actions runs `bench golden --all` by manual dispatch while dcortex-platform is private (it needs a read-only `PLATFORM_REPO_TOKEN` repo secret for that repo; on every push of a public repo once the patches can be read without it). It is a deterministic golden-fix run with no LLM calls and no provider keys in the workflow.
 
 ## Portfolio artifact
 A public repo with a green CI badge, a task-set hash for the 300+ generated tasks, and the seeded-vs-mutated ablation write-up with intervals.

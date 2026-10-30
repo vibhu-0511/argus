@@ -331,7 +331,7 @@ Cut in this order when time or quota runs out:
 ## Deploy track
 | Phase | What is deployed |
 |---|---|
-| P0 to P3 | GitHub Actions runs the bench on every push as a deterministic golden-fix run, with no LLM calls |
+| P0 to P3 | GitHub Actions runs the bench as a deterministic golden-fix run, with no LLM calls. It is manual-dispatch while dcortex-platform is private, and the push-time checks are the other workflows |
 | P4 | The same, plus the verify tests on stored screenshots |
 | P5 | A dashboard on GitHub Pages, plus Langfuse Cloud Hobby for traces |
 | P5.5 | Skill-file lint in CI |

@@ -359,7 +359,7 @@ Never cut: the P3 loop, the P4 judge calibration, the bugsmith generator, the P5
 
 | Phase | Deployed |
 |---|---|
-| P0–P3 | GitHub Actions runs the bench on every push as a deterministic golden-fix run. No model calls, no secrets |
+| P0–P3 | GitHub Actions runs the bench as a deterministic golden-fix run, by manual dispatch while dcortex-platform is private. No model calls; push-time checks are the other workflows |
 | P4 | The same, plus verify tests on stored screenshots |
 | P5 | Dashboard on GitHub Pages, traces in Langfuse, CI regression gate on stored results |
 | P5.5 | Skill-file lint in CI |
