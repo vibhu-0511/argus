@@ -1,0 +1,23 @@
+name: dom2src
+
+on:
+  push:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+      - run: uv run pytest packages/dom2src-mcp/tests/test_server.py -q
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - working-directory: packages/dom2src-plugin
+        run: npm install
+      - working-directory: packages/dom2src-plugin
+        run: npx playwright install chromium
+      - working-directory: packages/dom2src-plugin
+        run: npm run test:attribute
