@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -49,7 +49,7 @@
+ .ops-timeline-handle { position: absolute; top: 2px; width: 14px; height: 20px; margin-left: -7px; border: 2px solid var(--surface-card); border-radius: 4px; background: var(--text-primary); cursor: ew-resize; }
+ .ops-timeline-handle:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; }
+ .ops-timeline-ticks { position: relative; height: 14px; }
++.ops-timeline-tick { position: absolute; transform: translateX(-50%); font: 10px var(--font-mono); color: var(--text-tertiary); }
+-
+ .ops-timeline-tick:nth-child(odd) { visibility: hidden; }
+ @media (min-width: 1200px) { .ops-timeline-tick:nth-child(odd) { visibility: visible; } }
+ .ops-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }

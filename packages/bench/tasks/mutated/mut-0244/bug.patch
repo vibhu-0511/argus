@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -55,7 +55,7 @@
+ .ops-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+ .ops-presets button[aria-pressed="true"] { font-weight: 700; }
+ .ops-show { margin-left: auto; display: inline-flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+-.ops-show-chip { min-height: 32px; padding: 6px 12px; font: 600 12px var(--font-mono); letter-spacing: 0.02em; border-radius: 8px; }
++.ops-show-chip { min-height: 36px; padding: 6px 12px; font: 600 12px var(--font-mono); letter-spacing: 0.02em; border-radius: 8px; }
+ .ops-show-chip--uncrewed { border-color: #f87171; color: #f87171; }
+ .ops-show-chip--uncrewed[aria-pressed="true"] { background: color-mix(in srgb, #f87171 22%, transparent); border-color: #f87171; color: #fecaca; }
+ .ops-show-chip--delayed { border-color: #ffb547; color: #ffb547; }

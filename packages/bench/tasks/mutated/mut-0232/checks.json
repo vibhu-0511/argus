@@ -1,0 +1,12 @@
+[
+  {
+    "params": {
+      "css": "apps/canvas/src/ops/ops.css",
+      "expected": "36px",
+      "flow": "/desk?sel=console",
+      "property": "min-width",
+      "selector": ".ops-theme"
+    },
+    "type": "computed_style"
+  }
+]

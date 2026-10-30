@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -218,7 +218,7 @@
+ .ops-rc { flex: none; margin-top: 10px; padding: 12px; border: 1px solid var(--border-primary); border-radius: 10px; background: var(--surface-card); max-width: 100%; box-sizing: border-box; overflow: hidden; }
+ .ops-rc-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; margin-bottom: 8px; }
+ .ops-rc-head h4 { margin: 0; font-size: 13px; }
++.ops-rc-banner { margin: 0 0 8px; padding: 8px 10px; border-left: 3px solid var(--accent-info, var(--border-primary)); border-radius: 6px; background: var(--bg-tertiary); font-size: 12px; line-height: 1.45; color: var(--text-primary); }
+-
+ .ops-rc-banner--warn { border-left-color: var(--accent-warning, var(--accent-error)); }
+ .ops-rc-excluded { margin: 0 0 8px; font-size: 11px; }
+ .ops-rc-group { margin: 0 0 8px; }

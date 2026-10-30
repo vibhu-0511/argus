@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -94,7 +94,7 @@
+ .ops-path { fill: none; stroke: #8494ac; stroke-linecap: round; opacity: 0.22; cursor: pointer; }
+ .ops-path--departed, .ops-path--airborne { stroke: #34d399; }
+ .ops-path--landed { stroke: #5a6a85; }
+-.ops-path--quiet { opacity: 0.22; }
++
+ .ops-path--diverted { stroke: #b99cf0; opacity: 1; }
+ .ops-path--delayed { stroke: #ffb547; opacity: 1; }
+ .ops-path--cancelled { stroke: #f472b6; opacity: 0.85; }

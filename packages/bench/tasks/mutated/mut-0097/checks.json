@@ -1,0 +1,12 @@
+[
+  {
+    "params": {
+      "css": "apps/canvas/src/ops/ops.css",
+      "expected": "14px",
+      "flow": "/desk?sel=console",
+      "property": "width",
+      "selector": ".ops-spinner"
+    },
+    "type": "computed_style"
+  }
+]

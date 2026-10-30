@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -425,7 +425,7 @@
+ .ops-horizon-scroll::-webkit-scrollbar { height: 4px; }
+ .ops-horizon-scroll::-webkit-scrollbar-track { margin-inline: 12%; background: color-mix(in srgb, var(--accent-primary) 28%, transparent); border-radius: 2px; }
+ .ops-horizon-scroll::-webkit-scrollbar-thumb { background: var(--accent-primary); border-radius: 2px; }
+-.ops-horizon-plot { position: relative; }
++
+ .ops-horizon-band { position: absolute; bottom: 0; }
+ .ops-horizon-band.alt { background: color-mix(in srgb, var(--accent-primary) 8%, transparent); }
+ .ops-horizon-tick { position: absolute; top: 8px; transform: translateX(-50%); font-size: 11px; color: var(--text-tertiary); font-variant-numeric: tabular-nums; white-space: nowrap; }

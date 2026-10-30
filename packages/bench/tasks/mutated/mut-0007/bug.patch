@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -413,7 +413,7 @@
+ .ops-horizon-modes button, .ops-horizon-stepper button, .ops-horizon-expand { height: 30px; border: none; border-radius: 8px; background: transparent; color: var(--text-secondary); font-size: 13px; font-weight: 650; }
+ .ops-horizon-modes button { padding: 0 12px; }
+ .ops-horizon-modes button[aria-pressed="true"] { background: var(--accent-primary); color: var(--text-on-accent); }
+-.ops-horizon-stepper { display: inline-flex; align-items: center; gap: 2px; padding: 3px 6px; border-radius: 10px; background: var(--bg-primary); }
++
+ .ops-horizon-stepper button { width: 28px; padding: 0; }
+ .ops-horizon-stepper button:disabled { opacity: 0.35; }
+ .ops-horizon-stepper span { min-width: 48px; text-align: center; font-size: 13px; color: var(--text-secondary); }

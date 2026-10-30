@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -319,7 +319,7 @@
+ .ops-rules-tabs { display: flex; gap: 6px; border-bottom: 1px solid var(--border-primary); }
+ .ops-rules-tabs button { padding: 6px 14px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: inherit; cursor: pointer; }
+ .ops-rules-tabs button[aria-selected="true"] { border-bottom-color: var(--accent-primary); font-weight: 700; }
+-.ops-codes-card { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border: 1px solid var(--border-primary); border-radius: 8px; background: var(--surface-card); }
++.ops-codes-card { display: flex; flex-direction: column; gap: 12px; padding: 12px 14px; border: 1px solid var(--border-primary); border-radius: 8px; background: var(--surface-card); }
+ .ops-codes-card header { display: flex; align-items: baseline; gap: 12px; }
+ .ops-codes-card h2 { margin: 0; font-size: 16px; }
+ .ops-codes-sources { margin: 0; padding-left: 18px; font-size: 13px; color: var(--text-secondary); }

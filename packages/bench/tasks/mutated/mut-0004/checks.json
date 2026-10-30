@@ -1,0 +1,12 @@
+[
+  {
+    "params": {
+      "css": "apps/canvas/src/insights/desk/desk.css",
+      "expected": "fill-box",
+      "flow": "/login",
+      "property": "transform-box",
+      "selector": ".crew-ring"
+    },
+    "type": "computed_style"
+  }
+]

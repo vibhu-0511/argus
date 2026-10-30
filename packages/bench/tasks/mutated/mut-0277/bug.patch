@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -393,7 +393,7 @@
+ .ops-horizon-scrim { position: fixed; inset: 0; z-index: 40; background: color-mix(in srgb, var(--bg-primary) 35%, transparent); display: flex; align-items: center; justify-content: center; padding: 24px 16px; }
+ .ops-horizon-dialog { width: min(420px, calc(100% - 32px)); max-height: 70vh; overflow: auto; padding: 14px 16px; border-radius: 12px; background: var(--surface-card); border: 1px solid var(--border-primary); color: var(--text-primary); }
+ .ops-horizon-dialog--table { width: min(920px, calc(100% - 32px)); max-height: 84vh; }
+-.ops-horizon-dialog-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
++.ops-horizon-dialog-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+ .ops-horizon-dialog h2 { margin: 0; font-size: 16px; }
+ .ops-horizon-dialog h3 { margin: 12px 0 4px; font-size: 14px; }
+ .ops-horizon-dialog table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }

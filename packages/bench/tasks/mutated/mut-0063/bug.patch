@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -125,7 +125,7 @@
+ .ops-position circle { fill: #34d399; stroke: #0a0f1a; cursor: pointer; }
+ .ops-label { font-family: var(--font-mono); letter-spacing: 0.02em; fill: #8494ac; paint-order: stroke; stroke: #0a0f1a; stroke-linejoin: round; pointer-events: none; }
+ .ops-label--strong { fill: #e6edf7; font-weight: 600; }
+-.ops-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin: 0; padding: 8px 12px; font-size: 12px; color: #8494ac; border-top: 1px solid #1e2a40; }
++
+ .ops-legend-title { font: 700 10px var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; color: #5a6a85; }
+ .ops-legend-group { display: flex; flex-wrap: wrap; gap: 12px; margin: 0; padding: 0; list-style: none; }
+ .ops-legend-group--quiet { opacity: 0.55; }

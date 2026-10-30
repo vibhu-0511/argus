@@ -1,0 +1,12 @@
+[
+  {
+    "params": {
+      "css": "apps/canvas/src/ops/ops.css",
+      "expected": "18px",
+      "flow": "/admin/users",
+      "property": "font-size",
+      "selector": ".ops-horizon-kpi-value"
+    },
+    "type": "computed_style"
+  }
+]

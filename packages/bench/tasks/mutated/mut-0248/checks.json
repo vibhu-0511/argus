@@ -1,0 +1,12 @@
+[
+  {
+    "params": {
+      "css": "apps/canvas/src/ops/ops.css",
+      "expected": "6px",
+      "flow": "/admin/audit",
+      "property": "border-radius",
+      "selector": ".ops-rc-banner"
+    },
+    "type": "computed_style"
+  }
+]

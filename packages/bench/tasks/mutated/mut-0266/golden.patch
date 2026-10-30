@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -409,7 +409,7 @@
+ .ops-horizon-jump:disabled { opacity: 0.55; cursor: default; }
+ .ops-horizon-dialog input { width: 100%; margin: 8px 0; }
+ .ops-horizon-caption { font-size: 13px; font-weight: 650; color: var(--text-primary); background: var(--bg-primary); border-radius: 8px; padding: 4px 10px; }
++.ops-horizon-modes { display: inline-flex; margin-left: auto; gap: 2px; padding: 3px; border-radius: 10px; background: var(--bg-primary); }
+-.ops-horizon-modes { display: inline-flex; margin-left: auto; gap: 6px; padding: 3px; border-radius: 10px; background: var(--bg-primary); }
+ .ops-horizon-modes button, .ops-horizon-stepper button, .ops-horizon-expand { height: 30px; border: none; border-radius: 8px; background: transparent; color: var(--text-secondary); font-size: 13px; font-weight: 650; }
+ .ops-horizon-modes button { padding: 0 12px; }
+ .ops-horizon-modes button[aria-pressed="true"] { background: var(--accent-primary); color: var(--text-on-accent); }

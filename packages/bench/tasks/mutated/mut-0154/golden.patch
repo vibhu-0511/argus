@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -323,7 +323,7 @@
+ .ops-codes-card header { display: flex; align-items: baseline; gap: 12px; }
+ .ops-codes-card h2 { margin: 0; font-size: 16px; }
+ .ops-codes-sources { margin: 0; padding-left: 18px; font-size: 13px; color: var(--text-secondary); }
++.ops-codes-alias { display: block; font-size: 11px; color: var(--text-tertiary); }
+-
+ .ops-codes-window { display: inline-flex; align-items: center; gap: 10px; white-space: nowrap; }
+ .ops-codes-bar { position: relative; display: inline-block; width: 160px; height: 10px; border-radius: 5px; background: var(--bg-tertiary); }
+ .ops-codes-segment { position: absolute; top: 0; bottom: 0; border-radius: 5px; background: var(--accent-primary); }

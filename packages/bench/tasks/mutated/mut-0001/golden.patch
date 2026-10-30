@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/insights/desk/assistant.css
++++ b/apps/canvas/src/insights/desk/assistant.css
+@@ -6,7 +6,7 @@
+ @keyframes busy-bob { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-5px) } }
+ @keyframes busy-sway { 0%, 100% { transform: rotate(-3deg) } 50% { transform: rotate(3deg) } }
+ @keyframes busy-line { from { opacity: 0; transform: translateY(4px) } to { opacity: 1; transform: none } }
++.busy-orbit { transform-box: fill-box; transform-origin: center; animation: busy-orbit 2.6s linear infinite; }
+-
+ .busy-working { transform-origin: bottom center; animation: busy-bob .95s ease-in-out infinite; }
+ .busy-thinking { transform-origin: bottom center; animation: busy-sway 2.4s ease-in-out infinite; }
+ .busy-line { animation: busy-line .35s ease-out both; }

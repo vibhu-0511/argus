@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -460,7 +460,7 @@
+ .ops-horizon-next li { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; border-top: 1px solid var(--border-primary); }
+ .ops-horizon-up { font-weight: 750; }
+ .ops-horizon-count { min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: #e85d6c; color: #fff; font-size: 12px; font-weight: 750; display: inline-flex; align-items: center; justify-content: center; }
+-.ops-horizon-rank { margin-left: auto; color: var(--text-tertiary); font-size: 12px; }
++
+ .ops-horizon-chevron { color: var(--text-tertiary); }
+ 
+ /* A box that is still being read says so: a shimmering placeholder instead of a zero or a blank. */

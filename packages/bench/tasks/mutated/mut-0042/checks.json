@@ -1,0 +1,12 @@
+[
+  {
+    "params": {
+      "css": "apps/canvas/src/ops/ops.css",
+      "expected": "156px",
+      "flow": "/login",
+      "property": "width",
+      "selector": ".ops-horizon-gutter"
+    },
+    "type": "computed_style"
+  }
+]

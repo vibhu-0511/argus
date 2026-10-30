@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -257,7 +257,7 @@
+ .ops-rc-blocker--unchecked::before { content: "?"; font-weight: 700; }
+ .ops-rc-blocker--shared { color: var(--text-tertiary); }
+ .ops-rc-blocker--shared::before { content: ""; }
++.ops-rc-note { margin: 6px 0 0 28px; font-size: 12px; }
+-
+ .ops-rc-rules { width: 100%; table-layout: fixed; margin-top: 10px; border-collapse: collapse; font-size: 12px; }
+ .ops-rc-col-rule { width: 60%; }
+ .ops-rc-col-value { width: 24%; }

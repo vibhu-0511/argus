@@ -1,0 +1,12 @@
+[
+  {
+    "params": {
+      "css": "apps/canvas/src/ops/ops.css",
+      "expected": "8px",
+      "flow": "/ops/radar",
+      "property": "gap",
+      "selector": ".ops-position"
+    },
+    "type": "computed_style"
+  }
+]

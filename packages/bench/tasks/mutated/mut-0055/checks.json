@@ -1,0 +1,12 @@
+[
+  {
+    "params": {
+      "css": "apps/canvas/src/ops/ops.css",
+      "expected": "28px",
+      "flow": "/desk?sel=console",
+      "property": "height",
+      "selector": ".ops-tenant-logo"
+    },
+    "type": "computed_style"
+  }
+]

@@ -1,0 +1,12 @@
+[
+  {
+    "params": {
+      "css": "apps/canvas/src/ops/ops.css",
+      "expected": "13px",
+      "flow": "/login",
+      "property": "font-size",
+      "selector": ".ops-horizon-caption"
+    },
+    "type": "computed_style"
+  }
+]

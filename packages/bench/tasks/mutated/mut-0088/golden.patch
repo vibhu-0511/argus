@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -468,7 +468,7 @@
+ .ops-skel--num { width: 2.2ch; height: 1em; vertical-align: -0.1em; }
+ .ops-skel--line { display: block; height: 10px; margin: 8px 0; }
+ .ops-skel--block { display: block; height: 48px; margin: 10px 0; border-radius: 6px; }
++.ops-loading-note { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted, #94a3b8); }
+-
+ .ops-loading-note::before { content: ""; width: 10px; height: 10px; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent; animation: ops-skel-spin .8s linear infinite; }
+ @keyframes ops-skel-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+ @keyframes ops-skel-spin { to { transform: rotate(360deg); } }

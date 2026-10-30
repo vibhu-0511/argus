@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -373,7 +373,7 @@
+ .ops-horizon-cal input::-webkit-calendar-picker-indicator { cursor: pointer; filter: invert(0.75) sepia(1) saturate(3) hue-rotate(80deg); opacity: 0.9; }
+ .ops-horizon-tools { margin: 12px 0 8px; flex-wrap: wrap; }
+ .ops-horizon-tools .ops-horizon-days { margin-top: 0; }
+-.ops-horizon-greet { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; }
++
+ .ops-horizon-greet h2 { margin: 0; font-size: 18px; font-weight: 650; }
+ .ops-horizon-sub { margin-top: 2px; font-size: 13px; color: var(--text-secondary); }
+ .ops-horizon-actions { display: flex; align-items: center; gap: 8px; }

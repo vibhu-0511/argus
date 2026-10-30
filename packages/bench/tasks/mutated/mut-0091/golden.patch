@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -291,7 +291,7 @@
+ .ops-rules-group tbody tr:hover, .ops-rules-group tbody tr:focus-visible { background: var(--surface-card); outline: none; }
+ .ops-rules-note { padding: 24px 16px; }
+ .ops-rules-alarm { border: 1px solid var(--accent-warning); border-radius: 8px; color: var(--accent-warning); }
++.ops-rules-detail { position: fixed; top: 0; right: 0; bottom: 0; box-sizing: border-box; width: min(520px, 100vw); overflow-y: auto; padding: 16px 20px; background: var(--bg-secondary); border-left: 1px solid var(--border-secondary); box-shadow: var(--shadow-lg); z-index: 20; }
+-
+ .ops-rules-detail header { display: flex; align-items: flex-start; gap: 12px; }
+ .ops-rules-detail h2 { flex: 1; margin: 0; font-size: 17px; }
+ .ops-rules-detail h3 { margin: 16px 0 6px; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-tertiary); }

@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -79,7 +79,7 @@
+ /* The SVG map, after the dcortex-gen2 ops map: a fixed dark field in both themes, in the Radar's green-black.
+    Stroke widths and sizes are set per element in screen pixels; the colours live here. */
+ .ops-map { position: relative; display: block; border: 1px solid #1e2a40; border-radius: 8px; overflow: hidden; background: #0a0f1a; }
+-.ops-map-head { display: flex; justify-content: space-between; gap: 12px; padding: 6px 12px; font: 600 11px var(--font-mono); letter-spacing: 0.04em; color: #8494ac; text-transform: uppercase; border-bottom: 1px solid #1e2a40; }
++.ops-map-head { display: flex; justify-content: space-between; gap: 16px; padding: 6px 12px; font: 600 11px var(--font-mono); letter-spacing: 0.04em; color: #8494ac; text-transform: uppercase; border-bottom: 1px solid #1e2a40; }
+ .ops-map-asof { color: #5a6a85; text-transform: none; }
+ .ops-map-svg { display: block; width: 100%; height: 62vh; min-height: 360px; background: #0a0f1a; cursor: grab; touch-action: none; }
+ .ops-map-svg:active { cursor: grabbing; }

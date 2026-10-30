@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -353,7 +353,7 @@
+ .ops-user-name { font-weight: 600; }
+ .ops-user-roles { color: var(--text-tertiary); }
+ .ops-user button { padding: 3px 10px; border-radius: 6px; border: 1px solid var(--border-secondary); background: var(--surface-card); color: inherit; cursor: pointer; }
+-.ops-sources { display: flex; flex-direction: column; gap: 12px; }
++
+ .ops-sources-banner { margin: 0; padding: 10px 14px; border: 1px solid var(--accent-warning); border-radius: 8px; color: var(--accent-warning); font-weight: 600; }
+ .ops-sources-quote { margin: 6px 0; padding-left: 10px; border-left: 3px solid var(--border-secondary); font-style: italic; }
+ .ops-sources-runs h3 { display: flex; align-items: center; gap: 12px; }

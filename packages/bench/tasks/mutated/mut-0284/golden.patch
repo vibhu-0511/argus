@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -225,7 +225,7 @@
+ .ops-rc-group-head { cursor: pointer; margin: 0 0 6px; font: 600 12px var(--font-mono); color: var(--text-secondary); }
+ .ops-rc-group--legal > .ops-rc-group-head { color: var(--accent-success); }
+ .ops-rc-group--illegal > .ops-rc-group-head { color: var(--accent-error); }
++.ops-rc-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+-.ops-rc-list { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+ .ops-rc-candidate { padding: 10px 12px; border: 1px solid var(--border-primary); border-left-width: 3px; border-radius: 8px; background: var(--bg-tertiary); min-width: 0; }
+ .ops-rc-candidate--legal { border-left-color: var(--accent-success); }
+ .ops-rc-candidate--illegal { border-left-color: var(--accent-error); }

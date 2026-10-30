@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -127,7 +127,7 @@
+ .ops-label--strong { fill: #e6edf7; font-weight: 600; }
+ .ops-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin: 0; padding: 8px 12px; font-size: 12px; color: #8494ac; border-top: 1px solid #1e2a40; }
+ .ops-legend-title { font: 700 10px var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; color: #5a6a85; }
++.ops-legend-group { display: flex; flex-wrap: wrap; gap: 12px; margin: 0; padding: 0; list-style: none; }
+-
+ .ops-legend-group--quiet { opacity: 0.55; }
+ .ops-legend li::before { content: ""; display: inline-block; width: 14px; height: 3px; margin-right: 6px; vertical-align: middle; background: #8494ac; }
+ .ops-legend--short::before { background: repeating-linear-gradient(90deg, #f87171 0 2px, transparent 2px 5px) !important; }
