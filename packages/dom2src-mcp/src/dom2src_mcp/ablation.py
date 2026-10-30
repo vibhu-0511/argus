@@ -1,6 +1,6 @@
 """The P2-T12 ablation: three retrievers over the seeded tasks, with the raw per-task ranks.
 
-    uv run python -m dom2src_mcp.ablation --reindex --out docs/notes/results/<file>.txt
+    uv run python -m dom2src_mcp.ablation --reindex --out-dir docs/notes/results
 
 Needs the pgvector container and ARGUS_PLATFORM_REPO (README). No model API is called.
 """
@@ -38,7 +38,7 @@ def _percentile(sorted_seconds: list[float], p: int) -> float:
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(prog="dom2src-ablation")
     parser.add_argument("--reindex", action="store_true", help="rebuild the pgvector table before scoring")
-    parser.add_argument("--out", type=Path, help="also write the output to this file")
+    parser.add_argument("--out-dir", type=Path, help="also write the output to <out-dir>/<run id>.txt")
     args = parser.parse_args(argv)
 
     out: list[str] = []
