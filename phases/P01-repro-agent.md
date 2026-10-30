@@ -76,7 +76,7 @@ Both rows are the saved recorded-reply batches. They do not call a provider. The
 | This phase | 28/30 [0.786762, 0.981523] | 1.0000, 1.0000, 0.0000 | — | — | — |
 | Delta | +0.933333 | — | — | — | — |
 
-The previous row is the P0 live baseline. This row is the text-only batch, which ADR-005 keeps as the default. Its token cell is the recorded-reply ledger charge, not a provider bill, so the token and latency deltas are left blank.
+The previous row is the P0 live baseline. This row is the text-only batch, which ADR-005 keeps as the default. Its token cell is the recorded-reply ledger charge, not a provider bill, so the token and latency deltas are left blank. Caveat: 28/30 is fixture replay (`host` is `fixture`), not a live-model result, so the +0.933333 delta sets a replay against the live P0 baseline and does not show the model got better. No live repro run exists yet.
 
 ## ADRs to write
 All [ME].

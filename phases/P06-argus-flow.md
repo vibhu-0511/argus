@@ -12,7 +12,7 @@ Run the pipeline as a durable workflow, deployed free on Render and Neon, with G
 - A webhook returns inside GitHub's 10 s timeout, including after a Render cold start, or the lost webhook is recovered by the reconciliation poller (both measured).
 - The reconciliation poller rebuilds a workflow's state from GitHub after a dropped webhook.
 - The QA signal wait works through MRTR elicitation (`input_required` / `inputResponses`) or through the plain GitHub review-comment fallback, and ADR-023 says which one ships.
-- Neon compute (CU-hours) over a 48-hour polling run is measured and compared with the 100 CU-hour monthly free limit.
+- Neon compute (CU-hours) over a 48-hour polling run is measured and compared with 100 CU-hours/project. "per month" is not stated.
 - Phase report filled against P5.
 
 ## Agentic concepts learned

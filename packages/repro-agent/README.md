@@ -17,4 +17,4 @@ uv run --package repro-agent python -m repro_agent.batch text-only
 uv run --package repro-agent python -m repro_agent.batch text-plus-image
 ```
 
-`text-only` writes `packages/repro-agent/runs/text-only/`. `text-plus-image` writes `packages/repro-agent/runs/text-plus-image/`. Each task directory gets `verdict.json` and `trajectory.jsonl`. The reply is recorded in the runner, so these commands do not call a model provider.
+`text-only` writes `packages/repro-agent/runs/text-only/`. `text-plus-image` writes `packages/repro-agent/runs/text-plus-image/`. Each task directory gets `verdict.json` and `trajectory.jsonl`. The reply is recorded in the runner (`host` is `fixture`), so these commands do not call a model provider, and the 28/30 `valid` they report is fixture replay, not a live-model result.

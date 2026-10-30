@@ -97,10 +97,10 @@
 <body>
 <header class="hero">
   <div class="wrap">
-    <p class="kicker">Learning plan · documents only</p>
+    <p class="kicker">Learning plan · P0 and P1 built</p>
     <h1>Argus <span>turns a UI bug ticket into a verified pull request.</span></h1>
     <p class="lede">Reproduce the bug, find the source, fix it in a sandbox, check that the fix matches the ticket, and hand it back. Built to learn the agentic layer at architect level, from backend engineering, at $0 and about 20 hours a week.</p>
-    <p class="status">This folder holds the plan, not the software. No application code is written in the planning step. Every results cell stays empty until a real run fills it. Nothing on this page is a measured number. Same text, as Markdown: <a href="PROJECT.md">PROJECT.md</a>.</p>
+    <p class="status">This folder holds the plan and the P0 and P1 code and runs; P2 to P9 are README stubs. Every results cell stays empty until a run id backs it. The P1 numbers are fixture replay, not a live model. Nothing on this page is a measured number. Same text, as Markdown: <a href="PROJECT.md">PROJECT.md</a>.</p>
   </div>
 </header>
 
@@ -154,7 +154,7 @@
       <thead><tr><th>Owner</th><th>Owns</th></tr></thead>
       <tbody>
         <tr><td><b>[ME]</b></td><td>Agent loop, tool schemas, context manager, verifier, judge rubric and calibration, eval scorer, workflow state machine, threat model, every ADR</td></tr>
-        <tr><td><b>[CLAUDE]</b></td><td>target-app UI, seeded-bug boilerplate, CI YAML, Dockerfiles, dashboards, glue</td></tr>
+        <tr><td><b>[CLAUDE]</b></td><td>target-app binding to dcortex, seeded-bug boilerplate, CI YAML, Dockerfiles, dashboards, glue</td></tr>
         <tr><td><b>[PAIR]</b></td><td>You write it, and Claude reviews</td></tr>
       </tbody>
     </table>
@@ -165,13 +165,13 @@
 <section id="packages">
   <div class="wrap">
     <h2>Monorepo</h2>
-    <p>This folder becomes the root. Python packages share one uv workspace. TypeScript packages share one pnpm workspace. Today only the planning documents and three HTML companions exist.</p>
+    <p>This folder becomes the root. Python packages share one uv workspace. TypeScript packages share one pnpm workspace. Today the planning documents, the HTML companions, and the P0 and P1 packages exist; the other ten package folders hold a README stub.</p>
     <div class="scroll">
     <table>
       <thead><tr><th>Package</th><th>Language</th><th>Phase</th><th>Holds</th></tr></thead>
       <tbody>
-        <tr><td><code>argus-core</code></td><td>Python</td><td>P0</td><td>Ticket, Task, Trajectory types; OpenAI-compatible model client; quota ledger; OTel helpers</td></tr>
-        <tr><td><code>target-app</code></td><td>TypeScript</td><td>P0</td><td>React 19.2, Vite 8, Tailwind 4. Six routes, animations off, fonts pinned</td></tr>
+        <tr><td><code>argus-core</code></td><td>Python</td><td>P0</td><td>Ticket, Task, Trajectory types; OpenAI-compatible model client; quota ledger</td></tr>
+        <tr><td><code>target-app</code></td><td>TypeScript</td><td>P0</td><td>Binding to the dcortex Canvas and copa-local Postgres in <code>config/platform.md</code>. Not a second UI</td></tr>
         <tr><td><code>bench</code></td><td>Python + TS</td><td>P0</td><td>Scorer CLI and Playwright checks</td></tr>
         <tr><td><code>bugsmith</code></td><td>TypeScript</td><td>P0</td><td>Deterministic JSX and CSS mutation generator. No LLM</td></tr>
         <tr><td><code>repro-agent</code></td><td>Python</td><td>P1</td><td>Reproduction agent and the fail-before / pass-after verifier</td></tr>

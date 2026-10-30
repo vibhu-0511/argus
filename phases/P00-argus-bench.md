@@ -91,6 +91,8 @@ Build a deterministic benchmark of UI bug tasks (hand-seeded plus mutation-gener
 |---|---|---|---|---|---|
 | Baseline | 0/10 [-0.000000, 0.277540] | 4585.0000, 1044.0000, 0.0000 | — | 3.652305s | 4.842286s |
 
+Caveat: the rates are over attempted tasks only. A attempted 10 of its 30 tasks and B attempted 1 of its 30. The rest were exit 2 (prompt over the minute cap) or provider errors (`docs/notes/p0-t29.md`). The intervals overlap, so this reads as no difference. This 0/10 is the only live-model number in the project so far.
+
 ## ADRs to write
 All [ME].
 - **ADR-001 — Task and Trajectory schema.** What fields make a task reproducible and a trajectory replayable?

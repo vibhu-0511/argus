@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Argus field notes</title>
+<script>
+/* apply a saved theme before first paint; storage may be unavailable */
+try { var t = localStorage.getItem('argus-theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+</script>
+<!--@DATA-->
+<style>
+/* ---------- tokens ---------- */
+:root {
+  --bg: #f4efe6; --surface: #fbf8f1; --surface-2: #ebe4d6;
+  --ink: #1d1a16; --ink-2: #4a443b; --ink-3: #6b6458;
+  --line: #d6ccb9; --line-2: #b9ad96;
+  --accent: #c23a17; --accent-ink: #ffffff;
+  --ok: #2c6a3a; --warn: #865700; --bad: #b3261e; --info: #1f5f8b; --focus: #1b4fd6;
+  --p0: #8a3b12; --p1: #b3541e; --p2: #8a6d00; --p3: #4f7a1f; --p4: #1f7a5a;
+  --p5: #1f6f8b; --p55: #3b5ba5; --p6: #5a46a8; --p7: #8a3f9e; --p8: #a8366b; --p9: #6b6458;
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 40px;
+  --r1: 3px; --r2: 8px;
+  --serif: ui-serif, Georgia, 'Iowan Old Style', serif;
+  --sans: system-ui, sans-serif;
+  --mono: ui-monospace, 'SFMono-Regular', Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1726; --surface: #152136; --surface-2: #1c2b45;
+    --ink: #f2ecdc; --ink-2: #cbc4b2; --ink-3: #9d9684;
+    --line: #2a3a58; --line-2: #3d5073;
+    --accent: #ff7a52; --accent-ink: #1a0d07;
+    --ok: #7fd18f; --warn: #f0bb5c; --bad: #ff8f86; --info: #7fc2f2; --focus: #8fb0ff;
+    --p0: #e59a6b; --p1: #f0a35c; --p2: #e0c24e; --p3: #a4d46a; --p4: #5fd1a6;
+    --p5: #5ec3e0; --p55: #8aa6ee; --p6: #a595ea; --p7: #d596e6; --p8: #ee8fba; --p9: #a39c8a;
+    color-scheme: dark;
+  }
+}
+@media screen {
+  :root[data-theme="dark"] {
+    --bg: #0e1726; --surface: #152136; --surface-2: #1c2b45;
+    --ink: #f2ecdc; --ink-2: #cbc4b2; --ink-3: #9d9684;
+    --line: #2a3a58; --line-2: #3d5073;
+    --accent: #ff7a52; --accent-ink: #1a0d07;
+    --ok: #7fd18f; --warn: #f0bb5c; --bad: #ff8f86; --info: #7fc2f2; --focus: #8fb0ff;
+    --p0: #e59a6b; --p1: #f0a35c; --p2: #e0c24e; --p3: #a4d46a; --p4: #5fd1a6;
+    --p5: #5ec3e0; --p55: #8aa6ee; --p6: #a595ea; --p7: #d596e6; --p8: #ee8fba; --p9: #a39c8a;
+    color-scheme: dark;
+  }
+}
+
+/* ---------- base ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; scroll-padding-top: var(--s5); }
+body {
+  margin: 0; background-color: var(--bg); color: var(--ink);
+  font: 16px/1.55 var(--sans); -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, h4 { font-family: var(--serif); font-weight: 600; letter-spacing: -0.015em; line-height: 1.15; margin: 0 0 var(--s3); }
+h1 { font-size: clamp(1.7rem, 4.6vw, 2.6rem); }
+h2 { font-size: clamp(1.4rem, 3vw, 1.9rem); }
+h3 { font-size: 1.2rem; }
+h4 { font-size: 1rem; }
+p { margin: 0 0 var(--s3); }
+a { color: var(--accent); text-underline-offset: 3px; }
+code, .mono { font-family: var(--mono); font-size: 0.92em; }
+img, svg { max-width: 100%; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: var(--r1); }
+::selection { background: var(--accent); color: var(--accent-ink); }
+
+/* ---------- helpers (shared by every fragment) ---------- */
+.muted { color: var(--ink-3); }
+.sr-only { position: absolute !important; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.stack { display: flex; flex-direction: column; gap: var(--s3); }
+.row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); }
+.grid { display: grid; gap: var(--s4); grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); }
+.grid > *, .stack > *, .row > * { min-width: 0; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r2); padding: var(--s4); min-width: 0; }
+.chip {
+  display: inline-flex; align-items: center; gap: var(--s1); max-width: 100%;
+  padding: 1px 8px; border: 1px solid var(--line-2); border-radius: 12px; overflow-wrap: anywhere; text-align: left;
+  background: var(--surface); color: var(--ink-2); font: 0.78rem/1.5 var(--mono);
+}
+.chip.ok   { color: var(--ok);   border-color: currentColor; }
+.chip.warn { color: var(--warn); border-color: currentColor; }
+.chip.bad  { color: var(--bad);  border-color: currentColor; }
+.chip.info { color: var(--info); border-color: currentColor; }
+button.chip, a.chip { cursor: pointer; text-decoration: none; min-height: 28px; font-family: var(--mono); }
+button.chip:hover, a.chip:hover { background: var(--surface-2); }
+.kbd {
+  font: 0.8rem/1 var(--mono); padding: 2px 6px; border: 1px solid var(--line-2);
+  border-bottom-width: 2px; border-radius: var(--r1); background: var(--surface); color: var(--ink-2);
+}
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--s2);
+  min-height: 40px; padding: 0 var(--s4); border: 1px solid var(--accent); border-radius: var(--r1);
+  background: var(--accent); color: var(--accent-ink); font: 600 0.92rem var(--sans); cursor: pointer; text-decoration: none;
+}
+.btn:hover { filter: brightness(1.08); }
+.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line-2); }
+.btn.ghost:hover { background: var(--surface-2); filter: none; }
+.seg { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--line-2); border-radius: var(--r1); background: var(--surface); overflow: hidden; max-width: 100%; }
+.seg > button, .seg > label {
+  min-height: 40px; padding: 0 var(--s3); border: 0; border-right: 1px solid var(--line);
+  background: transparent; color: var(--ink-2); font: 0.88rem var(--sans); cursor: pointer;
+  display: inline-flex; align-items: center;
+}
+.seg > :last-child { border-right: 0; }
+.seg > button:hover { background: var(--surface-2); }
+.seg > button[aria-pressed="true"], .seg > button[aria-selected="true"], .seg > button.on { background: var(--ink); color: var(--bg); }
+.tbl-wrap { overflow-x: auto; max-width: 100%; border: 1px solid var(--line); border-radius: var(--r2); background: var(--surface); }
+.tbl { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.tbl th, .tbl td { text-align: left; vertical-align: top; padding: var(--s2) var(--s3); border-bottom: 1px solid var(--line); }
+.tbl th { font: 600 0.72rem var(--mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); background: var(--surface-2); white-space: nowrap; }
+.tbl tr:last-child td { border-bottom: 0; }
+.sec-mark { display: flex; align-items: baseline; gap: var(--s3); margin-bottom: var(--s4); border-bottom: 1px solid var(--ink); padding-bottom: var(--s2); }
+.sec-mark > .n { font: 600 0.85rem var(--mono); color: var(--accent); }
+.sec-mark > h2, .sec-mark > h3 { margin: 0; }
+.note { border-left: 3px solid var(--accent); padding: var(--s1) var(--s3); color: var(--ink-2); font-size: 0.9rem; font-style: italic; font-family: var(--serif); }
+
+/* ---------- page frame ---------- */
+.sh-skip { position: absolute; left: var(--s4); top: -100px; z-index: 50; padding: var(--s2) var(--s4); background: var(--ink); color: var(--bg); border-radius: var(--r1); text-decoration: none; }
+.sh-skip:focus { top: var(--s2); }
+
+.sh-head {
+  max-width: 1280px; margin: 0 auto; padding: var(--s5) var(--s4) var(--s3);
+  display: flex; flex-wrap: wrap; gap: var(--s3) var(--s5); align-items: flex-end; justify-content: space-between;
+}
+.sh-brand { display: flex; gap: var(--s3); align-items: center; min-width: 0; flex: 1 1 18rem; }
+.sh-eye { flex: none; width: 44px; height: 44px; color: var(--accent); }
+.sh-eyebrow { margin: 0 0 var(--s1); font: 0.72rem var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-3); }
+.sh-head h1 { margin: 0; }
+.sh-head h1 em { font-style: italic; color: var(--accent); }
+.sh-meta { display: flex; gap: var(--s2); align-items: center; flex-wrap: wrap; }
+.sh-theme { gap: var(--s2); }
+.sh-theme svg { width: 16px; height: 16px; flex: none; }
+
+.sh-tabbar { border-top: 1px solid var(--ink); border-bottom: 1px solid var(--line-2); background: var(--surface); }
+.sh-tabs { max-width: 1280px; margin: 0 auto; padding: 0 var(--s4); display: flex; gap: var(--s1); overflow-x: auto; }
+.sh-tab {
+  flex: none; min-height: 44px; padding: 0 var(--s4); border: 0; border-bottom: 3px solid transparent;
+  background: transparent; color: var(--ink-2); font: 600 0.95rem var(--sans); cursor: pointer;
+  display: inline-flex; align-items: center; gap: var(--s2);
+}
+.sh-tab .mono { color: var(--ink-3); font-size: 0.75rem; }
+.sh-tab:hover { color: var(--ink); background: var(--surface-2); }
+.sh-tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+.sh-tab[aria-selected="true"] .mono { color: var(--accent); }
+
+.sh-body { max-width: 1280px; margin: 0 auto; padding: var(--s5) var(--s4) var(--s6); display: grid; gap: var(--s4); grid-template-columns: minmax(0, 1fr); }
+.sh-sub { min-width: 0; }
+.sh-sub ul { list-style: none; margin: 0; padding: 0; display: flex; gap: var(--s1); overflow-x: auto; border-bottom: 1px solid var(--line-2); }
+.sh-sub a {
+  display: flex; align-items: center; gap: var(--s2); min-height: 40px; padding: 0 var(--s3);
+  white-space: nowrap; color: var(--ink-2); text-decoration: none; font-size: 0.92rem; border-bottom: 3px solid transparent;
+}
+.sh-sub a .n { font: 0.72rem var(--mono); color: var(--ink-3); }
+.sh-sub a:hover { color: var(--ink); background: var(--surface-2); }
+.sh-sub a[aria-current="page"] { color: var(--ink); font-weight: 600; border-bottom-color: var(--accent); }
+.sh-sub a[aria-current="page"] .n { color: var(--accent); }
+.sh-sub-label { display: none; }
+
+main { min-width: 0; outline: none; }
+.sub { animation: sh-in 160ms ease-out; }
+.sh-wait { text-align: center; color: var(--ink-3); border-style: dashed; padding: var(--s6) var(--s4); }
+.sh-wait .mono { margin: 0; }
+@keyframes sh-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .sub { animation: none; } * { scroll-behavior: auto !important; transition: none !important; } }
+
+.sh-foot { max-width: 1280px; margin: 0 auto; padding: var(--s4) var(--s4) var(--s6); border-top: 1px solid var(--line-2); color: var(--ink-3); font-size: 0.85rem; display: flex; flex-wrap: wrap; gap: var(--s2) var(--s4); align-items: center; }
+.sh-foot code { color: var(--ink); background: var(--surface-2); padding: 2px 6px; border-radius: var(--r1); overflow-wrap: anywhere; }
+.sh-foot p { margin: 0; }
+
+/* desktop: numbered sub-nav becomes a notebook margin rail */
+@media (min-width: 960px) {
+  .sh-head, .sh-tabs, .sh-body, .sh-foot { padding-left: var(--s5); padding-right: var(--s5); }
+  .sh-body[data-pane="plan"] { grid-template-columns: 200px minmax(0, 1fr); gap: var(--s5); }
+  .sh-body[data-pane="plan"] .sh-sub { position: sticky; top: var(--s4); align-self: start; border-left: 2px solid var(--accent); padding-left: var(--s3); }
+  .sh-sub-label { display: block; margin: 0 0 var(--s2); font: 0.7rem var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-3); }
+  .sh-sub ul { flex-direction: column; overflow: visible; border-bottom: 0; }
+  .sh-sub a { border-bottom: 0; border-left: 3px solid transparent; margin-left: -3px; }
+  .sh-sub a[aria-current="page"] { border-left-color: var(--ink); background: var(--surface); }
+}
+@media (max-width: 480px) {
+  .sh-brand { flex-basis: 100%; }
+  .sh-tab { padding: 0 var(--s3); }
+}
+
+/* ---------- print: always light, current view only, no chrome ---------- */
+@media print {
+  html, body { background: #fff; color: #000; }
+  .sh-skip, .sh-tabbar, .sh-sub, .sh-meta, .sh-foot button, .sh-wait { display: none !important; }
+  .sh-body, .sh-head { padding: 0; max-width: none; display: block; }
+  .card, .tbl-wrap { break-inside: avoid; }
+  a { color: inherit; }
+}
+</style>
+</head>
+<body>
+<a class="sh-skip" href="#main" id="sh-skip">Skip to content</a>
+
+<header class="sh-head">
+  <div class="sh-brand">
+    <svg class="sh-eye" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <path d="M3 24C9 13 16 8 24 8s15 5 21 16c-6 11-13 16-21 16S9 35 3 24Z"/>
+      <circle cx="24" cy="24" r="8"/><circle cx="24" cy="24" r="3" fill="currentColor"/>
+    </svg>
+    <div>
+      <p class="sh-eyebrow">Field notes &middot; learning the agentic layer</p>
+      <h1>Argus: a UI bug ticket, <em>to a verified PR</em></h1>
+    </div>
+  </div>
+  <div class="sh-meta">
+    <span class="chip" title="Data snapshot date">as of 2026-10-30</span>
+    <button type="button" class="btn ghost sh-theme" id="sh-theme">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="8" cy="8" r="5.5"/><path d="M8 2.5v11" /><path d="M8 2.5a5.5 5.5 0 0 1 0 11Z" fill="currentColor"/></svg>
+      <span id="sh-theme-label">Theme</span>
+    </button>
+  </div>
+</header>
+
+<div class="sh-tabbar">
+  <div class="sh-tabs" role="tablist" aria-label="Explainer views" id="sh-tablist">
+    <button type="button" class="sh-tab" role="tab" id="tab-plan" data-pane="plan" aria-selected="true" aria-controls="main" tabindex="0"><span class="mono">A</span> Plan &amp; tracker</button>
+    <button type="button" class="sh-tab" role="tab" id="tab-graph" data-pane="graph" aria-selected="false" aria-controls="main" tabindex="-1"><span class="mono">B</span> Learning graph</button>
+  </div>
+</div>
+
+<div class="sh-body" id="sh-body" data-pane="plan">
+  <nav class="sh-sub" id="sh-sub" aria-label="Plan sections">
+    <p class="sh-sub-label" aria-hidden="true">Plan sections</p>
+    <ul>
+      <li><a href="#plan/problem" data-sub="problem"><span class="n">01</span>Problem</a></li>
+      <li><a href="#plan/hld" data-sub="hld"><span class="n">02</span>HLD</a></li>
+      <li><a href="#plan/console" data-sub="console"><span class="n">03</span>Ops console</a></li>
+      <li><a href="#plan/edges" data-sub="edges"><span class="n">04</span>Edge cases</a></li>
+      <li><a href="#plan/tracker" data-sub="tracker"><span class="n">05</span>Tracker</a></li>
+    </ul>
+  </nav>
+  <main id="main" role="tabpanel" tabindex="-1" aria-labelledby="tab-plan">
+<!--@FRAGMENTS-->
+    <div class="card sh-wait" id="sh-wait" role="status" hidden>
+      <p class="mono" id="sh-wait-text">Section loading</p>
+    </div>
+  </main>
+</div>
+
+<footer class="sh-foot">
+  <p>Self-contained, offline, no external requests. Rebuild after editing a fragment:</p>
+  <code id="sh-cmd">node analysis/explainer-src/build.mjs</code>
+  <button type="button" class="btn ghost" id="sh-copy">Copy command</button>
+  <p>Numbers come from <code>analysis/swarm/*.json</code>; a dash means no sourced value exists yet.</p>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+  var SUBS = { problem: 'Problem', hld: 'HLD', console: 'Ops console', edges: 'Edge cases', tracker: 'Tracker', graph: 'Learning graph' };
+  var root = document.documentElement;
+  var body = document.getElementById('sh-body');
+  var main = document.getElementById('main');
+  var subnav = document.getElementById('sh-sub');
+  var wait = document.getElementById('sh-wait');
+  var tabs = [].slice.call(document.querySelectorAll('.sh-tab'));
+  var links = [].slice.call(subnav.querySelectorAll('a'));
+  var lastPlan = 'problem';
+  var cur = null;
+
+  /* ----- theme ----- */
+  var tBtn = document.getElementById('sh-theme'), tLabel = document.getElementById('sh-theme-label');
+  var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+  function theme() { return root.getAttribute('data-theme') || (mq && mq.matches ? 'dark' : 'light'); }
+  function paintTheme() {
+    var t = theme();
+    tLabel.textContent = t === 'dark' ? 'Dark' : 'Light';
+    tBtn.setAttribute('aria-label', 'Theme: ' + t + '. Switch to ' + (t === 'dark' ? 'light' : 'dark'));
+  }
+  tBtn.addEventListener('click', function () {
+    var n = theme() === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', n);
+    try { localStorage.setItem('argus-theme', n); } catch (e) {}
+    paintTheme();
+  });
+  if (mq && mq.addEventListener) mq.addEventListener('change', paintTheme);
+  paintTheme();
+
+  /* ----- routing ----- */
+  function parse(h) {
+    h = (h || '').replace(/^#\/?/, '');
+    if (h === 'graph') return { pane: 'graph', sub: 'graph' };
+    var m = /^plan\/([a-z]+)$/.exec(h);
+    if (m && SUBS[m[1]] && m[1] !== 'graph') return { pane: 'plan', sub: m[1] };
+    return null;
+  }
+  function hasContent(s) {
+    return !!(s && s.querySelector(':scope > *:not(style):not(script)'));
+  }
+  function refreshWait() {
+    if (!cur) return;
+    var s = document.getElementById('sub-' + cur.sub);
+    wait.hidden = hasContent(s);
+    var w = document.getElementById('sh-wait-text'), msg = 'Section loading: ' + SUBS[cur.sub];
+    if (w.textContent !== msg) w.textContent = msg;   /* unconditional writes would re-trigger the observer forever */
+  }
+  function show(r, user) {
+    cur = r;
+    if (r.pane === 'plan') lastPlan = r.sub;
+    body.setAttribute('data-pane', r.pane);
+    subnav.hidden = r.pane !== 'plan';
+    [].forEach.call(document.querySelectorAll('section.sub'), function (s) {
+      s.hidden = s.id !== 'sub-' + r.sub;
+    });
+    tabs.forEach(function (t) {
+      var on = t.getAttribute('data-pane') === r.pane;
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+      t.tabIndex = on ? 0 : -1;
+      if (on) main.setAttribute('aria-labelledby', t.id);
+    });
+    links.forEach(function (a) {
+      if (a.getAttribute('data-sub') === r.sub) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+    });
+    document.title = SUBS[r.sub] + ' | Argus field notes';
+    document.dispatchEvent(new CustomEvent('argus:show', { detail: { pane: r.pane, sub: r.sub } }));
+    refreshWait();
+    if (user) {
+      window.scrollTo(0, 0);
+      var ae = document.activeElement;   /* keep focus on the tab or link the user is driving */
+      if (!ae || !ae.closest || !ae.closest('.sh-tabs, .sh-sub')) main.focus({ preventScroll: true });
+    }
+  }
+  function route(user) {
+    var r = parse(location.hash);
+    if (!r) {
+      if (cur) return;                      /* ignore foreign anchors once running */
+      r = { pane: 'plan', sub: 'problem' };
+      try { history.replaceState(null, '', '#plan/problem'); } catch (e) {}
+    }
+    show(r, user);
+  }
+  window.addEventListener('hashchange', function () { route(true); });
+  new MutationObserver(refreshWait).observe(main, { childList: true, subtree: true });
+
+  /* ----- tabs ----- */
+  function go(pane) { location.hash = pane === 'graph' ? '#graph' : '#plan/' + lastPlan; }
+  tabs.forEach(function (t, i) {
+    t.addEventListener('click', function () { go(t.getAttribute('data-pane')); });
+    t.addEventListener('keydown', function (e) {
+      var j = e.key === 'ArrowRight' ? i + 1 : e.key === 'ArrowLeft' ? i - 1 : e.key === 'Home' ? 0 : e.key === 'End' ? tabs.length - 1 : -1;
+      if (j < 0) return;
+      e.preventDefault();
+      var n = tabs[(j + tabs.length) % tabs.length];
+      n.focus();
+      go(n.getAttribute('data-pane'));
+    });
+  });
+
+  /* ----- skip link (a bare #main anchor would clobber the route) ----- */
+  document.getElementById('sh-skip').addEventListener('click', function (e) { e.preventDefault(); main.focus(); });
+
+  /* ----- footer copy ----- */
+  var cp = document.getElementById('sh-copy');
+  cp.addEventListener('click', function () {
+    var txt = document.getElementById('sh-cmd').textContent;
+    try {
+      navigator.clipboard.writeText(txt).then(function () { cp.textContent = 'Copied'; }, function () { cp.textContent = 'Copy failed'; });
+    } catch (e) { cp.textContent = 'Copy failed'; }
+    setTimeout(function () { cp.textContent = 'Copy command'; }, 1500);
+  });
+
+  /* fragment scripts sit earlier in the document, so their DOMContentLoaded handlers run first */
+  document.addEventListener('DOMContentLoaded', function () { route(false); });
+})();
+</script>
+</body>
+</html>

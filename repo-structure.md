@@ -19,7 +19,7 @@ This folder becomes the root of the monorepo. Python packages share one **uv wor
 ## Packages (under `packages/`)
 | Package | Language | Phase | Contents |
 |---|---|---|---|
-| `argus-core` | py | P0 | Ticket/Task/Trajectory types, OpenAI-compatible model client (host from `config/profiles.md`), quota ledger, OTel helpers |
+| `argus-core` | py | P0 | Ticket/Task/Trajectory types, OpenAI-compatible model client (host from `config/profiles.md`), quota ledger |
 | `target-app` | ts | P0 | Binding to dcortex Canvas and copa-local Postgres (`config/platform.md`). Not a second UI |
 | `bench` | py + ts | P0 | Scorer CLI plus Playwright checks |
 | `bugsmith` | ts | P0 | JSX/CSS mutation generator |
