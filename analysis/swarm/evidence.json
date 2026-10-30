@@ -1,0 +1,46 @@
+{
+  "asOf": "2026-10-30",
+  "source": "analysis/swarm/verify-p0p1.md, gaps-optimizations.md (lane reports; spot-checked by the coordinator against batch.py:67,89-97, loop.py:132, ledger.py:127-129, golden.yml:14)",
+  "headline": "P0 and P1 are checked done in TASKS.md. The code and notes exist, but the evidence is thinner than the checkboxes: P1 results are fixture replay, CI has never been green, and the scorer checks CSS on a synthetic page, not the real app.",
+  "labels": {
+    "REAL": "backed by a deterministic test or live run that was re-run",
+    "REAL_RECORDED": "author recorded a live run in docs/notes, not re-run here",
+    "FIXTURE_ONLY": "wiring proven, quality not",
+    "UNVERIFIED": "no artifact, or artifact contradicts the claim",
+    "REFUTED": "evidence says the claim is false"
+  },
+  "claims": [
+    {"id": "C1", "phase": "P1", "claim": "28/30 valid repro scripts (text-only and text+image)", "verdict": "FIXTURE_ONLY", "why": "batch.py returns one hard-coded script for every task and decides the tree outcome with `\"Welcome\" in script`; both runs are identical by construction; every trajectory has host=fixture.", "cite": ["packages/repro-agent/src/repro_agent/batch.py:67", "packages/repro-agent/src/repro_agent/batch.py:89-97"]},
+    {"id": "C2", "phase": "P0", "claim": "One-shot baseline 0/10", "verdict": "REAL_RECORDED", "why": "Live Groq run, but all 10 attempted tasks ended not_applied and 20 of 30 were never attempted (prompt over 8K TPM, HTTP 413). It measures harness limits, not model skill.", "cite": ["docs/notes/p0-t29.md"]},
+    {"id": "C3", "phase": "P0", "claim": "Only BUG-17 has a screenshot, so the text-vs-image ablation tests one ticket", "verdict": "REAL", "why": "One image in the repo; ADR-005 admits fixture.", "cite": ["packages/bench/tasks/seeded/bug-17/shots/radar-card.png", "docs/adr/0005-screenshot-in-ticket-context.md"]},
+    {"id": "C4", "phase": "P0", "claim": "Golden-fix CI passes on every push", "verdict": "REFUTED", "why": "0 green runs of 7 on GitHub. golden.yml reads a Windows path from config/platform.md and has no pnpm/playwright install. repro.yml fails with ModuleNotFoundError: repro_agent.", "cite": [".github/workflows/golden.yml:14", ".github/workflows/repro.yml:14", "packages/bench/src/argus_bench/golden.py:15-25"]},
+    {"id": "C5", "phase": "P0", "claim": "Scorer checks the real Canvas UI", "verdict": "FIXTURE_ONLY", "why": "run-checks.ts builds a synthetic page (a span per selector plus one stylesheet). Checks measure declared CSS, not rendered app behaviour.", "cite": ["packages/bench/src/run-checks.ts:84-104"]},
+    {"id": "C6", "phase": "P0", "claim": "300 mutated tasks are valid and varied", "verdict": "REAL_RECORDED", "why": "300 dirs exist and passed the validity filter, but all are one CSS property, tier easy, two archetypes, and the ticket text copies the check (selector, property, expected value).", "cite": ["docs/notes/p0-t26.md", "packages/bench/src/argus_bench/mutate.py:209"]},
+    {"id": "C7", "phase": "P0", "claim": "Quota ledger refuses an over-quota call before any HTTP request", "verdict": "REAL", "why": "Unit tests pass (argus-core 13/13).", "cite": ["packages/argus-core/tests/test_ledger.py:23"]},
+    {"id": "C8", "phase": "P0", "claim": "Flake detection quarantines unstable tasks", "verdict": "FIXTURE_ONLY", "why": "Unit-tested on temp fixtures; never run on the real 330 tasks; packages/bench/quarantine/ does not exist.", "cite": ["docs/notes/p0-t20.md"]},
+    {"id": "C9", "phase": "P1", "claim": "Dead-server stop, retry cap, verifier verdicts", "verdict": "REAL", "why": "24 repro-agent tests pass with `uv run --package repro-agent`; proven with fakes, not a live MCP kill.", "cite": ["packages/repro-agent/tests"]}
+  ],
+  "testRuns": [
+    {"cmd": "uv run pytest packages/argus-core/tests", "result": "13 passed"},
+    {"cmd": "uv run pytest packages/bench/tests", "result": "27 passed, 2 failed (stale test expects 30 tasks, finds 330; one missing node_modules)"},
+    {"cmd": "uv run pytest packages/repro-agent/tests/... (CI command)", "result": "5 collection errors, repro_agent not installed"},
+    {"cmd": "uv run --package repro-agent pytest ...", "result": "24 passed"},
+    {"cmd": "node --test (bugsmith)", "result": "3 passed"}
+  ],
+  "fixBeforeP2": [
+    {"id": "G01", "title": "Make golden.yml runnable on a clean runner", "impact": "H", "effort": "M"},
+    {"id": "G02", "title": "Fix repro.yml install (`uv sync --all-packages`) and add argus-core/bench/bugsmith tests to CI; repair stale test_golden", "impact": "H", "effort": "S"},
+    {"id": "G04", "title": "Stop mutated tickets leaking the check; exclude them from headline rates", "impact": "H", "effort": "S"},
+    {"id": "G06", "title": "Build the real two-tree docker runner (run_trees) the loop was designed against", "impact": "H", "effort": "L"},
+    {"id": "G07", "title": "Send the model its previous script and run output on retry", "impact": "H", "effort": "S"},
+    {"id": "G08", "title": "Run the 30 seeded tasks once with a live model; relabel fixture rows as harness tests", "impact": "H", "effort": "M"},
+    {"id": "G09", "title": "Decide whether dcortex source may go through a free tier that may train on prompts", "impact": "H", "effort": "S"},
+    {"id": "G10", "title": "One shared quota ledger path per account", "impact": "H", "effort": "S"},
+    {"id": "G12", "title": "Client: shared connection, retry 429/5xx with Retry-After, max_tokens, per-task try/except", "impact": "H", "effort": "S"},
+    {"id": "G25", "title": "Add logging plus ruff/mypy/tsc config", "impact": "M", "effort": "S"},
+    {"id": "G30", "title": "Check image-mode request shape against the live provider", "impact": "M", "effort": "S"}
+  ],
+  "withItsPhase": ["G03 disclose synthetic-page limit now, fix in P4", "G05 widen mutant coverage", "G11 token preflight estimate", "G13 wait out per-minute limits", "G14 atomic ledger write", "G16 reconcile with provider headers", "G17 pick a reachable fixer host (Mistral key is blocked)", "G18 browser snapshot round trips and npx fetch", "G19 origin allow-list", "G20 sandbox hardening flags", "G22 scorer cold starts", "G24 guard mutate rmtree", "G27 MCP/Playwright version mix", "G28 loop robustness"],
+  "deferred": ["G15 ledger perf (bounded in practice)", "G21 duplicated git helpers", "G23 Windows-only chromium paths", "G26 committed mutant dirs", "G29 baseline accounting"],
+  "costLevers": "See analysis/swarm/gaps-optimizations.md section on cost levers (prompt-append-only for caching, token preflight, shared ledger, retry with backoff)."
+}

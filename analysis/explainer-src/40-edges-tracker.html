@@ -1,0 +1,545 @@
+<section class="sub" id="sub-edges" data-pane="plan" hidden>
+  <header class="ed-head">
+    <p class="ed-mark">04 Edge cases</p>
+    <h2 class="ed-title">What breaks, and what the code should do about it</h2>
+    <p class="ed-lede muted">Each case is a concrete failure with its handling and a test that would catch it. Filter by component, phase or severity; click a matrix cell to jump to that slice.</p>
+  </header>
+  <div class="ed-matrix-wrap" id="ed-matrix" aria-label="Severity by phase"></div>
+  <form class="ed-filters" id="ed-filters" role="search">
+    <label class="ed-f"><span>Search</span><input type="search" id="ed-q" placeholder="scenario, test, file, EC-12"></label>
+    <label class="ed-f"><span>Component</span><select id="ed-comp"></select></label>
+    <label class="ed-f"><span>Phase</span><select id="ed-phase"></select></label>
+    <fieldset class="ed-f ed-sev"><legend>Severity</legend>
+      <span class="seg" id="ed-sev" role="group" aria-label="Severity"></span>
+    </fieldset>
+    <button type="button" class="btn ghost" id="ed-reset">Reset</button>
+  </form>
+  <p class="ed-count" id="ed-count" aria-live="polite"></p>
+  <div class="ed-list" id="ed-list"></div>
+</section>
+
+<section class="sub" id="sub-tracker" data-pane="plan" hidden>
+  <header class="tk-head">
+    <p class="tk-mark">05 Tracker</p>
+    <h2 class="tk-title">What is done, what is next, and what can run in parallel</h2>
+    <p class="tk-lede muted">Status comes from the checkboxes in TASKS.md (via <span class="mono">tracker.json</span>). Nothing here edits the repo. The optional "I did this" marker is a private note in this browser only.</p>
+  </header>
+
+  <div class="tk-totals" id="tk-totals"></div>
+
+  <h3 class="tk-h">Phase board <span class="tk-sub">pick a phase to open its wave board</span></h3>
+  <div class="tk-phases" id="tk-phases" role="tablist" aria-label="Phases"></div>
+
+  <h3 class="tk-h">Evidence says otherwise <span class="tk-sub">checked done in TASKS.md, but not proven by real runs</span></h3>
+  <div id="tk-evid"></div>
+
+  <h3 class="tk-h">What can I do in parallel next</h3>
+  <div id="tk-par"></div>
+
+  <h3 class="tk-h" id="tk-wave-h">Wave board</h3>
+  <form class="tk-filters" id="tk-filters">
+    <fieldset class="ed-f"><legend>Owner</legend><span class="seg" id="tk-owner" role="group" aria-label="Owner"></span></fieldset>
+    <fieldset class="ed-f"><legend>Status</legend><span class="seg" id="tk-status" role="group" aria-label="Status"></span></fieldset>
+    <label class="tk-check"><input type="checkbox" id="tk-cp" checked> Highlight critical path</label>
+  </form>
+  <div id="tk-cpbar"></div>
+  <div class="tk-waves" id="tk-waves"></div>
+
+  <h3 class="tk-h">Weekly load vs 20 h <span class="tk-sub">scheduled hours per week, from TASKS.md</span></h3>
+  <div id="tk-weeks"></div>
+
+  <h3 class="tk-h">Cut list <span class="tk-sub">in the order the plan says to cut</span></h3>
+  <div id="tk-cuts"></div>
+</section>
+
+<style>
+/* ---------- shared (ed- / tk-) ---------- */
+#sub-edges, #sub-tracker { padding-bottom: var(--s5); }
+.ed-mark, .tk-mark { font: 600 .78rem/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin: 0 0 var(--s2); }
+.ed-title, .tk-title { font: 600 clamp(1.5rem, 4vw, 2.1rem)/1.15 var(--serif); letter-spacing: -.02em; margin: 0 0 var(--s2); max-width: 28em; }
+.ed-lede, .tk-lede { max-width: 46em; margin: 0 0 var(--s4); }
+.ed-chip, .tk-chip { display: inline-flex; align-items: center; gap: 4px; font: 500 .72rem/1 var(--mono); padding: 3px 7px; border: 1px solid var(--line-2); border-radius: 999px; background: var(--surface); color: var(--ink-2); white-space: nowrap; }
+.ed-chip.bad, .tk-chip.bad { border-color: var(--bad); color: var(--bad); }
+.ed-chip.warn, .tk-chip.warn { border-color: var(--warn); color: var(--warn); }
+.ed-chip.info, .tk-chip.info { border-color: var(--info); color: var(--info); }
+.ed-chip.ok, .tk-chip.ok { border-color: var(--ok); color: var(--ok); }
+.ed-chip svg, .tk-chip svg { width: 11px; height: 11px; flex: none; }
+button.ed-chip, button.tk-chip { cursor: pointer; min-height: 28px; }
+button.ed-chip:hover, button.tk-chip:hover { border-color: var(--accent); color: var(--accent-ink, var(--ink)); }
+.ed-f { display: flex; flex-direction: column; gap: 4px; border: 0; padding: 0; margin: 0; min-width: 0; font: 500 .72rem/1.2 var(--sans); color: var(--ink-3); text-transform: uppercase; letter-spacing: .05em; }
+.ed-f legend { padding: 0; margin-bottom: 4px; }
+.ed-f input, .ed-f select { font: 400 .95rem/1.2 var(--sans); color: var(--ink); background: var(--surface); border: 1px solid var(--line-2); border-radius: var(--r1); padding: 0 var(--s2); min-height: 40px; text-transform: none; letter-spacing: 0; max-width: 100%; }
+.ed-f input:focus-visible, .ed-f select:focus-visible, #sub-edges button:focus-visible, #sub-tracker button:focus-visible, #sub-tracker input:focus-visible, .tk-task:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+#sub-edges .seg button, #sub-tracker .seg button { min-height: 40px; min-width: 40px; }
+#sub-edges .seg button[aria-pressed="true"], #sub-tracker .seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.tk-h { font: 600 1.15rem/1.2 var(--serif); letter-spacing: -.01em; margin: var(--s5) 0 var(--s3); padding-top: var(--s3); border-top: 1px solid var(--line); }
+.tk-sub { font: 400 .8rem var(--sans); color: var(--ink-3); margin-left: var(--s2); letter-spacing: 0; }
+
+/* ---------- edges ---------- */
+.ed-matrix-wrap { overflow-x: auto; margin-bottom: var(--s4); border: 1px solid var(--line); border-radius: var(--r2); background: var(--surface); }
+.ed-matrix { border-collapse: collapse; width: 100%; font: 400 .85rem var(--sans); min-width: 420px; }
+.ed-matrix th, .ed-matrix td { padding: 6px var(--s2); text-align: center; border-bottom: 1px solid var(--line); }
+.ed-matrix th:first-child, .ed-matrix td:first-child { text-align: left; font-family: var(--mono); font-weight: 600; }
+.ed-matrix thead th { font: 600 .72rem var(--sans); text-transform: uppercase; letter-spacing: .05em; color: var(--ink-3); }
+.ed-matrix tr:last-child td, .ed-matrix tr:last-child th { border-bottom: 0; }
+.ed-matrix button { font: 600 .9rem var(--mono); min-width: 40px; min-height: 36px; background: transparent; border: 1px solid transparent; border-radius: var(--r1); color: var(--ink); cursor: pointer; }
+.ed-matrix button[data-n="0"] { color: var(--ink-3); font-weight: 400; }
+.ed-matrix button:hover { border-color: var(--accent); }
+.ed-matrix button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.ed-matrix .ed-h button { color: var(--bad); }
+.ed-matrix .ed-m button { color: var(--warn); }
+.ed-matrix .ed-l button { color: var(--info); }
+.ed-matrix button[aria-pressed="true"] { color: var(--bg); }
+.ed-matrix .ed-tot { color: var(--ink-2); font-family: var(--mono); font-weight: 600; }
+.ed-filters { display: grid; grid-template-columns: 2fr 1.2fr 1fr auto auto; gap: var(--s3); align-items: end; margin-bottom: var(--s3); }
+.ed-filters .ed-f:first-child input { width: 100%; }
+.ed-sev .seg { display: inline-flex; }
+.ed-count { font: 500 .85rem var(--mono); color: var(--ink-2); margin: 0 0 var(--s3); }
+.ed-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 24rem), 1fr)); gap: var(--s3); }
+.ed-card { border: 1px solid var(--line); border-left: 3px solid var(--line-2); border-radius: var(--r2); background: var(--surface); padding: var(--s3); display: flex; flex-direction: column; gap: var(--s2); min-width: 0; }
+.ed-card[data-sev="High"] { border-left-color: var(--bad); }
+.ed-card[data-sev="Med"] { border-left-color: var(--warn); }
+.ed-card[data-sev="Low"] { border-left-color: var(--info); }
+.ed-top { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.ed-id { font: 700 .8rem var(--mono); }
+.ed-comp { font: 400 .78rem var(--mono); color: var(--ink-3); margin-left: auto; }
+.ed-scn { margin: 0; font: 600 .98rem/1.35 var(--serif); }
+.ed-dl { margin: 0; display: grid; grid-template-columns: 5.2rem 1fr; gap: 6px var(--s2); font: 400 .86rem/1.4 var(--sans); }
+.ed-dl dt { font: 600 .68rem/1.6 var(--sans); text-transform: uppercase; letter-spacing: .05em; color: var(--ink-3); }
+.ed-dl dd { margin: 0; overflow-wrap: anywhere; }
+.ed-src { display: flex; flex-wrap: wrap; gap: 4px; min-width: 0; }
+.ed-src .ed-chip { white-space: normal; overflow-wrap: anywhere; text-align: left; border-radius: var(--r1); max-width: 100%; }
+.ed-src .ed-chip span { min-width: 0; }
+.ed-meta { font: 400 .74rem var(--mono); color: var(--ink-3); overflow-wrap: anywhere; }
+.ed-empty { padding: var(--s5); text-align: center; border: 1px dashed var(--line-2); border-radius: var(--r2); color: var(--ink-3); grid-column: 1 / -1; }
+
+/* ---------- tracker ---------- */
+.tk-totals { display: grid; grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr)); gap: var(--s3); }
+.tk-stat { border: 1px solid var(--line); border-radius: var(--r2); background: var(--surface); padding: var(--s3); }
+.tk-stat b { display: block; font: 600 1.7rem/1 var(--serif); letter-spacing: -.02em; }
+.tk-stat span { font: 400 .78rem/1.3 var(--sans); color: var(--ink-3); display: block; margin-top: 4px; }
+.tk-stat.wide { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: var(--s2) var(--s3); align-items: center; font: 400 .85rem/1.4 var(--sans); }
+.tk-bar { height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; display: flex; }
+.tk-bar i { display: block; height: 100%; background: var(--ok); }
+.tk-bar i.mine { background: var(--info); }
+.tk-phases { display: grid; grid-template-columns: repeat(auto-fill, minmax(11.5rem, 1fr)); gap: var(--s3); }
+.tk-ph { text-align: left; font: inherit; color: var(--ink); border: 1px solid var(--line); border-top: 3px solid var(--ph, var(--ink-3)); border-radius: var(--r2); background: var(--surface); padding: var(--s3); display: flex; flex-direction: column; gap: 6px; cursor: pointer; min-height: 40px; }
+.tk-ph[aria-selected="true"] { background: var(--surface-2); border-color: var(--ink); border-top-color: var(--ph, var(--ink)); box-shadow: inset 0 0 0 1px var(--ink); }
+.tk-ph:hover { border-color: var(--ink-2); }
+.tk-ph-top { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+.tk-ph-id { font: 700 1rem var(--mono); }
+.tk-ph-name { font: 500 .88rem/1.25 var(--sans); }
+.tk-ph-nums { font: 400 .76rem/1.35 var(--mono); color: var(--ink-2); }
+.tk-ph-cut { font: 400 .72rem/1.3 var(--sans); color: var(--ink-3); }
+.tk-evid-note { margin: 0 0 var(--s3); font: 400 .88rem/1.45 var(--sans); color: var(--ink-2); max-width: 52em; }
+.tk-evid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr)); gap: var(--s3); }
+.tk-ev { border: 1px solid var(--line); border-left: 3px solid var(--warn); border-radius: var(--r2); background: var(--surface); padding: var(--s3); display: flex; flex-direction: column; gap: 6px; font: 400 .85rem/1.4 var(--sans); }
+.tk-ev[data-v="REFUTED"] { border-left-color: var(--bad); }
+.tk-ev[data-v="REAL_RECORDED"] { border-left-color: var(--info); }
+.tk-ev q { quotes: none; font: 600 .95rem/1.3 var(--serif); }
+.tk-ev p { margin: 0; color: var(--ink-2); }
+.tk-par { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: var(--s3); }
+.tk-pcol { border: 1px solid var(--line); border-radius: var(--r2); background: var(--surface); padding: var(--s3); display: flex; flex-direction: column; gap: var(--s2); min-width: 0; }
+.tk-pcol h4 { margin: 0; font: 600 .95rem var(--serif); }
+.tk-pcol .tk-hint { margin: 0; font: 400 .78rem/1.35 var(--sans); color: var(--ink-3); }
+.tk-prow { display: flex; flex-wrap: wrap; gap: 6px; align-items: baseline; font: 400 .85rem/1.35 var(--sans); }
+.tk-prow .mono { font-weight: 700; }
+.tk-next { margin-top: var(--s2); font: 400 .82rem/1.5 var(--sans); color: var(--ink-2); }
+.tk-next-h { font: 600 .72rem var(--sans); text-transform: uppercase; letter-spacing: .05em; color: var(--ink-3); margin: var(--s3) 0 6px; }
+.tk-filters { display: flex; flex-wrap: wrap; gap: var(--s3) var(--s4); align-items: end; margin-bottom: var(--s3); }
+.tk-check { display: inline-flex; align-items: center; gap: var(--s2); font: 400 .9rem var(--sans); min-height: 40px; cursor: pointer; }
+.tk-check input { width: 18px; height: 18px; accent-color: var(--accent); }
+.tk-cpbar { border: 1px solid var(--line); border-radius: var(--r2); background: var(--surface); padding: var(--s3); margin-bottom: var(--s3); font: 400 .85rem/1.5 var(--sans); }
+.tk-cpbar .tk-cpl { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.tk-waves { display: flex; gap: var(--s3); overflow-x: auto; align-items: flex-start; padding-bottom: var(--s3); }
+.tk-wave { flex: 0 0 15rem; min-width: 0; display: flex; flex-direction: column; gap: var(--s2); }
+.tk-wave-h { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; border-bottom: 2px solid var(--ink); padding-bottom: 4px; font: 600 .85rem var(--mono); }
+.tk-wave-h span { font-weight: 400; color: var(--ink-3); font-size: .74rem; }
+.tk-task { border: 1px solid var(--line); border-radius: var(--r1); background: var(--surface); padding: var(--s2); display: flex; flex-direction: column; gap: 6px; font: 400 .83rem/1.35 var(--sans); cursor: pointer; transition: opacity .15s, transform .15s; }
+.tk-task.done { background: transparent; border-style: dashed; }
+.tk-task.done .tk-tt { color: var(--ink-3); text-decoration: line-through; text-decoration-thickness: 1px; }
+.tk-task.cp { border-left: 4px solid var(--accent); }
+.tk-task.dep { outline: 2px solid var(--info); outline-offset: 1px; }
+.tk-task.rdep { outline: 2px dashed var(--warn); outline-offset: 1px; }
+.tk-task.ready { border-color: var(--ok); }
+.tk-task.dim { opacity: .35; }
+.tk-trow { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.tk-tid { font: 700 .75rem var(--mono); }
+.tk-tt { overflow-wrap: anywhere; }
+.tk-needs { font: 400 .72rem/1.4 var(--mono); color: var(--ink-3); overflow-wrap: anywhere; }
+.tk-more { display: none; border-top: 1px dashed var(--line-2); padding-top: 6px; font: 400 .78rem/1.45 var(--sans); color: var(--ink-2); }
+.tk-task.open .tk-more { display: block; }
+.tk-more p { margin: 0 0 4px; }
+.tk-own-ME { border-color: var(--accent); color: var(--accent); }
+.tk-own-CLAUDE { border-color: var(--info); color: var(--info); }
+.tk-own-PAIR { border-color: var(--ink-2); color: var(--ink); }
+.tk-did { display: inline-flex; align-items: center; gap: 6px; font: 400 .76rem var(--sans); color: var(--ink-3); min-height: 32px; cursor: pointer; }
+.tk-did input { width: 16px; height: 16px; }
+.tk-empty { color: var(--ink-3); font: italic .8rem var(--sans); padding: var(--s2); }
+.tk-weeks { display: flex; align-items: flex-end; gap: 3px; height: 150px; position: relative; padding-top: 6px; border-bottom: 1px solid var(--ink); }
+.tk-weeks::after { content: "20 h"; position: absolute; left: 0; bottom: calc(20 / 26 * 100%); font: 600 .68rem var(--mono); color: var(--accent); transform: translateY(-100%); pointer-events: none; }
+.tk-weeks::before { content: ""; position: absolute; left: 0; right: 0; bottom: calc(20 / 26 * 100%); border-top: 1px dashed var(--accent); pointer-events: none; }
+.tk-wk { flex: 1 1 0; min-width: 0; height: 100%; display: flex; align-items: flex-end; background: transparent; border: 0; padding: 0; cursor: pointer; position: relative; }
+.tk-wk i { display: block; width: 100%; background: var(--ink-3); opacity: .55; border-radius: 2px 2px 0 0; }
+.tk-wk[data-st="done"] i { background: var(--ok); opacity: 1; }
+.tk-wk[data-st="part"] i { background: var(--ok); opacity: .6; }
+.tk-wk[data-over="1"] i { box-shadow: inset 0 3px 0 var(--bad); }
+.tk-wk[data-buf="1"] i { background: transparent; border: 1px dashed var(--ink-3); opacity: 1; height: 100% !important; }
+.tk-wk[aria-pressed="true"] { outline: 2px solid var(--ink); outline-offset: 1px; }
+.tk-wlab { display: flex; gap: 3px; font: 400 .6rem var(--mono); color: var(--ink-3); }
+.tk-wlab span { flex: 1 1 0; text-align: center; min-width: 0; overflow: hidden; }
+.tk-wdet { margin-top: var(--s3); font: 400 .88rem/1.5 var(--sans); }
+.tk-legend { display: flex; flex-wrap: wrap; gap: var(--s3); font: 400 .78rem var(--sans); color: var(--ink-2); margin-top: var(--s2); }
+.tk-legend b { display: inline-block; width: 10px; height: 10px; margin-right: 4px; background: var(--ink-3); opacity: .55; vertical-align: -1px; }
+.tk-legend b.d { background: var(--ok); opacity: 1; }
+.tk-legend b.o { box-shadow: inset 0 3px 0 var(--bad); }
+.tk-cuts { counter-reset: cut; list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s3); }
+.tk-cut { border: 1px solid var(--line); border-radius: var(--r2); background: var(--surface); padding: var(--s3); display: grid; grid-template-columns: 2.2rem 1fr; gap: 0 var(--s3); }
+.tk-cut-n { font: 600 1.5rem/1 var(--serif); color: var(--accent); }
+.tk-cut b { font: 600 .98rem var(--serif); }
+.tk-cut p { margin: 4px 0 0; font: 400 .83rem/1.45 var(--sans); color: var(--ink-2); }
+.tk-never { margin-top: var(--s3); font: 400 .85rem/1.5 var(--sans); }
+.tk-fine { font: 400 .8rem/1.45 var(--sans); color: var(--ink-3); margin-top: var(--s3); max-width: 52em; }
+
+@media (max-width: 760px) {
+  .ed-filters { grid-template-columns: 1fr 1fr; }
+  .ed-filters .ed-f:first-child { grid-column: 1 / -1; }
+  .ed-sev { grid-column: 1 / -1; }
+  .ed-dl { grid-template-columns: 1fr; gap: 0; }
+  .ed-dl dd { margin-bottom: 6px; }
+  .tk-waves { flex-direction: column; overflow: visible; gap: var(--s4); }
+  .tk-wave { flex: none; width: 100%; }
+  .tk-phases { grid-template-columns: 1fr 1fr; }
+  .tk-wlab span:nth-child(even) { visibility: hidden; }
+}
+@media (prefers-reduced-motion: reduce) { .tk-task { transition: none; } }
+</style>
+
+<script>
+(function () {
+  'use strict';
+  var A = window.ARGUS;
+  if (!A) return;
+  var $ = function (id) { return document.getElementById(id); };
+  document.addEventListener('submit', function (e) { if (e.target.closest('#sub-edges,#sub-tracker')) e.preventDefault(); });
+  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+  var CHECK_SVG = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6.5l2.5 2.5L10 3" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>';
+  var LOCK_SVG = '<svg viewBox="0 0 12 12" aria-hidden="true"><rect x="2" y="5.5" width="8" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M4 5.5V4a2 2 0 014 0v1.5" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>';
+  var COPY_SVG = '<svg viewBox="0 0 12 12" aria-hidden="true"><rect x="3.5" y="3.5" width="6" height="6.5" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M2 8V2.5A.5.5 0 012.5 2H7" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>';
+
+  function copyChip(src) {
+    return '<button type="button" class="ed-chip" data-copy="' + esc(src) + '" title="Copy ' + esc(src) + '">' + COPY_SVG + '<span>' + esc(src) + '</span></button>';
+  }
+  function onCopy(e) {
+    var b = e.target.closest('[data-copy]');
+    if (!b) return;
+    var txt = b.getAttribute('data-copy'), lab = b.querySelector('span');
+    var done = function () { var old = lab.textContent; lab.textContent = 'copied'; setTimeout(function () { lab.textContent = old; }, 1100); };
+    try { navigator.clipboard.writeText(txt).then(done, function () { }); } catch (err) {
+      try { var ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); done(); } catch (e2) { }
+    }
+  }
+  document.addEventListener('click', function (e) { if (e.target.closest('#sub-edges,#sub-tracker')) onCopy(e); });
+
+  function seg(el, opts, cur, cb) {
+    el.innerHTML = opts.map(function (o) { return '<button type="button" data-v="' + esc(o[0]) + '" aria-pressed="' + (o[0] === cur) + '">' + esc(o[1]) + '</button>'; }).join('');
+    el.addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      el.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', x === b); });
+      cb(b.getAttribute('data-v'));
+    });
+    return function (v) { el.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', x.getAttribute('data-v') === v); }); };
+  }
+
+  /* ================= EDGES ================= */
+  function initEdges() {
+    var E = A.edgeCases || [];
+    var T = A.tracker || { phases: [] };
+    var order = T.phases.map(function (p) { return p.id; });
+    var phases = order.filter(function (p) { return E.some(function (c) { return c.phase === p; }); });
+    var comps = Array.from(new Set(E.map(function (c) { return c.component; }))).sort();
+    var SEVS = ['High', 'Med', 'Low'];
+    var S = { q: '', comp: '', phase: '', sev: '' };
+
+    $('ed-comp').innerHTML = '<option value="">All components (' + comps.length + ')</option>' + comps.map(function (c) { return '<option>' + esc(c) + '</option>'; }).join('');
+    $('ed-phase').innerHTML = '<option value="">All phases</option>' + phases.map(function (p) { return '<option>' + esc(p) + '</option>'; }).join('');
+    var setSev = seg($('ed-sev'), [['', 'All']].concat(SEVS.map(function (s) { return [s, s]; })), '', function (v) { S.sev = v; draw(); });
+
+    function sevClass(s) { return s === 'High' ? 'bad' : s === 'Med' ? 'warn' : 'info'; }
+    function matrix() {
+      var rows = phases.map(function (p) {
+        var cs = E.filter(function (c) { return c.phase === p; });
+        return '<tr><th scope="row">' + esc(p) + '</th>' + SEVS.map(function (s) {
+          var n = cs.filter(function (c) { return c.severity === s; }).length;
+          return '<td class="ed-' + s[0].toLowerCase() + '"><button type="button" data-p="' + esc(p) + '" data-s="' + s + '" data-n="' + n + '" aria-label="' + esc(p) + ' ' + s + ': ' + n + ' cases" aria-pressed="' + (S.phase === p && S.sev === s) + '"' + (n ? '' : ' disabled') + '>' + n + '</button></td>';
+        }).join('') + '<td class="ed-tot">' + cs.length + '</td></tr>';
+      }).join('');
+      var tot = SEVS.map(function (s) { return '<td class="ed-tot">' + E.filter(function (c) { return c.severity === s; }).length + '</td>'; }).join('');
+      $('ed-matrix').innerHTML = '<table class="ed-matrix"><thead><tr><th scope="col">Phase</th>' + SEVS.map(function (s) { return '<th scope="col">' + s + '</th>'; }).join('') + '<th scope="col">Total</th></tr></thead><tbody>' + rows + '<tr><th scope="row">All</th>' + tot + '<td class="ed-tot">' + E.length + '</td></tr></tbody></table>';
+    }
+    $('ed-matrix').addEventListener('click', function (e) {
+      var b = e.target.closest('button[data-p]'); if (!b) return;
+      var same = S.phase === b.dataset.p && S.sev === b.dataset.s;
+      S.phase = same ? '' : b.dataset.p; S.sev = same ? '' : b.dataset.s;
+      $('ed-phase').value = S.phase; setSev(S.sev); draw();
+    });
+
+    function match(c) {
+      if (S.comp && c.component !== S.comp) return false;
+      if (S.phase && c.phase !== S.phase) return false;
+      if (S.sev && c.severity !== S.sev) return false;
+      if (S.q) {
+        var hay = [c.id, c.component, c.scenario, c.wrong, c.handling, c.test, c.origin, c.coverage].concat(c.sources || []).join(' ').toLowerCase();
+        return S.q.toLowerCase().split(/\s+/).every(function (w) { return hay.indexOf(w) >= 0; });
+      }
+      return true;
+    }
+    function card(c) {
+      return '<article class="ed-card" data-sev="' + esc(c.severity) + '" id="' + esc(c.id) + '">' +
+        '<div class="ed-top"><span class="ed-id">' + esc(c.id) + '</span>' +
+        '<span class="ed-chip ' + sevClass(c.severity) + '">' + esc(c.severity) + '</span>' +
+        '<span class="ed-chip">' + esc(c.phase) + '</span><span class="ed-comp">' + esc(c.component) + '</span></div>' +
+        '<h4 class="ed-scn">' + esc(c.scenario) + '</h4>' +
+        '<dl class="ed-dl"><dt>Goes wrong</dt><dd>' + esc(c.wrong) + '</dd><dt>Handling</dt><dd>' + esc(c.handling) + '</dd><dt>Test idea</dt><dd>' + esc(c.test) + '</dd></dl>' +
+        '<div class="ed-meta">found by: ' + esc(c.origin) + ' &middot; existing coverage: ' + esc(c.coverage) + '</div>' +
+        '<div class="ed-src">' + (c.sources || []).map(copyChip).join('') + '</div></article>';
+    }
+    function draw() {
+      matrix();
+      var rows = E.filter(match);
+      $('ed-count').textContent = rows.length + ' of ' + E.length + ' cases' + (S.phase || S.sev || S.comp || S.q ? ' match' : '');
+      $('ed-list').innerHTML = rows.length ? rows.map(card).join('') : '<div class="ed-empty">No case matches these filters. Reset to see all ' + E.length + '.</div>';
+    }
+    $('ed-q').addEventListener('input', function (e) { S.q = e.target.value.trim(); draw(); });
+    $('ed-comp').addEventListener('change', function (e) { S.comp = e.target.value; draw(); });
+    $('ed-phase').addEventListener('change', function (e) { S.phase = e.target.value; draw(); });
+    $('ed-reset').addEventListener('click', function () { S = { q: '', comp: '', phase: '', sev: '' }; $('ed-q').value = ''; $('ed-comp').value = ''; $('ed-phase').value = ''; setSev(''); draw(); });
+    draw();
+  }
+
+  /* ================= TRACKER ================= */
+  function initTracker() {
+    var T = A.tracker; if (!T) return;
+    var tasks = T.tasks, byId = {};
+    tasks.forEach(function (t) { byId[t.id] = t; });
+    var cp = {}; // task id -> true (critical path of its phase)
+    Object.keys(T.criticalPath.perPhase).forEach(function (p) { T.criticalPath.perPhase[p].tasks.forEach(function (id) { cp[id] = true; }); });
+    var KEY = 'argus.tracker.didThis';
+    var marks = {};
+    try { marks = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { marks = {}; }
+    function saveMarks() { try { localStorage.setItem(KEY, JSON.stringify(marks)); } catch (e) { } }
+
+    var firstOpen = T.phases.filter(function (p) { return p.doneCount < p.taskCount; })[0];
+    var S = { phase: (firstOpen || T.phases[0]).id, owner: '', status: '', cp: true, week: null, withMarks: false };
+    var phaseVar = function (id) { return 'var(--p' + id.replace('.', '') + ')'; };
+    var sum = function (a, f) { return a.reduce(function (n, x) { return n + f(x); }, 0); };
+
+    /* ---- totals (repo state only, never touched by local marks) ---- */
+    function totals() {
+      var done = tasks.filter(function (t) { return t.done; });
+      var open = tasks.length - done.length;
+      var core = sum(tasks.filter(function (t) { return t.phase !== 'P9'; }), function (t) { return t.hours; });
+      var all = sum(tasks, function (t) { return t.hours; });
+      var x = T.checks.expected;
+      var ok = done.length === x.done && open === x.open && tasks.length === x.total && core === x.coreHours && all === x.grandHours;
+      var nm = Object.keys(marks).filter(function (id) { return byId[id] && !byId[id].done; }).length;
+      var doneH = sum(done, function (t) { return t.hours; });
+      $('tk-totals').innerHTML =
+        '<div class="tk-stat"><b>' + done.length + '</b><span>done (checked in TASKS.md)</span></div>' +
+        '<div class="tk-stat"><b>' + open + '</b><span>open</span></div>' +
+        '<div class="tk-stat"><b>' + tasks.length + '</b><span>tasks, ' + T.phases.length + ' phases</span></div>' +
+        '<div class="tk-stat"><b>' + core + ' h</b><span>core plan (P0 to P8 incl. P5.5)</span></div>' +
+        '<div class="tk-stat"><b>' + all + ' h</b><span>with optional P9 backend lane</span></div>' +
+        '<div class="tk-stat"><b>' + doneH + ' / ' + (all - doneH) + ' h</b><span>done / open hours (' + (all - doneH) + ' h is about ' + (T.weekly.remaining.weeksAt20h) + ' weeks at 20 h)</span></div>' +
+        '<div class="tk-stat wide"><div class="tk-bar" style="flex:1 1 14rem" role="img" aria-label="' + done.length + ' of ' + tasks.length + ' tasks done"><i style="width:' + (done.length / tasks.length * 100) + '%"></i></div>' +
+        '<span class="tk-chip ' + (ok ? 'ok' : 'bad') + '">' + (ok ? CHECK_SVG + 'matches tracker.checks' : 'MISMATCH with tracker.checks') + '</span>' +
+        '<span>Every checked task is in P0 or P1; no later task is checked. ' + (nm ? 'You marked <b>' + nm + '</b> open task' + (nm > 1 ? 's' : '') + ' locally; that does not change the counts above.' : '') + '</span></div>';
+    }
+
+    /* ---- phase board ---- */
+    function phaseBoard() {
+      var next = firstOpen && firstOpen.id;
+      $('tk-phases').innerHTML = T.phases.map(function (p) {
+        var ts = tasks.filter(function (t) { return t.phase === p.id; });
+        var dh = sum(ts.filter(function (t) { return t.done; }), function (t) { return t.hours; });
+        var st = p.doneCount === p.taskCount ? 'done' : p.doneCount ? 'in progress' : 'open';
+        var cut = p.cutOrder ? String(p.cutOrder) : '';
+        return '<button type="button" role="tab" class="tk-ph" data-p="' + esc(p.id) + '" style="--ph:' + phaseVar(p.id) + '" aria-selected="' + (S.phase === p.id) + '">' +
+          '<span class="tk-ph-top"><span class="tk-ph-id">' + esc(p.id) + '</span><span class="tk-chip ' + (st === 'done' ? 'ok' : p.id === next ? 'warn' : '') + '">' + (st === 'done' ? CHECK_SVG : '') + st + (p.id === next ? ' &middot; next' : '') + '</span></span>' +
+          '<span class="tk-ph-name">' + esc(p.name) + '</span>' +
+          '<span class="tk-bar" aria-hidden="true"><i style="width:' + (p.doneCount / p.taskCount * 100) + '%"></i></span>' +
+          '<span class="tk-ph-nums">' + p.doneCount + '/' + p.taskCount + ' tasks &middot; ' + dh + ' h done, ' + (p.hours - dh) + ' h open &middot; ' + esc(p.weeksText.replace(/ \(.*/, '')) + '</span>' +
+          '<span class="tk-ph-nums">ME ' + p.ownerHours.ME + ' &middot; CLAUDE ' + p.ownerHours.CLAUDE + ' &middot; PAIR ' + p.ownerHours.PAIR + ' h</span>' +
+          (cut ? '<span class="tk-ph-cut">cut: ' + esc(cut.replace(/\s*\(.*$/, '')) + '</span>' : '') + '</button>';
+      }).join('');
+    }
+    $('tk-phases').addEventListener('click', function (e) {
+      var b = e.target.closest('.tk-ph'); if (!b) return;
+      S.phase = b.dataset.p; phaseBoard(); waveBoard();
+      $('tk-wave-h').scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    });
+    $('tk-phases').addEventListener('keydown', function (e) {
+      var k = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key]; if (!k) return;
+      var bs = Array.from($('tk-phases').querySelectorAll('.tk-ph')), i = bs.indexOf(document.activeElement);
+      if (i < 0) return; e.preventDefault(); bs[(i + k + bs.length) % bs.length].focus();
+    });
+
+    /* ---- evidence strip ---- */
+    function evid() {
+      var ev = A.evidence || { claims: [], labels: {} };
+      var rank = { REFUTED: 0, UNVERIFIED: 1, FIXTURE_ONLY: 2, REAL_RECORDED: 3 };
+      var rows = ev.claims.filter(function (c) { return (c.phase === 'P0' || c.phase === 'P1') && c.verdict !== 'REAL'; })
+        .sort(function (a, b) { return (rank[a.verdict] == null ? 9 : rank[a.verdict]) - (rank[b.verdict] == null ? 9 : rank[b.verdict]); });
+      var good = ev.claims.filter(function (c) { return (c.phase === 'P0' || c.phase === 'P1') && c.verdict === 'REAL'; }).length;
+      var p0 = T.phases[0], p1 = T.phases[1];
+      $('tk-evid').innerHTML = '<p class="tk-evid-note">TASKS.md checks ' + p0.doneCount + '/' + p0.taskCount + ' P0 tasks and ' + p1.doneCount + '/' + p1.taskCount + ' P1 tasks. Re-checking the claims behind them: ' + good + ' hold up as REAL, ' + rows.length + ' do not fully. "Done" here means the task was finished, not that the claim is proven.</p><div class="tk-evid">' +
+        rows.map(function (c) {
+          var cls = c.verdict === 'REFUTED' ? 'bad' : c.verdict === 'REAL_RECORDED' ? 'info' : 'warn';
+          return '<article class="tk-ev" data-v="' + esc(c.verdict) + '"><div class="tk-trow"><span class="tk-tid">' + esc(c.id) + '</span><span class="tk-chip">' + esc(c.phase) + '</span><span class="tk-chip ' + cls + '" title="' + esc((ev.labels || {})[c.verdict] || '') + '">checked done / ' + esc(c.verdict) + '</span></div>' +
+            '<q>' + esc(c.claim) + '</q><p>' + esc(c.why) + '</p><div class="ed-src">' + (c.cite || []).map(copyChip).join('') + '</div></article>';
+        }).join('') + '</div>';
+    }
+
+    /* ---- parallel next ---- */
+    function isDone(id) { var t = byId[id]; return !t || t.done || (S.withMarks && marks[id]); }
+    function parallel() {
+      var open = tasks.filter(function (t) { return !isDone(t.id); });
+      var ready = open.filter(function (t) { return t.deps.every(isDone); });
+      var rset = {}; ready.forEach(function (t) { rset[t.id] = true; });
+      var after = open.filter(function (t) { return !rset[t.id] && t.deps.every(function (d) { return isDone(d) || rset[d]; }); });
+      var me = ready.filter(function (t) { return t.meOnly && !t.idleWait; });
+      var idle = ready.filter(function (t) { return t.idleWait; });
+      var del = ready.filter(function (t) { return !t.meOnly && !t.idleWait; });
+      var row = function (t) { return '<div class="tk-prow"><span class="mono">' + esc(t.id) + '</span><span class="tk-chip tk-own-' + t.owner + '">' + t.owner + '</span><span class="tk-chip">' + t.hours + ' h</span><span>' + esc(t.title) + '</span></div>'; };
+      var col = function (h, hint, a) {
+        return '<div class="tk-pcol"><h4>' + h + ' <span class="tk-chip">' + a.length + ' &middot; ' + sum(a, function (t) { return t.hours; }) + ' h</span></h4><p class="tk-hint">' + hint + '</p>' + (a.length ? a.map(row).join('') : '<div class="tk-empty">None right now.</div>') + '</div>';
+      };
+      $('tk-par').innerHTML = '<label class="tk-check"><input type="checkbox" id="tk-wm"' + (S.withMarks ? ' checked' : '') + '> Treat my local "I did this" marks as done for this panel</label>' +
+        '<div class="tk-par">' +
+        col('ME only', 'Needs your judgment: reading, ADRs, core build, break-it, eval runs. Cannot be handed off.', me) +
+        col('Delegable', 'Claude or a pair session can take these while you do something else.', del) +
+        col('Idle-wait overlap', 'Mostly waiting on a run or CI. Start it, then work on something else.', idle) +
+        '</div>' +
+        '<p class="tk-next-h">Unlocked next, once everything above is done (' + after.length + ')</p><div class="tk-next">' +
+        (after.length ? after.slice(0, 12).map(function (t) { return '<span class="tk-chip tk-own-' + t.owner + '" title="' + esc(t.title) + '">' + esc(t.id) + ' ' + t.owner + ' ' + t.hours + ' h</span> '; }).join('') + (after.length > 12 ? ' <span class="muted">+' + (after.length - 12) + ' more</span>' : '') : '<span class="muted">Nothing further.</span>') + '</div>' +
+        '<p class="tk-fine">Ready = open task whose every dependency is checked done in TASKS.md. ' + 'Dependencies come from the phase tables; a phase\'s first wave always waits for the previous phase\'s gating task.</p>';
+      $('tk-wm').addEventListener('change', function (e) { S.withMarks = e.target.checked; parallel(); waveBoard(); });
+    }
+
+    /* ---- wave board ---- */
+    function ownerOK(t) { return !S.owner || t.owner === S.owner; }
+    function statusOK(t) { return !S.status || (S.status === 'done' ? t.done : !t.done); }
+    function waveBoard() {
+      var p = T.phases.filter(function (x) { return x.id === S.phase; })[0];
+      $('tk-wave-h').innerHTML = 'Wave board <span class="tk-sub">' + esc(p.id) + ' ' + esc(p.name) + ' &middot; ' + p.waveCount + ' waves &middot; tasks in one wave have no dependency on each other</span>';
+      var c = p.criticalPath;
+      $('tk-cpbar').innerHTML = '<b>Critical path in ' + esc(p.id) + ':</b> ' + c.hours + ' h of ' + p.hours + ' h, slack ' + c.slackHours + ' h. Tasks outside the path can slip without delaying the phase; with one person at 20 h/week the total hours, not this path, set the finish date.' +
+        '<div class="tk-cpl">' + c.tasks.map(function (id) { return '<span class="tk-chip' + (byId[id].done ? ' ok' : '') + '">' + esc(id) + '</span>'; }).join('') + '</div>' +
+        '<p class="tk-fine" style="margin:6px 0 0">Goal: <span>' + esc(p.goal) + '</span></p>';
+      var ts = tasks.filter(function (t) { return t.phase === p.id; });
+      var rdy = {}; ts.forEach(function (t) { if (!isDone(t.id) && t.deps.every(isDone)) rdy[t.id] = true; });
+      $('tk-waves').innerHTML = p.waves.map(function (w) {
+        var cards = w.tasks.map(function (id) { return byId[id]; }).filter(function (t) { return ownerOK(t) && statusOK(t); });
+        return '<div class="tk-wave"><div class="tk-wave-h">Wave ' + w.wave + '<span>' + w.hours + ' h &middot; ' + w.tasks.length + ' task' + (w.tasks.length > 1 ? 's' : '') + (w.tasks.length > 1 ? ' in parallel' : '') + '</span></div>' +
+          (cards.length ? cards.map(function (t) { return task(t, rdy[t.id]); }).join('') : '<div class="tk-empty">No tasks match the filters.</div>') + '</div>';
+      }).join('');
+      applyCP();
+    }
+    function task(t, ready) {
+      var cls = 'tk-task' + (t.done ? ' done' : '') + (cp[t.id] ? ' cp' : '') + (ready ? ' ready' : '');
+      var needs = t.deps.length ? 'needs ' + t.deps.map(function (d) { return d + (byId[d] && byId[d].done ? ' (done)' : ''); }).join(', ') : 'no dependencies';
+      var mates = (t.parallel.waveMates || []);
+      return '<div class="' + cls + '" tabindex="0" role="button" aria-expanded="false" data-id="' + esc(t.id) + '">' +
+        '<div class="tk-trow"><span class="tk-tid">' + esc(t.id.replace(/^[^-]+-/, '')) + '</span>' +
+        '<span class="tk-chip tk-own-' + t.owner + '">' + t.owner + '</span><span class="tk-chip">' + t.hours + ' h</span>' +
+        (t.done ? '<span class="tk-chip ok">' + CHECK_SVG + 'done</span>' : ready ? '<span class="tk-chip ok">ready</span>' : '<span class="tk-chip">open</span>') +
+        (cp[t.id] ? '<span class="tk-chip warn" data-cp="1">critical</span>' : '') +
+        (t.neverDelegate ? '<span class="tk-chip" title="Never delegate: this task is yours (' + esc(t.meKind || 'ME-only') + ')">' + LOCK_SVG + 'never delegate</span>' : '') +
+        (t.idleWait ? '<span class="tk-chip info" title="Mostly waiting on a run: overlap other work">idle-wait</span>' : '') + '</div>' +
+        '<div class="tk-tt">' + esc(t.title) + '</div>' +
+        '<div class="tk-needs">' + esc(needs) + '</div>' +
+        '<div class="tk-more"><p>' + esc(t.notes) + '</p><p class="mono">type: ' + esc(t.type) + (t.meKind ? ' / ' + esc(t.meKind) : '') + ' &middot; week ' + t.week + ' &middot; ' + esc(t.parallel.kind) + (mates.length ? ' with ' + esc(mates.join(', ')) : '') + '</p>' +
+        (t.done ? '' : '<label class="tk-did" title="Private note in this browser only. Not TASKS.md status."><input type="checkbox" data-did="' + esc(t.id) + '"' + (marks[t.id] ? ' checked' : '') + '> I did this (my note only, not the repo status)</label>') + '</div></div>';
+    }
+    function applyCP() { $('tk-waves').classList.toggle('tk-nocp', !S.cp); $('tk-waves').querySelectorAll('.tk-task.cp').forEach(function (n) { n.style.borderLeftWidth = S.cp ? '' : '1px'; n.style.borderLeftColor = S.cp ? '' : 'var(--line)'; var ch = n.querySelector('[data-cp]'); if (ch) ch.hidden = !S.cp; }); $('tk-cpbar').hidden = !S.cp; }
+    function hl(id, on) {
+      var t = byId[id]; if (!t) return;
+      var root = $('tk-waves');
+      root.querySelectorAll('.tk-task').forEach(function (n) {
+        var o = byId[n.dataset.id];
+        n.classList.toggle('dep', on && t.deps.indexOf(o.id) >= 0);
+        n.classList.toggle('rdep', on && o.deps.indexOf(t.id) >= 0);
+      });
+    }
+    var wv = $('tk-waves');
+    wv.addEventListener('mouseover', function (e) { var n = e.target.closest('.tk-task'); if (n) hl(n.dataset.id, true); });
+    wv.addEventListener('mouseout', function (e) { var n = e.target.closest('.tk-task'); if (n) hl(n.dataset.id, false); });
+    wv.addEventListener('focusin', function (e) { var n = e.target.closest('.tk-task'); if (n) hl(n.dataset.id, true); });
+    wv.addEventListener('focusout', function (e) { var n = e.target.closest('.tk-task'); if (n) hl(n.dataset.id, false); });
+    function toggle(n) { var o = n.classList.toggle('open'); n.setAttribute('aria-expanded', o); }
+    wv.addEventListener('click', function (e) {
+      if (e.target.closest('label,input')) return;
+      var n = e.target.closest('.tk-task'); if (n) toggle(n);
+    });
+    wv.addEventListener('keydown', function (e) {
+      if (e.target.matches('input')) return;
+      var n = e.target.closest('.tk-task');
+      if (n && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); toggle(n); }
+    });
+    wv.addEventListener('change', function (e) {
+      var id = e.target.getAttribute('data-did'); if (!id) return;
+      if (e.target.checked) marks[id] = 1; else delete marks[id];
+      saveMarks(); totals(); parallel();
+    });
+
+    seg($('tk-owner'), [['', 'All'], ['ME', 'ME'], ['CLAUDE', 'CLAUDE'], ['PAIR', 'PAIR']], '', function (v) { S.owner = v; waveBoard(); });
+    seg($('tk-status'), [['', 'All'], ['open', 'Open'], ['done', 'Done']], '', function (v) { S.status = v; waveBoard(); });
+    $('tk-cp').addEventListener('change', function (e) { S.cp = e.target.checked; applyCP(); });
+
+    /* ---- weekly burn ---- */
+    function weeks() {
+      var W = T.weekly.perWeek, MAX = 26, cap = T.weekly.hoursPerWeek;
+      var st = function (w) { if (w.buffer) return 'buf'; var ts = w.tasks.map(function (id) { return byId[id]; }); var d = ts.filter(function (t) { return t.done; }).length; return d === ts.length ? 'done' : d ? 'part' : 'open'; };
+      $('tk-weeks').innerHTML = '<div class="tk-weeks" role="group" aria-label="Scheduled hours per week against ' + cap + ' hours">' + W.map(function (w) {
+        return '<button type="button" class="tk-wk" data-w="' + w.week + '" data-st="' + st(w) + '" data-over="' + (w.over20 ? 1 : 0) + '" data-buf="' + (w.buffer ? 1 : 0) + '" aria-pressed="' + (S.week === w.week) + '" aria-label="Week ' + w.week + ': ' + (w.buffer ? 'buffer week' : w.scheduledHours + ' hours, ' + st(w)) + '"><i style="height:' + (w.buffer ? 100 : w.scheduledHours / MAX * 100) + '%"></i></button>';
+      }).join('') + '</div><div class="tk-wlab" aria-hidden="true">' + W.map(function (w) { return '<span>' + w.week + '</span>'; }).join('') + '</div>' +
+        '<div class="tk-legend"><span><b class="d"></b>week fully done</span><span><b></b>open</span><span><b class="o"></b>over ' + cap + ' h</span><span>dashed box = buffer week (no tasks)</span></div>' +
+        '<p class="tk-wdet" id="tk-wdet" aria-live="polite"></p>';
+      wdet();
+    }
+    function wdet() {
+      var el = $('tk-wdet'); if (!el) return;
+      var R = T.weekly.remaining, W = T.weekly.perWeek;
+      var base = 'Weeks at a flat ' + T.weekly.hoursPerWeek + ' h: bins run ' + Math.min.apply(null, W.filter(function (x) { return !x.buffer; }).map(function (x) { return x.scheduledHours; })) + ' to ' + Math.max.apply(null, W.map(function (x) { return x.scheduledHours; })) + ' h, the largest overrun is ' + Math.max.apply(null, T.weekly.overWeeks.map(function (o) { return o.hours - T.weekly.hoursPerWeek; })) + ' h (weeks ' + T.weekly.overWeeks.map(function (o) { return o.week; }).join(', ') + '). Remaining ' + R.openHours + ' h is about ' + R.weeksAt20h + ' weeks; ' + (T.weekly.overWeeks.length) + ' weeks run over, ' + T.weekly.lowWeeks.length + ' under. Week 17 and 25 are buffers.';
+      if (S.week == null) { el.textContent = base + ' Click a bar for its tasks.'; return; }
+      var w = W.filter(function (x) { return x.week === S.week; })[0];
+      el.innerHTML = w.buffer ? '<b>Week ' + w.week + '</b>: buffer, nothing scheduled.' : '<b>Week ' + w.week + '</b> (' + esc(w.phases.join(' + ')) + '): ' + w.scheduledHours + ' h scheduled vs ' + T.weekly.hoursPerWeek + ' h' + (w.over20 ? ', ' + w.over20 + ' h over' : w.under20 ? ', ' + w.under20 + ' h under' : '') + '.<div class="tk-cpl" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px">' + w.tasks.map(function (id) { return '<span class="tk-chip' + (byId[id].done ? ' ok' : '') + '" title="' + esc(byId[id].title) + '">' + esc(id) + ' ' + byId[id].hours + ' h</span>'; }).join('') + '</div>';
+    }
+    $('tk-weeks').addEventListener('click', function (e) {
+      var b = e.target.closest('.tk-wk'); if (!b) return;
+      var w = +b.dataset.w; S.week = S.week === w ? null : w;
+      $('tk-weeks').querySelectorAll('.tk-wk').forEach(function (x) { x.setAttribute('aria-pressed', +x.dataset.w === S.week); });
+      wdet();
+    });
+
+    /* ---- cuts ---- */
+    function cuts() {
+      var C = T.cuts;
+      $('tk-cuts').innerHTML = '<ol class="tk-cuts">' + C.order.map(function (c) {
+        var rt = c.retargets.map(function (r) { return r.task + ' then needs only ' + r.depsWhenCutTaken.join(', '); }).join('; ');
+        return '<li class="tk-cut"><span class="tk-cut-n">' + c.order + '</span><div><b>' + esc(c.name) + '</b> ' +
+          '<span class="tk-chip">' + (c.removedHours ? '-' + c.removedHours + ' h, ' + c.removedTasks + ' tasks' : 'no task removed') + '</span>' +
+          (c.freedIfBookedHours ? ' <span class="tk-chip">' + c.freedIfBookedHours + ' h freed only if booked</span>' : '') +
+          '<p>' + esc(c.note) + (rt ? ' Re-routes: ' + esc(rt) + '.' : '') + ' <span class="mono">' + esc(c.source) + '</span></p></div></li>';
+      }).join('') + '</ol>' +
+        '<p class="tk-never"><b>Never cut</b> (' + esc(C.neverCut.source) + '): ' + C.neverCut.items.map(function (i) { return esc(i.what); }).join(', ') + '.</p>' +
+        '<p class="tk-fine">' + esc(C.note) + ' If every cut were taken the open load would be ' + T.weekly.remaining.cutScenarios[T.weekly.remaining.cutScenarios.length - 1].remainingHours + ' h instead of ' + T.weekly.remaining.openHours + ' h.</p>';
+    }
+
+    totals(); phaseBoard(); evid(); parallel(); waveBoard(); weeks(); cuts();
+  }
+
+  function boot() { try { initEdges(); } catch (e) { console.error('edges', e); } try { initTracker(); } catch (e) { console.error('tracker', e); } }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+})();
+</script>

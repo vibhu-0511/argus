@@ -2,7 +2,7 @@
 
 Argus is a pipeline that turns a UI bug ticket into a verified fix. It reproduces the bug, finds the source, edits the code inside a sandbox, checks that the fix matches the ticket and breaks nothing else, and opens a pull request. The point of building it is to learn the agentic layer at architect level, coming from backend engineering, on a budget of zero dollars and about 20 hours a week.
 
-This folder is the plan. It holds documents only. No application code is written here, and every results cell stays empty until a real run fills it. Nothing in this description is a measured number.
+This folder is the plan, and it now also holds the P0 and P1 code and their runs (TASKS.md: P0 and P1 are `[x]`; P2 to P9 are README stubs). Every results cell stays `—` until a run id backs it. The P1 numbers are fixture replay, not a live model (see `phases/P01-repro-agent.md`). Nothing in this description is a measured number.
 
 The source of this description is [`PLAN.md`](PLAN.md), [`TASKS.md`](TASKS.md), [`repo-structure.md`](repo-structure.md), and the phase files in [`phases/`](phases/). Three companion pages already exist: [`architecture.html`](architecture.html) (the block diagram), [`production.html`](production.html) (one ticket through the deployed system), and [`142-fix.html`](142-fix.html) (a sample fix report).
 
@@ -63,11 +63,12 @@ This folder becomes the root. Python packages share one uv workspace. TypeScript
 
 P9 adds a small FastAPI target backend and lane-specific tools. It reuses `argus-core`, `fix-loop`, `verify`, `eval`, and `flow`.
 
-Planned layout, once code exists:
+Layout (the `.github/workflows/` files and the P0 and P1 packages exist; the other packages are README stubs):
 
 ```
 argus/
 ├── PLAN.md  TASKS.md  repo-structure.md  PROJECT.md  PROJECT.html
+├── config/profiles.md  platform.md
 ├── pyproject.toml
 ├── pnpm-workspace.yaml
 ├── phases/
@@ -83,7 +84,7 @@ argus/
     └── skills/  flow/  guard/  app/
 ```
 
-Today only the planning documents and the three HTML companions are present.
+Today the planning documents, the HTML companions, and the P0 and P1 packages (`argus-core`, `target-app`, `bench`, `bugsmith`, `repro-agent`) are present. The other ten package folders hold a README stub each.
 
 ## Models
 
@@ -364,7 +365,7 @@ Never cut: the P3 loop, the P4 judge calibration, the bugsmith generator, the P5
 | P6 | Render free (FastAPI + DBOS) and Neon free, with Actions as the execution plane |
 | P7 | Secrets outside the repo, `--network none` tested on Actions, append-only audit log verified in CI |
 | P8 | A public GitHub App, a landing README, and a demo video |
-| P9 | Backend golden-fix joins the existing Actions jobs. A second series on the dashboard. No new host |
+| P9 | Backend golden-fix joins the existing Actions jobs. No new host |
 
 ## ADR index
 
