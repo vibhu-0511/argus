@@ -21,6 +21,8 @@ from urllib.parse import urlparse
 import psycopg
 from sentence_transformers import SentenceTransformer
 
+from dom2src_mcp.repo_map import platform_repo
+
 MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 DEFAULT_DSN = "postgresql://argus@127.0.0.1:5436/canvas_embed"
 CHUNK_CHARS = 1200
@@ -39,9 +41,6 @@ SCOPE = (
     "apps/canvas/src/screens/AuditLog.tsx",
 )
 
-_REPO = Path(__file__).resolve().parents[4]
-_PLATFORM = _REPO / "config" / "platform.md"
-_REPO_ROW = re.compile(r"^\|\s*Repo\s*\|\s*`([^`]+)`\s*\|", re.M)
 _model: SentenceTransformer | None = None
 
 
@@ -65,14 +64,7 @@ def assert_not_copa(url: str) -> None:
 
 
 def platform_worktree() -> Path:
-    text = _PLATFORM.read_text(encoding="utf-8")
-    match = _REPO_ROW.search(text)
-    if match is None:
-        raise FileNotFoundError(f"no Repo row in {_PLATFORM}")
-    root = Path(match.group(1))
-    if not root.is_dir():
-        raise FileNotFoundError(f"platform worktree is not a directory: {root}")
-    return root
+    return platform_repo()
 
 
 def canvas_files() -> list[Path]:

@@ -1,5 +1,5 @@
-# Indexed directory: C:\Users\vibha\Downloads\data\dcortex\dcortex_claude\dcortex-platform\apps\canvas\src
-# Worktree: C:\Users\vibha\Downloads\data\dcortex\dcortex_claude\dcortex-platform (config/platform.md).
+# Indexed directory: apps/canvas/src of the platform checkout.
+# Worktree: the checkout named by the env var ARGUS_PLATFORM_REPO (config/platform.md).
 # That directory is the Canvas UI source for the five flows: sign-in (/login, /ops/login),
 # the ops menu (/ops/radar, /ops/operations, /ops/launchpad, /ops/rules), desk tabs (/desk),
 # user admin (/admin/users), and the audit table (/admin/audit).
@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import queue
 import re
 import shutil
@@ -62,23 +63,15 @@ class StaleIndex(RuntimeError):
         super().__init__("stale index: " + ", ".join(self.files))
 
 
-def argus_root() -> Path:
-    root = Path(__file__).resolve().parents[4]
-    if not (root / "config" / "platform.md").is_file():
-        raise RuntimeError(f"config/platform.md not found from {root}")
-    return root
-
-
 def platform_repo() -> Path:
-    text = (argus_root() / "config" / "platform.md").read_text(encoding="utf-8")
-    for line in text.splitlines():
-        cells = [cell.strip().strip("`") for cell in line.strip().strip("|").split("|")]
-        if len(cells) >= 2 and cells[0] == "Repo":
-            path = Path(cells[1])
-            if not path.is_dir():
-                raise RuntimeError(f"platform repo is not a directory: {path}")
-            return path
-    raise RuntimeError("config/platform.md has no Repo row")
+    """The dcortex-platform checkout. config/platform.md names the repo; this machine's path is in the env."""
+    path = os.environ.get("ARGUS_PLATFORM_REPO")
+    if not path:
+        raise RuntimeError("set ARGUS_PLATFORM_REPO to the dcortex-platform checkout (see config/platform.md)")
+    root = Path(path)
+    if not root.is_dir():
+        raise RuntimeError(f"platform repo is not a directory: {root}")
+    return root
 
 
 def indexed_dir() -> Path:
