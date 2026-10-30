@@ -1,0 +1,820 @@
+<section class="sub" id="sub-product" data-pane="plan" hidden>
+<style>
+/* ---------- outside the frame: shell variables only ---------- */
+#sub-product .pd-h{font-family:var(--serif);font-size:clamp(26px,4.4vw,40px);letter-spacing:-.02em;line-height:1.1;margin:0 0 var(--s3)}
+#sub-product .pd-h small{display:block;font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:var(--s2);font-weight:600}
+#sub-product .pd-lede{max-width:72ch;color:var(--ink-2);margin:0 0 var(--s3)}
+#sub-product .pd-honest{border-left:3px solid var(--warn);background:var(--surface-2);padding:var(--s2) var(--s3);margin:0 0 var(--s4);font-size:13px;color:var(--ink-2);border-radius:0 var(--r1) var(--r1) 0;overflow-wrap:anywhere}
+#sub-product .pd-honest b{color:var(--ink)}
+#sub-product .pd-ctl{display:flex;flex-wrap:wrap;gap:var(--s3) var(--s4);align-items:flex-end;margin:0 0 var(--s3)}
+#sub-product .pd-lab{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin-bottom:var(--s1)}
+#sub-product .pd-seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--line-2);border-radius:var(--r2);overflow:hidden;background:var(--surface);max-width:100%}
+#sub-product .pd-seg button{font:inherit;font-size:13px;min-height:40px;padding:0 var(--s3);border:0;border-right:1px solid var(--line);background:transparent;color:var(--ink-2);cursor:pointer}
+#sub-product .pd-seg button:last-child{border-right:0}
+#sub-product .pd-seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+#sub-product .pd-out-btn{font:inherit;font-size:13px;min-height:40px;padding:0 var(--s3);border:1px solid var(--line-2);border-radius:var(--r1);background:var(--surface);color:var(--ink);cursor:pointer}
+#sub-product .pd-out-btn:hover{background:var(--surface-2)}
+#sub-product button:focus-visible,#sub-product input:focus-visible,#sub-product select:focus-visible,#sub-product textarea:focus-visible,#sub-product summary:focus-visible,#sub-product a:focus-visible,#sub-product label:focus-within{outline:2px solid var(--focus,var(--accent));outline-offset:2px}
+#sub-product .pd-scn{font-size:13px;color:var(--ink-2);margin:0 0 var(--s3);max-width:80ch}
+#sub-product .pd-scn b{font-family:var(--mono);font-size:12px;color:var(--ink)}
+#sub-product .pd-info{margin-top:var(--s5)}
+#sub-product .pd-info>h3{font-family:var(--serif);font-size:22px;letter-spacing:-.01em;margin:0 0 var(--s2)}
+#sub-product .pd-info details{border:1px solid var(--line);border-radius:var(--r2);background:var(--surface);margin:0 0 var(--s2);min-width:0}
+#sub-product .pd-info summary{cursor:pointer;min-height:40px;display:flex;align-items:center;padding:0 var(--s3);font-family:var(--serif);font-size:16px;gap:var(--s2)}
+#sub-product .pd-info .pd-bd{padding:0 var(--s3) var(--s3);font-size:13.5px;color:var(--ink-2);overflow-wrap:anywhere}
+#sub-product .pd-info ul{margin:0;padding-left:1.15em}
+#sub-product .pd-info li{margin:0 0 var(--s2)}
+#sub-product .pd-tw{overflow-x:auto;max-width:100%}
+#sub-product .pd-tbl{border-collapse:collapse;font-size:12.5px;min-width:520px;width:100%}
+#sub-product .pd-tbl th{text-align:left;font-family:var(--mono);font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3);padding:6px 8px;border-bottom:1px solid var(--line-2)}
+#sub-product .pd-tbl td{padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+#sub-product .pd-tbl code,#sub-product .pd-info code{font-family:var(--mono);font-size:12px;color:var(--ink)}
+#sub-product .pd-chip{display:inline-block;font-family:var(--mono);font-size:11px;padding:1px 6px;border:1px solid var(--line-2);border-radius:99px;color:var(--ink-2);background:var(--surface-2);white-space:nowrap}
+#sub-product .pd-chip.built{color:var(--ok);border-color:currentColor}
+#sub-product .pd-chip.gap{color:var(--bad);border-color:currentColor}
+#sub-product .pd-chip.prop{border-style:dashed;color:var(--warn)}
+#sub-product .pd-src{font:inherit;font-family:var(--mono);font-size:11px;padding:2px 8px;min-height:28px;border:1px solid var(--line-2);border-radius:var(--r1);background:var(--surface-2);color:var(--ink-2);cursor:copy;text-align:left;max-width:100%;overflow-wrap:anywhere}
+#sub-product .pd-src:hover{border-color:var(--accent);color:var(--ink)}
+#sub-product .pd-diffs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:var(--s3);margin-top:var(--s3)}
+#sub-product .pd-diffs>div{border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:var(--r2);background:var(--surface);padding:var(--s3);font-size:13px;color:var(--ink-2);min-width:0}
+#sub-product .pd-diffs b{font-family:var(--mono);font-size:12px;color:var(--ink)}
+#sub-product .pd-diffs p{margin:var(--s1) 0}
+
+/* ---------- the dark browser frame: console colours only here, set from ARGUS.console.designTokens ---------- */
+#sub-product .pd-frame{position:relative;border:1px solid var(--border-secondary);border-radius:12px;overflow:hidden;background:var(--bg-primary);color:var(--text-primary);font-family:var(--pd-sans,system-ui,sans-serif);font-size:14px;line-height:1.45;isolation:isolate;max-width:100%}
+#sub-product .pd-frame *{box-sizing:border-box}
+#sub-product .pd-chrome{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg-tertiary);border-bottom:1px solid var(--border-primary)}
+#sub-product .pd-dots{display:flex;gap:5px;flex:none}
+#sub-product .pd-dots i{width:9px;height:9px;border-radius:50%;background:var(--text-tertiary);opacity:.6}
+#sub-product .pd-url{flex:1;min-width:0;font-family:var(--pd-mono,monospace);font-size:11.5px;color:var(--text-secondary);background:var(--bg-primary);border:1px solid var(--border-primary);border-radius:6px;padding:4px 8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#sub-product .pd-fh{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:10px 14px;background:var(--bg-secondary);border-bottom:1px solid var(--border-primary)}
+#sub-product .pd-brand{font-weight:600;letter-spacing:.02em}
+#sub-product .pd-fh .sp{flex:1}
+#sub-product .pd-mono{font-family:var(--pd-mono,monospace);font-variant-numeric:tabular-nums}
+#sub-product .pd-steps{display:flex;list-style:none;margin:0;padding:0;background:var(--bg-secondary);border-bottom:1px solid var(--border-primary)}
+#sub-product .pd-steps li{flex:1;min-width:0}
+#sub-product .pd-steps button{width:100%;min-height:52px;border:0;border-bottom:3px solid transparent;background:transparent;color:var(--text-secondary);font:inherit;font-size:12px;cursor:pointer;padding:4px 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+#sub-product .pd-steps button:hover{background:var(--surface-hover)}
+#sub-product .pd-steps button[aria-current="step"]{color:var(--text-primary);border-bottom-color:var(--accent-info);background:color-mix(in srgb,var(--surface-selected) 40%,transparent)}
+#sub-product .pd-steps .n{font-family:var(--pd-mono,monospace);font-size:11px;display:inline-flex;gap:4px;align-items:center}
+#sub-product .pd-steps .ok{color:var(--accent-success)}
+#sub-product .pd-steps .bad{color:var(--accent-error)}
+#sub-product .pd-steps .wait{color:var(--accent-warning)}
+#sub-product .pd-body{padding:14px;min-height:420px}
+#sub-product .pd-badges{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 8px}
+#sub-product .pd-badge{font-family:var(--pd-mono,monospace);font-size:10px;line-height:1;padding:4px 8px;border-radius:99px;text-transform:uppercase;letter-spacing:.05em;border:1px solid var(--c,var(--border-secondary));color:var(--c,var(--text-secondary));background:color-mix(in srgb,var(--c,var(--text-tertiary)) 14%,transparent);white-space:nowrap}
+#sub-product .pd-badge.built{--c:var(--accent-success)}
+#sub-product .pd-badge.partial{--c:var(--accent-warning)}
+#sub-product .pd-badge.planned{--c:var(--accent-violet)}
+#sub-product .pd-badge.sim{--c:var(--accent-fuchsia);border-style:dashed}
+#sub-product .pd-badge.ill{--c:var(--accent-warning);border-style:dashed;background-image:repeating-linear-gradient(135deg,transparent 0 4px,color-mix(in srgb,var(--text-tertiary) 25%,transparent) 4px 5px)}
+#sub-product .pd-badge.real{--c:var(--accent-info)}
+#sub-product .pd-badge.bad{--c:var(--accent-error)}
+#sub-product .pd-badge.ok{--c:var(--accent-success)}
+#sub-product .pd-badge.warn{--c:var(--accent-warning)}
+#sub-product .pd-badge.stk{--c:var(--accent-fuchsia)}
+#sub-product .pd-detail{font-size:12.5px;color:var(--text-secondary);margin:0 0 10px}
+#sub-product .pd-diff{border:1px dashed var(--border-secondary);border-radius:8px;margin:0 0 12px;background:var(--bg-secondary);font-size:12.5px}
+#sub-product .pd-diff summary{cursor:pointer;min-height:36px;display:flex;align-items:center;padding:0 10px;color:var(--text-secondary);font-size:12px}
+#sub-product .pd-diff ul{margin:0;padding:0 12px 10px 28px;color:var(--text-secondary)}
+#sub-product .pd-diff li{margin:0 0 6px}
+#sub-product .pd-h4{margin:0 0 8px;font-size:12px;font-weight:600;color:var(--text-secondary);display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+#sub-product .pd-lbl{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-tertiary);font-weight:600;margin:0 0 4px}
+#sub-product .pd-sec{margin:0 0 16px}
+#sub-product .pd-card{background:var(--surface-card);border:1px solid var(--border-primary);border-radius:8px;padding:10px 12px;min-width:0}
+#sub-product .pd-two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));gap:14px}
+#sub-product .pd-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:0 0 14px}
+#sub-product .pd-kpi{background:var(--surface-card);border:1px solid var(--border-primary);border-radius:8px;padding:10px 12px;min-width:0}
+#sub-product .pd-kpi .v{font-family:var(--pd-mono,monospace);font-size:24px;line-height:1.15;font-variant-numeric:tabular-nums;margin:2px 0;overflow-wrap:anywhere}
+#sub-product .pd-kpi .s{font-size:11.5px;color:var(--text-secondary);overflow-wrap:anywhere}
+#sub-product .pd-fld{display:block;margin:0 0 12px}
+#sub-product .pd-fld>span.t{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center;font-size:12px;color:var(--text-secondary);margin-bottom:4px}
+#sub-product .pd-frame textarea,#sub-product .pd-frame select,#sub-product .pd-frame input[type=text]{width:100%;font:inherit;font-size:13px;min-height:40px;background:var(--bg-primary);color:var(--text-primary);border:1px solid var(--border-secondary);border-radius:6px;padding:8px 10px}
+#sub-product .pd-frame textarea{resize:vertical;min-height:130px;line-height:1.45}
+#sub-product .pd-drop{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;min-height:110px;padding:12px;border:1.5px dashed var(--border-secondary);border-radius:8px;background:var(--bg-secondary);cursor:pointer;color:var(--text-secondary);font-size:12.5px}
+#sub-product .pd-drop.over{border-color:var(--accent-info);background:color-mix(in srgb,var(--surface-selected) 40%,transparent)}
+#sub-product .pd-drop input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+#sub-product .pd-drop:focus-within{outline:2px solid var(--accent-info);outline-offset:2px}
+#sub-product .pd-file{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px}
+#sub-product .pd-file img{width:64px;height:64px;object-fit:cover;border-radius:6px;border:1px solid var(--border-secondary);background:var(--bg-tertiary)}
+#sub-product .pd-err{color:var(--accent-error);font-size:12px;margin-top:6px}
+#sub-product .pd-hint{color:var(--text-secondary);font-size:12px}
+#sub-product .pd-chk{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;color:var(--text-secondary);min-height:40px;padding:6px 0}
+#sub-product .pd-chk input{width:20px;height:20px;margin:0;flex:none}
+#sub-product .pd-btn{font:inherit;font-size:12.5px;min-height:40px;padding:0 14px;border-radius:6px;border:1px solid var(--border-secondary);background:var(--bg-tertiary);color:var(--text-primary);cursor:pointer}
+#sub-product .pd-btn:hover:not(:disabled){background:var(--surface-hover)}
+#sub-product .pd-btn.pri{background:var(--accent-primary);border-color:var(--accent-primary);color:#fff}
+#sub-product .pd-btn.pri:hover:not(:disabled){background:var(--accent-primary-hover)}
+#sub-product .pd-btn.dng{border-color:var(--accent-error);color:var(--accent-error)}
+#sub-product .pd-btn.warn{border-color:var(--accent-warning);color:var(--accent-warning)}
+#sub-product .pd-btn:disabled{opacity:.45;cursor:not-allowed}
+#sub-product .pd-acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 12px}
+#sub-product .pd-pre{margin:0;padding:10px 12px;background:var(--bg-primary);border:1px solid var(--border-primary);border-radius:6px;font-family:var(--pd-mono,monospace);font-size:11.5px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere;max-height:260px;overflow:auto;color:var(--text-primary)}
+#sub-product .pd-banner{display:flex;gap:8px;align-items:flex-start;border:1px solid var(--bc,var(--border-secondary));background:color-mix(in srgb,var(--bc,var(--text-tertiary)) 12%,transparent);border-radius:8px;padding:8px 10px;margin:0 0 12px;font-size:12.5px;overflow-wrap:anywhere}
+#sub-product .pd-banner b{font-family:var(--pd-mono,monospace);font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--bc,var(--text-secondary));flex:none}
+#sub-product .pd-banner[data-k=warn]{--bc:var(--accent-warning)}
+#sub-product .pd-banner[data-k=bad]{--bc:var(--accent-error)}
+#sub-product .pd-banner[data-k=info]{--bc:var(--accent-info)}
+#sub-product .pd-banner[data-k=ok]{--bc:var(--accent-success)}
+#sub-product .pd-banner[data-k=stk]{--bc:var(--accent-fuchsia)}
+#sub-product .pd-stages{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:8px;margin:0 0 14px}
+#sub-product .pd-stage{border:1px solid var(--border-secondary);border-radius:8px;background:var(--surface-card);padding:8px 10px;min-width:0}
+#sub-product .pd-stage.run{border-color:var(--accent-info);background:color-mix(in srgb,var(--surface-selected) 40%,transparent)}
+#sub-product .pd-stage.done{border-color:var(--accent-success)}
+#sub-product .pd-stage.halt{border-color:var(--accent-error)}
+#sub-product .pd-stage b{display:block;font-size:13px}
+#sub-product .pd-stage .pd-badge{white-space:normal;line-height:1.3}
+#sub-product .pd-stage .st{font-family:var(--pd-mono,monospace);font-size:11px;color:var(--text-secondary);margin:2px 0 4px}
+#sub-product .pd-meter{margin:0 0 10px}
+#sub-product .pd-meter .t{display:flex;flex-wrap:wrap;justify-content:space-between;gap:2px 10px;font-size:12px;margin-bottom:4px}
+#sub-product .pd-bar{height:10px;border-radius:5px;background:var(--bg-tertiary);overflow:hidden;border:1px solid var(--border-primary)}
+#sub-product .pd-bar i{display:block;height:100%;min-width:2px;background:var(--accent-info)}
+#sub-product .pd-bar.red i{background:var(--accent-error)}
+#sub-product .pd-prov{border-bottom:1px dotted var(--text-secondary);cursor:help}
+#sub-product .pd-tw2{overflow-x:auto;border:1px solid var(--border-primary);border-radius:8px;background:var(--surface-card);max-width:100%}
+#sub-product .pd-tw2 table{border-collapse:collapse;width:100%;font-size:12px;min-width:560px}
+#sub-product .pd-tw2 th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-tertiary);font-weight:600;padding:7px 10px;border-bottom:1px solid var(--border-primary);white-space:nowrap}
+#sub-product .pd-tw2 td{padding:6px 10px;border-bottom:1px solid var(--border-primary);vertical-align:top}
+#sub-product .pd-tw2 tr:last-child td{border-bottom:0}
+#sub-product .pd-tw2 tr.rep td{background-image:repeating-linear-gradient(135deg,transparent 0 7px,color-mix(in srgb,var(--text-tertiary) 9%,transparent) 7px 8px)}
+#sub-product .pd-tw2 tr.sel td{background:color-mix(in srgb,var(--surface-selected) 45%,transparent)}
+#sub-product .pd-tw2 td.num{text-align:right;font-family:var(--pd-mono,monospace);white-space:nowrap}
+#sub-product .pd-tw2 td.nw{white-space:nowrap}
+#sub-product .pd-tw2 tr.dup td:nth-child(4){color:var(--accent-fuchsia)}
+#sub-product .pd-rowb{font:inherit;font-family:var(--pd-mono,monospace);font-size:12px;color:var(--accent-info);background:none;border:0;padding:0;min-height:32px;cursor:pointer;text-align:left}
+#sub-product .pd-rowb:hover{text-decoration:underline}
+#sub-product .pd-ba{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 12px}
+#sub-product .pd-ba figure{margin:0;min-width:0}
+#sub-product .pd-ba figcaption{font-size:11px;color:var(--text-secondary);margin-top:4px;display:flex;flex-wrap:wrap;gap:4px 6px;align-items:center}
+#sub-product .pd-ph{position:relative;aspect-ratio:9/16;max-height:300px;width:100%;border:1px solid var(--border-secondary);border-radius:10px;overflow:hidden;background:var(--bg-secondary)}
+#sub-product .pd-ph img,#sub-product .pd-ph svg{display:block;width:100%;height:100%;object-fit:cover;object-position:top}
+#sub-product .pd-ph.ill::after{content:"";position:absolute;inset:0;pointer-events:none;background-image:repeating-linear-gradient(135deg,transparent 0 9px,color-mix(in srgb,var(--text-tertiary) 16%,transparent) 9px 10px)}
+#sub-product .pd-chk-list{display:grid;gap:2px;margin:0 0 10px}
+#sub-product .pd-rev-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+@media (min-width:860px){#sub-product .pd-rev-grid{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)}}
+#sub-product .pd-pr-head{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin:0 0 8px}
+#sub-product .pd-pr-head h4{margin:0;font-size:15px;overflow-wrap:anywhere;flex:1 1 220px}
+#sub-product .pd-ci{list-style:none;margin:0;padding:0}
+#sub-product .pd-ci li{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-primary);font-size:12.5px}
+#sub-product .pd-ci li:last-child{border-bottom:0}
+#sub-product .pd-gh{display:grid;gap:8px}
+#sub-product .pd-gh .row{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;color:var(--text-secondary)}
+#sub-product .pd-gh .row .no{flex:none;font-family:var(--pd-mono,monospace);width:22px;height:22px;border-radius:50%;border:1px solid var(--border-secondary);display:inline-flex;align-items:center;justify-content:center;font-size:11px;color:var(--text-primary)}
+#sub-product .pd-frame details>summary{cursor:pointer}
+#sub-product .pd-frame details.pd-real{border:1px solid var(--border-primary);border-radius:8px;background:var(--surface-card);margin:0 0 12px}
+#sub-product .pd-frame details.pd-real summary{min-height:40px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:6px 10px;font-size:12.5px}
+#sub-product .pd-frame details.pd-real .in{padding:0 10px 10px}
+#sub-product .pd-frame .pd-src{background:var(--bg-tertiary);color:var(--text-secondary);border-color:var(--border-secondary)}
+@media (max-width:480px){#sub-product .pd-body{padding:10px}#sub-product .pd-ba{gap:6px}#sub-product .pd-steps button{font-size:11px}#sub-product .pd-fh{padding:8px 10px}}
+@media (prefers-reduced-motion:reduce){#sub-product *{animation:none!important;transition:none!important}}
+</style>
+
+<div id="pd-root">
+  <h2 class="pd-h"><small>04 Final product</small>The finished Argus, as a clickable prototype</h2>
+  <p class="pd-lede">Five screens in one flow: type an issue, watch the run, review the verdict and the before/after, see the PR the agent raises, then check history. Everything inside the frame is a <b>prototype</b>: nothing is uploaded, no model is called, and no pull request is ever created. Use the switcher to see the quota, stuck, verifier-failed and judge-disagrees cases.</p>
+  <div class="pd-honest" id="pd-honest"></div>
+  <div class="pd-ctl">
+    <div><span class="pd-lab" id="pd-scn-lab">Scenario (applies to the next run)</span><div class="pd-seg" id="pd-scn" role="group" aria-labelledby="pd-scn-lab"></div></div>
+    <div><button type="button" class="pd-out-btn" id="pd-reset">Reset prototype</button></div>
+  </div>
+  <p class="pd-scn" id="pd-scn-note" aria-live="polite"></p>
+  <div class="pd-frame" id="pd-frame" aria-label="Prototype browser window">
+    <div class="pd-chrome"><span class="pd-dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="pd-url" id="pd-url"></span><span class="pd-badge sim">prototype</span></div>
+    <div class="pd-fh"><span class="pd-brand">Argus</span><span class="pd-badge info" style="--c:var(--accent-info)">profile: personal</span><span class="sp"></span><span class="pd-badge ill">illustrative data</span></div>
+    <ol class="pd-steps" id="pd-steps" aria-label="Flow stepper"></ol>
+    <div class="pd-body" id="pd-body"></div>
+  </div>
+  <div class="pd-info" id="pd-info"></div>
+  <div id="pd-live" class="sr-only" aria-live="polite"></div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var root = document.getElementById('pd-root');
+  var A = window.ARGUS || {};
+  var U = A.finalUi;
+  if (!U) { root.append(document.createTextNode('final-ui.json is missing from ARGUS. Run node analysis/explainer-src/build.mjs after analysis/swarm/final-ui.json exists.')); return; }
+  var SIM = U.sim, REAL = U.realArtifacts, TG = U.targets;
+  var SCREENS = U.screens, BYID = {}; SCREENS.forEach(function (s) { BYID[s.id] = s; });
+  var STATE_OF = { reproduce: 'reproducing', locate: 'locating', fix: 'fixing', verify: 'verifying' };
+
+  /* ---------- helpers ---------- */
+  function h(tag, attrs) {
+    var e = document.createElement(tag), i, k, v, c;
+    if (attrs) for (k in attrs) {
+      v = attrs[k]; if (v == null || v === false) continue;
+      if (k === 'class') e.className = v;
+      else if (k === 'text') e.textContent = v;
+      else if (k.slice(0, 2) === 'on') e.addEventListener(k.slice(2), v);
+      else if (k === 'value' || k === 'checked' || k === 'disabled') e[k] = v;
+      else e.setAttribute(k, v === true ? '' : v);
+    }
+    for (i = 2; i < arguments.length; i++) { c = arguments[i]; add(e, c); }
+    return e;
+  }
+  function add(e, c) {
+    if (c == null || c === false) return;
+    if (Array.isArray(c)) { c.forEach(function (x) { add(e, x); }); return; }
+    e.append(c.nodeType ? c : document.createTextNode(String(c)));
+  }
+  function empty(e) { while (e.firstChild) e.removeChild(e.firstChild); return e; }
+  function fmt(n) { return Number(n).toLocaleString('en-US'); }
+  function pad(n, w) { return String(n).padStart(w, '0'); }
+  function copyChip(txt) {
+    var b = h('button', { class: 'pd-src', type: 'button', title: 'Click to copy', text: txt });
+    b.addEventListener('click', function () { try { navigator.clipboard.writeText(txt); b.textContent = 'copied'; setTimeout(function () { b.textContent = txt; }, 900); } catch (e) { /* clipboard unavailable */ } });
+    return b;
+  }
+  function badge(cls, text, title) { return h('span', { class: 'pd-badge ' + cls, text: text, title: title || null }); }
+  function banner(k, label, text) { return h('div', { class: 'pd-banner', 'data-k': k, role: 'status' }, h('b', { text: label }), h('span', { text: text })); }
+  function wilson(k, n) {
+    if (!n) return null; var z = 1.96, p = k / n, d = 1 + z * z / n, c = p + z * z / (2 * n), m = z * Math.sqrt(p * (1 - p) / n + z * z / (4 * n * n));
+    return [Math.max(0, (c - m) / d), Math.min(1, (c + m) / d)];
+  }
+  function say(msg) { var l = document.getElementById('pd-live'); if (l) l.textContent = msg; }
+
+  /* ---------- state ---------- */
+  var S;
+  function fresh() {
+    return {
+      step: 'issue', scenario: 'normal', trigger: 'typed', quotaCleared: false,
+      form: { text: '', repo: TG.repos[0].id, route: TG.routes[0], ack: false, file: null, fileUrl: null, exShot: false, err: '' },
+      ticket: null, run: null, review: { decision: null, channel: 'review-comment', timedOut: false, raced: false, err: '' },
+      pr: null, history: [], includeSim: false, selRun: null, runSeq: 0, tSeq: 0, timer: null, ciTimer: null, msg: ''
+    };
+  }
+  function stopTimers() { clearTimeout(S.timer); clearTimeout(S.ciTimer); }
+  S = fresh();
+  window.__pd = { get S() { return S; } };
+
+  /* ---------- frame tokens (from ARGUS.console.designTokens) ---------- */
+  var frame = document.getElementById('pd-frame'), TK = A.console && A.console.designTokens;
+  if (TK) {
+    var D = TK.extracted.dark, k;
+    for (k in D) frame.style.setProperty(k, D[k]);
+    var P = TK.proposed || {};
+    ['verdict', 'ticketState'].forEach(function (g) { if (P[g]) for (var kk in P[g]) if (kk.indexOf('--') === 0) frame.style.setProperty(kk, P[g][kk]); });
+    frame.style.setProperty('--pd-sans', "'" + TK.extracted.fonts.sans + "', system-ui, sans-serif");
+    frame.style.setProperty('--pd-mono', "'" + TK.extracted.fonts.mono + "', ui-monospace, Consolas, monospace");
+  }
+
+  /* ---------- scenario ---------- */
+  function effScenario() { if (S.scenario === 'quota' && S.quotaCleared) return 'normal'; return S.scenario; }
+  function scenarioCfg(attempt) {
+    var sc = effScenario();
+    if (sc === 'stuck' && attempt > 1) sc = 'normal';
+    return { id: sc, cfg: SIM.scenario[sc] || {} };
+  }
+  function tokensUntilHalt(cfg) {
+    var total = 0;
+    for (var i = 0; i < SIM.stages.length; i++) {
+      var st = SIM.stages[i];
+      for (var j = 0; j < st.events.length; j++) {
+        if (cfg.haltStage === st.id && j === cfg.afterEvent) return total;
+        total += st.events[j].in + st.events[j].out;
+      }
+    }
+    return total;
+  }
+
+  /* ---------- stepper / routing ---------- */
+  var URLS = { issue: '/issues/new', run: '/runs/{id}', review: '/runs/{id}/review', pr: '/runs/{id}/pull-request', history: '/history' };
+  function stepMark(id) {
+    var r = S.run, d = S.review.decision;
+    if (id === 'issue') return S.ticket ? ['ok', 'done'] : null;
+    if (id === 'run') { if (!r) return null; if (r.status === 'running') return ['wait', 'running']; if (r.status === 'done') return ['ok', 'done']; return ['bad', r.state]; }
+    if (id === 'review') { if (!d) return r && r.status === 'done' ? ['wait', 'waiting'] : null; return [d === 'approved' ? 'ok' : 'bad', d]; }
+    if (id === 'pr') return S.pr ? ['ok', S.pr.merged ? 'merged' : S.pr.draft ? 'draft' : 'ready'] : null;
+    if (id === 'history') return S.history.length ? ['ok', S.history.length + ' sim'] : null;
+    return null;
+  }
+  function renderSteps() {
+    var ol = empty(document.getElementById('pd-steps'));
+    SCREENS.forEach(function (s) {
+      var m = stepMark(s.id);
+      var b = h('button', { type: 'button', 'aria-label': s.n + ' ' + s.title + (m ? ', ' + m[1] : ''), 'aria-current': S.step === s.id ? 'step' : null, onclick: function () { go(s.id); } },
+        h('span', { class: 'n' }, String(s.n), m ? h('span', { class: m[0], 'aria-hidden': 'true', text: m[0] === 'ok' ? '✓' : m[0] === 'bad' ? '!' : '…' }) : null),
+        h('span', { text: s.short }),
+        m ? h('span', { class: 'pd-mono ' + m[0], style: 'font-size:10px', text: m[1] }) : null);
+      ol.append(h('li', null, b));
+    });
+  }
+  function go(id, focus) {
+    S.step = id; renderSteps();
+    var url = (URLS[id] || '/').replace('{id}', S.run ? S.run.id : 'run-000');
+    document.getElementById('pd-url').textContent = 'argus.example' + url;
+    var body = empty(document.getElementById('pd-body'));
+    var sc = BYID[id];
+    body.append(screenHead(sc));
+    var f = { issue: renderIssue, run: renderRun, review: renderReview, pr: renderPR, history: renderHistory }[id];
+    f(body);
+    renderInfo();
+    if (focus) { var hd = body.querySelector('[data-h]'); if (hd) { hd.setAttribute('tabindex', '-1'); hd.focus(); } }
+  }
+  function screenHead(sc) {
+    var ph = {}; sc.delivery.forEach(function (d) { ph[d.phase] = d.status; });
+    var bs = h('div', { class: 'pd-badges' }, badge(sc.built.level, sc.built.label, sc.built.detail));
+    Object.keys(ph).forEach(function (p) {
+      if (p === 'none') bs.append(badge('bad', 'GAP: no task', 'No phase task owns this'));
+      else if (p === 'lane') bs.append(badge('planned', 'PLANNED: report lane'));
+      else bs.append(badge(ph[p] === 'built' ? 'built' : 'planned', (ph[p] === 'built' ? 'BUILT ' : 'PLANNED ') + p));
+    });
+    var wrap = h('div', null, h('h3', { 'data-h': '1', style: 'margin:0 0 6px;font-size:18px', text: sc.n + '. ' + sc.title }), bs, h('p', { class: 'pd-detail', text: sc.built.detail }));
+    var dl = h('ul', null, sc.differs.map(function (d) { return h('li', null, d.note + ' ', copyChip(d.cite)); }));
+    wrap.append(h('details', { class: 'pd-diff' }, h('summary', { text: 'Differs from plan (' + sc.differs.length + ')' }), dl));
+    return wrap;
+  }
+
+  /* ---------- screen 1: issue ---------- */
+  function exampleText() { return REAL.ticket.text; }
+  function ticketJson() {
+    var f = S.form, ex = f.text === exampleText();
+    var shot = f.file ? { media_type: f.file.type, path: 'shots/' + f.file.name } : (f.exShot ? REAL.ticket.screenshot : null);
+    var t = f.text.trim(); if (t.length > 140) t = t.slice(0, 140) + ' …(preview truncated)';
+    return JSON.stringify({ id: ex ? REAL.ticket.id : 'T-' + pad(S.tSeq + 1, 3), text: t, screenshot: shot }, null, 2);
+  }
+  function renderIssue(body) {
+    var f = S.form;
+    body.append(h('div', { class: 'pd-sec' }, h('span', { class: 'pd-lbl', text: 'Trigger' }),
+      h('div', { class: 'pd-seg', role: 'group', 'aria-label': 'Trigger', style: 'border-color:var(--border-secondary);background:var(--bg-secondary)' },
+        U.triggers.map(function (t) { return h('button', { type: 'button', 'aria-pressed': S.trigger === t.id ? 'true' : 'false', style: 'color:' + (S.trigger === t.id ? 'var(--bg-primary)' : 'var(--text-secondary)') + ';background:' + (S.trigger === t.id ? 'var(--text-primary)' : 'transparent') + ';border-right-color:var(--border-secondary)', onclick: function () { S.trigger = t.id; go('issue'); } }, t.label); })),
+      h('p', { class: 'pd-hint', style: 'margin:6px 0 0' }, badge(S.trigger === 'typed' ? 'partial' : 'planned', U.triggers.filter(function (t) { return t.id === S.trigger; })[0].tag), ' ', U.triggers.filter(function (t) { return t.id === S.trigger; })[0].blurb)));
+    if (S.trigger === 'github') return renderGithub(body);
+
+    var ta = h('textarea', { id: 'pd-text', rows: '6', 'aria-describedby': 'pd-text-h', value: f.text, placeholder: 'What is wrong, where, on which device. Plain text only.' });
+    var counter = h('span', { class: 'pd-hint pd-mono', id: 'pd-count' });
+    var shotBox = h('div', { id: 'pd-shot' });
+    var preview = h('pre', { class: 'pd-pre', id: 'pd-prev', 'aria-label': 'Ticket JSON preview' });
+    var startBtn = h('button', { type: 'button', class: 'pd-btn pri', id: 'pd-start', text: 'Start run (simulated)' });
+    var hint = h('p', { class: 'pd-hint', id: 'pd-start-h', 'aria-live': 'polite' });
+    var fileIn = h('input', { type: 'file', id: 'pd-file', accept: 'image/png,image/jpeg,image/webp', 'aria-describedby': 'pd-file-h' });
+    var drop = h('label', { class: 'pd-drop', for: 'pd-file' }, h('b', { text: 'Drop a screenshot here, or press to choose' }), h('span', { id: 'pd-file-h', text: 'Optional. PNG, JPEG or WebP, up to ' + TG.maxFileMB + ' MB (' + TG.maxFileNote + ') Read in this tab only; never uploaded.' }), fileIn);
+
+    function refresh() {
+      counter.textContent = f.text.length + ' characters';
+      preview.textContent = ticketJson();
+      var missing = [];
+      if (!f.text.trim()) missing.push('issue text');
+      if (!f.ack) missing.push('the public-or-synthetic acknowledgement');
+      startBtn.disabled = missing.length > 0;
+      hint.textContent = missing.length ? 'Start is disabled: needs ' + missing.join(' and ') + '.' : 'Ready. This creates a simulated run only.';
+      empty(shotBox);
+      if (f.file || f.exShot) {
+        var src = f.file ? f.fileUrl : REAL.ticket.screenshotRepoPath;
+        var img = h('img', { alt: f.file ? 'Preview of the attached screenshot' : 'Real BUG-17 screenshot', src: src });
+        img.addEventListener('error', function () { img.style.display = 'none'; });
+        shotBox.append(h('div', { class: 'pd-file' }, img, h('div', null,
+          h('div', { class: 'pd-mono', style: 'font-size:12px;overflow-wrap:anywhere', text: f.file ? f.file.name + ' · ' + f.file.type + ' · ' + Math.ceil(f.file.size / 1024) + ' KB' : 'shots/radar-card.png · image/png (real, from bug-17)' }),
+          h('div', { class: 'pd-hint', text: f.file ? 'Stays in this tab. No network request was made.' : 'Loaded from the repo by relative path; if it does not show, the page was moved away from the repo root.' }),
+          h('button', { type: 'button', class: 'pd-btn', style: 'margin-top:6px;min-height:36px', text: 'Remove screenshot', onclick: function () { clearFile(); refresh(); } }))));
+      }
+      empty(errBox); if (f.err) errBox.append(h('div', { class: 'pd-err', role: 'alert', text: f.err }));
+    }
+    function clearFile() { if (f.fileUrl) { try { URL.revokeObjectURL(f.fileUrl); } catch (e) { /* ignore */ } } f.file = null; f.fileUrl = null; f.exShot = false; f.err = ''; fileIn.value = ''; }
+    function takeFile(file) {
+      if (!file) return;
+      if (!/^image\/(png|jpeg|webp)$/.test(file.type)) { f.err = 'Not accepted: ' + (file.type || 'unknown type') + '. Use PNG, JPEG or WebP. Your text is kept.'; refresh(); return; }
+      if (file.size > TG.maxFileMB * 1024 * 1024) { f.err = 'Not accepted: ' + Math.ceil(file.size / 1048576) + ' MB is over the ' + TG.maxFileMB + ' MB prototype limit. Your text is kept.'; refresh(); return; }
+      clearFile(); f.file = file; f.fileUrl = URL.createObjectURL(file); refresh();
+    }
+    var errBox = h('div');
+    ta.addEventListener('input', function () { f.text = ta.value; refresh(); });
+    fileIn.addEventListener('change', function () { takeFile(fileIn.files && fileIn.files[0]); });
+    ['dragenter', 'dragover'].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add('over'); }); });
+    ['dragleave', 'drop'].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove('over'); }); });
+    drop.addEventListener('drop', function (e) { takeFile(e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]); });
+
+    var repoSel = h('select', { id: 'pd-repo' }, TG.repos.map(function (r) { return h('option', { value: r.id, text: r.label }); }));
+    repoSel.value = f.repo; repoSel.addEventListener('change', function () { f.repo = repoSel.value; repoNote.textContent = TG.repos.filter(function (r) { return r.id === f.repo; })[0].note; });
+    var repoNote = h('span', { class: 'pd-hint', text: TG.repos.filter(function (r) { return r.id === f.repo; })[0].note });
+    var routeSel = h('select', { id: 'pd-route' }, TG.routes.map(function (r) { return h('option', { value: r, text: r }); }));
+    routeSel.value = f.route; routeSel.addEventListener('change', function () { f.route = routeSel.value; });
+    var ack = h('input', { type: 'checkbox', id: 'pd-ack', checked: f.ack });
+    ack.addEventListener('change', function () { f.ack = ack.checked; refresh(); });
+
+    startBtn.addEventListener('click', function () {
+      if (startBtn.disabled) return;
+      var ex = f.text === exampleText();
+      S.ticket = { id: ex ? REAL.ticket.id : 'T-' + pad(++S.tSeq, 3), text: f.text.trim(), screenshot: f.file ? { media_type: f.file.type, path: 'shots/' + f.file.name } : (f.exShot ? REAL.ticket.screenshot : null), fileUrl: f.file ? f.fileUrl : null, example: ex, exShot: f.exShot, trigger: 'typed', repo: f.repo, route: f.route };
+      startRun(1, '');
+    });
+
+    body.append(h('div', { class: 'pd-two' },
+      h('div', null,
+        h('label', { class: 'pd-fld', for: 'pd-text' }, h('span', { class: 't' }, 'Issue text ', badge('real', 'ticket.text', 'ticket.schema.json: required, minLength 1'), counter), ta,
+          h('span', { class: 'pd-hint', id: 'pd-text-h', text: 'Treated as untrusted text for every later prompt; it is shown as text, never as HTML.' })),
+        h('div', { class: 'pd-acts' }, h('button', { type: 'button', class: 'pd-btn', text: 'Load the real BUG-17 ticket', onclick: function () { f.text = exampleText(); f.exShot = !f.file; ta.value = f.text; refresh(); } }), h('button', { type: 'button', class: 'pd-btn', text: 'Clear text', onclick: function () { f.text = ''; ta.value = ''; refresh(); } })),
+        h('div', { class: 'pd-fld' }, h('span', { class: 't' }, 'Screenshot ', badge('real', 'ticket.screenshot', 'optional; media_type + path'), badge('partial', 'optional')), drop, shotBox, errBox)),
+      h('div', null,
+        h('label', { class: 'pd-fld', for: 'pd-repo' }, h('span', { class: 't' }, 'Repo ', badge('planned', 'P8 .argus.yml')), repoSel, repoNote),
+        h('label', { class: 'pd-fld', for: 'pd-route' }, h('span', { class: 't' }, 'Route to test ', badge('planned', 'checks.json params.flow'), copyChip(TG.routesCite)), routeSel, h('span', { class: 'pd-hint', text: 'Viewport ' + TG.viewport + ' (fixed; ' + TG.viewportCite + ').' })),
+        h('div', { class: 'pd-chk' }, ack, h('label', { for: 'pd-ack', text: 'This is public or synthetic code and screenshots only. Free-tier model prompts may be used for training (PLAN.md:14).' })),
+        h('div', { class: 'pd-sec' }, h('span', { class: 'pd-lbl', text: 'Ticket JSON this would write (schema fields only)' }), preview),
+        h('div', { class: 'pd-acts' }, startBtn), hint)));
+    refresh();
+  }
+  function renderGithub(body) {
+    var f = S.form;
+    var msg = h('div', { 'aria-live': 'polite' });
+    function trigger(ok) {
+      empty(msg);
+      if (!ok) { msg.append(banner('warn', 'ignored', 'Label added by a user without write access: ignored and logged, no workflow starts (P8-T24).')); return; }
+      if (!f.text.trim()) { f.text = exampleText(); f.exShot = true; }
+      var ex = f.text === exampleText();
+      S.ticket = { id: ex ? REAL.ticket.id : 'T-' + pad(++S.tSeq, 3), text: f.text.trim(), screenshot: f.file ? { media_type: f.file.type, path: 'shots/' + f.file.name } : (f.exShot ? REAL.ticket.screenshot : null), fileUrl: f.file ? f.fileUrl : null, example: ex, exShot: f.exShot, trigger: 'github', repo: f.repo, route: f.route };
+      startRun(1, '');
+    }
+    body.append(h('div', { class: 'pd-two' },
+      h('div', { class: 'pd-card' }, h('span', { class: 'pd-lbl', text: 'What happens (PLAN.md flow)' }),
+        h('div', { class: 'pd-gh' },
+          [['1', 'Someone adds the label `argus` to an issue on an installed repo.'], ['2', 'GitHub sends a webhook. It is a hint: the handler enqueues a reconcile and returns 202, even after a Render cold start (P6-T06).'], ['3', 'The reconcile poller reads GitHub (issue, PR, run) and starts one workflow keyed by the ticket id (P6-T07).'], ['4', 'The job runs on GitHub Actions, in the tenant repo from P8 (P8-T04).']].map(function (r) { return h('div', { class: 'row' }, h('span', { class: 'no', text: r[0] }), h('span', { text: r[1] })); })),
+        h('div', { class: 'pd-acts', style: 'margin-top:10px' }, copyChip('phases/P06-argus-flow.md:41-43'), copyChip('phases/P08-argus-app.md:44'))),
+      h('div', { class: 'pd-card' }, h('span', { class: 'pd-lbl', text: 'Simulate the label event' }),
+        h('p', { class: 'pd-hint', style: 'margin-top:0', text: 'Uses the text from the typed form if you wrote one; otherwise loads the real BUG-17 ticket. No GitHub call is made.' }),
+        h('div', { class: 'pd-acts' },
+          h('button', { type: 'button', class: 'pd-btn pri', text: 'Add label `argus` as a collaborator', onclick: function () { trigger(true); } }),
+          h('button', { type: 'button', class: 'pd-btn warn', text: 'Add label as a user without write access', onclick: function () { trigger(false); } })),
+        msg)));
+  }
+
+  /* ---------- run simulation ---------- */
+  function startRun(attempt, note) {
+    stopTimers();
+    var sc = scenarioCfg(attempt), cfg = sc.cfg;
+    var base = 60;
+    if (cfg.meterUsed) base = cfg.meterUsed - tokensUntilHalt(cfg);
+    S.run = { id: 'run-' + pad(++S.runSeq, 3), ticket: S.ticket.id, attempt: attempt, note: note || '', sc: sc.id, stage: 0, ev: 0, events: [], tin: 0, tout: 0, tcached: 0, reqs: 0, t: 0, base: base, status: 'running', state: 'queued', stop: null, stopAsk: false, resetSim: false, stageStatus: {} };
+    S.review = { decision: null, channel: S.review.channel, timedOut: false, raced: false, err: '' };
+    S.pr = null;
+    recordHistory();
+    say('Simulated run ' + S.run.id + ' started.');
+    go('run', true);
+    S.timer = setTimeout(tick, SIM.tick_ms);
+  }
+  function tick() {
+    var r = S.run; if (!r || r.status !== 'running') return;
+    var cfg = scenarioCfg(r.attempt).cfg, st = SIM.stages[r.stage];
+    r.state = STATE_OF[st.id];
+    if (cfg.haltStage === st.id && r.ev === cfg.afterEvent) { halt(cfg, st); return; }
+    var ev = st.events[r.ev];
+    push(st.id, ev);
+    r.ev++;
+    if (r.ev >= st.events.length) { r.stageStatus[st.id] = 'done'; r.stage++; r.ev = 0; if (r.stage >= SIM.stages.length) { finish(); return; } }
+    refreshRun();
+    S.timer = setTimeout(tick, SIM.tick_ms);
+  }
+  function push(stage, ev, extra) {
+    var r = S.run; r.t += 1.8;
+    var e = { i: r.events.length, t: r.t, stage: stage, tool: ev.tool, msg: ev.msg, tin: ev.in || 0, tout: ev.out || 0, tc: ev.cached || 0, stop: null };
+    if (extra) for (var k in extra) e[k] = extra[k];
+    r.events.push(e); r.tin += e.tin; r.tout += e.tout; r.tcached += e.tc; if (e.tin > 0) r.reqs++;
+  }
+  function halt(cfg, st) {
+    var r = S.run, i;
+    if (cfg.repeat) for (i = 0; i < cfg.repeat.times; i++) push(st.id, cfg.repeat);
+    push(st.id, { tool: cfg.stop_reason === 'QuotaExceeded' ? 'model-call' : 'locate', msg: cfg.msg, in: 0, out: 0 }, { stop: cfg.stop_reason });
+    r.stageStatus[st.id] = 'halt'; r.status = cfg.state; r.state = cfg.state; r.stop = cfg.stop_reason;
+    if (cfg.state === 'quota-wait') r.quotaUsed = cfg.meterUsed;
+    recordHistory(); renderSteps(); refreshRun();
+    say('Run halted: ' + cfg.stop_reason + '.');
+  }
+  function finish() {
+    var r = S.run;
+    r.status = 'done'; r.state = 'awaiting-qa'; r.stop = 'submit';
+    r.events[r.events.length - 1].stop = 'submit';
+    r.verdict = r.sc === 'verifier' ? SIM.scenario.verifier : r.sc === 'judge' ? SIM.scenario.judge : SIM.normalVerdict;
+    recordHistory(); renderSteps(); refreshRun();
+    say('Simulated run finished. Waiting for QA.');
+  }
+  function recordHistory() {
+    var r = S.run; if (!r) return;
+    var rec = S.history.filter(function (x) { return x.id === r.id; })[0];
+    if (!rec) { rec = { id: r.id }; S.history.unshift(rec); }
+    rec.ticket = r.ticket; rec.attempt = r.attempt; rec.sc = r.sc; rec.state = r.state; rec.stop = r.stop; rec.tin = r.tin; rec.tout = r.tout; rec.tcached = r.tcached; rec.decision = S.review.decision; rec.pr = S.pr ? (S.pr.merged ? 'merged' : S.pr.draft ? 'draft' : 'ready') : null; rec.t = r.t;
+  }
+
+  /* ---------- screen 2: run ---------- */
+  var RUNREF = {};
+  function meter(label, used, cap, prov, red) {
+    var pct = Math.min(100, used / cap * 100);
+    return h('div', { class: 'pd-meter' }, h('div', { class: 't' }, h('span', null, label + ' ', h('span', { class: 'pd-prov', title: prov, text: prov.indexOf('published') === 0 ? 'published' : 'measured' })), h('span', { class: 'pd-mono', text: fmt(used) + ' / ' + fmt(cap) })),
+      h('div', { class: 'pd-bar' + (red ? ' red' : ''), role: 'img', 'aria-label': label + ' ' + Math.round(pct) + ' percent used' }, h('i', { style: 'width:' + pct + '%' })));
+  }
+  function renderRun(body) {
+    var r = S.run;
+    if (!r) {
+      body.append(h('div', { class: 'pd-card' }, h('p', { style: 'margin:0 0 10px', text: S.ticket ? 'No run yet for ticket ' + S.ticket.id + '.' : 'No run yet. A run starts when you submit an issue.' }),
+        h('div', { class: 'pd-acts' }, S.ticket ? h('button', { type: 'button', class: 'pd-btn pri', text: 'Start run (simulated)', onclick: function () { startRun(1, ''); } }) : h('button', { type: 'button', class: 'pd-btn pri', text: 'Go to New issue', onclick: function () { go('issue', true); } }))));
+      return;
+    }
+    RUNREF = {
+      facts: h('div', { class: 'pd-card pd-sec' }), stages: h('div', { class: 'pd-stages' }), banner: h('div', { 'aria-live': 'polite' }), meters: h('div', { class: 'pd-card pd-sec' }), table: h('div', { class: 'pd-tw2' }), totals: h('p', { class: 'pd-hint pd-mono' }), acts: h('div', { class: 'pd-acts' })
+    };
+    var stopB = h('button', { type: 'button', class: 'pd-btn dng', id: 'pd-stop', text: 'Stop run', onclick: function () { r.stopAsk = true; refreshRun(); document.getElementById('pd-stop-yes').focus(); } });
+    var stopYes = h('button', { type: 'button', class: 'pd-btn dng', id: 'pd-stop-yes', text: 'Confirm stop', onclick: function () { stopRun(); } });
+    var stopNo = h('button', { type: 'button', class: 'pd-btn', id: 'pd-stop-no', text: 'Keep running', onclick: function () { r.stopAsk = false; refreshRun(); stopB.focus(); } });
+    var retry = h('button', { type: 'button', class: 'pd-btn', id: 'pd-retry', text: 'Retry (new run id)', onclick: function () { startRun(S.run.attempt + 1, 'retry of ' + S.run.id); } });
+    var reset = h('button', { type: 'button', class: 'pd-btn warn', id: 'pd-reset-utc', text: 'Simulate the 00:00 UTC reset', onclick: function () { S.run.resetSim = true; S.quotaCleared = true; refreshRun(); say('Quota reset simulated. Retry is allowed.'); } });
+    var skip = h('button', { type: 'button', class: 'pd-btn', id: 'pd-skip', text: 'Skip to end (prototype only)', onclick: function () { while (S.run && S.run.status === 'running') tick0(); } });
+    var toRev = h('button', { type: 'button', class: 'pd-btn pri', id: 'pd-to-review', text: 'Go to review', onclick: function () { go('review', true); } });
+    RUNREF.btns = { stop: stopB, yes: stopYes, no: stopNo, retry: retry, reset: reset, skip: skip, rev: toRev };
+    RUNREF.acts.append(stopB, stopYes, stopNo, retry, reset, skip, toRev);
+    var real = h('details', { class: 'pd-real' }, h('summary', null, badge('built', 'BUILT TODAY'), badge('partial', 'fixture replay'), h('span', { text: 'Real artifact behind the Reproduce stage (bug-17)' })),
+      h('div', { class: 'in' },
+        h('p', { class: 'pd-hint', text: REAL.trajectory.honest }),
+        h('div', { class: 'pd-acts' }, copyChip(REAL.trajectory.path), copyChip(REAL.trajectory.specPath), copyChip('uv run --package repro-agent python -m repro_agent.batch text-only')),
+        h('span', { class: 'pd-lbl', text: 'meta line (TrajectoryMeta)' }), h('pre', { class: 'pd-pre', text: JSON.stringify(REAL.trajectory.meta, null, 2) }),
+        h('span', { class: 'pd-lbl', style: 'margin-top:8px', text: 'step 0 (TrajectoryStep)' }), h('pre', { class: 'pd-pre', text: JSON.stringify(REAL.trajectory.step, null, 2) }),
+        h('span', { class: 'pd-lbl', style: 'margin-top:8px', text: 'repro.spec.ts (the canned reply)' }), h('pre', { class: 'pd-pre', text: REAL.trajectory.spec })));
+    body.append(RUNREF.facts, RUNREF.stages, RUNREF.banner, RUNREF.meters, h('div', { class: 'pd-sec' }, h('div', { class: 'pd-h4' }, 'Step timeline ', badge('sim', SIM.tag), badge('ill', 'illustrative tokens'), badge('real', 'fields: TrajectoryStep')), RUNREF.table, RUNREF.totals), RUNREF.acts, real, h('p', { class: 'pd-hint', text: SIM.note }));
+    refreshRun();
+  }
+  function tick0() { var r = S.run; clearTimeout(S.timer); var was = r.status; var guard = 0; while (r.status === 'running' && guard++ < 60) { var cfg = scenarioCfg(r.attempt).cfg, st = SIM.stages[r.stage]; r.state = STATE_OF[st.id]; if (cfg.haltStage === st.id && r.ev === cfg.afterEvent) { halt(cfg, st); return; } push(st.id, st.events[r.ev]); r.ev++; if (r.ev >= st.events.length) { r.stageStatus[st.id] = 'done'; r.stage++; r.ev = 0; if (r.stage >= SIM.stages.length) { finish(); return; } } } void was; }
+  function stopRun() {
+    var r = S.run; clearTimeout(S.timer); r.status = 'stopped'; r.state = 'failed'; r.stop = 'stopped by owner'; r.stopAsk = false;
+    var cur = SIM.stages[Math.min(r.stage, SIM.stages.length - 1)]; r.stageStatus[cur.id] = 'halt';
+    recordHistory(); renderSteps(); refreshRun(); say('Run stopped by owner.');
+  }
+  function refreshRun() {
+    var r = S.run; if (!r || S.step !== 'run' || !RUNREF.facts) { if (r) renderSteps(); return; }
+    var q = REAL.quota, lim = q.limits, cfg = scenarioCfg(r.attempt).cfg;
+    add(empty(RUNREF.facts), [
+      h('div', { class: 'pd-h4' }, h('span', { class: 'pd-mono', text: r.id }), badge(r.status === 'running' ? 'info' : r.status === 'done' ? 'ok' : r.status === 'stopped' ? 'bad' : r.status === 'stuck' ? 'stk' : 'warn', r.state), badge('sim', SIM.tag), r.attempt > 1 ? badge('partial', 'attempt ' + r.attempt) : null, copyChip(U.workflowStates.cite)),
+      h('div', { class: 'pd-mono', style: 'font-size:12px;overflow-wrap:anywhere;color:var(--text-secondary)' }, 'ticket ' + r.ticket + ' · trigger ' + S.ticket.trigger + ' · elapsed ' + r.t.toFixed(1) + ' s (simulated) · host=simulated'),
+      r.note ? h('div', { class: 'pd-hint', text: r.note }) : null,
+      h('div', { class: 'pd-hint', style: 'margin-top:4px', text: 'Workflow state names are ' + U.workflowStates.status })]);
+    empty(RUNREF.stages);
+    SIM.stages.forEach(function (st, idx) {
+      var meta = U.stages.filter(function (x) { return x.id === st.id; })[0], ss = r.stageStatus[st.id] || (idx === r.stage && r.status === 'running' ? 'run' : (r.status === 'done' ? 'done' : 'pending'));
+      var n = r.events.filter(function (e) { return e.stage === st.id; }).length;
+      RUNREF.stages.append(h('div', { class: 'pd-stage ' + (ss === 'run' ? 'run' : ss === 'done' ? 'done' : ss === 'halt' ? 'halt' : ''), 'aria-label': meta.label + ' ' + ss }, h('b', { text: (idx + 1) + ' ' + meta.label }), h('div', { class: 'st', text: ss + ' · ' + n + '/' + st.events.length + ' steps' }), badge(meta.built === 'planned' ? 'planned' : 'built', meta.badge, meta.note)));
+    });
+    empty(RUNREF.banner);
+    if (r.status === 'quota-wait') RUNREF.banner.append(banner('bad', 'quota-wait', cfg.msg + '. Resets 00:00 UTC. ' + (r.resetSim ? 'Reset simulated: retry allowed.' : 'Retry is disabled until the reset; the ledger would refuse it anyway.')), h('p', { class: 'pd-hint', style: 'margin:-6px 0 12px', text: cfg.msgNote }));
+    else if (r.status === 'stuck') RUNREF.banner.append(banner('stk', 'stuck', cfg.msg + '. The repeated rows are highlighted. Stop it or retry: a retry gets a new run id and never mutates this one.' + ' (Prototype: attempt 2 gets past it so the flow can continue; a real retry might not.)'));
+    else if (r.status === 'stopped') RUNREF.banner.append(banner('bad', 'stopped', 'Stopped by the owner. State failed with reason "stopped by owner". Nothing is reviewed or raised.'));
+    else if (r.status === 'done') RUNREF.banner.append(banner('ok', 'awaiting-qa', 'All four stages finished (simulated). The workflow now waits for a human QA signal.'));
+    else RUNREF.banner.append(banner('info', 'running', 'Simulated: each step is a canned event, not a model call.'));
+    var used, reqs;
+    used = r.quotaUsed != null ? r.quotaUsed : r.base + r.tin + r.tout;
+    reqs = 30 + r.reqs;
+    empty(RUNREF.meters).append(
+      h('div', { class: 'pd-h4' }, 'Quota meter ', h('span', { class: 'pd-mono', text: q.model }), badge('real', 'limits: docs/quotas.md'), badge('ill', 'usage: illustrative'), copyChip(q.cite)),
+      meter('tokens per day', used, lim.tokens_per_day, 'published table, not measured', r.status === 'quota-wait'),
+      meter('requests per day', reqs, lim.requests_per_day, 'measured from response headers 2026-10-29', false),
+      h('p', { class: 'pd-hint', style: 'margin:0', text: 'Cached tokens are counted apart and do not count against the cap (cached_counts: false). Baseline usage starts from the real fixture ledger (60 tokens, 30 requests) in the normal case.' }));
+    var tb = h('table', null, h('thead', null, h('tr', null, ['#', 't (s)', 'stage', 'tool_name', 'message', 'in', 'out', 'cached', 'stop_reason'].map(function (c) { return h('th', { text: c }); }))), h('tbody', null,
+      r.events.length ? r.events.map(function (e, idx) {
+        var dupe = cfgRepeat(cfg) && e.tool === cfg.repeat.tool && e.msg === cfg.repeat.msg;
+        return h('tr', { class: dupe ? 'dup' : '' }, h('td', { class: 'num', text: e.i }), h('td', { class: 'num', text: e.t.toFixed(1) }), h('td', { text: e.stage }), h('td', { class: 'pd-mono', text: e.tool }), h('td', { text: e.msg }), h('td', { class: 'num', text: fmt(e.tin) }), h('td', { class: 'num', text: fmt(e.tout) }), h('td', { class: 'num', text: fmt(e.tc) }), h('td', { class: 'pd-mono nw', text: e.stop || '—' }));
+      }) : h('tr', null, h('td', { colspan: '9', style: 'color:var(--text-secondary)', text: 'Run started, no step recorded yet (valid per schema: steps may be empty).' }))));
+    empty(RUNREF.table).append(tb);
+    RUNREF.totals.textContent = 'tokens in ' + fmt(r.tin) + ' · out ' + fmt(r.tout) + ' · cached ' + fmt(r.tcached) + ' · steps ' + r.events.length + ' · all ILLUSTRATIVE';
+    var b = RUNREF.btns, live = r.status === 'running', term = !live && r.status !== 'done';
+    b.stop.hidden = !live || r.stopAsk; b.yes.hidden = !(live && r.stopAsk); b.no.hidden = !(live && r.stopAsk);
+    b.retry.hidden = !term; b.retry.disabled = r.status === 'quota-wait' && !r.resetSim;
+    b.reset.hidden = r.status !== 'quota-wait' || r.resetSim;
+    b.skip.hidden = !live; b.rev.hidden = r.status !== 'done';
+    renderSteps();
+  }
+  function cfgRepeat(cfg) { return cfg && cfg.repeat; }
+
+  /* ---------- screen 3: review ---------- */
+  function phoneSvg(after) {
+    var ns = 'http://www.w3.org/2000/svg', s = document.createElementNS(ns, 'svg'), fs = after ? 12 : 10;
+    s.setAttribute('viewBox', '0 0 180 320'); s.setAttribute('role', 'img'); s.setAttribute('aria-label', (after ? 'Illustrative after' : 'Illustrative before') + ': card with labels at ' + fs + ' pixels');
+    function el(n, a, t) { var e = document.createElementNS(ns, n); for (var k in a) e.setAttribute(k, a[k]); if (t != null) e.textContent = t; s.append(e); return e; }
+    el('rect', { x: 0, y: 0, width: 180, height: 320, fill: 'var(--bg-secondary)' });
+    el('rect', { x: 0, y: 0, width: 180, height: 28, fill: 'var(--bg-tertiary)' });
+    el('text', { x: 10, y: 19, fill: 'var(--text-primary)', 'font-size': 12, 'font-weight': 600 }, 'Radar');
+    el('rect', { x: 10, y: 44, width: 160, height: 120, rx: 8, fill: 'var(--surface-card)', stroke: 'var(--border-secondary)' });
+    el('text', { x: 20, y: 66, fill: 'var(--text-primary)', 'font-size': 13, 'font-weight': 600 }, 'CQ1025→CQ1026');
+    ['GROUND TIME', 'MINIMUM', 'DEPARTURE DELAY'].forEach(function (t, i) { el('text', { x: 20, y: 92 + i * 22, fill: 'var(--text-secondary)', 'font-size': fs }, t); el('text', { x: 134, y: 92 + i * 22, fill: 'var(--text-primary)', 'font-size': 11 }, ['31 min', '55 min', '9 min'][i]); });
+    el('text', { x: 20, y: 190, fill: after ? 'var(--accent-success)' : 'var(--accent-error)', 'font-size': 10 }, after ? 'all labels ≥ 12 px' : 'labels at 10 px');
+    return s;
+  }
+  function shotPane(after) {
+    var wrap = h('div', { class: 'pd-ph' + (after ? ' ill' : '') });
+    var t = S.ticket;
+    if (!after && t && t.fileUrl) { wrap.append(h('img', { alt: 'Your attached screenshot (before)', src: t.fileUrl })); return { el: wrap, tag: badge('real', 'your screenshot') }; }
+    if (!after && t && t.exShot) {
+      var img = h('img', { alt: 'Real before screenshot of seeded bug-17', src: REAL.ticket.screenshotRepoPath });
+      img.addEventListener('error', function () { img.replaceWith(phoneSvg(false)); wrap.classList.add('ill'); });
+      wrap.append(img); return { el: wrap, tag: badge('real', 'REAL before: bug-17') };
+    }
+    wrap.classList.add('ill'); wrap.append(phoneSvg(after)); return { el: wrap, tag: badge('ill', 'ILLUSTRATIVE') };
+  }
+  function chip(status) { var m = { pass: 'ok', fail: 'bad', error: 'warn', skipped: '' }; return badge(m[status] || '', status); }
+  function renderReview(body) {
+    var r = S.run, rv = S.review;
+    if (!r || r.status !== 'done') {
+      body.append(h('div', { class: 'pd-card' }, h('p', { style: 'margin:0 0 10px', text: !r ? 'Nothing is waiting for review. Submit an issue first.' : (r.status === 'running' ? 'The run has not finished. Review opens when verify completes.' : 'Nothing to review: the run ended in ' + r.state + ' (' + r.stop + ') before it produced a patch.') }),
+        h('div', { class: 'pd-acts' }, h('button', { type: 'button', class: 'pd-btn', text: r ? 'Back to the run' : 'Go to New issue', onclick: function () { go(r ? 'run' : 'issue', true); } }))));
+      return;
+    }
+    var v = r.verdict, failed = v.checks.some(function (c) { return c.status === 'fail'; }), errored = v.checks.some(function (c) { return c.status === 'error'; });
+    var judgeFail = v.judge.label === 'fail', jc = SIM.judgeCard;
+    var overall = failed ? ['bad', 'verdict: FAIL', 'First failure: ' + v.firstFailure + '. The pipeline short-circuited.'] : errored ? ['warn', 'verdict: ERROR', 'A check errored. Never read as pass.'] : judgeFail ? ['warn', 'verdict: PASS, judge dissents', 'Deterministic checks passed. The judge says fail, but it does not override a passed check run. Decide, and say why.'] : ['ok', 'verdict: PASS', 'All four checks passed and the judge agrees. The judge is advisory until alpha is calibrated.'];
+    body.append(banner(overall[0] === 'warn' ? 'warn' : overall[0], overall[1], overall[2]));
+
+    var tbl = h('div', { class: 'pd-tw2' }, h('table', { style: 'min-width:480px' }, h('thead', null, h('tr', null, ['check', 'status', 'route', 'detail'].map(function (c) { return h('th', { text: c }); }))), h('tbody', null, v.checks.map(function (c) { return h('tr', null, h('td', { class: 'pd-mono nw', text: c.name }), h('td', null, chip(c.status)), h('td', { class: 'pd-mono', text: c.route }), h('td', { text: c.detail })); }))));
+    var b4 = shotPane(false), af = shotPane(true);
+    var ci = wilson(REAL.p0Baseline.resolved, REAL.p0Baseline.attempted);
+    var left = h('div', null,
+      h('div', { class: 'pd-sec' }, h('div', { class: 'pd-h4' }, 'Checks ', badge('planned', 'PLANNED P4-T06'), badge('ill', 'illustrative results'), copyChip('phases/P04-verify.md:41')), tbl),
+      h('div', { class: 'pd-sec' }, h('div', { class: 'pd-h4' }, 'Before and after ', badge('sim', SIM.tag), h('a', { href: '#plan/report', style: 'color:var(--accent-info)', text: 'Open the fix report →' })),
+        h('div', { class: 'pd-ba' }, h('figure', null, b4.el, h('figcaption', null, 'Before ', b4.tag)), h('figure', null, af.el, h('figcaption', null, 'After ', af.tag))),
+        h('p', { class: 'pd-hint', text: 'There is no real after image in the repo. The only real screenshot is the before of seeded bug-17 (' + REAL.ticket.screenshotRepoPath + '). The fix report page is the other lane\'s view of the same pair.' })));
+    var chans = [['mrtr', 'MRTR input_required'], ['review-comment', 'GitHub review comment']];
+    var reason = h('textarea', { id: 'pd-reason', rows: '3', style: 'min-height:80px', 'aria-describedby': 'pd-reason-h', placeholder: 'Reason or note' });
+    var reasonH = h('span', { class: 'pd-hint', id: 'pd-reason-h', 'aria-live': 'polite' });
+    var checks = h('div', { class: 'pd-chk-list', role: 'group', 'aria-label': 'Reasons' });
+    var mode = 'changes';
+    function drawReasons() { empty(checks); ['changes', 'reject'].forEach(function (g) { var set = h('fieldset', { style: 'border:1px solid var(--border-primary);border-radius:6px;margin:0 0 8px;padding:4px 10px', 'data-g': g }, h('legend', { style: 'font-size:11px;color:var(--text-tertiary);padding:0 4px', text: g === 'changes' ? 'If requesting changes' : 'If rejecting' })); TG.reasons[g].forEach(function (t, i) { var id = 'pd-rs-' + g + i; set.append(h('div', { class: 'pd-chk', style: 'min-height:36px;padding:2px 0' }, h('input', { type: 'checkbox', id: id, 'data-t': t }), h('label', { for: id, text: t }))); }); checks.append(set); }); }
+    drawReasons();
+    function reasonText() { var g = mode === 'reject' ? 'reject' : 'changes'; var tags = Array.prototype.map.call(checks.querySelectorAll('fieldset[data-g=' + g + '] input:checked'), function (c) { return c.getAttribute('data-t'); }); return { tags: tags, text: reason.value.trim() }; }
+    var key = h('span', { class: 'pd-mono pd-hint', id: 'pd-key' });
+    function setKey(d) { key.textContent = 'idempotency key qa:' + r.id + ':' + (d || '<decision>'); }
+    setKey();
+    var msg = h('div', { 'aria-live': 'polite', id: 'pd-rev-msg' });
+    var approve = h('button', { type: 'button', class: 'pd-btn pri', id: 'pd-approve', text: 'Approve', disabled: failed || rv.timedOut || !!rv.decision });
+    var changes = h('button', { type: 'button', class: 'pd-btn warn', id: 'pd-changes', text: 'Request changes', disabled: rv.timedOut || !!rv.decision });
+    var reject = h('button', { type: 'button', class: 'pd-btn dng', id: 'pd-reject', text: 'Reject', disabled: rv.timedOut || !!rv.decision });
+    function decide(d) {
+      var rt = reasonText(), need = d === 'approved' ? (judgeFail ? 10 : 0) : (d === 'rejected' ? 10 : 3);
+      var body2 = rt.tags.join('; ') + (rt.tags.length && rt.text ? ' | ' : '') + rt.text;
+      if (d !== 'approved') mode = d === 'rejected' ? 'reject' : 'changes';
+      if (need && rt.text.length < need && !(d === 'changes' && rt.tags.length)) { empty(msg).append(h('div', { class: 'pd-err', role: 'alert', text: (d === 'approved' ? 'The judge disagrees, so approving needs a written reason' : d === 'rejected' ? 'Reject needs a written reason' : 'Request changes needs a reason (tick one or write one)') + (need >= 10 ? ' of at least 10 characters.' : '.') })); reason.focus(); return; }
+      if (rv.raced) { empty(msg).append(banner('warn', '409', 'Another reviewer already decided on this run. Your decision was not recorded; the pane would close.')); return; }
+      rv.decision = d === 'changes' ? 'changes-requested' : d; setKey(rv.decision);
+      recordHistory();
+      if (d === 'changes') { startRun(r.attempt + 1, 'reviewer note: ' + body2); return; }
+      if (d === 'approved') createPR();
+      go('review');
+      say('QA signal recorded (simulated): ' + rv.decision + '.');
+    }
+    approve.addEventListener('click', function () { decide('approved'); });
+    changes.addEventListener('click', function () { mode = 'changes'; decide('changes'); });
+    reject.addEventListener('click', function () { mode = 'reject'; decide('rejected'); });
+    var chanSeg = h('div', { class: 'pd-seg', role: 'group', 'aria-label': 'QA signal channel', style: 'border-color:var(--border-secondary);background:var(--bg-secondary)' }, chans.map(function (c) { var on = rv.channel === c[0]; return h('button', { type: 'button', 'aria-pressed': on ? 'true' : 'false', style: 'min-height:36px;color:' + (on ? 'var(--bg-primary)' : 'var(--text-secondary)') + ';background:' + (on ? 'var(--text-primary)' : 'transparent') + ';border-right-color:var(--border-secondary)', onclick: function () { rv.channel = c[0]; go('review'); } }, c[1]); }));
+    var decided = rv.decision ? banner(rv.decision === 'approved' ? 'ok' : 'bad', 'recorded', 'QA signal ' + rv.decision + ' via ' + (rv.channel === 'mrtr' ? 'MRTR inputResponses' : 'a GitHub review comment') + ' (simulated, key qa:' + r.id + ':' + rv.decision + '). ' + (rv.decision === 'approved' ? 'The PR step is next.' : 'No PR is raised.')) : null;
+    var right = h('div', null,
+      h('div', { class: 'pd-sec pd-card' }, h('div', { class: 'pd-h4' }, 'Judge ', badge('planned', 'PLANNED P4-T13/T14'), badge(judgeFail ? 'bad' : v.judge.label === 'pass' ? 'ok' : '', 'label: ' + v.judge.label), badge('ill', 'illustrative')),
+        h('div', { class: 'pd-mono', style: 'font-size:12px;overflow-wrap:anywhere', text: jc.family + ' · ' + jc.model }), h('p', { style: 'margin:6px 0;font-size:12.5px', text: v.judge.note }),
+        h('p', { class: 'pd-hint', style: 'margin:0', text: 'alpha ' + jc.alpha + ' · order disagreement ' + jc.orderDisagreement + '. ' + jc.alphaNote })),
+      h('div', { class: 'pd-sec pd-card' }, h('div', { class: 'pd-h4' }, 'Confidence limits ', badge('real', 'REAL P0 row'), copyChip(REAL.p0Baseline.cite)),
+        h('p', { style: 'margin:0 0 6px;font-size:12.5px', text: 'This is one run. It says nothing about how often Argus fixes bugs. Resolve rate for this pipeline: —. For scale, the real P0 one-shot baseline (not this pipeline) is ' + REAL.p0Baseline.resolved + '/' + REAL.p0Baseline.attempted + ' with a Wilson 95% interval of [' + ci[0].toFixed(3) + ', ' + ci[1].toFixed(3) + '], so even a clean 0/10 cannot rule out about 28%. A difference smaller than the interval is reported as no difference (PLAN.md:286).' }),
+        h('p', { class: 'pd-hint', style: 'margin:0', text: 'Judge never overrides a passed check run; with alpha not calibrated it is advisory only (ADR-013).' })),
+      h('div', { class: 'pd-sec pd-card' }, h('div', { class: 'pd-h4' }, 'Decision ', badge('planned', 'PLANNED P6-T08..T10'), badge('partial', 'Request changes: new')), decided,
+        rv.timedOut ? banner('warn', 'timed-out-qa', 'No QA signal within the timeout. The decision buttons are replaced by a re-request (P6-T08).') : null,
+        h('span', { class: 'pd-lbl', text: 'QA signal channel (ADR-023 decides which ships)' }), chanSeg, h('div', { style: 'height:10px' }),
+        failed ? h('p', { class: 'pd-hint', text: 'Approve is disabled because a check failed. Request changes sends one retry with the reason in context (P4-T22).' }) : null,
+        h('label', { class: 'pd-fld', for: 'pd-reason' }, h('span', { class: 't', text: 'Reason or note' }), reason, reasonH), checks, key,
+        h('div', { class: 'pd-acts', style: 'margin-top:8px' }, rv.timedOut ? h('button', { type: 'button', class: 'pd-btn pri', text: 'Re-request review', onclick: function () { rv.timedOut = false; go('review'); } }) : [approve, changes, reject]), msg,
+        rv.decision === 'approved' ? h('div', { class: 'pd-acts' }, h('button', { type: 'button', class: 'pd-btn pri', text: 'See the PR', onclick: function () { go('pr', true); } })) : null,
+        h('details', { class: 'pd-real' }, h('summary', { text: 'Simulate review edge cases' }), h('div', { class: 'in pd-acts' },
+          h('button', { type: 'button', class: 'pd-btn', text: 'QA timeout', disabled: !!rv.decision, onclick: function () { rv.timedOut = true; go('review'); } }),
+          h('button', { type: 'button', class: 'pd-btn', text: 'Another reviewer decides first (409)', disabled: !!rv.decision, onclick: function () { rv.raced = true; empty(msg).append(banner('info', '409 armed', 'Your next decision will hit "already decided by another reviewer" and not be recorded.')); } })))));
+    body.append(h('div', { class: 'pd-rev-grid' }, left, right));
+  }
+
+  /* ---------- screen 4: PR ---------- */
+  function prTitle() { var t = S.ticket.text.split('\n')[0].replace(/\s+/g, ' ').trim(); if (t.length > 70) t = t.slice(0, 67) + '…'; return 'Fix: ' + t; }
+  function createPR() {
+    clearTimeout(S.ciTimer);
+    S.pr = { draft: true, ci: 0, merged: false, bp: null, conflict: false, target: SIM.backport.targetBranch, branch: 'argus/fix-' + S.ticket.id.toLowerCase() };
+    recordHistory(); ciStep();
+  }
+  function ciStep() {
+    if (!S.pr) return; var n = SIM.ci.checks.length;
+    if (S.pr.ci >= n) return;
+    S.ciTimer = setTimeout(function () { if (!S.pr) return; S.pr.ci++; if (S.step === 'pr') renderPRParts(); ciStep(); }, SIM.tick_ms + 200);
+  }
+  var PRREF = {};
+  function renderPR(body) {
+    var pr = S.pr, rv = S.review;
+    if (!pr) {
+      var why = rv.decision === 'rejected' ? 'No PR: the run was rejected.' : rv.decision === 'changes-requested' ? 'No PR yet: changes were requested and a new run is needed.' : (S.run && S.run.status === 'done' ? 'No PR yet. Argus raises the PR only after you approve (owner flow). PLAN.md would already hold a draft PR here.' : 'No PR: there is no approved run.');
+      body.append(h('div', { class: 'pd-card' }, h('p', { style: 'margin:0 0 10px', text: why }), h('div', { class: 'pd-acts' }, h('button', { type: 'button', class: 'pd-btn', text: 'Back to review', onclick: function () { go('review', true); } }))));
+      return;
+    }
+    var v = S.run.verdict, t = S.ticket;
+    var bodyMd = '## Argus fix for ' + t.id + '\n\n**Verifier verdict:** ' + (v.checks.every(function (c) { return c.status === 'pass'; }) ? 'pass' : 'see checks') + '\n' + v.checks.map(function (c) { return '- ' + c.name + ': ' + c.status + ' (' + c.route + ')'; }).join('\n') + '\n\n**Judge label:** ' + v.judge.label + ' (advisory)\n**Trajectory:** ' + S.run.id + '/trajectory.jsonl (Langfuse link: not configured)\n**Before / after:** attached (report: #plan/report)\n**QA signal:** ' + rv.decision + ' via ' + rv.channel + ', key qa:' + S.run.id + ':' + rv.decision;
+    var json = JSON.stringify({ title: prTitle(), head: pr.branch, base: 'main', draft: true, body: bodyMd }, null, 2);
+    PRREF = { head: h('div'), ci: h('div', { class: 'pd-card pd-sec' }), acts: h('div', { class: 'pd-acts' }), bp: h('div', { class: 'pd-card pd-sec' }) };
+    var b4 = shotPane(false), af = shotPane(true);
+    body.append(banner('warn', 'prototype', 'No pull request is created. Nothing here calls GitHub. The shape follows P8-T09: title and body go in as JSON fields, one stable branch, draft until QA.'),
+      PRREF.head,
+      h('div', { class: 'pd-two' },
+        h('div', null,
+          h('div', { class: 'pd-sec pd-card' }, h('div', { class: 'pd-h4' }, 'PR body ', badge('planned', 'PLANNED P8-T09'), badge('sim', SIM.tag), copyChip('phases/P08-argus-app.md:45')),
+            h('div', { style: 'font-size:12.5px' },
+              h('p', { style: 'margin:0 0 6px' }, h('b', { text: 'Verdict ' }), v.checks.map(function (c) { return [badge(c.status === 'pass' ? 'ok' : c.status === 'fail' ? 'bad' : '', c.name + ' ' + c.status), ' ']; })),
+              h('p', { style: 'margin:0 0 6px' }, h('b', { text: 'Judge label ' }), badge(v.judge.label === 'pass' ? 'ok' : 'warn', v.judge.label), ' advisory'),
+              h('p', { style: 'margin:0 0 6px' }, h('b', { text: 'Trajectory ' }), h('span', { class: 'pd-mono', text: S.run.id + '/trajectory.jsonl' }), ' · Langfuse trace: not configured (P5-T07)'),
+              h('p', { style: 'margin:0 0 6px' }, h('b', { text: 'Fix report ' }), h('a', { href: '#plan/report', style: 'color:var(--accent-info)', text: 'before and after (report lane)' }))),
+            h('div', { class: 'pd-ba' }, h('figure', null, b4.el, h('figcaption', null, 'Before ', b4.tag)), h('figure', null, af.el, h('figcaption', null, 'After ', af.tag)))),
+          h('details', { class: 'pd-real' }, h('summary', { text: 'Raw request (title and body as JSON fields, never shell-interpolated)' }), h('div', { class: 'in' }, h('pre', { class: 'pd-pre', text: json })))),
+        h('div', null, PRREF.ci, PRREF.acts, PRREF.bp)));
+    renderPRParts();
+  }
+  function renderPRParts() {
+    var pr = S.pr; if (!pr || !PRREF.head) return;
+    var n = SIM.ci.checks.length;
+    empty(PRREF.head).append(h('div', { class: 'pd-pr-head' }, h('h4', { text: prTitle() }), badge(pr.merged ? 'ok' : pr.draft ? 'partial' : 'info', pr.merged ? 'merged' : pr.draft ? 'draft' : 'ready for review')),
+      h('div', { class: 'pd-mono', style: 'font-size:12px;color:var(--text-secondary);margin:0 0 10px;overflow-wrap:anywhere' }, '#NNN (assigned by GitHub) · ' + pr.branch + ' → main · one stable branch · created by the App, not the agent'));
+    empty(PRREF.ci).append(h('div', { class: 'pd-h4' }, 'CI ', badge('sim', SIM.tag), badge('planned', 'tenant CI + P5-T17 gate')), h('ul', { class: 'pd-ci', 'aria-live': 'polite' }, SIM.ci.checks.map(function (c, i) { var st = i < pr.ci ? 'passed' : i === pr.ci ? 'running' : 'queued'; return h('li', null, h('span', { text: c }), badge(st === 'passed' ? 'ok' : st === 'running' ? 'info' : '', st)); })), h('p', { class: 'pd-hint', style: 'margin:6px 0 0', text: SIM.ci.note }));
+    empty(PRREF.acts);
+    if (!pr.merged) PRREF.acts.append(
+      h('button', { type: 'button', class: 'pd-btn pri', disabled: !pr.draft || pr.ci < n, text: 'Mark ready for review', onclick: function () { pr.draft = false; recordHistory(); renderPRParts(); renderSteps(); } }),
+      h('button', { type: 'button', class: 'pd-btn', disabled: pr.draft, text: 'Simulate: owner merges', onclick: function () { pr.merged = true; recordHistory(); renderPRParts(); renderSteps(); say('Merge simulated.'); } }),
+      h('p', { class: 'pd-hint', style: 'flex-basis:100%;margin:0', text: pr.ci < n ? 'Mark ready unlocks when CI has passed. Merging is the owner\'s action: no phase task makes Argus merge.' : pr.draft ? 'Stays draft until you mark it ready (owner flow). PLAN.md would hold it as draft before QA.' : 'Merge is the owner\'s action, not Argus\'s.' }));
+    else PRREF.acts.append(h('button', { type: 'button', class: 'pd-btn', text: 'Go to history', onclick: function () { go('history', true); } }));
+    var conf = h('input', { type: 'checkbox', id: 'pd-conf', checked: pr.conflict });
+    conf.addEventListener('change', function () { pr.conflict = conf.checked; });
+    empty(PRREF.bp).append(h('div', { class: 'pd-h4' }, 'Backport follow-up ', badge('planned', 'PLANNED P8-T10'), badge('ill', 'illustrative branch'), copyChip('phases/P08-argus-app.md:46')),
+      h('p', { style: 'margin:0 0 8px;font-size:12.5px', text: 'After a merge, the bot opens a backport PR to ' + SIM.backport.targetBranch + '. ' + SIM.backport.targetNote }),
+      !pr.merged ? h('p', { class: 'pd-hint', style: 'margin:0', text: 'Available after the PR is merged.' }) : h('div', null,
+        h('div', { class: 'pd-chk' }, conf, h('label', { for: 'pd-conf', text: 'Force a cherry-pick conflict (P8-T23)' })),
+        h('button', { type: 'button', class: 'pd-btn pri', disabled: !!pr.bp, text: 'Run backport (simulated)', onclick: function () { pr.bp = pr.conflict ? 'conflict' : 'opened'; renderPRParts(); say('Backport ' + pr.bp + '.'); } }),
+        pr.bp === 'opened' ? banner('ok', 'opened', 'Backport PR to ' + SIM.backport.targetBranch + ' opened (simulated; no real PR).') : null,
+        pr.bp === 'conflict' ? banner('warn', 'conflict', SIM.backport.conflictNote + ' The bot commented; branches are untouched.') : null));
+  }
+
+  /* ---------- screen 5: history ---------- */
+  function renderHistory(body) {
+    var p0 = REAL.p0Baseline, ci = wilson(p0.resolved, p0.attempted), ciOk = Math.abs(ci[1] - p0.ciClamped[1]) < 1e-4;
+    body.append(banner('info', 'honest', 'Every metric below is "—" unless a run id backs it. Simulated runs are listed but are excluded from every aggregate.'));
+    body.append(h('div', { class: 'pd-kpis' },
+      kpi('Resolve rate (this pipeline)', '—', 'No end-to-end run has a run id. Wilson 95% interval will sit beside it.', badge('planned', 'PLANNED P5')),
+      kpi('Tokens per bug', '—', 'in / out / cached, reported separately. P0 baseline one-shot: ' + fmt(p0.tokensPerBug.in) + ' / ' + fmt(p0.tokensPerBug.out) + ' / ' + p0.tokensPerBug.cached, badge('real', 'REAL P0 row')),
+      kpi('Latency p50 / p95', '—', 'P0 one-shot baseline: ' + p0.p50s.toFixed(2) + ' s / ' + p0.p95s.toFixed(2) + ' s. Quota wait excluded.', badge('real', 'REAL P0 row')),
+      kpi('Regression gate', '—', 'No stored baseline. P5-T16 fails the run when resolve rate falls below the baseline lower bound.', badge('planned', 'PLANNED P5-T16'))));
+    body.append(h('div', { class: 'pd-sec pd-card' }, h('div', { class: 'pd-h4' }, 'The one real aggregate: ' + p0.label, badge('real', 'REAL'), copyChip(p0.cite)),
+      h('div', { class: 'pd-mono', style: 'font-size:13px;overflow-wrap:anywhere', text: p0.resolved + '/' + p0.attempted + ' resolved · Wilson 95% [' + ci[0].toFixed(3) + ', ' + ci[1].toFixed(3) + ']' }),
+      h('p', { class: 'pd-hint', style: 'margin:6px 0 0', text: 'Recomputed here from 0 and 10: upper bound ' + ci[1].toFixed(5) + (ciOk ? ' matches the recorded 0.277540.' : ' does NOT match the recorded 0.277540.') + ' ' + p0.note })));
+    var incl = h('input', { type: 'checkbox', id: 'pd-incl', checked: S.includeSim });
+    incl.addEventListener('change', function () { S.includeSim = incl.checked; go('history'); });
+    var rows = [{ id: 'bug-17', ticket: 'BUG-17', host: 'fixture', real: true, state: 'repro only', stop: REAL.trajectory.step.stop_reason, tin: 1, tout: 1, tcached: 0, decision: '—', pr: '—' }];
+    if (S.includeSim) S.history.forEach(function (x) { rows.push({ id: x.id, ticket: x.ticket, host: 'simulated', real: false, state: x.state, stop: x.stop || '—', tin: x.tin, tout: x.tout, tcached: x.tcached, decision: x.decision || '—', pr: x.pr || '—', att: x.attempt }); });
+    var detail = h('div', { 'aria-live': 'polite' });
+    function showRow(rw) {
+      S.selRun = rw.id; empty(detail).append(h('div', { class: 'pd-card pd-sec' }, h('div', { class: 'pd-h4' }, h('span', { class: 'pd-mono', text: rw.id }), rw.real ? badge('partial', 'REPLAY · host=fixture') : badge('sim', 'SIMULATED')),
+        h('dl', { style: 'margin:0;font-size:12.5px;display:grid;grid-template-columns:max-content 1fr;gap:4px 12px;overflow-wrap:anywhere' },
+          [['meta.task_id', rw.ticket], ['meta.host', rw.host], ['step.stop_reason', rw.stop], ['workflow.state', rw.state], ['tokens in/out/cached', fmt(rw.tin) + ' / ' + fmt(rw.tout) + ' / ' + fmt(rw.tcached)], ['qa.decision', rw.decision], ['pr', rw.pr]].map(function (p) { return [h('dt', { class: 'pd-mono', style: 'color:var(--text-tertiary)', text: p[0] }), h('dd', { class: 'pd-mono', style: 'margin:0', text: p[1] })]; })),
+        rw.real ? h('p', { class: 'pd-hint', style: 'margin:8px 0 0', text: 'Token counts are not real: the fixture reply records 1 in and 1 out. This is not a model result. ' + REAL.p1Repro.note }) : h('p', { class: 'pd-hint', style: 'margin:8px 0 0', text: 'Simulated in this browser tab only; excluded from all aggregates.' }),
+        h('div', { class: 'pd-acts', style: 'margin-top:8px' }, copyChip(REAL.p1Repro.cite))));
+    }
+    var tb = h('table', null, h('thead', null, h('tr', null, ['run_id', 'ticket', 'host', 'state', 'stop_reason', 'tokens in/out/cached', 'QA', 'PR'].map(function (c) { return h('th', { text: c }); }))), h('tbody', null, rows.map(function (rw) {
+      var b = h('button', { type: 'button', class: 'pd-rowb', text: rw.id + (rw.att > 1 ? ' (attempt ' + rw.att + ')' : ''), 'aria-label': 'Open run ' + rw.id, onclick: function () { showRow(rw); } });
+      return h('tr', { class: rw.real ? 'rep' : '' }, h('td', null, b), h('td', { class: 'pd-mono nw', text: rw.ticket }), h('td', null, rw.real ? badge('partial', 'REPLAY') : badge('sim', 'SIMULATED')), h('td', { class: 'pd-mono nw', text: rw.state }), h('td', { class: 'pd-mono nw', text: rw.stop }), h('td', { class: 'num', text: fmt(rw.tin) + ' / ' + fmt(rw.tout) + ' / ' + fmt(rw.tcached) }), h('td', { class: 'pd-mono nw', text: rw.decision }), h('td', { class: 'pd-mono nw', text: rw.pr }));
+    })));
+    body.append(h('div', { class: 'pd-sec' }, h('div', { class: 'pd-h4' }, 'Runs ', badge('planned', 'list needs the P6 backend'), badge('partial', 'P1 rows are fixture replay')),
+      h('div', { class: 'pd-chk', style: 'min-height:36px' }, incl, h('label', { for: 'pd-incl', text: 'Show simulated runs from this session (' + S.history.length + '); never counted in the tiles above' })),
+      h('div', { class: 'pd-tw2' }, tb), detail,
+      h('p', { class: 'pd-hint', text: 'The repo has 60 P1 repro verdicts (30 text-only, 30 text-plus-image): ' + REAL.p1Repro.counts.valid + ' valid, ' + REAL.p1Repro.counts['passes-on-bug'] + ' passes-on-bug, ' + REAL.p1Repro.counts.error + ' error per 30. They are canned fixture outcomes, so they are not rolled into any rate here.' })));
+    body.append(h('div', { class: 'pd-acts' }, h('button', { type: 'button', class: 'pd-btn pri', text: 'Start another issue', onclick: function () { S.run = null; S.ticket = null; S.pr = null; S.review = { decision: null, channel: S.review.channel, timedOut: false, raced: false, err: '' }; S.form = fresh().form; stopTimers(); go('issue', true); } })));
+  }
+  function kpi(label, val, sub, tag) { return h('div', { class: 'pd-kpi' }, h('span', { class: 'pd-lbl', text: label }), h('div', { class: 'v', text: val }), h('div', { class: 's', text: sub }), h('div', { style: 'margin-top:6px' }, tag)); }
+
+  /* ---------- explainer info panel (outside the frame) ---------- */
+  function renderInfo() {
+    var sc = BYID[S.step], box = empty(document.getElementById('pd-info'));
+    box.append(h('h3', { text: 'About screen ' + sc.n + ': ' + sc.title }));
+    box.append(det('Purpose and what delivers it', true, h('div', { class: 'pd-bd' }, h('p', { style: 'margin:0 0 8px', text: sc.purpose }),
+      h('div', { class: 'pd-tw' }, h('table', { class: 'pd-tbl' }, h('thead', null, h('tr', null, ['Phase', 'Status', 'What', 'Source'].map(function (c) { return h('th', { text: c }); }))), h('tbody', null, sc.delivery.map(function (d) {
+        return h('tr', null, h('td', null, h('span', { class: 'pd-chip', style: d.phase.indexOf('P') === 0 ? 'border-color:var(--p' + d.phase.slice(1).replace('.', '') + ')' : '', text: d.phase })), h('td', null, h('span', { class: 'pd-chip ' + (d.status === 'built' ? 'built' : d.status === 'gap' ? 'gap' : ''), text: d.status === 'built' ? 'BUILT TODAY' : d.status === 'gap' ? 'GAP' : 'PLANNED' })), h('td', { text: d.what }), h('td', null, copyChip(d.cite)));
+      })))))));
+    box.append(det('Data fields (' + sc.fields.length + ')', false, h('div', { class: 'pd-bd' }, h('div', { class: 'pd-tw' }, h('table', { class: 'pd-tbl' }, h('thead', null, h('tr', null, ['Field', 'Kind', 'Source'].map(function (c) { return h('th', { text: c }); }))), h('tbody', null, sc.fields.map(function (f) { return h('tr', null, h('td', null, h('code', { text: f.name })), h('td', null, h('span', { class: 'pd-chip ' + (f.kind === 'real' ? 'built' : 'prop'), text: f.kind })), h('td', { text: f.source })); })))), h('p', { style: 'margin:8px 0 0', text: 'real = a schema name that exists in the repo today. proposed = named by a phase task; the schema does not exist yet.' }))));
+    box.append(det('Actions', false, h('div', { class: 'pd-bd' }, h('ul', null, sc.actions.map(function (a) { return h('li', { text: a }); })))));
+    box.append(det('States', false, h('div', { class: 'pd-bd' }, h('ul', null, sc.states.map(function (s) { return h('li', null, h('code', { text: s.id }), ': ' + s.text); })))));
+    box.append(det('Edge cases this screen must handle (' + sc.edgeCases.length + ')', false, h('div', { class: 'pd-bd' }, h('ul', null, sc.edgeCases.map(function (e) { return h('li', { text: e }); })))));
+    box.append(h('h3', { style: 'margin-top:24px', text: 'Where the owner\'s flow differs from PLAN.md' }));
+    box.append(h('div', { class: 'pd-diffs' }, U.differsFromPlan.map(function (d) { return h('div', null, h('b', { text: d.id + ' ' + d.title }), h('p', null, h('b', { text: 'Owner: ' }), d.ownerFlow), h('p', null, h('b', { text: 'Plan: ' }), d.plan), h('p', { style: 'color:var(--ink)' }, d.action), copyChip(d.cite)); })));
+  }
+  function det(title, open, bd) { var d = h('details', { open: open }, h('summary', { text: title }), bd); return d; }
+
+  /* ---------- outer controls ---------- */
+  function renderScenarioBar() {
+    var seg = empty(document.getElementById('pd-scn'));
+    U.scenarios.forEach(function (sc) {
+      seg.append(h('button', { type: 'button', 'aria-pressed': S.scenario === sc.id ? 'true' : 'false', text: sc.label, onclick: function () {
+        S.scenario = sc.id; S.quotaCleared = false;
+        var had = !!S.run; stopTimers(); S.run = null; S.pr = null; S.review = { decision: null, channel: S.review.channel, timedOut: false, raced: false, err: '' };
+        renderScenarioBar(); renderSteps();
+        if (had && S.ticket) { go('run'); say('Scenario ' + sc.label + ' selected. The earlier run was cleared; start it again.'); } else go(S.step);
+      } }));
+    });
+    var cur = U.scenarios.filter(function (x) { return x.id === S.scenario; })[0];
+    var n = document.getElementById('pd-scn-note'); empty(n).append(h('b', { text: cur.label + ': ' }), cur.effect + ' ', copyChip(cur.cite));
+  }
+  document.getElementById('pd-honest').append(h('b', { text: 'Honest labels. ' }), U.meta.honesty, ' Owner flow: ' + U.meta.ownerFlow);
+  document.getElementById('pd-reset').addEventListener('click', function () {
+    stopTimers(); if (S.form.fileUrl) { try { URL.revokeObjectURL(S.form.fileUrl); } catch (e) { /* ignore */ } }
+    var sc = S.scenario; S = fresh(); S.scenario = sc; renderScenarioBar(); go('issue'); say('Prototype reset.');
+  });
+  renderScenarioBar(); go('issue');
+})();
+</script>
+</section>

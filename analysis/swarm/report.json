@@ -1,0 +1,1700 @@
+{
+ "meta": {
+  "asOf": "2026-10-30",
+  "lane": "fix-report",
+  "what": "Spec of the generated fix report: one self-contained, shareable HTML file per run, for a reviewer who decides Approve / Request changes / Reject.",
+  "honesty": "Only the bug-17 inputs are real files. Everything labelled illustrative has no artifact behind it. No verifier, judge, locate tool, fix-loop or report generator exists.",
+  "sampleSource": "analysis/explainer-src/62-report.html reads this file via window.ARGUS.report"
+ },
+ "principles": [
+  "One file, no network, no CDN, no fonts: works from disk, from an Actions artifact, or attached to a PR.",
+  "Every number has a source field; a missing source renders \"-\", never a default.",
+  "Status is never colour alone: each state has a word and an icon.",
+  "Not run is not pass: overall status is pass_with_gaps when anything was skipped.",
+  "Untrusted text (ticket, rationale) goes in through textContent; the file ships with a script-src hash CSP.",
+  "Print-friendly: decision bar becomes a static block, all collapsed panels expand."
+ ],
+ "order": [
+  "ticket",
+  "repro",
+  "located",
+  "diff",
+  "beforeafter",
+  "checks",
+  "judge",
+  "trajectory",
+  "risks",
+  "decision"
+ ],
+ "schema": {
+  "name": "FixReport",
+  "version": "argus.fix_report/0 (proposed, not in argus-core)",
+  "existing": [
+   "Ticket",
+   "Screenshot",
+   "Task",
+   "TaskMeta",
+   "Check",
+   "CheckType (pixel_diff, bounding_box, computed_style)",
+   "Trajectory",
+   "TrajectoryMeta",
+   "TrajectoryStep",
+   "StopReason (submit, step-cap, token-cap, QuotaExceeded, stuck, consecutive-timeout, retry-cap, tool-unavailable)",
+   "repro verdict.json {task_id, verdict, stop_reason}",
+   "Usage / Ledger (argus-core ledger.py)"
+  ],
+  "planned": [
+   "LocateResult (P2-T06)",
+   "VerifierVerdict (P4-T06)",
+   "JudgeLabel (P4-T08, T11)",
+   "BestOfK record (P4-T19)",
+   "PullRequest record (P6-T21, P8-T09)",
+   "FixReport (new, assembles all of the above)"
+  ],
+  "top": [
+   "schema",
+   "run_id",
+   "task_id",
+   "generated_at",
+   "generator{name,version}",
+   "base_commit",
+   "patch_sha256",
+   "ticket",
+   "repro",
+   "locate",
+   "patch",
+   "shots[]",
+   "verdict",
+   "judge",
+   "trajectory",
+   "risks[]",
+   "decision"
+  ]
+ },
+ "sections": [
+  {
+   "id": "ticket",
+   "n": "01",
+   "title": "Ticket as filed",
+   "answers": "What did the person actually report, and what did the agent see?",
+   "phase": "P0 schema; P6-T07 / P8-T08 intake; console upload planned",
+   "fields": [
+    {
+     "name": "ticket.id",
+     "type": "string",
+     "from": "Ticket.id (argus-core types.py:30, ticket.schema.json)",
+     "status": "real"
+    },
+    {
+     "name": "ticket.text",
+     "type": "string, untrusted",
+     "from": "Ticket.text",
+     "status": "real",
+     "note": "rendered with textContent only; never as HTML (prompt-injection text must stay inert, P4-T27)"
+    },
+    {
+     "name": "ticket.screenshot",
+     "type": "{media_type, path} | null",
+     "from": "Ticket.screenshot (single, optional)",
+     "status": "real"
+    },
+    {
+     "name": "ticket.source",
+     "type": "{kind: console | github_issue, ref}",
+     "from": "intake step: console upload (owner flow) or labelled issue (PLAN.md route)",
+     "status": "planned",
+     "note": "not in the Ticket schema today; add to FixReport, not to Ticket"
+    },
+    {
+     "name": "task.meta.{archetype,tier,source}",
+     "type": "enum",
+     "from": "TaskMeta (task.schema.json)",
+     "status": "real",
+     "note": "bench tasks only; a live ticket has no archetype"
+    }
+   ],
+   "bug17": {
+    "real": [
+     "ticket.json text (verbatim, 921 chars) and the 103 536-byte radar-card.png (375 px wide at 1.25 DPR, 469 x 834)",
+     "meta.json: seeded, font-size, medium",
+     "the ticket itself says the patch covers radar.css only and that Horizon, Flights, Control Tower and admin tags are not covered"
+    ],
+    "planned": [
+     "ticket.source (no intake exists)",
+     "a second screenshot (schema allows exactly one)"
+    ]
+   },
+   "edgeCases": [
+    {
+     "when": "no screenshot (29 of 30 seeded tickets)",
+     "show": "text-only card with a chip \"text-only ticket (ADR-005)\"; the before/after section still has to capture its own pair"
+    },
+    {
+     "when": "screenshot media type does not match its bytes",
+     "show": "P1-T06 already rejects it as a tool error; the report shows \"screenshot rejected, not shown to the agent\" instead of the image"
+    },
+    {
+     "when": "ticket text is long (> ~600 chars)",
+     "show": "first lines plus an expander; full text always in the file"
+    },
+    {
+     "when": "text contains HTML or an instruction (\"ignore the rubric\")",
+     "show": "escaped literal text; a chip \"contains instruction-like text\" when the P4-T27 detector flags it"
+    },
+    {
+     "when": "screenshot holds tenant data (flight numbers, crew)",
+     "show": "sharing warning in the file header; redaction is a P7 threat-model item, not solved here"
+    }
+   ]
+  },
+  {
+   "id": "repro",
+   "n": "02",
+   "title": "Reproduction and proof",
+   "answers": "Did something fail on the buggy tree and pass on the fixed one, and how much should I trust that?",
+   "phase": "P1 (built, fixture-replayed); P3-T16 wires it into the loop",
+   "fields": [
+    {
+     "name": "repro.script",
+     "type": "string (Playwright test body)",
+     "from": "runs/<mode>/<task>/repro.spec.ts",
+     "status": "real"
+    },
+    {
+     "name": "repro.verdict",
+     "type": "valid | passes-on-bug | fails-on-golden | error",
+     "from": "runs/.../verdict.json (verify.py)",
+     "status": "real"
+    },
+    {
+     "name": "repro.stop_reason",
+     "type": "StopReason",
+     "from": "verdict.json + last Trajectory step",
+     "status": "real"
+    },
+    {
+     "name": "repro.mode",
+     "type": "host + model + prompt_hash",
+     "from": "TrajectoryMeta",
+     "status": "real",
+     "note": "host = \"fixture\" means no model was called"
+    },
+    {
+     "name": "repro.runs[]",
+     "type": "[{tree: buggy|golden|patched, outcome, exit_code, duration_ms, trace_path}]",
+     "from": "repro loop run_trees (loop.py injects the runner)",
+     "status": "planned",
+     "note": "today only the final verdict is stored, not per-run rows"
+    },
+    {
+     "name": "repro.evidence",
+     "type": "REAL | FIXTURE_ONLY",
+     "from": "ARGUS.evidence claim C1",
+     "status": "derived",
+     "note": "a fixture repro must never look like a live proof"
+    }
+   ],
+   "bug17": {
+    "real": [
+     "the stored script is two lines: click \"Sign in\", expect heading \"Welcome\"",
+     "verdict \"valid\", stop \"submit\", host \"fixture\", model openai/gpt-oss-20b",
+     "evidence C1: batch.py returns one hard-coded script for every task, so this proof says nothing about font size"
+    ],
+    "planned": [
+     "a style-assertion repro (computed font-size under 12 px); P1 tool surface has no computed-style read and the saved-script rule is role + accessible name only (docs/architecture/p1.md), so a font-size repro may not be expressible in P1 as built. Open design question, not decided here",
+     "per-tree run rows and the fail-before / pass-after table"
+    ]
+   },
+   "edgeCases": [
+    {
+     "when": "no repro saved (retry-cap, tool-unavailable, vague ticket)",
+     "show": "stop reason in red, \"no reproduction\"; the report is still produced and Approve needs an explicit acknowledgement"
+    },
+    {
+     "when": "verdict passes-on-bug (loose selector)",
+     "show": "proof marked INVALID, not green; this is the P1-T14 case"
+    },
+    {
+     "when": "verdict fails-on-golden / error (test.skip, test.fixme)",
+     "show": "proof marked INVALID with the verdict word"
+    },
+    {
+     "when": "non-interaction bug (style, size, z-index)",
+     "show": "proof is the bench check (checks.json computed_style) instead of a click script; say so in a line"
+    },
+    {
+     "when": "flaky repro",
+     "show": "k/n runs and the word \"flaky\"; never summarised as pass"
+    },
+    {
+     "when": "fixture host",
+     "show": "FIXTURE badge on the whole section; fixture proofs cannot enable one-click Approve"
+    }
+   ]
+  },
+  {
+   "id": "located",
+   "n": "03",
+   "title": "Located source",
+   "answers": "Where in the code did the agent look, and is that where the change landed?",
+   "phase": "P2-T02 (data-src plugin), P2-T05..T08 (locate)",
+   "fields": [
+    {
+     "name": "locate.query",
+     "type": "selector or role+name",
+     "from": "repro script / fix-loop locate() call",
+     "status": "planned"
+    },
+    {
+     "name": "locate.data_src",
+     "type": "\"file:line:col\" (repo-relative, no tag suffix)",
+     "from": "data-src attribute on the DOM node (P2-T02, dev/test builds only)",
+     "status": "planned"
+    },
+    {
+     "name": "locate.ambiguous",
+     "type": "bool + ranked candidates[{file,line,col,why}]",
+     "from": "LocateResult (P2-T06)",
+     "status": "planned"
+    },
+    {
+     "name": "locate.error",
+     "type": "not-found | ambiguous | no-source-info",
+     "from": "LocateResult errors (P2-T06)",
+     "status": "planned"
+    },
+    {
+     "name": "locate.patched_file_line",
+     "type": "file:line of the edit",
+     "from": "patch hunks",
+     "status": "derived",
+     "note": "differs from data_src for CSS bugs: the DOM points at JSX, the fix is in a stylesheet"
+    }
+   ],
+   "bug17": {
+    "real": [
+     "file contents: Radar.tsx:996 is <span className=\"radar-locked-fact-label\"> (col 21), :991 the CRITICAL pill (col 17); .radar-locked-fact-label is radar.css:140, .radar-pill :183 in the dcortex worktree (read-only look; these lines carry the seeded 10 px values)"
+    ],
+    "planned": [
+     "the data-src attribute itself: the plugin does not exist, so the file:line:col shown is derived by reading the source, not returned by a tool",
+     "col base (0 or 1) is not fixed by P2-T02; 1-based used here"
+    ]
+   },
+   "edgeCases": [
+    {
+     "when": "ambiguous (wrapper or repeated element)",
+     "show": "ranked candidate list; bug-17 has one: .radar-pill is rendered at Radar.tsx:991, :1090 and :1148"
+    },
+    {
+     "when": "no-source-info (production bundle)",
+     "show": "\"located by search, not by data-src\" chip; confidence lowered"
+    },
+    {
+     "when": "located file is not the patched file",
+     "show": "two rows: element (Radar.tsx) and rule (radar.css); the bridge is the class name"
+    },
+    {
+     "when": "patch touches files nobody located",
+     "show": "flag in risks: edit outside the located area"
+    }
+   ]
+  },
+  {
+   "id": "diff",
+   "n": "04",
+   "title": "The diff",
+   "answers": "Exactly what changed, in which files?",
+   "phase": "P3 (fix-loop produces the patch; worktree manager P3-T04)",
+   "fields": [
+    {
+     "name": "patch.origin",
+     "type": "agent | golden | human",
+     "from": "loop run record",
+     "status": "planned",
+     "note": "bug-17: golden (reference), no agent has produced a patch"
+    },
+    {
+     "name": "patch.files[]",
+     "type": "[{path, status, additions, deletions}]",
+     "from": "git diff --numstat on the worktree",
+     "status": "planned"
+    },
+    {
+     "name": "patch.hunks[]",
+     "type": "[{old_start, new_start, lines[{t: ctx|del|add, text}]}]",
+     "from": "unified diff",
+     "status": "planned"
+    },
+    {
+     "name": "patch.sha256",
+     "type": "hex",
+     "from": "hash of the unified diff; binds every later decision to this exact patch",
+     "status": "planned"
+    },
+    {
+     "name": "patch.base_commit",
+     "type": "git sha",
+     "from": "worktree manager",
+     "status": "planned",
+     "note": "bench meta.json has no base_commit field today"
+    }
+   ],
+   "bug17": {
+    "real": [
+     "golden.patch: 1 file (apps/canvas/src/ops/radar.css), 6 hunks, 12 declarations, +12 / -12; each changes only font-size to 12"
+    ],
+    "planned": [
+     "an agent-made patch: P0 one-shot logged bug-17 as exit2_bug, \"bug.patch did not apply\" (docs/notes/p0-t29.md:74), so no agent patch exists"
+    ]
+   },
+   "edgeCases": [
+    {
+     "when": "multi-file patch",
+     "show": "file list with +/- counts and one collapsible panel per file; first file open; a combined \"download .patch\""
+    },
+    {
+     "when": "large diff (> ~400 lines)",
+     "show": "collapsed by default with counts; never truncated silently"
+    },
+    {
+     "when": "patch edits bench check files or the report inputs",
+     "show": "red banner; those are mounted read-only (P3-T05), so a non-empty edit means the run is invalid"
+    },
+    {
+     "when": "empty patch",
+     "show": "no report, no PR (P8-T09: \"no PR when the patch is empty\"); a run page with the stop reason instead"
+    },
+    {
+     "when": "binary file or rename",
+     "show": "one row, no hunks, \"binary, not shown\""
+    }
+   ]
+  },
+  {
+   "id": "beforeafter",
+   "n": "05",
+   "title": "Before / after on the production UI",
+   "answers": "Can I see the fix, on the real screen, at the size the bug was filed at?",
+   "phase": "P4 (capture + pixel diff), P3 (patched tree), P8-T09 (two screenshots in the PR)",
+   "fields": [
+    {
+     "name": "shots[].route",
+     "type": "string",
+     "from": "check.params.flow (task.schema Check.params)",
+     "status": "real",
+     "note": "bug-17: /ops/radar"
+    },
+    {
+     "name": "shots[].viewport",
+     "type": "{w, h, dpr}, theme",
+     "from": "capture config",
+     "status": "derived",
+     "note": "bug-17 before: 375 x 667 css px at 1.25 (469 x 834 px), light theme, inferred from the image"
+    },
+    {
+     "name": "shots[].before",
+     "type": "{path, sha256, media_type, w, h}",
+     "from": "screenshot of the buggy tree",
+     "status": "real",
+     "note": "bug-17 only has this one: shots/radar-card.png"
+    },
+    {
+     "name": "shots[].after",
+     "type": "{path, sha256, media_type, w, h} | null",
+     "from": "screenshot of the patched tree",
+     "status": "planned",
+     "note": "no real after image exists anywhere in the repo"
+    },
+    {
+     "name": "shots[].diff",
+     "type": "{changed_ratio, cap, masks[{x,y,w,h,why}], pass}",
+     "from": "pixel-diff check (P4-T02)",
+     "status": "planned",
+     "note": "a changed-pixel ratio with its unit written next to it"
+    },
+    {
+     "name": "shots[].build",
+     "type": "test | production",
+     "from": "capture runner",
+     "status": "planned",
+     "note": "see edge cases: the screenshots come from a test build, not the deployed site"
+    }
+   ],
+   "bug17": {
+    "real": [
+     "the before image, byte for byte"
+    ],
+    "planned": [
+     "the after image: the fragment draws an ILLUSTRATIVE re-render of the card from golden.patch (10 -> 12 px on the fact labels and the pill)",
+     "diff overlay is element-level, from the patch; the real pixel diff is P4-T02"
+    ]
+   },
+   "edgeCases": [
+    {
+     "when": "no screenshot of the after tree (capture failed)",
+     "show": "\"after not captured\" panel; Approve disabled; slider hidden"
+    },
+    {
+     "when": "before and after sizes differ",
+     "show": "both at native size side by side, slider disabled; P4-T02 fails a size change without scaling"
+    },
+    {
+     "when": "flaky pixel diff (font load, radar sweep, LIVE dot animation)",
+     "show": "masked regions drawn as hatched boxes; ratio shown with its cap; runs n/n stable, else status flaky (P4-T26: wait for fonts and network idle)"
+    },
+    {
+     "when": "multiple routes / themes / viewports",
+     "show": "tabs per shot; the table in section 06 names every route; dark and light are separate shots"
+    },
+    {
+     "when": "\"production UI\" is a test build",
+     "show": "label \"built from the base and patched commits, served from the sandbox, data-src on\"; the plugin is absent from production builds (P2-T02), so a screenshot of the deployed site cannot also carry the located source"
+    },
+    {
+     "when": "images are large",
+     "show": "downscaled copy embedded (limit ~1 MB per image, whole file well under 16 MB), original sha256 kept"
+    }
+   ]
+  },
+  {
+   "id": "checks",
+   "n": "06",
+   "title": "Verifier checks",
+   "answers": "Which deterministic checks ran, which failed, and what was not run?",
+   "phase": "P4-T02..T06 (checks and pipeline), P4-T22 (final gate)",
+   "fields": [
+    {
+     "name": "verdict.overall",
+     "type": "pass | fail | error | pass_with_gaps",
+     "from": "VerifierVerdict (P4-T06)",
+     "status": "planned",
+     "note": "pass_with_gaps is a proposal so \"not run\" cannot read as pass"
+    },
+    {
+     "name": "verdict.order",
+     "type": "string[]",
+     "from": "one config place (P4-T06, ADR-012)",
+     "status": "planned"
+    },
+    {
+     "name": "verdict.first_failure",
+     "type": "check id + reason | null",
+     "from": "pipeline short-circuit",
+     "status": "planned"
+    },
+    {
+     "name": "checks[].{id,type,status,reason,detail,duration_ms}",
+     "type": "status: pass | fail | not_run | error | flaky",
+     "from": "one row per check",
+     "status": "planned"
+    },
+    {
+     "name": "checks[].detail.axe.new_violations",
+     "type": "[{rule_id, nodes}] vs baseline",
+     "from": "axe-core on buggy tree minus patched tree (P4-T04)",
+     "status": "planned",
+     "note": "only violations absent from the clean baseline count"
+    },
+    {
+     "name": "bench.check",
+     "type": "{type: computed_style, flow: /ops/radar, property: font-size, min_px: 12}",
+     "from": "checks.json (Check schema)",
+     "status": "real",
+     "note": "its result on the real app is not real: evidence C5, the scorer runs on a synthetic page"
+    }
+   ],
+   "bug17": {
+    "real": [
+     "the one bench check definition: computed_style font-size >= 12 px on /ops/radar"
+    ],
+    "planned": [
+     "every result cell: no verifier has run on bug-17, so pass/fail chips in the sample are ILLUSTRATIVE",
+     "no golden screenshot is stored for bug-17, so the pixel check would be not_run"
+    ]
+   },
+   "edgeCases": [
+    {
+     "when": "check not run (no golden shot, short-circuit, tool error)",
+     "show": "grey \"not run\" with the reason; counts toward \"gaps\"; Approve then needs an acknowledgement"
+    },
+    {
+     "when": "first hard failure",
+     "show": "later rows \"not run: short-circuit\"; judge section says \"skipped\"; decision bar offers no Approve"
+    },
+    {
+     "when": "axe finds violations that were already there",
+     "show": "counted as baseline and listed collapsed; only new rule ids drive the status"
+    },
+    {
+     "when": "flaky pixel diff",
+     "show": "status flaky with n runs; verdict cannot be pass"
+    },
+    {
+     "when": "check backend down",
+     "show": "status error, never pass (P4-T28 fail-closed)"
+    },
+    {
+     "when": "collateral route changed (P4-T25)",
+     "show": "row names the route that moved"
+    }
+   ]
+  },
+  {
+   "id": "judge",
+   "n": "07",
+   "title": "Judge label and its limits",
+   "answers": "Does a second reader think the fix meets the ticket, and how far should I trust that reader?",
+   "phase": "P4-T08 (rubric), T11/T16 (runners), T13/T14 (alpha), T18 (ADR-013)",
+   "fields": [
+    {
+     "name": "judge.label",
+     "type": "rubric label (P4-T08 defines the set); sample uses intent_met | partial | not_met | error",
+     "from": "judge runner structured output (P4-T11)",
+     "status": "planned"
+    },
+    {
+     "name": "judge.rationale",
+     "type": "string, <= ~400 chars",
+     "from": "judge output",
+     "status": "planned"
+    },
+    {
+     "name": "judge.model / family",
+     "type": "string",
+     "from": "runner config (Gemma cross-family; Mistral same-family control)",
+     "status": "planned"
+    },
+    {
+     "name": "judge.order_swapped_label",
+     "type": "label",
+     "from": "second run with before/after swapped (P4-T24)",
+     "status": "planned",
+     "note": "disagreement is reported, never averaged"
+    },
+    {
+     "name": "judge.alpha",
+     "type": "{value, ci_low, ci_high, n} | null",
+     "from": "calibration set vs your labels (P4-T12..T14)",
+     "status": "planned",
+     "note": "null until measured; target >= 0.80 on held-out split"
+    },
+    {
+     "name": "judge.advisory",
+     "type": "bool",
+     "from": "ADR-013 policy when alpha < 0.80",
+     "status": "planned"
+    }
+   ],
+   "bug17": {
+    "real": [
+     "nothing: no judge exists. The partial rationale in the sample is built from the ticket text, which itself says Horizon, Flights, Control Tower and admin tags are not in the diffs"
+    ],
+    "planned": [
+     "everything else"
+    ]
+   },
+   "edgeCases": [
+    {
+     "when": "judge disagrees with the checks",
+     "show": "both shown side by side; checks pass + judge partial or not_met = \"needs a human\"; checks fail + judge met = fail (the judge does not override, PLAN.md); bug-17 sample is the first case"
+    },
+    {
+     "when": "swapped-order labels differ",
+     "show": "label \"unstable\", pill grey; advisory only"
+    },
+    {
+     "when": "unparsed output or backend down",
+     "show": "label error (stays in the alpha denominator); never pass"
+    },
+    {
+     "when": "alpha below 0.80 or not measured",
+     "show": "permanent \"advisory\" tag with the number or \"not measured\""
+    },
+    {
+     "when": "judge family equals fixer family",
+     "show": "self-preference warning chip"
+    },
+    {
+     "when": "checks failed, judge skipped",
+     "show": "\"skipped, a check failed first\""
+    }
+   ]
+  },
+  {
+   "id": "trajectory",
+   "n": "08",
+   "title": "Trajectory summary",
+   "answers": "What did the agent do, what did it cost, and why did it stop?",
+   "phase": "P3-T08 (recorder), P5 (metrics), argus-core ledger",
+   "fields": [
+    {
+     "name": "traj.meta",
+     "type": "{run_id, task_id, model, host, prompt_hash, git_commit, seed}",
+     "from": "TrajectoryMeta (first JSONL line)",
+     "status": "real"
+    },
+    {
+     "name": "traj.steps",
+     "type": "int",
+     "from": "count of TrajectoryStep rows",
+     "status": "real"
+    },
+    {
+     "name": "traj.tokens",
+     "type": "{in, out, cached} shown separately",
+     "from": "sum of TrajectoryStep.tokens_*",
+     "status": "real",
+     "note": "PLAN.md reports the three counts separately; tokens/bug must include retries, judge calls and best-of-k samples"
+    },
+    {
+     "name": "traj.stop_reason",
+     "type": "StopReason enum (8 values)",
+     "from": "last step",
+     "status": "real"
+    },
+    {
+     "name": "traj.tool_errors / stuck",
+     "type": "int / bool",
+     "from": "P5-T02 formulas (docs/metrics.md)",
+     "status": "planned"
+    },
+    {
+     "name": "traj.best_of_k",
+     "type": "{k, selected, reason, candidates[]}",
+     "from": "P4-T19 selector record",
+     "status": "planned"
+    },
+    {
+     "name": "traj.link",
+     "type": "relative path or Actions artifact URL",
+     "from": "trajectory.jsonl",
+     "status": "derived"
+    }
+   ],
+   "bug17": {
+    "real": [
+     "repro trajectory: 1 step, tokens in 1 / out 1 / cached 0 (fixture placeholders), stop submit, host fixture, git_commit field holds the mode name \"text-only\", not a commit"
+    ],
+    "planned": [
+     "fix-loop trajectory: none exists, so steps, tokens and cost stay \"-\""
+    ]
+   },
+   "edgeCases": [
+    {
+     "when": "stop reason is not submit (QuotaExceeded, stuck, step-cap, tool-unavailable)",
+     "show": "red stop chip and no Approve: there is no accepted patch"
+    },
+    {
+     "when": "fixture host",
+     "show": "tokens shown as \"recorded, not measured\""
+    },
+    {
+     "when": "best-of-k used",
+     "show": "k candidates, which was chosen and why; tokens are the sum over all candidates"
+    },
+    {
+     "when": "ledger has no cost for a run",
+     "show": "\"-\"; no $-equivalent without a run id (PLAN.md rule)"
+    },
+    {
+     "when": "trajectory file missing",
+     "show": "the link renders as \"not stored\"; section degrades, report still opens"
+    }
+   ]
+  },
+  {
+   "id": "risks",
+   "n": "09",
+   "title": "Risks and things not checked",
+   "answers": "What could still be wrong, and what did nobody look at?",
+   "phase": "assembled by the renderer from verdict gaps + rules; human notes added at review",
+   "fields": [
+    {
+     "name": "risks[].{id,severity,source,text}",
+     "type": "severity: high | med | low; source: auto | human",
+     "from": "renderer rules over the report fields",
+     "status": "planned"
+    },
+    {
+     "name": "risks[].evidence_ref",
+     "type": "section id",
+     "from": "link back to the row that triggered it",
+     "status": "planned"
+    }
+   ],
+   "bug17": {
+    "real": [
+     "ticket-vs-patch scope gap (the ticket says so itself)",
+     "no golden screenshot",
+     "repro is a fixture"
+    ],
+    "planned": [
+     "all automatic rules: none is built"
+    ]
+   },
+   "edgeCases": [
+    {
+     "when": "no risks found",
+     "show": "still prints \"checked: ...\" and \"not checked: ...\" lists; an empty list never reads as \"all clear\""
+    },
+    {
+     "when": "any check not run, judge advisory, fixture repro, test build",
+     "show": "each is an automatic risk row"
+    },
+    {
+     "when": "patch smaller than the ticket scope",
+     "show": "high severity row: partial fix"
+    }
+   ]
+  }
+ ],
+ "decisionBar": {
+  "purpose": "The only interactive control that changes the world. Sticky at the bottom of the viewport; in print it becomes a static block.",
+  "actions": [
+   {
+    "id": "approve",
+    "label": "Approve and raise PR",
+    "effect": "confirm dialog, then the QA signal (P6): mark the draft PR ready, or create it if it does not exist yet. Idempotent on (run_id, patch_sha256)",
+    "enabledWhen": "overall is pass or pass_with_gaps with the acknowledgement ticked; no hard failure; stop_reason = submit; non-empty patch"
+   },
+   {
+    "id": "changes",
+    "label": "Request changes",
+    "effect": "reason box (required) becomes a review comment and context for one fix-loop retry (P4-T22 allows one retry)",
+    "enabledWhen": "always"
+   },
+   {
+    "id": "reject",
+    "label": "Reject",
+    "effect": "reason stored, run ends, PR stays for a person to close or rework (production.html, qa step)",
+    "enabledWhen": "always"
+   }
+  ],
+  "states": [
+   {
+    "id": "ready",
+    "when": "all checks pass, judge met, repro valid and live",
+    "ui": "Approve primary"
+   },
+   {
+    "id": "needs_ack",
+    "when": "any check not run, judge partial/not_met/unstable/advisory, fixture repro",
+    "ui": "Approve disabled until the acknowledgement checkbox lists the gaps by name"
+   },
+   {
+    "id": "blocked",
+    "when": "a hard check failed, stop_reason is not submit, or the patch is empty",
+    "ui": "no Approve button; the reason is shown in its place"
+   },
+   {
+    "id": "offline",
+    "when": "file opened with no decision endpoint",
+    "ui": "buttons produce copyable text (gh pr ready <n>, a review comment body) instead of calling anything"
+   },
+   {
+    "id": "decided",
+    "when": "a decision for this (run_id, patch_sha256) exists",
+    "ui": "shows who, when, reason; buttons removed. A re-run produces a new patch hash and a new report; deciding on a stale report is refused"
+   }
+  ],
+  "bug17SampleState": "needs_ack",
+  "differsFromPlan": [
+   {
+    "note": "Owner flow: the owner types the issue (text or screenshot) in a console and gets this report. PLAN.md route: a labelled GitHub issue starts a durable workflow (P6-T07, P8-T08). The report is the same file either way; only ticket.source differs.",
+    "cite": "phases/P08-argus-app.md:44, phases/P06-argus-flow.md:14"
+   },
+   {
+    "note": "Owner flow: the PR is raised after Approve. Plan: a draft PR is opened first (find-or-create on one stable branch, draft until QA), and the QA signal marks it ready. In this report Approve therefore means \"mark the draft ready\", unless the owner decides to delay PR creation.",
+    "cite": "phases/P06-argus-flow.md:57, phases/P08-argus-app.md:45"
+   },
+   {
+    "note": "The decision bar needs somewhere to send the decision. A static HTML file opened from disk has none, so it falls back to copyable commands (gh pr ready <n>). The plan's endpoint is the P6 QA signal: MRTR input_required or a review comment with an approve keyword.",
+    "cite": "phases/P06-argus-flow.md:45-46"
+   },
+   {
+    "note": "\"Production UI\" cannot mean the deployed site: data-src exists only in dev/test builds and the platform target is the synthetic copa-local cell.",
+    "cite": "phases/P02-dom2src.md:9, config/platform.md"
+   }
+  ]
+ },
+ "sample": {
+  "file": "bug-17-fix-report.html",
+  "generatedBy": "argus report v0 (illustrative: no generator exists)",
+  "runId": "run_ILLUSTRATIVE_bug17",
+  "generatedAt": "illustrative",
+  "repo": "dcortex-platform (apps/canvas)",
+  "baseCommit": null,
+  "ticket": {
+   "id": "BUG-17",
+   "text": "Text smaller than 12 px in many places (Radar, Horizon, Flights, Control Tower, admin tags).\n\nOn a phone at arm's length, 10 to 11 px text is hard to read. Counted per screen: Radar about 20 elements (labels such as INBOUND · LAST 24 H at 11 px, the CANCELLED tag at 10 px, scale labels at 10 px). Radar detail cards show CRITICAL, GROUND TIME, MINIMUM and DEPARTURE DELAY at 10 px. Horizon has Act now and Keep an eye at 11.5 px. The Flights list uses 11 px for crew position and status. Control Tower rules cells are 11 px. Admin tags (Read-only, Active, Intact, Failed, shadow) are 11.5 px.\n\nFont sizes are set per component, with no minimum. Set a floor of 12 px for any text. No visible text under 12 px on any screen. Admin tags are 12 px or more.\n\nThe patches in this task cover apps/canvas/src/ops/radar.css only. Horizon, Flights, Control Tower and the admin tags are the same bug and are not in these diffs yet.",
+   "screenshot": {
+    "media_type": "image/png",
+    "path": "shots/radar-card.png"
+   },
+   "meta": {
+    "source": "seeded",
+    "archetype": "font-size",
+    "tier": "medium",
+    "seed": null
+   },
+   "source": "seeded bench task (packages/bench/tasks/seeded/bug-17/ticket.json)",
+   "imageBytes": 103536,
+   "imageSize": [
+    469,
+    834
+   ],
+   "viewportCss": [
+    375,
+    667
+   ],
+   "dpr": 1.25
+  },
+  "repro": {
+   "recorded": {
+    "script": "await page.getByRole(\"button\", { name: \"Sign in\" }).click();\nawait expect(page.getByRole(\"heading\", { name: \"Welcome\" })).toBeVisible();",
+    "verdict": "valid",
+    "stopReason": "submit",
+    "host": "fixture",
+    "model": "openai/gpt-oss-20b",
+    "promptHash": "e93b5e434d93f87ec62e6d1d4a278d1235fa32de382ac605c2ba566040fd5ffe",
+    "path": "packages/repro-agent/runs/text-only/bug-17/repro.spec.ts",
+    "evidence": "FIXTURE_ONLY",
+    "evidenceClaim": "C1"
+   },
+   "illustrative": {
+    "script": "// ILLUSTRATIVE: no such script exists for bug-17\nawait page.goto('/ops/radar');\n// open a connection-risk card, then read its labels\nconst label = page.getByText('GROUND TIME');\nconst px = await label.evaluate(el => parseFloat(getComputedStyle(el).fontSize));\nexpect(px).toBeGreaterThanOrEqual(12);",
+    "runs": [
+     {
+      "tree": "buggy",
+      "outcome": "fail",
+      "detail": "expected >= 12, received 10"
+     },
+     {
+      "tree": "patched",
+      "outcome": "pass",
+      "detail": "received 12"
+     }
+    ]
+   }
+  },
+  "located": {
+   "query": "getByText('GROUND TIME')",
+   "dataSrc": "apps/canvas/src/ops/Radar.tsx:996:21",
+   "element": "span.radar-locked-fact-label",
+   "rule": "apps/canvas/src/ops/radar.css:140",
+   "ambiguousExample": {
+    "query": ".radar-pill (the CRITICAL pill)",
+    "candidates": [
+     {
+      "dataSrc": "apps/canvas/src/ops/Radar.tsx:991:17",
+      "why": "inside .radar-locked, the card in the screenshot",
+      "rank": 1
+     },
+     {
+      "dataSrc": "apps/canvas/src/ops/Radar.tsx:1148:19",
+      "why": "same class on a feed row",
+      "rank": 2
+     },
+     {
+      "dataSrc": "apps/canvas/src/ops/Radar.tsx:1090:34",
+      "why": "same class on a document-expiry row",
+      "rank": 3
+     }
+    ]
+   }
+  },
+  "diff": {
+   "file": "apps/canvas/src/ops/radar.css",
+   "origin": "golden (reference patch, not an agent output)",
+   "path": "packages/bench/tasks/seeded/bug-17/golden.patch",
+   "hunks": [
+    {
+     "header": "@@ -70,7 +70,7 @@",
+     "oldStart": 70,
+     "newStart": 70,
+     "lines": [
+      [
+       "ctx",
+       ".radar-clock { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.1; font-family: var(--radar-mono); }",
+       70
+      ],
+      [
+       "ctx",
+       ".radar-clock-time { font-size: 20px; font-weight: 600; }",
+       71
+      ],
+      [
+       "ctx",
+       ".radar-clock--utc .radar-clock-time { color: var(--radar-dim); }",
+       72
+      ],
+      [
+       "del",
+       ".radar-clock-label { font-size: 10px; letter-spacing: 2px; color: var(--radar-dim); }",
+       73
+      ],
+      [
+       "add",
+       ".radar-clock-label { font-size: 12px; letter-spacing: 2px; color: var(--radar-dim); }",
+       73
+      ],
+      [
+       "ctx",
+       ".radar-head-button { min-height: 36px; padding: 6px 12px; border: 1px solid rgba(59, 130, 246, 0.35); border-radius: 8px; background: transparent; color: var(--radar-muted); font-family: var(--radar-mono); font-size: 12px; font-weight: 600; letter-spacing: 1.5px; cursor: pointer; }",
+       74
+      ],
+      [
+       "ctx",
+       ".radar-screen:fullscreen .radar-head-button { display: none; }",
+       75
+      ],
+      [
+       "ctx",
+       ".radar-modes { display: inline-flex; align-items: stretch; margin-left: auto; border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px; overflow: hidden; background: transparent; }",
+       76
+      ]
+     ]
+    },
+    {
+     "header": "@@ -95,7 +95,7 @@",
+     "oldStart": 95,
+     "newStart": 95,
+     "lines": [
+      [
+       "ctx",
+       "/* The feed. */",
+       95
+      ],
+      [
+       "ctx",
+       ".radar-feed { display: flex; flex-direction: column; gap: 16px; min-width: 0; }",
+       96
+      ],
+      [
+       "ctx",
+       ".radar-feed-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }",
+       97
+      ],
+      [
+       "del",
+       ".radar-eyebrow { display: block; font-family: var(--radar-mono); font-size: 11px; letter-spacing: 3px; color: var(--radar-dim); }",
+       98
+      ],
+      [
+       "add",
+       ".radar-eyebrow { display: block; font-family: var(--radar-mono); font-size: 12px; letter-spacing: 3px; color: var(--radar-dim); }",
+       98
+      ],
+      [
+       "ctx",
+       ".radar-feed-head h1 { margin: 4px 0 0; font-size: 24px; font-weight: 600; letter-spacing: 1px; }",
+       99
+      ],
+      [
+       "ctx",
+       ".radar-shown { font-family: var(--radar-mono); font-size: 12px; color: var(--radar-dim); text-align: right; }",
+       100
+      ],
+      [
+       "ctx",
+       ".radar-x { flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; padding: 0; border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 50%; background: transparent; color: var(--radar-muted); font-size: 17px; line-height: 1; cursor: pointer; }",
+       101
+      ]
+     ]
+    },
+    {
+     "header": "@@ -114,7 +114,7 @@",
+     "oldStart": 114,
+     "newStart": 114,
+     "lines": [
+      [
+       "ctx",
+       ".radar-kpi:hover { background: var(--radar-panel-hover); }",
+       114
+      ],
+      [
+       "ctx",
+       ".radar-kpi[aria-pressed=\"true\"] { background: rgba(59, 130, 246, 0.12); border-top-color: var(--radar-accent); }",
+       115
+      ],
+      [
+       "ctx",
+       ".radar-kpi-value { font-size: 26px; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; }",
+       116
+      ],
+      [
+       "del",
+       ".radar-kpi-label { min-height: 2.6em; font-family: var(--radar-mono); font-size: 11px; line-height: 1.35; letter-spacing: 1px; color: var(--radar-muted); }",
+       117
+      ],
+      [
+       "add",
+       ".radar-kpi-label { min-height: 2.6em; font-family: var(--radar-mono); font-size: 12px; line-height: 1.35; letter-spacing: 1px; color: var(--radar-muted); }",
+       117
+      ],
+      [
+       "ctx",
+       ".radar-kpi--action { border-top-color: rgba(255, 181, 71, 0.7); }",
+       118
+      ],
+      [
+       "ctx",
+       ".radar-kpi--action .radar-kpi-value { color: var(--radar-amber-ink); }",
+       119
+      ],
+      [
+       "ctx",
+       ".radar-kpi--action .radar-kpi-label { color: var(--radar-stale-ink); }",
+       120
+      ]
+     ]
+    },
+    {
+     "header": "@@ -124,20 +124,20 @@",
+     "oldStart": 124,
+     "newStart": 124,
+     "lines": [
+      [
+       "ctx",
+       "",
+       124
+      ],
+      [
+       "ctx",
+       "/* an even grid: every chip whole, rows aligned, however many fit across */",
+       125
+      ],
+      [
+       "ctx",
+       ".radar-chips { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; }",
+       126
+      ],
+      [
+       "del",
+       ".radar-chip { min-height: 32px; text-align: center; padding: 7px 14px; border-radius: 8px; border: 1px solid rgba(59, 130, 246, 0.22); background: transparent; color: var(--radar-muted); font-family: var(--radar-mono); font-size: 11px; font-weight: 600; letter-spacing: 1px; line-height: 1.25; white-space: nowrap; cursor: pointer; }",
+       127
+      ],
+      [
+       "add",
+       ".radar-chip { min-height: 32px; text-align: center; padding: 7px 14px; border-radius: 8px; border: 1px solid rgba(59, 130, 246, 0.22); background: transparent; color: var(--radar-muted); font-family: var(--radar-mono); font-size: 12px; font-weight: 600; letter-spacing: 1px; line-height: 1.25; white-space: nowrap; cursor: pointer; }",
+       127
+      ],
+      [
+       "ctx",
+       ".radar-chip:hover { border-color: rgba(59, 130, 246, 0.4); }",
+       128
+      ],
+      [
+       "ctx",
+       ".radar-screen .radar-chip, .radar-screen .radar-toolbar button { font-family: var(--radar-mono); }",
+       129
+      ],
+      [
+       "ctx",
+       ".radar-chip--hot { color: var(--radar-amber-ink); }",
+       130
+      ],
+      [
+       "ctx",
+       ".radar-chip[aria-pressed=\"true\"] { background: rgba(59, 130, 246, 0.22); border-color: var(--radar-accent); color: var(--radar-on-pressed); }",
+       131
+      ],
+      [
+       "ctx",
+       "",
+       132
+      ],
+      [
+       "ctx",
+       ".radar-locked { display: flex; flex-direction: column; gap: 10px; padding: 16px 18px; border-radius: 12px; border: 1px solid rgba(255, 181, 71, 0.5); background: linear-gradient(135deg, rgba(255, 181, 71, 0.1), rgba(59, 130, 246, 0.05)); }",
+       133
+      ],
+      [
+       "del",
+       ".radar-locked-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-family: var(--radar-mono); font-size: 11px; letter-spacing: 2px; color: var(--radar-dim); }",
+       134
+      ],
+      [
+       "add",
+       ".radar-locked-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-family: var(--radar-mono); font-size: 12px; letter-spacing: 2px; color: var(--radar-dim); }",
+       134
+      ],
+      [
+       "ctx",
+       ".radar-locked-mark { color: var(--radar-amber-ink); }",
+       135
+      ],
+      [
+       "ctx",
+       ".radar-locked-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding-right: 36px; }",
+       136
+      ],
+      [
+       "ctx",
+       ".radar-locked-title { font-size: 21px; font-weight: 600; line-height: 1.2; }",
+       137
+      ],
+      [
+       "ctx",
+       ".radar-locked-kind { font-size: 14px; font-weight: 400; line-height: 1.4; color: var(--radar-muted); }",
+       138
+      ],
+      [
+       "ctx",
+       ".radar-locked-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 18px; }",
+       139
+      ],
+      [
+       "del",
+       ".radar-locked-fact-label { display: block; margin-bottom: 2px; font-family: var(--radar-mono); font-size: 10px; letter-spacing: 0.8px; color: var(--radar-dim); }",
+       140
+      ],
+      [
+       "add",
+       ".radar-locked-fact-label { display: block; margin-bottom: 2px; font-family: var(--radar-mono); font-size: 12px; letter-spacing: 0.8px; color: var(--radar-dim); }",
+       140
+      ],
+      [
+       "ctx",
+       ".radar-locked-fact-value { font-size: 15px; }",
+       141
+      ],
+      [
+       "ctx",
+       ".radar-locked-detail { font-size: 14px; line-height: 1.4; color: var(--radar-muted); }",
+       142
+      ],
+      [
+       "ctx",
+       ".radar-locked-actions { display: flex; align-items: center; gap: 8px; }",
+       143
+      ]
+     ]
+    },
+    {
+     "header": "@@ -170,17 +170,17 @@",
+     "oldStart": 170,
+     "newStart": 170,
+     "lines": [
+      [
+       "ctx",
+       ".radar-row--resolved { opacity: 0.62; }",
+       170
+      ],
+      [
+       "ctx",
+       ".radar-row-when { display: flex; flex-direction: column; gap: 2px; font-family: var(--radar-mono); }",
+       171
+      ],
+      [
+       "ctx",
+       ".radar-row-age { font-size: 14px; font-weight: 600; color: var(--radar-ink); }",
+       172
+      ],
+      [
+       "del",
+       ".radar-row-clock { font-size: 11px; color: var(--radar-dim); }",
+       173
+      ],
+      [
+       "add",
+       ".radar-row-clock { font-size: 12px; color: var(--radar-dim); }",
+       173
+      ],
+      [
+       "ctx",
+       ".radar-row-text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }",
+       174
+      ],
+      [
+       "ctx",
+       ".radar-row-title { font-size: 14px; font-weight: 600; color: var(--radar-ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }",
+       175
+      ],
+      [
+       "ctx",
+       ".radar-row-detail { font-size: 12px; color: var(--radar-detail); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }",
+       176
+      ],
+      [
+       "ctx",
+       "",
+       177
+      ],
+      [
+       "del",
+       ".radar-tag { min-width: 62px; box-sizing: border-box; padding: 3px 6px; border-radius: 4px; font-family: var(--radar-mono); font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-align: center; white-space: nowrap; }",
+       178
+      ],
+      [
+       "add",
+       ".radar-tag { min-width: 62px; box-sizing: border-box; padding: 3px 6px; border-radius: 4px; font-family: var(--radar-mono); font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-align: center; white-space: nowrap; }",
+       178
+      ],
+      [
+       "ctx",
+       ".radar-tag--action { background: rgba(255, 181, 71, 0.16); border: 1px solid rgba(255, 181, 71, 0.6); color: var(--radar-amber); }",
+       179
+      ],
+      [
+       "ctx",
+       ".radar-tag--open { background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.45); color: var(--radar-lime); }",
+       180
+      ],
+      [
+       "ctx",
+       ".radar-tag--resolved { background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.3); color: var(--radar-accent); }",
+       181
+      ],
+      [
+       "ctx",
+       "",
+       182
+      ],
+      [
+       "del",
+       ".radar-pill { padding: 3px 7px; border-radius: 4px; font-family: var(--radar-mono); font-size: 10px; font-weight: 600; letter-spacing: 1.5px; white-space: nowrap; }",
+       183
+      ],
+      [
+       "add",
+       ".radar-pill { padding: 3px 7px; border-radius: 4px; font-family: var(--radar-mono); font-size: 12px; font-weight: 600; letter-spacing: 1.5px; white-space: nowrap; }",
+       183
+      ],
+      [
+       "ctx",
+       ".radar-pill--new, .radar-pill--uncrewed { background: var(--radar-accent); color: #ffffff; }",
+       184
+      ],
+      [
+       "ctx",
+       ".radar-pill--cancelled, .radar-pill--critical, .radar-pill--missing { background: var(--radar-amber); color: #1f1300; }",
+       185
+      ],
+      [
+       "ctx",
+       ".radar-pill--ack, .radar-pill--delayed, .radar-pill--warning, .radar-pill--late { border: 1px solid var(--radar-lime); color: var(--radar-pill-ack); }",
+       186
+      ]
+     ]
+    },
+    {
+     "header": "@@ -255,13 +255,13 @@",
+     "oldStart": 255,
+     "newStart": 255,
+     "lines": [
+      [
+       "ctx",
+       ".radar-telemetry { display: flex; flex-direction: column; gap: 8px; padding: 12px 16px 10px; border-radius: 10px; border: 1px solid rgba(59, 130, 246, 0.14); background: var(--radar-telemetry-bg); }",
+       255
+      ],
+      [
+       "ctx",
+       ".radar-scrub { width: 100%; margin: 0; accent-color: var(--radar-amber); }",
+       256
+      ],
+      [
+       "ctx",
+       ".radar-arrivals { display: flex; flex-direction: column; gap: 6px; min-width: 0; }",
+       257
+      ],
+      [
+       "del",
+       ".radar-arrivals-title { font-family: var(--radar-mono); font-size: 10px; letter-spacing: 2px; color: var(--radar-dim); }",
+       258
+      ],
+      [
+       "add",
+       ".radar-arrivals-title { font-family: var(--radar-mono); font-size: 12px; letter-spacing: 2px; color: var(--radar-dim); }",
+       258
+      ],
+      [
+       "ctx",
+       ".radar-arrivals svg { display: block; width: 100%; height: 40px; }",
+       259
+      ],
+      [
+       "ctx",
+       ".radar-bar { fill: rgba(59, 130, 246, 0.75); }",
+       260
+      ],
+      [
+       "ctx",
+       ".radar-bar--action { fill: var(--radar-amber); }",
+       261
+      ],
+      [
+       "ctx",
+       ".radar-bar--empty { fill: rgba(59, 130, 246, 0.2); }",
+       262
+      ],
+      [
+       "del",
+       ".radar-arrivals-axis { display: flex; justify-content: flex-end; font-family: var(--radar-mono); font-size: 10px; letter-spacing: 1.5px; color: var(--radar-faint); }",
+       263
+      ],
+      [
+       "del",
+       ".radar-telemetry-read { padding-top: 8px; border-top: 1px solid rgba(59, 130, 246, 0.08); font-family: var(--radar-mono); font-size: 10.5px; letter-spacing: 1.5px; color: var(--radar-faint); }",
+       264
+      ],
+      [
+       "add",
+       ".radar-arrivals-axis { display: flex; justify-content: flex-end; font-family: var(--radar-mono); font-size: 12px; letter-spacing: 1.5px; color: var(--radar-faint); }",
+       263
+      ],
+      [
+       "add",
+       ".radar-telemetry-read { padding-top: 8px; border-top: 1px solid rgba(59, 130, 246, 0.08); font-family: var(--radar-mono); font-size: 12px; letter-spacing: 1.5px; color: var(--radar-faint); }",
+       264
+      ],
+      [
+       "ctx",
+       "",
+       265
+      ],
+      [
+       "ctx",
+       "/* The CRT: scanlines and a vignette over everything, never in the way of a click. Softened / off in light. */",
+       266
+      ],
+      [
+       "ctx",
+       ".radar-crt {",
+       267
+      ]
+     ]
+    }
+   ],
+   "declarations": [
+    {
+     "selector": ".radar-clock-label",
+     "from": 10.0,
+     "to": 12.0,
+     "line": 73,
+     "inShot": null
+    },
+    {
+     "selector": ".radar-eyebrow",
+     "from": 11.0,
+     "to": 12.0,
+     "line": 98,
+     "inShot": null
+    },
+    {
+     "selector": ".radar-kpi-label",
+     "from": 11.0,
+     "to": 12.0,
+     "line": 117,
+     "inShot": "KPI captions (behind the dim layer)"
+    },
+    {
+     "selector": ".radar-chip",
+     "from": 11.0,
+     "to": 12.0,
+     "line": 127,
+     "inShot": null
+    },
+    {
+     "selector": ".radar-locked-meta",
+     "from": 11.0,
+     "to": 12.0,
+     "line": 134,
+     "inShot": null
+    },
+    {
+     "selector": ".radar-locked-fact-label",
+     "from": 10.0,
+     "to": 12.0,
+     "line": 140,
+     "inShot": "GROUND TIME, MINIMUM, INBOUND ARR, OUTBOUND DEP, PAIRING, CREW labels"
+    },
+    {
+     "selector": ".radar-row-clock",
+     "from": 11.0,
+     "to": 12.0,
+     "line": 173,
+     "inShot": null
+    },
+    {
+     "selector": ".radar-tag",
+     "from": 10.0,
+     "to": 12.0,
+     "line": 178,
+     "inShot": null
+    },
+    {
+     "selector": ".radar-pill",
+     "from": 10.0,
+     "to": 12.0,
+     "line": 183,
+     "inShot": "the CRITICAL pill"
+    },
+    {
+     "selector": ".radar-arrivals-title",
+     "from": 10.0,
+     "to": 12.0,
+     "line": 258,
+     "inShot": null
+    },
+    {
+     "selector": ".radar-arrivals-axis",
+     "from": 10.0,
+     "to": 12.0,
+     "line": 263,
+     "inShot": null
+    },
+    {
+     "selector": ".radar-telemetry-read",
+     "from": 10.5,
+     "to": 12.0,
+     "line": 264,
+     "inShot": null
+    }
+   ],
+   "additions": 12,
+   "deletions": 12
+  },
+  "checks": [
+   {
+    "id": "bench-computed-style",
+    "type": "computed_style",
+    "label": "Computed font-size >= 12 px on /ops/radar",
+    "status": "pass",
+    "detail": "elements under 12 px: 0",
+    "defReal": true,
+    "note": "definition is checks.json; scope is /ops/radar only"
+   },
+   {
+    "id": "pixel",
+    "type": "pixel_diff",
+    "label": "Pixel diff against the golden screenshot",
+    "status": "not_run",
+    "detail": "no golden screenshot is stored for BUG-17; only the before image exists",
+    "defReal": false,
+    "note": "P4-T02"
+   },
+   {
+    "id": "overflow",
+    "type": "overflow",
+    "label": "Overflow at 375 px",
+    "status": "pass",
+    "detail": "scroll width equals viewport; no element past the right edge",
+    "defReal": false,
+    "note": "P4-T03"
+   },
+   {
+    "id": "axe",
+    "type": "axe",
+    "label": "axe-core, new violations only",
+    "status": "pass",
+    "detail": "new: 0. Baseline ignored: 1 (color-contrast on .radar-pill--critical, visible in the before shot as pale text)",
+    "newViolations": [],
+    "baselineViolations": [
+     "color-contrast: .radar-pill--critical"
+    ],
+    "defReal": false,
+    "note": "P4-T04"
+   },
+   {
+    "id": "console",
+    "type": "console",
+    "label": "Console errors and warnings, new only",
+    "status": "pass",
+    "detail": "new errors: 0, new warnings: 0",
+    "defReal": false,
+    "note": "P4-T05"
+   }
+  ],
+  "verdict": {
+   "overall": "pass_with_gaps",
+   "order": [
+    "pixel",
+    "overflow",
+    "axe",
+    "console"
+   ],
+   "firstFailure": null,
+   "note": "order is the PLAN.md/P4-T06 order; the bench check runs with the scorer"
+  },
+  "judge": {
+   "model": "gemma4:e4b (cross-family; P4-T11)",
+   "label": "partial",
+   "orderSwappedLabel": "partial",
+   "rationale": "Radar labels and the CRITICAL pill are now 12 px. The ticket also lists Horizon (Act now, Keep an eye), Flights, Control Tower rules and admin tags; this patch changes none of them.",
+   "alpha": null,
+   "advisory": true,
+   "limits": [
+    "Sees the ticket and two screenshots; it does not see the code or any screen that is not in the images.",
+    "Agreement with your labels (Krippendorff alpha, target >= 0.80) is not measured: the 100-pair calibration set does not exist yet (P4-T09, T10, T13).",
+    "It does not override a passed check run, and a failed check beats any judge label.",
+    "Cross-family on purpose (Gemma judging a Mistral fixer) to limit self-preference; the same-family control run is P4-T16/T17.",
+    "Order sensitivity is probed by swapping before and after (P4-T24); a flip is reported, not averaged."
+   ]
+  },
+  "trajectory": {
+   "repro": {
+    "steps": 1,
+    "tokens": {
+     "in": 1,
+     "out": 1,
+     "cached": 0
+    },
+    "stop": "submit",
+    "host": "fixture",
+    "model": "openai/gpt-oss-20b",
+    "runId": "bug-17",
+    "gitCommitField": "text-only",
+    "promptHash": "e93b5e434d93f87ec62e6d1d4a278d1235fa32de382ac605c2ba566040fd5ffe",
+    "path": "packages/repro-agent/runs/text-only/bug-17/trajectory.jsonl"
+   },
+   "fix": null,
+   "priorAttempt": "P0 one-shot Groq run: bug-17 = exit2_bug, bug.patch did not apply (docs/notes/p0-t29.md:74)"
+  },
+  "risks": [
+   {
+    "id": "scope",
+    "severity": "high",
+    "source": "auto",
+    "text": "Partial fix. The ticket names Horizon, Flights, Control Tower and admin tags as the same bug; the patch covers radar.css only. The bench check also only looks at /ops/radar."
+   },
+   {
+    "id": "pixel-gap",
+    "severity": "med",
+    "source": "auto",
+    "text": "Pixel diff not run: no golden screenshot. The verdict is pass with a gap, not a clean pass."
+   },
+   {
+    "id": "wrap",
+    "severity": "med",
+    "source": "auto",
+    "text": "Pill and labels grow 10 to 12 px. In the before shot the card title already wraps (\"CQ102 / 6\") next to the pill; growth could wrap more text. The overflow row passes (illustrative), but no real after image exists."
+   },
+   {
+    "id": "build",
+    "severity": "med",
+    "source": "auto",
+    "text": "Screenshots come from a test build with data-src on, served from the sandbox (copa-local cell), not from the deployed site."
+   },
+   {
+    "id": "themes",
+    "severity": "low",
+    "source": "auto",
+    "text": "One viewport (375 px) and one theme (light) shown. Radar is dark by default; dark theme and wider screens are not in this report."
+   },
+   {
+    "id": "fixture",
+    "severity": "high",
+    "source": "auto",
+    "text": "The recorded reproduction is a fixture replay of a sign-in script. It does not prove anything about font size."
+   },
+   {
+    "id": "judge",
+    "severity": "low",
+    "source": "auto",
+    "text": "Judge is advisory; its agreement with human labels is unmeasured."
+   },
+   {
+    "id": "preexisting",
+    "severity": "low",
+    "source": "auto",
+    "text": "Pre-existing and unrelated, visible in the before shot: the CRITICAL pill has pale text on a light ground, and the close button overlaps the title. Not changed by this patch."
+   }
+  ],
+  "decision": {
+   "states": [
+    "ready",
+    "needs_ack",
+    "blocked",
+    "offline",
+    "decided"
+   ],
+   "sampleState": "needs_ack",
+   "ackText": "I accept: pixel diff not run; judge: partial; judge agreement unmeasured; fixture reproduction; partial fix (Radar only).",
+   "scenarios": [
+    "sample (as modelled)",
+    "clean: all pass, judge met, live repro -> ready",
+    "failed: overflow fails, later checks not run, judge skipped -> blocked",
+    "noafter: after screenshot missing -> blocked",
+    "unstable: pixel flaky, judge order-sensitive -> needs_ack"
+   ],
+   "approve": "Approve and raise PR",
+   "changes": "Request changes",
+   "reject": "Reject"
+  }
+ },
+ "needs": [
+  {
+   "section": "01 Ticket",
+   "phase": "P0 (done) + P6-T07 / P8-T08",
+   "built": "Ticket schema, bench tickets",
+   "missing": "intake that stamps ticket.source (console upload or labelled issue)"
+  },
+  {
+   "section": "02 Reproduction",
+   "phase": "P1 (done, fixture-replayed)",
+   "built": "script, verdict, trajectory",
+   "missing": "per-tree run rows; a live (non-fixture) run; a way to express style bugs"
+  },
+  {
+   "section": "03 Located source",
+   "phase": "P2",
+   "built": "nothing",
+   "missing": "data-src plugin (T02), locate() core and schema (T05, T06), MCP server (T07), ambiguity (T08)"
+  },
+  {
+   "section": "04 The diff",
+   "phase": "P3",
+   "built": "nothing for a patch",
+   "missing": "worktree manager (T04), loop (T06), recorder (T08), patch hash"
+  },
+  {
+   "section": "05 Before / after",
+   "phase": "P4 + P3",
+   "built": "one before image",
+   "missing": "capture of before and after at fixed viewport (needs fonts waited, animations masked), pixel diff with masks (P4-T02), after-screenshot storage"
+  },
+  {
+   "section": "06 Verifier checks",
+   "phase": "P4",
+   "built": "bench check definitions (synthetic page)",
+   "missing": "pixel (T02), overflow (T03), axe new-only (T04), console (T05), pipeline and structured verdict (T06)"
+  },
+  {
+   "section": "07 Judge",
+   "phase": "P4",
+   "built": "nothing",
+   "missing": "rubric (T08), 100-pair labels (T09, T10), runners (T11, T16), alpha (T12-T14), ADR-013 (T18)"
+  },
+  {
+   "section": "08 Trajectory",
+   "phase": "P3 + P5",
+   "built": "schema, ledger, repro trajectories",
+   "missing": "fix-loop recorder (P3-T08), metrics (P5), best-of-k record (P4-T19)"
+  },
+  {
+   "section": "09 Risks",
+   "phase": "renderer",
+   "built": "nothing",
+   "missing": "rule set over report fields; human notes"
+  },
+  {
+   "section": "Decision bar",
+   "phase": "P6 + P8",
+   "built": "nothing",
+   "missing": "approve/reject endpoint = QA signal (P6-T09 MRTR or P6-T10 review comment), draft-PR find-or-create (P6-T21), PR body with verdict, judge, trajectory, two shots (P8-T09)"
+  },
+  {
+   "section": "The generator itself",
+   "phase": "none",
+   "built": "hand-made 142-fix.html",
+   "missing": "No task in TASKS.md builds the FixReport schema or the HTML renderer. P8-T09 only puts the verdict, judge label, trajectory link and two screenshots in the PR body. Proposed: one new task after P4 (schema + static renderer + golden-file test), so the P6 QA wait has something to show"
+  }
+ ],
+ "openQuestions": [
+  "Where does the report live for the reviewer: an Actions artifact link in the PR body (static, no decision endpoint) or a control-plane URL (P6, has the endpoint)?",
+  "Can a style bug (font-size, z-index) have a click-script repro at all given the P1 tool surface, or is the bench check its repro?",
+  "Does Approve create the PR (owner flow) or mark a draft ready (plan)?",
+  "Screenshots of the real tenant UI contain tenant data: who may see the report?"
+ ]
+}
