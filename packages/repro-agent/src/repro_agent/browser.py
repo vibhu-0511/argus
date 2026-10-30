@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import re
 import tempfile
 from pathlib import Path
@@ -27,6 +28,10 @@ _SERVER = "@playwright/mcp@0.0.83"
 _SNAPSHOT_FILE = re.compile(r"\[Snapshot\]\(([^)]+)\)")
 
 
+class ToolUnavailable(RuntimeError):
+    """The Playwright MCP server died. One restart was already tried."""
+
+
 def _text(result: Any) -> str:
     parts: list[str] = []
     for block in getattr(result, "content", None) or []:
@@ -40,7 +45,9 @@ def _text(result: Any) -> str:
 class ReproBrowser:
     """One Playwright MCP process. Calls stay on the allow-list."""
 
-    def __init__(self) -> None:
+    def __init__(self, *, timeout: float = 120) -> None:
+        self.timeout = timeout
+        self._restarted = False
         self._client: Client | None = None
         self._cm: Client | None = None
         self._scratch: tempfile.TemporaryDirectory[str] | None = None
@@ -163,10 +170,30 @@ class ReproBrowser:
                         return body
         return text
 
-    async def _mcp(self, tool: str, remote: str, payload: dict | None) -> ToolResult | ToolError:
+    async def _restart(self) -> None:
+        await self.close()
+        await self.open()
+
+    async def _attempt(self, remote: str, payload: dict | None) -> Any:
         if self._client is None:
-            return ToolError(error="failed", message="browser is not open")
-        result = await self._client.call_tool(remote, payload, read_timeout_seconds=120)
+            raise ToolUnavailable("browser is not open")
+        return await asyncio.wait_for(
+            self._client.call_tool(remote, payload, read_timeout_seconds=self.timeout),
+            timeout=self.timeout,
+        )
+
+    async def _mcp(self, tool: str, remote: str, payload: dict | None) -> ToolResult | ToolError:
+        try:
+            result = await self._attempt(remote, payload)
+        except Exception:
+            if self._restarted:
+                raise ToolUnavailable("tool-unavailable") from None
+            self._restarted = True
+            try:
+                await asyncio.wait_for(self._restart(), timeout=self.timeout)
+                result = await self._attempt(remote, payload)
+            except Exception:
+                raise ToolUnavailable("tool-unavailable") from None
         text = _text(result)
         if result.is_error:
             return ToolError(error="failed", message=text or f"{remote} failed")

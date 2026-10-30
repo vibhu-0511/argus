@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import hashlib
 import re
+import threading
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
@@ -17,6 +18,7 @@ from argus_core.ledger import Ledger
 from argus_core.ledger import Usage as LedgerUsage
 from argus_core.types import StopReason, Ticket, Trajectory, TrajectoryMeta, TrajectoryStep
 
+from repro_agent.browser import ToolUnavailable
 from repro_agent.prompt import assemble_prompt
 
 _FENCE = re.compile(r"```(?:javascript|js|typescript|ts)?\s*\n(.*?)```", re.DOTALL)
@@ -53,6 +55,7 @@ def run_repro(
     host: str,
     git_commit: str,
     mode: Literal["text", "image"] = "text",
+    tool_timeout: float = 120,
 ) -> LoopResult:
     if cap < 1:
         raise ValueError("cap must be at least 1")
@@ -92,7 +95,12 @@ def run_repro(
             steps.append(_step(index, usage, raw=text, tool_error=problem))
             messages.append({"role": "user", "content": problem})
             continue
-        trees = run_trees(script)
+        try:
+            trees = _within(tool_timeout, run_trees, script)
+        except (ToolUnavailable, TimeoutError):
+            steps.append(_step(index, usage, raw=text, tool_error="tool-unavailable", stop_reason=StopReason.tool_unavailable))
+            reason = StopReason.tool_unavailable
+            break
         if trees.failed_on_buggy and trees.passed_on_golden:
             saved = script
             reason = StopReason.submit
@@ -141,6 +149,26 @@ def _messages(text: str, image: object) -> list[dict]:
             },
         ]
     return [{"role": "system", "content": instruction}, {"role": "user", "content": user}]
+
+
+def _within(timeout: float, fn: Callable[[str], TreeRun], script: str) -> TreeRun:
+    box: list[tuple[bool, object]] = []
+
+    def work() -> None:
+        try:
+            box.append((True, fn(script)))
+        except BaseException as exc:
+            box.append((False, exc))
+
+    thread = threading.Thread(target=work, daemon=True)
+    thread.start()
+    thread.join(timeout)
+    if thread.is_alive():
+        raise TimeoutError("tool-unavailable")
+    ok, value = box[0]
+    if not ok:
+        raise value
+    return value
 
 
 def _script_of(text: str) -> str:

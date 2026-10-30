@@ -52,7 +52,7 @@ Turn a ticket (text, optionally a screenshot) into a Playwright reproduction scr
 ## Break it on purpose
 1. **Vague ticket (P1-T13).** *Induced failure:* a ticket that says "the page looks wrong" with no route or element. *Expected signal:* the retry cap is hit, stop reason `retry-cap`, no valid script. *Fix:* add a clarification step that asks for the missing route/element, or fail fast with a typed reason.
 2. **Script passes on the buggy tree (P1-T14).** *Induced failure:* a selector so loose that it matches in both trees. *Expected signal:* verifier verdict `passes-on-bug`. *Fix:* require the agent's script to include an assertion on the symptom, and feed the verdict back to the next attempt.
-3. **MCP server dies mid-run (P1-T15).** *Induced failure:* kill the Playwright MCP process during a tool call. *Expected signal:* tool-unavailable stop reason within the timeout, no hang. *Fix:* restart once with backoff, then fall back to direct Playwright as the tool.
+3. **MCP server dies mid-run (P1-T15).** *Induced failure:* the Playwright MCP process dies during a tool call, or it has already exited when the next call starts. *Expected signal:* stop reason `tool-unavailable` within the timeout, no hang. *Fix:* restart the server once, then stop with `tool-unavailable`. Direct Playwright is not the fallback (ADR-004).
 
 ## Ablation
 **Hypothesis:** adding the screenshot to the ticket raises repro success on layout bugs enough to justify its extra tokens and quota.
