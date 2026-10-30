@@ -11,6 +11,9 @@ const data = {
   graph: c,                   // nodes, edges, groups
   evidence: j('evidence.json'),
 };
+// optional product-UI data, written by the product-UI lanes; missing files are skipped
+for (const [key, file] of [['finalUi', 'final-ui.json'], ['phaseUi', 'phase-ui.json'], ['report', 'report.json']])
+  if (existsSync(sw + file)) data[key] = j(file);
 const frags = readdirSync(src).filter(f => /^[1-9]\d-.*\.html$/.test(f)).sort()
   .map(f => `<!-- ${f} -->\n` + readFileSync(src + f, 'utf8')).join('\n');
 const json = JSON.stringify(data).replace(/</g, '\\u003c');
