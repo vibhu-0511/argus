@@ -1,0 +1,2 @@
+{"git_commit": "text-plus-image", "host": "fixture", "kind": "meta", "model": "openai/gpt-oss-20b", "prompt_hash": "92f1bd3d0f413362f69b49c2ddeb49f5e60fef5e4643a45b1dc71a9c1979a4c8", "run_id": "seed-e09", "seed": null, "task_id": "seed-e09"}
+{"index":0,"kind":"step","tokens_in":1,"tokens_out":1,"tokens_cached":0,"stop_reason":"submit","raw_response":"await page.getByRole(\"button\", { name: \"Sign in\" }).click();\nawait expect(page.getByRole(\"heading\", { name: \"Welcome\" })).toBeVisible();","message":null,"tool_name":null,"tool_error":null}

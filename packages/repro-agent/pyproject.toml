@@ -6,6 +6,9 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = ["argus-core", "mcp==2.3.0", "pydantic>=2.14.1"]
 
+[project.scripts]
+repro = "repro_agent.batch:main"
+
 [tool.uv.sources]
 argus-core = { workspace = true }
 

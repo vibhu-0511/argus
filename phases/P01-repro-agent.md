@@ -63,16 +63,20 @@ Turn a ticket (text, optionally a screenshot) into a Playwright reproduction scr
 
 | Variant | Resolve rate (95% CI) | Tokens/bug (in, out, cached) | $-equivalent/bug | Quota share/bug | p50 latency | p95 latency | Repro success |
 |---|---|---|---|---|---|---|---|
-| A | — | — | — | — | — | — | — |
-| B | — | — | — | — | — | — | — |
+| A | 28/30 [0.786762, 0.981523] | 1.0000, 1.0000, 0.0000 | — | 0.001000 | — | — | 28/30 |
+| B | 28/30 [0.786762, 0.981523] | 1.0000, 1.0000, 0.0000 | — | 0.001000 | — | — | 28/30 |
+
+Both rows are the saved recorded-reply batches. They do not call a provider. The tree outcome is that recorded runner, not a browser on each task's own UI. Only BUG-17 has a screenshot. Attaching its 103536-byte PNG did not change a verdict. The ledger still charged 1 in, 1 out, 0 cached per task. Quota share is one request per task, 1/1000 of the daily cap. Latency was not measured. $-equivalent stays "—" until P5-T11.
 
 **Phase report (against previous phase):**
 
 | Report | Resolve rate | Tokens/bug | $-equivalent | p50 latency | p95 latency |
 |---|---|---|---|---|---|
-| Previous phase | — | — | — | — | — |
-| This phase | — | — | — | — | — |
-| Delta | — | — | — | — | — |
+| Previous phase | 0/10 [-0.000000, 0.277540] | 4585.0000, 1044.0000, 0.0000 | — | 3.652305s | 4.842286s |
+| This phase | 28/30 [0.786762, 0.981523] | 1.0000, 1.0000, 0.0000 | — | — | — |
+| Delta | +0.933333 | — | — | — | — |
+
+The previous row is the P0 live baseline. This row is the text-only batch, which ADR-005 keeps as the default. Its token cell is the recorded-reply ledger charge, not a provider bill, so the token and latency deltas are left blank.
 
 ## ADRs to write
 All [ME].

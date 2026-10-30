@@ -1,9 +1,11 @@
-"""Text-only pass over the seeded tasks. One crash does not stop the next task."""
+"""Seeded-task passes. One crash does not stop the next task. Replies are recorded, so neither pass calls a provider."""
 
 from __future__ import annotations
 
 import json
+import math
 from pathlib import Path
+from typing import Literal
 
 from argus_core.client import Completion, Usage
 from argus_core.ledger import Ledger, load_quotas
@@ -39,6 +41,15 @@ def seeded_tickets(root: Path | None = None) -> list[tuple[str, Ticket]]:
 
 def run_text_only(out_dir: Path, *, ledger: Ledger | None = None) -> Path:
     """Write one verdict and one trajectory per seeded task. Text mode only."""
+    return run_seeded(out_dir, mode="text", ledger=ledger)
+
+
+def run_with_screenshot(out_dir: Path, *, ledger: Ledger | None = None) -> Path:
+    """Same 30 tasks and the same model as text-only. The ticket image is attached once when the task has one."""
+    return run_seeded(out_dir, mode="image", ledger=ledger)
+
+
+def run_seeded(out_dir: Path, *, mode: Literal["text", "image"], ledger: Ledger | None = None) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
     book = ledger or Ledger(out_dir / "ledger.json", load_quotas(_REPO / "docs" / "quotas.md"))
     for name, ticket in seeded_tickets():
@@ -54,8 +65,8 @@ def run_text_only(out_dir: Path, *, ledger: Ledger | None = None) -> Path:
             cap=1,
             run_id=name,
             host="fixture",
-            git_commit="text-only",
-            mode="text",
+            git_commit="text-only" if mode == "text" else "text-plus-image",
+            mode=mode,
         )
         trajectory = Trajectory.from_jsonl(result.trajectory_path.read_text(encoding="utf-8"))
         verdict = _verdict(name, result.script, result.stop_reason.value, trajectory)
@@ -93,3 +104,43 @@ def _verdict(name: str, script: str | None, stop: str, trajectory: Trajectory) -
     if "Welcome" in body:
         return verify(body, "fail", "pass").value
     return verify(body, "pass", "pass").value
+
+
+def valid_count(run_dir: Path) -> tuple[int, int]:
+    files = sorted(run_dir.glob("*/verdict.json"))
+    valid = 0
+    for path in files:
+        if json.loads(path.read_text(encoding="utf-8"))["verdict"] == "valid":
+            valid += 1
+    return valid, len(files)
+
+
+def wilson_interval(successes: int, total: int) -> tuple[float, float]:
+    """Wilson score interval at 95%. z = 1.96 formats the P0 0/10 cell as [0.000000, 0.277540]."""
+    z = 1.96
+    phat = successes / total
+    z2 = z * z
+    denom = 1 + z2 / total
+    center = (phat + z2 / (2 * total)) / denom
+    margin = z * math.sqrt(phat * (1 - phat) / total + z2 / (4 * total * total)) / denom
+    return max(0.0, center - margin), min(1.0, center + margin)
+
+
+def rate_label(successes: int, total: int) -> str:
+    low, high = wilson_interval(successes, total)
+    return f"{successes}/{total} [{low:.6f}, {high:.6f}]"
+
+
+def main(argv: list[str] | None = None) -> int:
+    import argparse
+
+    parser = argparse.ArgumentParser(prog="repro")
+    parser.add_argument("command", choices=("text-only", "text-plus-image"))
+    args = parser.parse_args(argv)
+    out = _REPO / "packages" / "repro-agent" / "runs" / args.command
+    if args.command == "text-only":
+        run_text_only(out)
+    else:
+        run_with_screenshot(out)
+    print(out)
+    return 0
