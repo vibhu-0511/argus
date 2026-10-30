@@ -27,6 +27,9 @@ _PAGE = """<!doctype html>
 """
 
 
+pytestmark = pytest.mark.live_app
+
+
 @pytest.fixture(scope="module")
 def origin() -> str:
     body = _PAGE.encode()

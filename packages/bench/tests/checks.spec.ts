@@ -6,7 +6,7 @@ import path from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 import { FLOWS, boundingBox, computedStyle, pixelDiff } from "../src/checks";
 
-const PLATFORM = "C:/Users/vibha/Downloads/data/dcortex/dcortex_claude/dcortex-platform";
+const PLATFORM = process.env.ARGUS_PLATFORM_REPO ?? "";
 const CLOCK = ".radar-clock-time { font-size: 20px; font-weight: 600; }";
 const CLOCK_BROKEN = ".radar-clock-time { font-size: 64px; font-weight: 600; background: #ff00aa; display: inline-block; }";
 
@@ -61,6 +61,7 @@ async function visitFlows(page: Page, origin: string) {
 }
 
 test("checks pass on a clean dcortex worktree and fail on a hand-broken copy", async ({ page }) => {
+  test.skip(!PLATFORM, "set ARGUS_PLATFORM_REPO to a dcortex-platform checkout");
   test.setTimeout(300_000);
   const clean = worktree("clean");
   const broken = worktree("broken");

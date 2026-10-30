@@ -43,12 +43,14 @@ def _user_data_dir(stdout: str) -> str:
     raise AssertionError(stdout)
 
 
+@pytest.mark.docker
 def test_sample_script_returns_its_exit_code(image: str):
     result = _run(["docker", "run", "--rm", "--network", NET, "--ipc=host", image])
     assert result.returncode == 0, result.stderr[-2000:]
     assert _user_data_dir(result.stdout).startswith("/tmp/argus-user-data.")
 
 
+@pytest.mark.docker
 def test_each_run_gets_its_own_user_data_dir(image: str):
     first = _run(["docker", "run", "--rm", "--network", NET, "--ipc=host", image])
     second = _run(["docker", "run", "--rm", "--network", NET, "--ipc=host", image])
@@ -57,11 +59,13 @@ def test_each_run_gets_its_own_user_data_dir(image: str):
     assert _user_data_dir(first.stdout) != _user_data_dir(second.stdout)
 
 
+@pytest.mark.docker
 def test_container_cannot_reach_the_internet(image: str):
     result = _run(["docker", "run", "--rm", "--network", NET, image, "probe-net.mjs"], timeout=30)
     assert result.returncode != 0
 
 
+@pytest.mark.docker
 def test_container_can_reach_the_app(image: str):
     started = _run(
         [

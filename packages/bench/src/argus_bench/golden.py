@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import subprocess
 import tempfile
 from pathlib import Path
@@ -9,20 +10,14 @@ from pathlib import Path
 from argus_bench.score import score_task
 
 _BENCH = Path(__file__).resolve().parents[2]
-_REPO = _BENCH.parents[1]
 
 
-def platform_repo(root: Path | None = None) -> Path:
-    text = ((root or _REPO) / "config" / "platform.md").read_text(encoding="utf-8")
-    for line in text.splitlines():
-        if not line.startswith("| Repo |"):
-            continue
-        start = line.find("`")
-        end = line.find("`", start + 1)
-        if start < 0 or end < 0:
-            break
-        return Path(line[start + 1 : end])
-    raise FileNotFoundError("config/platform.md has no Repo path")
+def platform_repo() -> Path:
+    """The dcortex-platform checkout. config/platform.md names it; this machine's path is in the env."""
+    path = os.environ.get("ARGUS_PLATFORM_REPO")
+    if not path:
+        raise FileNotFoundError("set ARGUS_PLATFORM_REPO to the dcortex-platform checkout (see config/platform.md)")
+    return Path(path)
 
 
 def task_dirs(root: Path | None = None) -> list[Path]:
