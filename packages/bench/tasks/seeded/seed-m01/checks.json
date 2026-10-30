@@ -1,0 +1,12 @@
+[
+  {
+    "type": "computed_style",
+    "params": {
+      "flow": "/ops/radar",
+      "selector": "#probe",
+      "property": "font-size",
+      "expected": "20px",
+      "css": "apps/canvas/src/ops/radar.css"
+    }
+  }
+]

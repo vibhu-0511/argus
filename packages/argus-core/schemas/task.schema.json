@@ -1,0 +1,179 @@
+{
+  "$defs": {
+    "Check": {
+      "additionalProperties": false,
+      "properties": {
+        "params": {
+          "additionalProperties": true,
+          "title": "Params",
+          "type": "object"
+        },
+        "type": {
+          "$ref": "#/$defs/CheckType"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "Check",
+      "type": "object"
+    },
+    "CheckType": {
+      "enum": [
+        "pixel_diff",
+        "bounding_box",
+        "computed_style"
+      ],
+      "title": "CheckType",
+      "type": "string"
+    },
+    "Screenshot": {
+      "additionalProperties": false,
+      "properties": {
+        "media_type": {
+          "minLength": 1,
+          "title": "Media Type",
+          "type": "string"
+        },
+        "path": {
+          "minLength": 1,
+          "title": "Path",
+          "type": "string"
+        }
+      },
+      "required": [
+        "media_type",
+        "path"
+      ],
+      "title": "Screenshot",
+      "type": "object"
+    },
+    "TaskMeta": {
+      "additionalProperties": false,
+      "properties": {
+        "archetype": {
+          "minLength": 1,
+          "title": "Archetype",
+          "type": "string"
+        },
+        "seed": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Seed"
+        },
+        "source": {
+          "$ref": "#/$defs/TaskSource"
+        },
+        "tier": {
+          "$ref": "#/$defs/Tier"
+        }
+      },
+      "required": [
+        "source",
+        "archetype",
+        "tier"
+      ],
+      "title": "TaskMeta",
+      "type": "object"
+    },
+    "TaskSource": {
+      "enum": [
+        "seeded",
+        "mutated"
+      ],
+      "title": "TaskSource",
+      "type": "string"
+    },
+    "Ticket": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "screenshot": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Screenshot"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "text": {
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "text"
+      ],
+      "title": "Ticket",
+      "type": "object"
+    },
+    "Tier": {
+      "enum": [
+        "easy",
+        "medium",
+        "hard"
+      ],
+      "title": "Tier",
+      "type": "string"
+    }
+  },
+  "$id": "https://argus.local/schemas/task.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "bug_patch": {
+      "minLength": 1,
+      "title": "Bug Patch",
+      "type": "string"
+    },
+    "checks": {
+      "items": {
+        "$ref": "#/$defs/Check"
+      },
+      "minItems": 1,
+      "title": "Checks",
+      "type": "array"
+    },
+    "golden_patch": {
+      "minLength": 1,
+      "title": "Golden Patch",
+      "type": "string"
+    },
+    "id": {
+      "minLength": 1,
+      "title": "Id",
+      "type": "string"
+    },
+    "meta": {
+      "$ref": "#/$defs/TaskMeta"
+    },
+    "ticket": {
+      "$ref": "#/$defs/Ticket"
+    }
+  },
+  "required": [
+    "id",
+    "ticket",
+    "bug_patch",
+    "golden_patch",
+    "checks",
+    "meta"
+  ],
+  "title": "Task",
+  "type": "object"
+}

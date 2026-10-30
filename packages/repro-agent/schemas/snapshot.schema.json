@@ -1,0 +1,37 @@
+{
+  "$id": "https://argus.local/schemas/repro/snapshot.schema.json",
+  "additionalProperties": false,
+  "description": "Read the accessibility snapshot. A call passes a depth, a byte cap, or both.",
+  "properties": {
+    "depth": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Maximum depth of the snapshot tree.",
+      "title": "Depth"
+    },
+    "max_bytes": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Maximum UTF-8 bytes returned.",
+      "title": "Max Bytes"
+    }
+  },
+  "title": "SnapshotArgs",
+  "type": "object"
+}

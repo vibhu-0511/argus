@@ -1,0 +1,10 @@
+[
+  {
+    "type": "computed_style",
+    "params": {
+      "flow": "/ops/radar",
+      "property": "font-size",
+      "min_px": 12
+    }
+  }
+]

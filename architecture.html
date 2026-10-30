@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Argus · architecture</title>
+<style>
+  :root { --ink:#1f2937; --mute:#6b7280; --bg:#f6f8fb; --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:13px/1.4 Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  header { display:flex; justify-content:space-between; align-items:flex-start; gap:24px; padding:22px 28px 0; min-width:1480px; }
+  h1 { margin:0; font-size:20px; } h1 span { color:var(--mute); font-weight:500; }
+  header p { margin:6px 0 0; max-width:1050px; color:#374151; font-weight:600; font-size:12.5px; }
+  button { font:600 12px inherit; font-family:inherit; padding:7px 12px; border-radius:8px; border:1px solid #cbd5e1; background:#fff; cursor:pointer; }
+  button:hover { border-color:#64748b; }
+  .legend { display:flex; flex-wrap:wrap; align-items:center; gap:6px 8px; padding:12px 28px 0; min-width:1480px; font-size:11px; color:var(--mute); }
+  .chip { display:inline-flex; gap:5px; align-items:center; padding:2px 8px; border-radius:999px; border:1px solid var(--pst); background:var(--pbg); color:#111827; cursor:default; }
+  .chip b { font:600 10px var(--mono); color:var(--pst); }
+  .ln { display:inline-block; width:26px; border-top:1.6px solid #94a3b8; vertical-align:middle; margin:0 4px 0 10px; }
+  .ln.dash { border-top-style:dashed; }
+
+  #board { position:relative; display:grid; grid-template-columns:repeat(12,minmax(0,1fr)); gap:18px; padding:22px 28px 28px; min-width:1480px; }
+  #wires { position:absolute; left:0; top:0; z-index:1; pointer-events:none; overflow:visible; }
+  #wires path { fill:none; stroke:#94a3b8; stroke-width:1.4; stroke-linejoin:round; transition:opacity .15s; }
+  #wires path.dash { stroke-dasharray:5 4; }
+  .focus #wires path { opacity:.1; }
+  .focus #wires path.on { opacity:1; stroke:#1d4ed8; stroke-width:2; }
+
+  .panel { position:relative; border:1px solid color-mix(in srgb,var(--ac) 28%,#fff); background:color-mix(in srgb,var(--ac) 4%,#fbfcfe); border-radius:14px; padding:38px 14px 14px; }
+  .label { position:absolute; z-index:3; top:10px; left:12px; padding:2px 9px; border-radius:999px; background:#fff; border:1px solid color-mix(in srgb,var(--ac) 35%,#fff); color:var(--ac); font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+  .note { position:absolute; z-index:3; top:10px; left:150px; right:14px; margin:0; font-size:11px; font-weight:600; color:#dc2626; }
+  .cards { display:grid; gap:10px; }
+
+  .card { position:relative; z-index:2; display:flex; gap:8px; align-items:flex-start; min-height:48px; padding:8px 30px 8px 9px; border-radius:8px; background:color-mix(in srgb,var(--ac) 5%,#fff); border:1px solid color-mix(in srgb,var(--ac) 38%,#fff); transition:opacity .15s, box-shadow .15s; }
+  .card:hover { box-shadow:0 2px 10px rgba(15,23,42,.12); }
+  .by-phase .card { background:var(--pbg); border-color:var(--pst); }
+  .focus .card:not(.lit) { opacity:.3; }
+  .ic { flex:none; display:grid; place-items:center; width:22px; height:22px; border-radius:6px; color:var(--ac); background:color-mix(in srgb,var(--ac) 12%,#fff); }
+  .by-phase .ic { color:var(--pst); background:#ffffffaa; }
+  .ic svg { width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  .tx b { display:block; font-size:12px; font-weight:600; line-height:1.25; }
+  .tx small { display:block; margin-top:2px; font:10px/1.35 var(--mono); color:var(--mute); }
+  .ph { position:absolute; top:6px; right:6px; padding:0 3px; border-radius:4px; font:600 9px var(--mono); font-style:normal; color:var(--pst); background:var(--pbg); border:1px solid color-mix(in srgb,var(--pst) 40%,transparent); }
+
+  footer { padding:0 28px 28px; min-width:1480px; color:var(--mute); font-size:11px; }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Argus <span>· UI bug ticket → verified pull request</span></h1>
+    <p>Agent-native pipeline on a $0 stack: every model is open-weight, on a free tier or local. Deterministic checks gate every patch before any model judge.
+      GitHub is the source of truth; webhooks are only hints. No agent framework before the P3 baseline.</p>
+  </div>
+  <button id="mode">Colour by phase</button>
+</header>
+<div class="legend" id="legend"></div>
+<main id="board"><svg id="wires"></svg></main>
+<footer>Source: PLAN.md, phases/, repo-structure.md · versions checked 2026-10-01 · Hover a card to trace its links; hover a phase chip to see what that phase adds.</footer>
+
+<script>
+const PH = {
+  p0:['#dbeafe','#1d4ed8','P0','bench'], p1:['#cffafe','#0e7490','P1','repro'], p2:['#dcfce7','#15803d','P2','dom2src'],
+  p3:['#fef9c3','#a16207','P3','fix-loop'], p4:['#ffedd5','#c2410c','P4','verify'], p5:['#fce7f3','#be185d','P5','eval'],
+  p55:['#f3e8ff','#7e22ce','P5.5','skills'], p6:['#e0e7ff','#4338ca','P6','flow'], p7:['#fee2e2','#b91c1c','P7','guard'],
+  p8:['#d1fae5','#047857','P8','app'], p9:['#e5e7eb','#4b5563','P9','backend'], ext:['#ffffff','#6b7280','ext','external'],
+};
+
+const ICON = {
+  issue:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="1"/>',
+  pr:'<circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7"/><path d="M6 9v12"/>',
+  chart:'<path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/>',
+  eye:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+  bolt:'<path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>',
+  refresh:'<path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/>',
+  play:'<polygon points="6 3 20 12 6 21 6 3"/>',
+  alert:'<path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>',
+  wallet:'<rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20M16 15h2"/>',
+  key:'<circle cx="7.5" cy="15.5" r="4.5"/><path d="M10.7 12.3L21 2M16 7l3 3"/>',
+  flow:'<rect x="3" y="3" width="6" height="6" rx="1"/><rect x="15" y="15" width="6" height="6" rx="1"/><path d="M6 9v3a3 3 0 0 0 3 3h6"/>',
+  history:'<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l4 2"/>',
+  list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  db:'<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>',
+  users:'<circle cx="9" cy="7" r="4"/><path d="M2 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2M16 3.1a4 4 0 0 1 0 7.8M22 21v-2a4 4 0 0 0-3-3.9"/>',
+  bug:'<rect x="8" y="6" width="8" height="14" rx="4"/><path d="M12 20v-9M3 13h5M16 13h5M4 7l4 2M20 7l-4 2M4 19l4-2M20 19l-4-2"/>',
+  target:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
+  code:'<path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/>',
+  grid:'<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>',
+  check:'<path d="M20 6L9 17l-5-5"/>',
+  sparkle:'<path d="M12 3l1.9 5.8L20 10l-6.1 1.9L12 18l-1.9-6.1L4 10l6.1-1.2z"/>',
+  file:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/>',
+  stop:'<polygon points="7.9 2 16.1 2 22 7.9 22 16.1 16.1 22 7.9 22 2 16.1 2 7.9"/><path d="M8 12h8"/>',
+  book:'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/>',
+  compress:'<path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/>',
+  image:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/>',
+  maximize:'<path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>',
+  a11y:'<circle cx="12" cy="4" r="2"/><path d="M4 8l8 1 8-1M12 9v5l-3 7M12 14l3 7"/>',
+  terminal:'<path d="M4 17l6-6-6-6M12 19h8"/>',
+  scale:'<path d="M12 3v18M5 7h14M5 7l-3 7a3 3 0 0 0 6 0zM19 7l-3 7a3 3 0 0 0 6 0z"/>',
+  shield:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+  filter:'<path d="M22 3H2l8 9.5V19l4 2v-8.5z"/>',
+  lock:'<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+  hash:'<path d="M4 9h16M4 15h16M10 3L8 21M16 3l-2 18"/>',
+  plug:'<path d="M9 2v6M15 2v6M6 8h12v4a6 6 0 0 1-12 0zM12 18v4"/>',
+  route:'<circle cx="6" cy="19" r="3"/><circle cx="18" cy="5" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/>',
+  gauge:'<path d="M12 14l4-4"/><path d="M3.3 19a10 10 0 1 1 17.4 0"/>',
+  cloud:'<path d="M17.5 19H8a6 6 0 1 1 5.7-7.9A4.5 4.5 0 1 1 17.5 19z"/>',
+  server:'<rect x="2" y="3" width="20" height="8" rx="2"/><rect x="2" y="13" width="20" height="8" rx="2"/><path d="M6 7h.01M6 17h.01"/>',
+  search:'<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',
+  monitor:'<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>',
+  layers:'<path d="M12 2l10 5-10 5L2 7l10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>',
+  branch:'<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="6" r="3"/><path d="M6 9v6M18 9a9 9 0 0 1-9 9"/>',
+  box:'<path d="M21 8l-9-5-9 5v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/>',
+  cpu:'<rect x="5" y="5" width="14" height="14" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v4M15 1v4M9 19v4M15 19v4M1 9h4M1 15h4M19 9h4M19 15h4"/>',
+  shuffle:'<path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/>',
+  flask:'<path d="M9 3h6M10 3v6L4 20a1 1 0 0 0 1 1.5h14a1 1 0 0 0 1-1.5L14 9V3"/>',
+  activity:'<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>',
+};
+
+// [id, icon, title, subtitle, phase]
+const S = [
+  { label:'Surfaces · GitHub', area:'1/1/2/7', ac:'#7c3aed', cols:4, cards:[
+    ['s-dash','chart','Dashboard','GitHub Pages · results JSON','p5'],
+    ['s-pr','pr','Pull request + review','patch · verdict · QA comment','p8'],
+    ['s-lf','eye','Langfuse Cloud Hobby','trace UI · 50k units/mo','p5'],
+    ['s-issue','issue','GitHub issue','UI bug ticket · source of truth','ext'],
+  ]},
+  { label:'Triggers', area:'1/7/2/13', ac:'#2563eb', cols:4, cards:[
+    ['t-hook','bolt','Webhook hint','issue labelled · never trusted for state','p6'],
+    ['t-poll','refresh','Reconcile poller','rebuilds state from GitHub','p6'],
+    ['t-push','play','Push / PR CI','golden-fix run · no LLM calls','p0'],
+    ['t-sentry','alert','Sentry event','backend lane · optional','p9'],
+  ]},
+  { label:'Intake · GitHub App', area:'2/1/3/6', ac:'#9333ea', cols:2, cards:[
+    ['i-budget','wallet','Per-tenant quota budget','share of the daily provider cap','p8'],
+    ['i-app','key','GitHub App','least-privilege · short-lived token','p8'],
+    ['i-wf','flow','Reusable workflow','runs in the tenant repo · ADR-027','p8'],
+    ['i-back','history','Backport bot','backports merged fixes','p8'],
+  ]},
+  { label:'Orchestration · control plane', area:'2/6/3/13', ac:'#16a34a', cols:3, cards:[
+    ['o-dbos','flow','DBOS workflow runner','FastAPI · durable steps · Render free','p6'],
+    ['o-sm','list','Ticket state machine','repro → fix → verify → PR → awaiting-qa → done','p6'],
+    ['o-qa','clock','QA signal wait','MRTR input_required · or review comment','p6'],
+    ['o-neon','db','Neon Postgres','workflow state · 100 CU-h/mo','p6'],
+    ['o-disp','play','Actions dispatch','execution plane · free minutes','p6'],
+    ['o-plan','users','Planner + subagents','kept only if it wins on success and tokens','p8'],
+  ]},
+  { label:'Agent pipeline · one run per ticket', area:'3/1/4/13', ac:'#0891b2', cols:6, cards:[
+    ['a-repro','bug','Repro agent','ticket → failing Playwright script · via Playwright MCP','p1'],
+    ['a-loc','target','Locate','DOM node → data-src → file:line · locate() MCP','p2'],
+    ['a-fix','code','Fix loop','from scratch · no framework · sandboxed','p3'],
+    ['a-bok','grid','Best-of-k','k = 1 / 3 / 5 candidates · cost cap','p4'],
+    ['a-ver','check','Verifier','checks run first; the judge does not override a passed check run; best-of-k stays inside the selector','p4'],
+    ['a-pr','pr','Open PR','P6-T21 opens the PR; P8-T09 is the tenant-workflow path that calls that same opener.','p6'],
+  ]},
+  { label:'Fix-loop step · observe → decide → act', area:'4/1/5/8', ac:'#ea580c', cols:3, cards:[
+    ['f-skills','sparkle','Skills loader','distilled from trajectories · reviewed','p55'],
+    ['f-traj','file','Trajectory recorder','JSONL · tokens per step · replayable','p3'],
+    ['f-stop','stop','Stop conditions','submit · step / token cap · quota · stuck','p3'],
+    ['f-prompt','book','System prompt','AGENTS.md + repro result + locate() hint','p3'],
+    ['f-tools','code','Typed tool schemas','typed errors teach recovery','p3'],
+    ['f-ctx','compress','Context budget manager','at 80%: caps · offload · summarize','p3'],
+  ]},
+  { label:'Verify · deterministic first', area:'4/8/5/13', ac:'#d97706', cols:3, cards:[
+    ['v-pix','image','Pixel diff','golden screenshot · region masks','p4'],
+    ['v-ovf','maximize','Overflow','scroll width · off-viewport','p4'],
+    ['v-axe','a11y','axe-core','new violations only','p4'],
+    ['v-con','terminal','Console','new errors and warnings','p4'],
+    ['v-judge','scale','Cross-family judge','Gemma 4 vision · α ≥ 0.80 else advisory','p4'],
+    ['v-same','scale','Same-family control','Mistral vision · ablation only','p4'],
+  ]},
+  { label:'Guardrail floor', area:'5/1/6/13', ac:'#dc2626', cols:6,
+    note:'Non-removable hooks, applied in order ① to ⑤. Tickets, repo files and skills are untrusted data. Deterministic checks are the hard gate; the judge never overrides them.',
+    cards:[
+    ['g1','shield','① Ticket input','ticket as data · rubric separate · promptfoo red-team','p7'],
+    ['g2','filter','② Tool dispatch','schema validation · allowlist · typed error','p3'],
+    ['g3','lock','③ Tool result','output cap · secret redaction','p7'],
+    ['g4','filter','④ Pre-submit gates','build · typecheck · lint · unit · bench checks (read-only)','p3'],
+    ['g5','check','⑤ Final verdict','verifier gate · one retry · fail closed','p4'],
+    ['g-audit','hash','Audit log','append-only · hash-chained · guard verify-log','p7'],
+  ]},
+  { label:'Model plane · $0, open weights', area:'6/1/7/7', ac:'#0284c7', cols:3, cards:[
+    ['m-client','plug','Model client','one OpenAI-compatible client','p0'],
+    ['m-router','route','Router + prompt caching','cheap tier first · cached tokens off-quota','p5'],
+    ['m-ledger','gauge','Quota ledger','hard stop before any provider cap','p0'],
+    ['m-mistral','cloud','Mistral free tier','Devstral 2 fixer · vision control','ext'],
+    ['m-groq','cloud','Groq Developer plan','gpt-oss-20b · qwen3.8-27b · repro, localize','ext'],
+    ['m-ollama','server','Local Ollama (CPU)','gemma4:e4b judge · embeddings','ext'],
+  ]},
+  { label:'Tools · MCP + native', area:'6/7/7/13', ac:'#ca8a04', cols:3, cards:[
+    ['x-fs','file','read_file · list_dir · search · edit','typed schemas','p3'],
+    ['x-ast','search','ast-grep','structural search + rewrite','p3'],
+    ['x-pw','monitor','Playwright MCP','@playwright/mcp 0.0.83','p1'],
+    ['x-loc','plug','locate() MCP server','Python SDK 2.3.0 · 2026-07-28 support not stated','p2'],
+    ['x-ret','layers','Retrieval','repo-map/LSP vs pgvector','p2'],
+    ['x-run','terminal','run_cmd · run_gates · submit','inside the sandbox only','p3'],
+  ]},
+  { label:'Execution · sandbox', area:'7/1/8/7', ac:'#475569', cols:3, cards:[
+    ['e-wt','branch','Git worktree per task','clean base commit · destroyed after','p3'],
+    ['e-dock','box','Docker --network none','CPU / mem caps · checks read-only','p3'],
+    ['e-target','monitor','target-app','React 19.2 · Vite 8 · Tailwind 4','p0'],
+    ['e-gv','box','gVisor (runsc)','tier B · user-space kernel','p7'],
+    ['e-fc','cpu','Firecracker microVM','tier C · Actions /dev/kvm','p7'],
+    ['e-d2s','code','dom2src Vite plugin','build-time data-src attribute','p2'],
+  ]},
+  { label:'Eval · observability', area:'7/7/8/13', ac:'#db2777', cols:3, cards:[
+    ['b-smith','shuffle','bugsmith','JSX/CSS mutations → 300+ tasks · no LLM','p0'],
+    ['b-bench','flask','argus-bench scorer','Playwright checks · Wilson 95% CI','p0'],
+    ['b-eval','chart','Eval runner','trajectory metrics · fixed 30-task subset','p5'],
+    ['b-otel','activity','OTel spans + normalizer','GenAI semconv · swappable backend','p5'],
+    ['b-gate','filter','CI regression gate','thresholds in ADR-017','p5'],
+    ['b-swe','list','SWE-bench Multimodal','10–20 task subset','p5'],
+  ]},
+  { label:'State · artifacts', area:'8/1/9/13', ac:'#4b5563', cols:6, cards:[
+    ['d-schema','list','Task + Trajectory schema','ADR-001 · argus-core types','p0'],
+    ['d-traj','file','Trajectories','JSONL fixtures · committed','p3'],
+    ['d-quota','gauge','docs/quotas.md + prices.json','measured caps · list prices','p0'],
+    ['d-skills','sparkle','skills/','agentskills.io format · lint in CI','p55'],
+    ['d-results','chart','Results JSON','every number backed by a run id','p5'],
+    ['d-adr','book','ADRs 001–030','one per decision','ext'],
+  ]},
+];
+
+// [from, to, {s,t: forced sides (t|b|l|r), dash, dy: elbow shift, ox: entry offset}]
+const E = [
+  ['s-issue','t-hook'],
+  ['t-hook','i-app',{dy:-7}], ['t-sentry','i-app',{dash:1,dy:-14}], ['t-poll','o-dbos'],
+  ['i-app','o-dbos'], ['o-dbos','o-sm'], ['o-sm','o-qa'], ['o-dbos','o-neon'], ['o-sm','o-disp'],
+  ['o-qa','s-pr'],
+  ['o-disp','a-repro'], ['o-plan','a-fix',{dash:1,dy:-8}],
+  ['a-repro','a-fix'], ['a-fix','a-ver'], ['a-ver','a-bok'], ['a-bok','a-pr'],
+  ['a-pr','o-qa',{s:'r',t:'r'}],
+  ['a-fix','f-traj'], ['a-ver','v-pix'],
+  ['f-skills','f-prompt',{dash:1}],
+  ['v-pix','v-ovf'], ['v-ovf','v-axe'], ['v-axe','v-con'], ['v-con','v-judge'], ['v-same','v-judge',{dash:1}],
+  ['f-prompt','g1'], ['f-tools','g2'], ['f-ctx','g3'], ['f-stop','g4',{s:'r',t:'t'}], ['v-judge','g5'],
+  ['g1','m-client'], ['g2','x-fs'], ['x-ast','g3'],
+  ['m-client','m-router'], ['m-router','m-ledger'],
+  ['m-ledger','m-mistral'], ['m-ledger','m-groq'], ['m-ledger','m-ollama'],
+  ['x-run','e-dock'],
+  ['e-wt','e-dock'], ['e-dock','e-target'], ['e-d2s','e-target'],
+  ['e-dock','e-gv',{dash:1}], ['e-gv','e-fc',{dash:1}],
+  ['b-smith','b-bench'], ['b-bench','b-eval'], ['b-eval','b-gate'], ['b-swe','b-eval'],
+  ['b-bench','e-target',{s:'b',t:'b',ox:30}],
+];
+
+const board = document.getElementById('board');
+const svg = document.getElementById('wires');
+const vars = ph => `--pbg:${PH[ph][0]};--pst:${PH[ph][1]}`;
+
+for (const s of S) {
+  const p = document.createElement('section');
+  p.className = 'panel';
+  p.style.gridArea = s.area;
+  p.style.setProperty('--ac', s.ac);
+  p.innerHTML = `<span class="label">${s.label}</span>${s.note ? `<p class="note">${s.note}</p>` : ''}`
+    + `<div class="cards" style="grid-template-columns:repeat(${s.cols},minmax(0,1fr))">`
+    + s.cards.map(([id, ic, t, sub, ph]) =>
+        `<div class="card" id="${id}" data-ph="${ph}" style="${vars(ph)}"><span class="ic"><svg viewBox="0 0 24 24">${ICON[ic]}</svg></span>`
+        + `<span class="tx"><b>${t}</b><small>${sub}</small></span><i class="ph">${PH[ph][2]}</i></div>`).join('')
+    + `</div>`;
+  board.appendChild(p);
+}
+
+document.getElementById('legend').innerHTML = Object.entries(PH)
+  .map(([k, [, , tag, name]]) => `<span class="chip" data-ph="${k}" style="${vars(k)}"><b>${tag}</b>${name}</span>`).join('')
+  + `<span class="ln"></span>runtime flow<span class="ln dash"></span>optional · tier upgrade · ablation control`;
+
+const DEFS = `<defs>
+  <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#94a3b8"/></marker>
+  <marker id="ah-on" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#1d4ed8"/></marker></defs>`;
+
+function box(id) {
+  const r = document.getElementById(id).getBoundingClientRect(), c = board.getBoundingClientRect();
+  const k = c.width / board.offsetWidth;
+  const l = (r.left - c.left) / k, t = (r.top - c.top) / k, w = r.width / k, h = r.height / k;
+  return { l, t, r: l + w, b: t + h, cx: l + w / 2, cy: t + h / 2 };
+}
+const at = (b, side, ox = 0) => side === 't' ? [b.cx + ox, b.t] : side === 'b' ? [b.cx + ox, b.b]
+  : side === 'l' ? [b.l, b.cy + ox] : [b.r, b.cy + ox];
+const vert = k => k === 't' || k === 'b';
+
+function draw() {
+  svg.setAttribute('width', board.scrollWidth);
+  svg.setAttribute('height', board.scrollHeight);
+  svg.innerHTML = DEFS + E.map(([f, t, o = {}]) => {
+    const A = box(f), B = box(t);
+    let s = o.s, e = o.t;
+    if (!s) [s, e] = B.t >= A.b - 2 ? ['b', 't'] : B.b <= A.t + 2 ? ['t', 'b'] : B.l >= A.r ? ['r', 'l'] : ['l', 'r'];
+    const [x0, y0] = at(A, s), [x1, y1] = at(B, e, o.ox || 0);
+    let d;
+    if (s === e) {
+      const off = s === 'r' ? Math.max(x0, x1) + 16 : s === 'l' ? Math.min(x0, x1) - 16
+        : s === 'b' ? Math.max(y0, y1) + 14 : Math.min(y0, y1) - 14;
+      d = vert(s) ? `M${x0},${y0}V${off}H${x1}V${y1}` : `M${x0},${y0}H${off}V${y1}H${x1}`;
+    } else if (vert(s) && vert(e)) {
+      const ey = (e === 't' ? y1 - 12 : y1 + 12) + (o.dy || 0);
+      d = `M${x0},${y0}V${ey}H${x1}V${y1}`;
+    } else if (!vert(s) && !vert(e)) {
+      const mx = (x0 + x1) / 2;
+      d = `M${x0},${y0}H${mx}V${y1}H${x1}`;
+    } else d = vert(s) ? `M${x0},${y0}V${y1}H${x1}` : `M${x0},${y0}H${x1}V${y1}`;
+    return `<path d="${d}" data-f="${f}" data-t="${t}" class="${o.dash ? 'dash' : ''}" marker-end="url(#ah)"/>`;
+  }).join('');
+}
+
+function focus(match) {
+  board.classList.add('focus');
+  const lit = new Set();
+  svg.querySelectorAll('path[data-f]').forEach(p => {
+    const on = match.edge(p.dataset.f, p.dataset.t);
+    p.classList.toggle('on', on);
+    p.setAttribute('marker-end', on ? 'url(#ah-on)' : 'url(#ah)');
+    if (on) lit.add(p.dataset.f).add(p.dataset.t);
+  });
+  board.querySelectorAll('.card').forEach(c => c.classList.toggle('lit', lit.has(c.id) || match.card(c)));
+}
+function unfocus() {
+  board.classList.remove('focus');
+  svg.querySelectorAll('path.on').forEach(p => { p.classList.remove('on'); p.setAttribute('marker-end', 'url(#ah)'); });
+}
+
+board.querySelectorAll('.card').forEach(c => {
+  c.addEventListener('mouseenter', () => focus({ edge: (f, t) => f === c.id || t === c.id, card: x => x === c }));
+  c.addEventListener('mouseleave', unfocus);
+});
+document.querySelectorAll('.chip').forEach(ch => {
+  ch.addEventListener('mouseenter', () => focus({ edge: () => false, card: x => x.dataset.ph === ch.dataset.ph }));
+  ch.addEventListener('mouseleave', unfocus);
+});
+document.getElementById('mode').addEventListener('click', e => {
+  const on = document.body.classList.toggle('by-phase');
+  e.target.textContent = on ? 'Colour by layer' : 'Colour by phase';
+});
+
+function fit() {
+  document.body.style.zoom = Math.min(1, document.documentElement.clientWidth / 1480);
+  draw();
+}
+addEventListener('resize', fit);
+fit();
+new ResizeObserver(draw).observe(board);
+document.fonts?.ready.then(draw);
+</script>
+</body>
+</html>

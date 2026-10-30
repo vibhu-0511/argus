@@ -1,0 +1,15 @@
+[project]
+name = "argus-core"
+version = "0.1.0"
+description = "Ticket, Task, and Trajectory types, model client, and quota ledger."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "httpx>=0.28.1",
+    "pydantic>=2.14.1",
+    "pyyaml>=6.0.3",
+]
+
+[build-system]
+requires = ["uv_build>=0.12.2,<0.13.0"]
+build-backend = "uv_build"

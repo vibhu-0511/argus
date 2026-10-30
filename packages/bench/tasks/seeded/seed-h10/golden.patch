@@ -1,0 +1,24 @@
+diff --git a/apps/canvas/src/styles/landing.css b/apps/canvas/src/styles/landing.css
+--- a/apps/canvas/src/styles/landing.css
++++ b/apps/canvas/src/styles/landing.css
+@@ -225,7 +225,7 @@
+   inset-inline: 0;
+   top: 0;
+   height: var(--band-h);
+-  z-index: 5;
++  z-index: 1;
+   overflow: hidden;
+   background: #0a0f1a;
+   /* the photograph dissolves into the page background; ending on a flat colour would leave a visible seam */
+diff --git a/apps/canvas/src/ops/ops.css b/apps/canvas/src/ops/ops.css
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -83,7 +83,7 @@
+ .ops-map-asof { color: #5a6a85; text-transform: none; }
+ .ops-map-svg { display: block; width: 100%; height: 62vh; min-height: 360px; background: #0a0f1a; cursor: grab; touch-action: none; }
+ .ops-map-svg:active { cursor: grabbing; }
+-.ops-map-controls { position: absolute; top: 36px; right: 8px; display: flex; gap: 4px; z-index: 9; }
++.ops-map-controls { position: absolute; top: 36px; right: 8px; display: flex; gap: 4px; z-index: 1; }
+ .ops-map-controls button { border-color: #2a3a58; background: #0a0f1a; color: #8494ac; }
+ .ops-map-controls button:hover { border-color: #3b82f6; color: #e6edf7; }
+ .ops-map-credit { position: absolute; right: 8px; bottom: 34px; font: 9px var(--font-mono); letter-spacing: 0.06em; color: #5a6a85; opacity: 0.7; pointer-events: none; }

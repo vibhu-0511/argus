@@ -1,0 +1,12 @@
+[
+  {
+    "type": "computed_style",
+    "params": {
+      "flow": "/admin/users",
+      "selector": ".glabel",
+      "property": "font-size",
+      "expected": "10px",
+      "css": "apps/canvas/src/styles/tokens.css"
+    }
+  }
+]

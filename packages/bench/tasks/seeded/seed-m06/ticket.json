@@ -1,0 +1,4 @@
+{
+  "id": "seed-m06",
+  "text": "The admin label rule and the button rule both target a div, so spans with those classes lose their type size."
+}

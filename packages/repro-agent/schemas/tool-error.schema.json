@@ -1,0 +1,40 @@
+{
+  "$defs": {
+    "ToolErrorCode": {
+      "enum": [
+        "stale-target",
+        "not-unique",
+        "not-found",
+        "not-allowed",
+        "failed"
+      ],
+      "title": "ToolErrorCode",
+      "type": "string"
+    }
+  },
+  "$id": "https://argus.local/schemas/repro/tool-error.schema.json",
+  "additionalProperties": false,
+  "description": "Typed failure from a repro tool. `stale-target` means the ref is gone. `not-unique` means the role and name match more than one node.",
+  "properties": {
+    "error": {
+      "$ref": "#/$defs/ToolErrorCode"
+    },
+    "message": {
+      "minLength": 1,
+      "title": "Message",
+      "type": "string"
+    },
+    "ok": {
+      "const": false,
+      "default": false,
+      "title": "Ok",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "error",
+    "message"
+  ],
+  "title": "ToolError",
+  "type": "object"
+}

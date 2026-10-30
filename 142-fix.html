@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Argus · fix report · #142</title>
+<style>
+  :root { --ink:#1f2937; --mute:#6b7280; --line:#e5e7eb; --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:#f6f8fb; color:var(--ink); font:14px/1.45 Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  header { padding:18px 22px 0; }
+  h1 { margin:0; font-size:18px; }
+  h1 span { color:var(--mute); font-weight:500; }
+  header p { margin:6px 0 0; color:#374151; max-width:720px; }
+  .meta { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+  .pill { font:600 11px var(--mono); padding:2px 7px; border-radius:999px; background:#fff; border:1px solid var(--line); }
+  .pill.ok { background:#f0fdf4; border-color:#bbf7d0; color:#166534; }
+  main { padding:14px 22px 22px; display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  article { background:#fff; border:1px solid var(--line); border-radius:12px; overflow:hidden; }
+  .hd { display:flex; justify-content:space-between; align-items:center; padding:10px 12px; border-bottom:1px solid var(--line); }
+  .hd b { font-size:13px; }
+  .hd span { font:600 11px var(--mono); color:var(--mute); }
+  .src { margin:0; padding:12px 14px; background:#0f172a; color:#e2e8f0; font:12px/1.55 var(--mono); overflow:auto; }
+  .del { background:#7f1d1d; color:#fecaca; display:inline-block; width:100%; }
+  .add { background:#14532d; color:#bbf7d0; display:inline-block; width:100%; }
+  .shot { padding:14px; display:flex; gap:14px; align-items:center; }
+  .phone { width:168px; height:300px; border:7px solid #111827; border-radius:22px; background:#fff; overflow:hidden; flex:none; }
+  .screen { padding:14px 12px; height:100%; }
+  .crumb { font-size:11px; color:var(--mute); margin-bottom:10px; }
+  .line { height:8px; border-radius:4px; background:#e5e7eb; margin-bottom:8px; }
+  .line.s { width:55%; }
+  .btn { display:block; margin-top:16px; height:36px; border:0; border-radius:8px; background:#1d4ed8; color:#fff; font:700 13px inherit; white-space:nowrap; }
+  .before .screen { overflow:hidden; }
+  .before .btn { width:240px; text-align:left; padding-left:96px; }
+  .after .btn { width:100%; min-width:0; }
+  .note { font-size:12px; color:#374151; }
+  footer { padding:0 22px 18px; color:var(--mute); font-size:12px; }
+  @media (max-width: 800px) { main { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Fix report <span>· you/shop-ui#142</span></h1>
+  <p>Pay button is clipped on a phone. The run attaches this file to the pull request: the source before the patch, the source after, and the two screenshots taken at 375px.</p>
+  <div class="meta">
+    <span class="pill">src/cart/PayButton.tsx:18</span>
+    <span class="pill">viewport 375px</span>
+    <span class="pill ok">pixel · overflow · axe · console pass</span>
+    <span class="pill ok">judge: intent met</span>
+  </div>
+</header>
+<main>
+  <article>
+    <div class="hd"><b>Before</b><span>buggy tree · a1b2c3d</span></div>
+    <pre class="src">export function PayButton() {
+  return (
+    &lt;button type="submit" className="pay"&gt;
+      Pay now
+    &lt;/button&gt;
+  );
+}
+
+.pay {
+<span class="del">  min-width: 320px;</span>
+}</pre>
+    <div class="shot">
+      <div class="phone before" aria-hidden="true">
+        <div class="screen">
+          <div class="crumb">/cart · 375px</div>
+          <div class="line"></div>
+          <div class="line s"></div>
+          <button class="btn" type="button">Pay now</button>
+        </div>
+      </div>
+      <p class="note">The column is narrower than 320px, so the button runs off the right edge. The label is cut.</p>
+    </div>
+  </article>
+  <article>
+    <div class="hd"><b>After</b><span>patch on the same base</span></div>
+    <pre class="src">export function PayButton() {
+  return (
+    &lt;button type="submit" className="pay"&gt;
+      Pay now
+    &lt;/button&gt;
+  );
+}
+
+.pay {
+<span class="add">  width: 100%;</span>
+<span class="add">  min-width: 0;</span>
+}</pre>
+    <div class="shot">
+      <div class="phone after" aria-hidden="true">
+        <div class="screen">
+          <div class="crumb">/cart · 375px</div>
+          <div class="line"></div>
+          <div class="line s"></div>
+          <button class="btn" type="button">Pay now</button>
+        </div>
+      </div>
+      <p class="note">The button fills the column and can shrink. “Pay now” sits inside the viewport.</p>
+    </div>
+  </article>
+</main>
+<footer>Attached by the fix run for issue #142. A re-run replaces this file on the same pull request. The screenshots above are the pair the verifier stored; the checks, not this page, decide whether the pull request opens.</footer>
+</body>
+</html>

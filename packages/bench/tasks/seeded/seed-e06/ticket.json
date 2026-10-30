@@ -1,0 +1,4 @@
+{
+  "id": "seed-e06",
+  "text": "The admin label rule targets a div, so a span with that class loses the 10 px size."
+}

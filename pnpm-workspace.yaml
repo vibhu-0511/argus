@@ -1,0 +1,4 @@
+packages:
+  - "packages/target-app"
+  - "packages/bench"
+  - "packages/bugsmith"

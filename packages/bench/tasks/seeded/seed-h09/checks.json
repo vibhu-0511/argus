@@ -1,0 +1,12 @@
+[
+  {
+    "type": "computed_style",
+    "params": {
+      "flow": "/ops/radar",
+      "selector": ".radar-list",
+      "property": "overflow-y",
+      "expected": "auto",
+      "css": "apps/canvas/src/ops/radar.css"
+    }
+  }
+]

@@ -1,0 +1,48 @@
+{
+  "$id": "https://argus.local/schemas/repro/click.schema.json",
+  "additionalProperties": false,
+  "description": "Click the node with this role and accessible name, or this snapshot ref.",
+  "properties": {
+    "name": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Accessible name.",
+      "title": "Name"
+    },
+    "ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Snapshot ref such as e12. A missing ref is stale-target.",
+      "title": "Ref"
+    },
+    "role": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Accessibility role, such as button.",
+      "title": "Role"
+    }
+  },
+  "title": "ClickArgs",
+  "type": "object"
+}

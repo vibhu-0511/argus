@@ -1,0 +1,14 @@
+[project]
+name = "repro-agent"
+version = "0.1.0"
+description = "Playwright repro agent. Six allow-listed tools, no page.evaluate."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = ["argus-core", "mcp==2.3.0", "pydantic>=2.14.1"]
+
+[tool.uv.sources]
+argus-core = { workspace = true }
+
+[build-system]
+requires = ["uv_build>=0.12.2,<0.13.0"]
+build-backend = "uv_build"

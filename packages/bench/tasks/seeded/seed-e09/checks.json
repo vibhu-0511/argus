@@ -1,0 +1,12 @@
+[
+  {
+    "type": "computed_style",
+    "params": {
+      "flow": "/login",
+      "selector": ".landing",
+      "property": "overflow",
+      "expected": "hidden",
+      "css": "apps/canvas/src/styles/landing.css"
+    }
+  }
+]

@@ -1,0 +1,24 @@
+diff --git a/apps/canvas/src/ops/radar.css b/apps/canvas/src/ops/radar.css
+--- a/apps/canvas/src/ops/radar.css
++++ b/apps/canvas/src/ops/radar.css
+@@ -154,7 +154,7 @@
+ .radar-ack-error { color: var(--radar-amber-ink); font-size: 12px; }
+ .radar-unplaced { margin: 0; font: 12px var(--radar-mono); color: var(--radar-faint); }
+ 
+-.radar-list { display: flex; flex-direction: column; max-height: 540px; overflow-y: visible; padding-right: 4px; border-top: 1px solid var(--radar-line); }
++.radar-list { display: flex; flex-direction: column; max-height: 540px; overflow-y: auto; padding-right: 4px; border-top: 1px solid var(--radar-line); }
+ .radar-list::-webkit-scrollbar { width: 8px; }
+ .radar-list::-webkit-scrollbar-thumb { background: rgba(59, 130, 246, 0.25); border-radius: 4px; }
+ .radar-row { display: grid; grid-template-columns: 56px auto minmax(0, 1fr) auto; gap: 12px; align-items: center; width: 100%; min-height: 54px; padding: 9px 10px 9px 12px; border: 0; border-bottom: 1px solid rgba(59, 130, 246, 0.08); border-left: 2px solid transparent; border-radius: 0; background: transparent; color: inherit; text-align: left; cursor: pointer; }
+diff --git a/apps/canvas/src/styles/landing.css b/apps/canvas/src/styles/landing.css
+--- a/apps/canvas/src/styles/landing.css
++++ b/apps/canvas/src/styles/landing.css
+@@ -226,7 +226,7 @@
+   top: 0;
+   height: var(--band-h);
+   z-index: 1;
+-  overflow: visible;
++  overflow: hidden;
+   background: #0a0f1a;
+   /* the photograph dissolves into the page background; ending on a flat colour would leave a visible seam */
+   -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 56%, transparent 100%);
