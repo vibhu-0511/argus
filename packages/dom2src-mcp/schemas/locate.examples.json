@@ -1,0 +1,24 @@
+{
+  "errors": {
+    "ambiguous": {
+      "error": "ambiguous",
+      "message": "selector matches more than one source location"
+    },
+    "no-source-info": {
+      "error": "no-source-info",
+      "message": "matched element has no data-src"
+    },
+    "not-found": {
+      "error": "not-found",
+      "message": "no element matches #missing"
+    }
+  },
+  "input": {
+    "selector": "#sign-in"
+  },
+  "output": {
+    "col": 3,
+    "file": "apps/canvas/src/screens/Landing.tsx",
+    "line": 40
+  }
+}

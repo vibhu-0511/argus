@@ -1,0 +1,98 @@
+{
+  "$id": "https://argus.local/schemas/dom2src/locate.schema.json",
+  "$defs": {
+    "LocateError": {
+      "additionalProperties": false,
+      "description": "Typed failure from locate(). No guessed file. `not-found` means the selector matches nothing. `ambiguous` means a wrapper or a repeated element has more than one source location. `no-source-info` means the match has no data-src.",
+      "properties": {
+        "error": {
+          "$ref": "#/$defs/LocateErrorCode"
+        },
+        "message": {
+          "description": "Why locate() failed.",
+          "minLength": 1,
+          "title": "Message",
+          "type": "string"
+        }
+      },
+      "required": [
+        "error",
+        "message"
+      ],
+      "title": "LocateError",
+      "type": "object"
+    },
+    "LocateErrorCode": {
+      "description": "Typed locate() errors.",
+      "enum": [
+        "not-found",
+        "ambiguous",
+        "no-source-info"
+      ],
+      "title": "LocateErrorCode",
+      "type": "string"
+    },
+    "LocateInput": {
+      "additionalProperties": false,
+      "description": "Arguments for locate().",
+      "properties": {
+        "selector": {
+          "description": "Element selector. locate() accepts #id or [data-testid=\"...\"].",
+          "minLength": 1,
+          "title": "Selector",
+          "type": "string"
+        }
+      },
+      "required": [
+        "selector"
+      ],
+      "title": "LocateInput",
+      "type": "object"
+    },
+    "LocateOutput": {
+      "additionalProperties": false,
+      "description": "Source location for the matched element. data-src is repo-relative file:line:col with no tag suffix.",
+      "properties": {
+        "col": {
+          "description": "1-based column from data-src.",
+          "minimum": 1,
+          "title": "Col",
+          "type": "integer"
+        },
+        "file": {
+          "description": "Repo-relative path. No tag suffix.",
+          "minLength": 1,
+          "pattern": "^(?:(?!\\.{1,2}$)[^:\\\\/]+)(?:/(?:(?!\\.{1,2}$)[^:\\\\/]+))*$",
+          "title": "File",
+          "type": "string"
+        },
+        "line": {
+          "description": "1-based line from data-src.",
+          "minimum": 1,
+          "title": "Line",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "file",
+        "line",
+        "col"
+      ],
+      "title": "LocateOutput",
+      "type": "object"
+    }
+  },
+  "description": "Resolve one selector to the file and line stamped on data-src.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/LocateInput"
+    },
+    {
+      "$ref": "#/$defs/LocateOutput"
+    },
+    {
+      "$ref": "#/$defs/LocateError"
+    }
+  ],
+  "title": "Locate"
+}
