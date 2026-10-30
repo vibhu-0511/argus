@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 
 SCHEMAS = Path(__file__).resolve().parents[1] / "schemas"
-ERROR_CODES = ["not-found", "ambiguous", "no-source-info"]
+ERROR_CODES = ["not-found", "ambiguous", "no-source-info", "unsupported-selector"]
 
 
 def test_locate_schema_examples():
@@ -36,6 +36,9 @@ def test_locate_schema_examples():
         {"file": "apps/canvas/src/screens/Landing.tsx", "line": 0, "col": 1},
         {"file": "apps/canvas/src/screens/Landing.tsx", "line": 1, "col": 0},
         {"error": "not-found", "message": ""},
+        {"error": "ambiguous", "message": "no candidates"},
+        {"error": "ambiguous", "message": "one candidate", "candidates": [{"file": "a.tsx", "line": 1, "col": 1, "rank": 1}]},
+        {"error": "not-found", "message": "x", "candidates": []},
         {"error": "guessed", "message": "no"},
         {},
         {"selector": ""},

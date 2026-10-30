@@ -1,10 +1,80 @@
 {
-  "$id": "https://argus.local/schemas/dom2src/locate.schema.json",
   "$defs": {
+    "Candidate": {
+      "additionalProperties": false,
+      "description": "One possible source location of an ambiguous match. Rank 1 is the best guess.",
+      "properties": {
+        "col": {
+          "minimum": 1,
+          "title": "Col",
+          "type": "integer"
+        },
+        "file": {
+          "description": "Repo-relative path. No tag suffix.",
+          "minLength": 1,
+          "pattern": "^(?:(?!\\.{1,2}$)[^:\\\\/]+)(?:/(?:(?!\\.{1,2}$)[^:\\\\/]+))*$",
+          "title": "File",
+          "type": "string"
+        },
+        "line": {
+          "minimum": 1,
+          "title": "Line",
+          "type": "integer"
+        },
+        "rank": {
+          "minimum": 1,
+          "title": "Rank",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "file",
+        "line",
+        "col",
+        "rank"
+      ],
+      "title": "Candidate",
+      "type": "object"
+    },
     "LocateError": {
       "additionalProperties": false,
-      "description": "Typed failure from locate(). No guessed file. `not-found` means the selector matches nothing. `ambiguous` means a wrapper or a repeated element has more than one source location. `no-source-info` means the match has no data-src.",
+      "allOf": [
+        {
+          "else": {
+            "not": {
+              "required": [
+                "candidates"
+              ]
+            }
+          },
+          "if": {
+            "properties": {
+              "error": {
+                "const": "ambiguous"
+              }
+            },
+            "required": [
+              "error"
+            ]
+          },
+          "then": {
+            "required": [
+              "candidates"
+            ]
+          }
+        }
+      ],
+      "description": "Typed failure from locate(). No guessed file. `not-found` means the selector matches nothing. `ambiguous` means a wrapper or a repeated element has more than one source location; `candidates` lists them, rank 1 first. `no-source-info` means the match has no data-src. `unsupported-selector` means the selector is not #id or [data-testid=\"...\"].",
       "properties": {
+        "candidates": {
+          "description": "Present only for `ambiguous`: two or more source locations, rank 1 first.",
+          "items": {
+            "$ref": "#/$defs/Candidate"
+          },
+          "minItems": 2,
+          "title": "Candidates",
+          "type": "array"
+        },
         "error": {
           "$ref": "#/$defs/LocateErrorCode"
         },
@@ -27,7 +97,8 @@
       "enum": [
         "not-found",
         "ambiguous",
-        "no-source-info"
+        "no-source-info",
+        "unsupported-selector"
       ],
       "title": "LocateErrorCode",
       "type": "string"
@@ -82,6 +153,7 @@
       "type": "object"
     }
   },
+  "$id": "https://argus.local/schemas/dom2src/locate.schema.json",
   "description": "Resolve one selector to the file and line stamped on data-src.",
   "oneOf": [
     {

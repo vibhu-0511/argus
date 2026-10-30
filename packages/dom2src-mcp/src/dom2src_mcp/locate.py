@@ -48,6 +48,12 @@ class NoSourceInfo:
 
 
 @dataclass(frozen=True)
+class UnsupportedSelector:
+    selector: str
+    error: Literal["unsupported-selector"] = "unsupported-selector"
+
+
+@dataclass(frozen=True)
 class Ambiguous:
     selector: str
     candidates: tuple[Candidate, ...]
@@ -74,9 +80,10 @@ class _Tree(HTMLParser):
                 return
 
 
-def locate(selector: str, html: str) -> Location | NotFound | NoSourceInfo | Ambiguous:
+def locate(selector: str, html: str) -> Location | NotFound | NoSourceInfo | Ambiguous | UnsupportedSelector:
     """Map selector to data-src locations.
 
+    A selector that is not #id or [data-testid="..."] is UnsupportedSelector.
     No match is NotFound. One match with no data-src is NoSourceInfo and
     does not invent a file. One match with data-src and no ancestor with a
     different data-src is Location. Two or more matches with data-src are
@@ -84,7 +91,10 @@ def locate(selector: str, html: str) -> Location | NotFound | NoSourceInfo | Amb
     match whose ancestor has a different data-src is Ambiguous: rank 1 is
     the nearest such ancestor (JSX call site), rank 2 is the matched node.
     """
-    attr, expected = _selector(selector)
+    parsed = _selector(selector)
+    if parsed is None:
+        return UnsupportedSelector(selector)
+    attr, expected = parsed
     parser = _Tree()
     parser.feed(html)
     parser.close()
@@ -104,14 +114,14 @@ def locate(selector: str, html: str) -> Location | NotFound | NoSourceInfo | Amb
     return Ambiguous(selector, _candidates([call, definition]))
 
 
-def _selector(selector: str) -> tuple[str, str]:
+def _selector(selector: str) -> tuple[str, str] | None:
     if _ID.fullmatch(selector):
         return "id", selector[1:]
     match = _TESTID.fullmatch(selector)
     if match:
         value = match.group(1) if match.group(1) is not None else match.group(2)
         return "data-testid", value
-    raise ValueError(selector)
+    return None
 
 
 def _call_site(ancestors: tuple[dict[str, str], ...], definition: str) -> str | None:

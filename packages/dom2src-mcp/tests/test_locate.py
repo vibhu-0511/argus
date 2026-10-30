@@ -5,7 +5,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from dom2src_mcp.locate import Ambiguous, Candidate, Location, NoSourceInfo, NotFound, locate
+from dom2src_mcp.locate import Ambiguous, Candidate, Location, NoSourceInfo, NotFound, UnsupportedSelector, locate
 
 # Lines below are the data-src values, not the line numbers of this fixture.
 PAGE = """\
@@ -178,3 +178,8 @@ def test_unsourced_match_does_not_guess_ancestor() -> None:
         "</div>"
     )
     assert locate("#save", html) == NoSourceInfo("#save")
+
+
+@pytest.mark.parametrize("selector", [".save", "button#save", "#save > span", "", "[data-testid=launch]"])
+def test_unsupported_selector_is_typed_not_an_exception(selector: str) -> None:
+    assert locate(selector, PAGE) == UnsupportedSelector(selector)

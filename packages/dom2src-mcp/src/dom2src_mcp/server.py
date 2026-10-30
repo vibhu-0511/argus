@@ -13,7 +13,7 @@ from mcp.server.mcpserver import MCPServer
 from mcp.shared.exceptions import MCPError
 from mcp.types import UNSUPPORTED_PROTOCOL_VERSION, CallToolResult, TextContent
 
-from dom2src_mcp.locate import Location, NoSourceInfo, NotFound
+from dom2src_mcp.locate import Ambiguous, Location, NoSourceInfo, NotFound, UnsupportedSelector
 from dom2src_mcp.locate import locate as resolve
 
 SPEC_VERSION = "2026-07-28"
@@ -42,6 +42,19 @@ def _result(selector: str, html: str) -> CallToolResult:
         failed = True
     elif isinstance(found, NoSourceInfo):
         body = {"error": found.error, "message": "matched element has no data-src"}
+        failed = True
+    elif isinstance(found, UnsupportedSelector):
+        body = {"error": found.error, "message": f"{selector} is not #id or [data-testid=\"...\"]"}
+        failed = True
+    elif isinstance(found, Ambiguous):
+        body = {
+            "error": found.error,
+            "message": f"{selector} has {len(found.candidates)} candidate source locations, ranked best first",
+            "candidates": [
+                {"file": item.file, "line": item.line, "col": item.col, "rank": item.rank}
+                for item in found.candidates
+            ],
+        }
         failed = True
     else:
         raise TypeError(type(found).__name__)
