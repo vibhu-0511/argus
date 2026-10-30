@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
-import { fileURLToPath } from "node:url";
 import { dom2srcPlugin, transformJsx } from "../src/index.ts";
 
 const sample = [
@@ -125,8 +124,9 @@ test("plugin is enforce pre and runs for development and test", () => {
   assert.equal(tested.code, stamped);
 });
 
-test("five canvas flows get repo-relative data-src with no tag suffix", () => {
-  const repo = platformRepo();
+// Reads the private dcortex-platform checkout, so it runs only where ARGUS_PLATFORM_REPO is set.
+test("five canvas flows get repo-relative data-src with no tag suffix", { skip: !process.env.ARGUS_PLATFORM_REPO }, () => {
+  const repo = process.env.ARGUS_PLATFORM_REPO as string;
   const flows = [
     { flow: "sign-in", file: "apps/canvas/src/screens/AuthModal.tsx", marker: '<div className="auth-backdrop"' },
     { flow: "sign-in", file: "apps/canvas/src/screens/Landing.tsx", marker: '<button type="button" className="landing-cta"' },
@@ -176,13 +176,4 @@ function lineCol(text: string, index: number): { line: number; col: number } {
     } else col++;
   }
   return { line, col };
-}
-
-function platformRepo(): string {
-  const configPath = fileURLToPath(new URL("../../../config/platform.md", import.meta.url));
-  const text = fs.readFileSync(configPath, "utf8");
-  const row = text.split(/\r?\n/).find((line) => line.startsWith("| Repo |"));
-  const found = row?.match(/`([^`]+)`/);
-  if (!found) throw new Error("config/platform.md has no Repo path");
-  return found[1];
 }

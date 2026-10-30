@@ -93,7 +93,7 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 ## Week 8 — P2, P3 (22 h scheduled)
 
 - [x] P2-T13 Write ADR-007: Retrieval strategy [ME] 1h
-- [x] P2-T14 Add CI job for plugin and MCP server tests, no LLM calls [CLAUDE] 2h
+- [ ] P2-T14 Add CI job for plugin and MCP server tests, no LLM calls [CLAUDE] 2h. Workflow written and its commands run locally (docs/notes/p2-conformance-fixes.md); the box needs a green Actions run id before it is ticked.
 - [x] P2-T15 Break it: render a button through a wrapper component [ME] 2h
 - [x] P2-T16 Break it: run locate() against a production build [ME] 2h
 - [x] P2-T17 Break it: edit a file after the repo-map is built [ME] 2h

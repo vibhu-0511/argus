@@ -3,7 +3,9 @@ const os = require("node:os");
 const path = require("node:path");
 
 // Reuse a Playwright browser already on this machine. This file does not download one.
-const pkg = path.dirname(require.resolve("playwright-core/package.json"));
+// pnpm does not hoist playwright-core, so resolve it from @playwright/test.
+const runner = path.dirname(require.resolve("@playwright/test/package.json"));
+const pkg = path.dirname(require.resolve("playwright-core/package.json", { paths: [runner] }));
 const browsers = JSON.parse(fs.readFileSync(path.join(pkg, "browsers.json"), "utf8"));
 const revision = browsers.browsers.find((browser) => browser.name === "chromium").revision;
 const folder = `chromium-${revision}`;
