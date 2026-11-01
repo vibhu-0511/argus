@@ -10,8 +10,11 @@ side effect and that store re-runs the step, so every effect is keyed (`flow.sta
 `branch_name`) and the runner or GitHub client finds the effect it already made before acting.
 The runners and the GitHub client are injected (`Deps`); the real Actions dispatch is T04.
 
-The workflow stops at `awaiting-qa`. The QA signal wait is T08; until then a clearly marked stub
-approves at once so a fixture run reaches `done`.
+The workflow stops at `awaiting-qa` and waits for the QA signal with `DBOS.recv` (P6-T08, signal
+side in `flow.qa`). Approve ends in `done` and marks the PR ready for review, reject ends in
+`rejected` and closes the PR, and no signal within the configured timeout ends in `timed-out` with
+the PR left open and draft. The deadline is stored by DBOS, so a restart continues the same wait
+instead of starting a new one.
 
 ponytail: the injected `Deps` is process-global because a DBOS workflow is a module-level function
 registered once, and one process runs one DBOS. Fine for one executor on Render; a second
@@ -25,6 +28,8 @@ from typing import Any, NamedTuple, Protocol
 from dbos import DBOS
 from dbos._error import DBOSMaxStepRetriesExceeded  # not exported by dbos/__init__ in 3.4.0
 
+from flow.config import DEFAULT_QA_TIMEOUT_SECONDS
+from flow.qa import QA_TOPIC
 from flow.states import (
     TERMINAL,
     Event,
@@ -63,6 +68,12 @@ class GitHubClient(Protocol):
 
     def create_draft_pr(self, branch: str, title: str, body: str) -> PullRequest: ...
 
+    def ready_pr(self, branch: str) -> None:
+        """Mark the PR of `branch` ready for review; skip when it is not a draft (`ready-pr`)."""
+
+    def close_pr(self, branch: str) -> None:
+        """Close the PR of `branch` unmerged; skip when it is already closed (`close-pr`)."""
+
     def post_comment(self, ticket_id: str, key: str, body: str) -> None:
         """Skip when a comment with `key`'s marker exists (`flow.states.comment_marker`)."""
 
@@ -75,6 +86,7 @@ class Deps(NamedTuple):
     fix: Runner
     verify: Runner
     github: GitHubClient
+    qa_timeout_seconds: float | None = None  # None: the default in flow.config; `launch` fills it from settings
 
 
 _deps: Deps | None = None
@@ -139,8 +151,16 @@ def open_pr_step(ticket_id: str, patch: str) -> dict[str, Any]:
 
 @DBOS.step(**_RETRY)
 def finish_step(ticket_id: str, state: str, reason: str) -> dict[str, Any]:
-    """Comment and label for the terminal state. `ready-pr` and `close-pr` belong to T08."""
+    """The effects of the terminal state, in the order of `states.STATES`: PR, comment, label.
+
+    `done` marks the PR ready for review and `rejected` closes it; `failed` and `timed-out` leave
+    it as it is. Both PR effects are keyed by the stable branch and skip when already done.
+    """
     github = _need().github
+    if state == State.DONE.value:
+        github.ready_pr(branch_name(ticket_id))
+    elif state == State.REJECTED.value:
+        github.close_pr(branch_name(ticket_id))
     github.post_comment(ticket_id, effect_key(ticket_id, f"comment-{state}"), f"Argus: {state}. {reason}".strip())
     github.set_label(ticket_id, state)
     return _result(Outcome(True, state))
@@ -162,6 +182,26 @@ def _run(step: Any, ticket_id: str, upstream: str) -> dict[str, Any]:
         return {"ok": False, "output": f"{step.__name__} failed after {e.max_retries} attempts"}
 
 
+_DECISION_EVENT = {"approve": Event.QA_APPROVED, "reject": Event.QA_REJECTED}
+
+
+def await_qa(ticket_id: str) -> tuple[State, str]:
+    """Wait for the QA signal (`flow.qa`) and return the state it leads to and the reason.
+
+    The first message decides. A message is validated before it is sent, so an unknown decision
+    here means a writer bypassed `send_qa_signal`; it raises KeyError and the workflow ends in ERROR.
+    ponytail: one `recv`, so the timeout is for the whole wait. Fine while there is one signal path
+    per ticket; a second reviewer step would need its own wait.
+    """
+    deps = _need()
+    timeout = deps.qa_timeout_seconds if deps.qa_timeout_seconds is not None else DEFAULT_QA_TIMEOUT_SECONDS
+    msg = DBOS.recv(QA_TOPIC, timeout_seconds=timeout)
+    if msg is None:
+        return next_state(State.AWAITING_QA, Event.QA_TIMEOUT), f"no QA signal within {timeout:g} s"
+    by = f" by {msg['by']}" if msg.get("by") else ""
+    return next_state(State.AWAITING_QA, _DECISION_EVENT[msg["decision"]]), f"{msg['decision']} via {msg['source']}{by}"
+
+
 @DBOS.workflow()
 def ticket_workflow(ticket_id: str) -> dict[str, Any]:
     state = next_state(START, Event.START)
@@ -177,8 +217,7 @@ def ticket_workflow(ticket_id: str) -> dict[str, Any]:
         state = next_state(state, ok_event if result["ok"] else failed_event)
         trail.append(state.value)
     if state is State.AWAITING_QA:
-        # STUB until P6-T08 adds the durable QA signal wait: approve at once. This is the seam.
-        state = next_state(state, Event.QA_APPROVED)
+        state, reason = await_qa(ticket_id)
         trail.append(state.value)
     assert state in TERMINAL
     finish_step(ticket_id, state.value, reason)

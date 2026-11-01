@@ -30,25 +30,38 @@ from dataclasses import dataclass
 from dbos import DBOSConfig
 
 DATABASE_URL_ENV = "ARGUS_FLOW_DATABASE_URL"
+QA_TIMEOUT_ENV = "ARGUS_FLOW_QA_TIMEOUT_SECONDS"
 APP_NAME = "argus-flow"
 APPLICATION_VERSION = "argus-flow-1"
 EXECUTOR_ID = "argus-flow-0"
 USE_LISTEN_NOTIFY = False
+# Short on purpose so a test or a local run ends quickly. A deploy must set ARGUS_FLOW_QA_TIMEOUT_SECONDS
+# to how long a reviewer may take (T12); otherwise every ticket times out after this long.
+DEFAULT_QA_TIMEOUT_SECONDS = 60.0
 
 
 @dataclass(frozen=True)
 class FlowSettings:
     database_url: str = ""
+    qa_timeout_seconds: float = DEFAULT_QA_TIMEOUT_SECONDS
 
     def __repr__(self) -> str:  # the URL has a password in it
-        return "FlowSettings(database_url=<set>)" if self.database_url else "FlowSettings(database_url=<unset>)"
+        url = "<set>" if self.database_url else "<unset>"
+        return f"FlowSettings(database_url={url}, qa_timeout_seconds={self.qa_timeout_seconds:g})"
 
     @classmethod
     def from_env(cls) -> FlowSettings:
         url = os.environ.get(DATABASE_URL_ENV, "")
         if not url:
             raise RuntimeError(f"{DATABASE_URL_ENV} is not set")
-        return cls(database_url=url)
+        raw = os.environ.get(QA_TIMEOUT_ENV, "")
+        try:
+            timeout = float(raw) if raw else DEFAULT_QA_TIMEOUT_SECONDS
+        except ValueError:
+            raise RuntimeError(f"{QA_TIMEOUT_ENV} must be a number of seconds") from None
+        if timeout <= 0:
+            raise RuntimeError(f"{QA_TIMEOUT_ENV} must be positive")
+        return cls(database_url=url, qa_timeout_seconds=timeout)
 
 
 def dbos_config(settings: FlowSettings) -> DBOSConfig:

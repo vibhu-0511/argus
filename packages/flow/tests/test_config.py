@@ -21,3 +21,15 @@ def test_database_url_comes_from_the_environment_and_is_not_printed(monkeypatch)
     settings = config.FlowSettings.from_env()
     assert settings.database_url.endswith("@h/db")
     assert "hunter2" not in repr(settings) and "hunter2" not in str(settings)
+
+
+def test_qa_timeout_has_a_short_default_and_comes_from_the_environment(monkeypatch):
+    monkeypatch.setenv(config.DATABASE_URL_ENV, "postgresql://u:pw@h/db")
+    monkeypatch.delenv(config.QA_TIMEOUT_ENV, raising=False)
+    assert config.FlowSettings.from_env().qa_timeout_seconds == config.DEFAULT_QA_TIMEOUT_SECONDS == 60.0
+    monkeypatch.setenv(config.QA_TIMEOUT_ENV, "86400")
+    assert config.FlowSettings.from_env().qa_timeout_seconds == 86400.0
+    for bad in ("soon", "0", "-5"):
+        monkeypatch.setenv(config.QA_TIMEOUT_ENV, bad)
+        with pytest.raises(RuntimeError, match=config.QA_TIMEOUT_ENV):
+            config.FlowSettings.from_env()

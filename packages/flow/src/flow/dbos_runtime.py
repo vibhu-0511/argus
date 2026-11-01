@@ -35,6 +35,8 @@ class DbosEnqueuer:
 
 def launch(settings: FlowSettings, deps: Deps) -> DbosEnqueuer:
     """Set the deps, start DBOS (which recovers this application version's pending workflows) and the queue."""
+    if deps.qa_timeout_seconds is None:
+        deps = deps._replace(qa_timeout_seconds=settings.qa_timeout_seconds)
     set_deps(deps)  # before launch: recovery can run workflows at once
     DBOS(config=dbos_config(settings))
     DBOS.launch()
