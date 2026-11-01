@@ -179,7 +179,7 @@ def load_subset(path: Path = DATA_DIR / "subset.json") -> list[MultimodalTask]:
 
 
 def add_cli(sub: Any) -> None:
-    """Register `multimodal fetch|build|prompt` on an argparse subparsers object."""
+    """Register `multimodal fetch|build|prompt|prepare|finish|predictions|results` on an argparse subparsers object."""
     mm = sub.add_parser("multimodal", help="SWE-bench Multimodal dev subset adapter")
     cmds = mm.add_subparsers(dest="mm_command", required=True)
     f = cmds.add_parser("fetch", help="download the dev split rows (with patches) to a file outside the repo")
@@ -189,9 +189,16 @@ def add_cli(sub: Any) -> None:
     b.add_argument("--out", type=Path, default=DATA_DIR)
     p = cmds.add_parser("prompt", help="print the agent prompt of one committed task")
     p.add_argument("instance_id")
+    from eval import multimodal_run  # late import: multimodal_run imports this module
+
+    multimodal_run.add_cli(cmds)
 
 
 def run_cli(args: Any) -> int:
+    if args.mm_command in ("prepare", "finish", "predictions", "results"):
+        from eval import multimodal_run
+
+        return multimodal_run.run_cli(args)
     if args.mm_command == "fetch":
         rows = fetch_dev()
         args.out.write_text(json.dumps(rows), encoding="utf-8")
