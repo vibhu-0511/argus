@@ -48,3 +48,30 @@ Tests: the last four in `packages/argus-core/tests/test_trace_normalize.py` (`RE
 **Not shown.** No real backend was sent the renamed span.
 
 Run: `uv run pytest packages/argus-core/tests/test_trace_normalize.py -q`
+
+## P5-T25 backend unreachable
+
+Test: `packages/fix-loop/tests/test_backend_unreachable.py`. It runs the T06 stubbed fix-loop run with `ARGUS_TRACE_BACKEND=otlp` pointed at a local port, with `EXPORT_TIMEOUT_S` set to 1 for speed, and compares it with the same run into an in-memory exporter. Two kinds of dead port: **closed** (connection refused) and **silent** (a socket that listens and never reads or answers, the slow failure).
+
+**Induced failure.** The trace backend cannot be reached.
+
+**Expected signal.** The run finishes normally, the exporter logs a drop after the timeout, and the run takes no longer than that timeout.
+
+**Observed.**
+
+- Before this task the only log lines were the OTLP library's `Failed to export spans batch due to timeout, max retries or shutdown.` It does not say spans were dropped or how many. Now `NormalizingExporter.export` logs `dropped 5 spans: the trace backend did not take them` (logger `argus.trace`) whenever the inner exporter does not return success. The line holds a count only: no endpoint, no header, no span content. The test sets a fake bearer token and checks it is absent from every log record.
+- The run result is unchanged: same stop reason (`submit`) and a byte-identical trajectory file. Emitting spans never waits for the network; the wait is in the flush at `provider.shutdown()`.
+- The delay is one export timeout for the one batch (agent, two model calls and two tool calls make 5 spans, a single batch). Measured here, stub run plus flush, baseline 0.09 s:
+
+| Export timeout | Closed port: extra seconds | Silent port: extra seconds |
+|---|---|---|
+| 1 s | 1.45 (one run; 1.15 in the test run) | 0.94 |
+| 3 s (shipped) | 2.92 | 2.92 |
+
+  Closed ports on Windows overshoot a 1 s timeout by up to half a second (refused connects are retried by the OS); at 3 s both kinds end at the timeout. The test asserts extra time under `timeout + 2 s`. A queue over 512 spans keeps the first 512 and drops the rest, and `test_trace_export.py::test_unreachable_backend_does_not_hold_the_run` covers that case.
+
+**Fix.** Already in `telemetry.start_tracing`: a batch processor with a bounded queue (512) and an export timeout (3 s) in place of a synchronous exporter. The only change here is the drop log line.
+
+**Not shown.** The test uses localhost only. A backend that answers slowly byte by byte, or DNS that hangs, was not tried; the OTLP exporter's timeout is a total budget per export, but I did not measure those cases.
+
+Run: `uv run --package fix-loop --with jsonschema pytest packages/fix-loop/tests/test_backend_unreachable.py -q`

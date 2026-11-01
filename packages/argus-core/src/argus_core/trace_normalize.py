@@ -111,7 +111,10 @@ class NormalizingExporter(SpanExporter):
         return out
 
     def export(self, spans: Sequence[ReadableSpan]) -> SpanExportResult:
-        return self.inner.export([self._rewrite(s) for s in spans])
+        result = self.inner.export([self._rewrite(s) for s in spans])
+        if result is not SpanExportResult.SUCCESS:  # the OTLP exporter has already retried until its timeout
+            log.warning("dropped %d spans: the trace backend did not take them", len(spans))  # a count only, no endpoint or header
+        return result
 
     def _rewrite(self, span: ReadableSpan) -> ReadableSpan:
         return ReadableSpan(
