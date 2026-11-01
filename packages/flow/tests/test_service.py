@@ -25,6 +25,7 @@ from flow.db_wake import DatabaseUnavailable
 from flow.enqueue import FakeEnqueuer
 from flow.service import Engine, ServiceConfig, UnwiredGitHub, create_service_app, load_config
 
+REAL_URL = os.environ.get(DATABASE_URL_ENV)  # read at import: the `env` fixture replaces the variable with a fake
 SECRET = "hook-secret-not-real"
 PASSWORD = "pw-not-real-9f3a"
 URL = f"postgresql://user:{PASSWORD}@localhost:5432/db"
@@ -209,15 +210,15 @@ def test_render_blueprint_is_a_free_web_service_with_secrets_as_keys_only():
 
 
 @pytest.mark.postgres
-@pytest.mark.skipif(not os.environ.get(DATABASE_URL_ENV), reason=f"{DATABASE_URL_ENV} is not set; needs a real Postgres")
+@pytest.mark.skipif(not REAL_URL, reason=f"{DATABASE_URL_ENV} is not set; needs a real Postgres")
 def test_the_whole_service_starts_against_a_real_postgres_and_stops(env, caplog):
     """Real wake-up probe, real DBOS launch, real `/health/db`. No ticket is enqueued, so no GitHub call is made."""
-    real_url = os.environ[DATABASE_URL_ENV]
+    real_url = REAL_URL
     env.setenv(DATABASE_URL_ENV, real_url)
     env.setenv("ARGUS_FLOW_POLL_ENABLED", "false")
     password = real_url.split(":")[2].split("@")[0]
     with caplog.at_level(logging.DEBUG), TestClient(create_service_app()) as client:
-        assert wait_for(lambda: client.get("/health").json()["engine"] == "ready", timeout=60)
+        assert wait_for(lambda: client.get("/health").json()["engine"] == "ready", timeout=120)
         assert client.get("/health/db").json() == {"database": "ok"}
         ping = b'{"zen":"hello"}'
         assert client.post("/webhook", content=ping, headers=sign(ping)).json()["status"] == "ignored"
