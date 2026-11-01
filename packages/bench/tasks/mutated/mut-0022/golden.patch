@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -332,7 +332,7 @@
+ .ops-codes-alignment p { margin: 2px 0; }
+ 
+ /* The Parameters tab (control-tower-v3 §3b): the values in force, a pending change with its impact, and the actions. */
++.ops-params { display: flex; flex-direction: column; gap: 10px; }
+-
+ .ops-params-head { display: flex; flex-wrap: wrap; gap: 14px; align-items: baseline; margin: 0; }
+ .ops-params-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; }
+ .ops-params-actions button, .ops-params > button { padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border-secondary); background: var(--surface-card); color: inherit; cursor: pointer; }

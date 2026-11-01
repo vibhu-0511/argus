@@ -1,0 +1,12 @@
+[
+  {
+    "type": "computed_style",
+    "params": {
+      "flow": "/login",
+      "selector": ".auth-backdrop",
+      "property": "z-index",
+      "expected": "100",
+      "css": "apps/canvas/src/styles/landing.css"
+    }
+  }
+]

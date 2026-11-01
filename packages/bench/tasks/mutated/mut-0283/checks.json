@@ -1,0 +1,12 @@
+[
+  {
+    "params": {
+      "css": "apps/canvas/src/ops/ops.css",
+      "expected": "14px",
+      "flow": "/admin/audit",
+      "property": "width",
+      "selector": ".ops-timeline-handle"
+    },
+    "type": "computed_style"
+  }
+]

@@ -1,0 +1,12 @@
+[
+  {
+    "params": {
+      "css": "apps/canvas/src/ops/ops.css",
+      "expected": "4px",
+      "flow": "/admin/users",
+      "property": "margin-left",
+      "selector": ".ops-rules-count"
+    },
+    "type": "computed_style"
+  }
+]

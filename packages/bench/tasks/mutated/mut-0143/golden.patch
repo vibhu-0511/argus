@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -52,7 +52,7 @@
+ .ops-timeline-tick { position: absolute; transform: translateX(-50%); font: 10px var(--font-mono); color: var(--text-tertiary); }
+ .ops-timeline-tick:nth-child(odd) { visibility: hidden; }
+ @media (min-width: 1200px) { .ops-timeline-tick:nth-child(odd) { visibility: visible; } }
++.ops-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+-
+ .ops-presets button[aria-pressed="true"] { font-weight: 700; }
+ .ops-show { margin-left: auto; display: inline-flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+ .ops-show-chip { min-height: 32px; padding: 6px 12px; font: 600 12px var(--font-mono); letter-spacing: 0.02em; border-radius: 8px; }

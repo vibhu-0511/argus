@@ -1,0 +1,12 @@
+[
+  {
+    "params": {
+      "css": "apps/canvas/src/ops/ops.css",
+      "expected": "2px",
+      "flow": "/login",
+      "property": "border-radius",
+      "selector": ".ops-timeline-rail"
+    },
+    "type": "computed_style"
+  }
+]

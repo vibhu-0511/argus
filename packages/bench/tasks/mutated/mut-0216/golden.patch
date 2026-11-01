@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -443,7 +443,7 @@
+ .ops-horizon-legend i { width: 10px; height: 10px; margin-right: 6px; border-radius: 50%; display: inline-block; }
+ .ops-horizon-legend i.crit { background: #f07178; }
+ .ops-horizon-legend i.warn { background: #f0c14a; }
++.ops-horizon-pop { position: fixed; z-index: 30; min-width: 220px; max-width: 360px; padding: 8px 10px; border-radius: 10px; background: var(--surface-card); color: var(--text-primary); border: 1px solid var(--border-primary); box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35); font-size: 12px; transform: translate(-50%, calc(-100% - 10px)); }
+-.ops-horizon-pop { position: fixed; z-index: 30; min-width: 224px; max-width: 360px; padding: 8px 10px; border-radius: 10px; background: var(--surface-card); color: var(--text-primary); border: 1px solid var(--border-primary); box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35); font-size: 12px; transform: translate(-50%, calc(-100% - 10px)); }
+ .ops-horizon-pop .tt-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; color: var(--text-tertiary); font-size: 11px; font-weight: 700; }
+ .ops-horizon-pop .tt-time { padding: 1px 6px; border-radius: 8px; background: var(--surface-hover); color: var(--text-primary); }
+ .ops-horizon-pop .tt-time.crit { color: #f07178; }

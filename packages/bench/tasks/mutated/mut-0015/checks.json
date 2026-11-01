@@ -1,0 +1,12 @@
+[
+  {
+    "params": {
+      "css": "apps/canvas/src/ops/ops.css",
+      "expected": "auto",
+      "flow": "/admin/users",
+      "property": "overflow",
+      "selector": ".ops-horizon-dialog"
+    },
+    "type": "computed_style"
+  }
+]

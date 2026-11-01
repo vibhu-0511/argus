@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -71,7 +71,7 @@
+ 
+ /* Map | Table | Both — side by side on wide screens, stacked below 1200px. */
+ .ops-grid { display: flex; flex-direction: column; gap: 12px; }
+-.ops-grid--both { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 12px; align-items: start; }
++
+ @media (max-width: 1200px) { .ops-grid--both { grid-template-columns: minmax(0, 1fr); } }
+ .ops-table { overflow-x: auto; }
+ .ops-time { white-space: nowrap; }

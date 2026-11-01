@@ -1,0 +1,12 @@
+diff --git a/apps/canvas/src/styles/tokens.css b/apps/canvas/src/styles/tokens.css
+--- a/apps/canvas/src/styles/tokens.css
++++ b/apps/canvas/src/styles/tokens.css
+@@ -176,7 +176,7 @@
+ .rcard:hover { border-color: var(--border-secondary); }
+ .rcard.active { border-color: var(--accent-warning); box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent-warning), transparent 55%); }
+ 
+-div.glabel {
++.glabel {
+   font-size: 10px;
+   font-weight: 700;
+   letter-spacing: 0.05em;

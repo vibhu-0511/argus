@@ -1,0 +1,12 @@
+[
+  {
+    "params": {
+      "css": "apps/canvas/src/ops/ops.css",
+      "expected": "space-between",
+      "flow": "/admin/audit",
+      "property": "justify-content",
+      "selector": ".ops-horizon-head"
+    },
+    "type": "computed_style"
+  }
+]

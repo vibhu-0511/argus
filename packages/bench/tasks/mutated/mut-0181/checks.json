@@ -1,0 +1,12 @@
+[
+  {
+    "params": {
+      "css": "apps/canvas/src/ops/ops.css",
+      "expected": "1fr",
+      "flow": "/admin/audit",
+      "property": "grid-template-columns",
+      "selector": ".ops-crew-list--recheck"
+    },
+    "type": "computed_style"
+  }
+]

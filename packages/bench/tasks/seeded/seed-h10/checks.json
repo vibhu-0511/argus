@@ -1,0 +1,12 @@
+[
+  {
+    "type": "computed_style",
+    "params": {
+      "flow": "/login",
+      "selector": ".landing-band",
+      "property": "z-index",
+      "expected": "1",
+      "css": "apps/canvas/src/styles/landing.css"
+    }
+  }
+]

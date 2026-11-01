@@ -1,0 +1,12 @@
+[
+  {
+    "type": "computed_style",
+    "params": {
+      "flow": "/ops/radar",
+      "selector": ".radar-feed",
+      "property": "flex-direction",
+      "expected": "column",
+      "css": "apps/canvas/src/ops/radar.css"
+    }
+  }
+]

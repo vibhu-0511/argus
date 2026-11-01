@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -238,7 +238,7 @@
+ .ops-rc-meta { font: 11px var(--font-mono); overflow-wrap: anywhere; }
+ .ops-rc-id { font: 11px var(--font-mono); }
+ .ops-rc-positioning { font-size: 11px; color: var(--accent-warning, var(--text-secondary)); }
++.ops-rc-verdict { font-weight: 600; }
+-
+ .ops-rc-verdict--legal { color: var(--accent-success); }
+ .ops-rc-verdict--illegal { color: var(--accent-error); }
+ .ops-rc-verdict--not-evaluated { color: var(--accent-warning, var(--text-secondary)); }

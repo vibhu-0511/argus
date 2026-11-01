@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -309,7 +309,7 @@
+ .ops-rules-badge-informational { color: var(--text-tertiary); }
+ .ops-rules-badge-category { color: var(--text-tertiary); background: var(--surface-card); }
+ .ops-rules-requires { margin: 0; font-size: 15px; font-weight: 600; color: var(--text-primary); }
++.ops-rules-fdp { margin-top: 10px; font-variant-numeric: tabular-nums; }
+-.ops-rules-fdp { margin-top: 14px; font-variant-numeric: tabular-nums; }
+ .ops-rules-fdp tbody tr, .ops-rules-detail .ops-rules-group tbody tr { cursor: default; }
+ .ops-rules-fdp td { text-align: right; }
+ .ops-rules-detail .ops-rules-group th[scope="row"] { font: 12px var(--font-mono); color: var(--text-secondary); }

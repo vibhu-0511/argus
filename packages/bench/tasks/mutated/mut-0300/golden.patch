@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -9,7 +9,7 @@
+ :where(.ops-app select option) { background: var(--bg-secondary); color: var(--text-primary); }
+ /* Segmented controls: one outer border; square seams (global button radius must not show through). */
+ .ops-view, .ops-timeline-rule, .ops-lang {
++  display: inline-flex; align-items: stretch; border: 1px solid var(--border-secondary); border-radius: 8px; overflow: hidden; background: var(--surface-card);
+-  display: inline-flex; align-items: stretch; border: 1px solid var(--border-secondary); border-radius: 12px; overflow: hidden; background: var(--surface-card);
+ }
+ .ops-view > button, .ops-timeline-rule > button, .ops-lang > button {
+   margin: 0; border: 0; border-radius: 0; border-right: 1px solid var(--border-secondary); background: transparent; color: var(--text-secondary); min-height: 32px; padding: 6px 12px; line-height: 1.25;

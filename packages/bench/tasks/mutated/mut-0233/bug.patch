@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -283,7 +283,7 @@
+ .ops-rules-tiers { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+ .ops-rules-tiers button { border-radius: 999px; padding: 4px 12px; border: 1px solid var(--border-secondary); background: transparent; color: inherit; cursor: pointer; }
+ .ops-rules-tiers button[aria-pressed="true"] { background: var(--bg-tertiary); font-weight: 700; }
+-.ops-rules-count { margin-left: 4px; padding: 0 6px; border-radius: 999px; background: var(--bg-secondary); font-size: 11px; }
++.ops-rules-count { margin-left: 8px; padding: 0 6px; border-radius: 999px; background: var(--bg-secondary); font-size: 11px; }
+ .ops-rules-group { width: 100%; border-collapse: collapse; }
+ .ops-rules-group caption { text-align: left; padding: 8px 0 4px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; font-size: 12px; color: var(--text-tertiary); }
+ .ops-rules-group th, .ops-rules-group td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border-primary); vertical-align: top; }

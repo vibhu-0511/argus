@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -231,7 +231,7 @@
+ .ops-rc-candidate--illegal { border-left-color: var(--accent-error); }
+ .ops-rc-candidate--not-evaluated { border-left-color: var(--accent-warning, var(--text-tertiary)); }
+ .ops-rc-candidate-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
++.ops-rc-rank { min-width: 18px; font: 700 12px var(--font-mono); color: var(--text-tertiary); text-align: right; }
+-
+ .ops-rc-avatar { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--surface-card); border: 1px solid var(--border-primary); font: 700 11px var(--font-mono); color: var(--text-secondary); flex: none; }
+ .ops-rc-who { display: flex; flex-direction: column; min-width: 0; }
+ .ops-rc-name { font-size: 14px; font-weight: 600; color: var(--text-primary); overflow-wrap: anywhere; }

@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -87,7 +87,7 @@
+ .ops-map-controls button { border-color: #2a3a58; background: #0a0f1a; color: #8494ac; }
+ .ops-map-controls button:hover { border-color: #3b82f6; color: #e6edf7; }
+ .ops-map-credit { position: absolute; right: 8px; bottom: 34px; font: 9px var(--font-mono); letter-spacing: 0.06em; color: #5a6a85; opacity: 0.7; pointer-events: none; }
++.ops-graticule { fill: none; stroke: #1e2a40; }
+-
+ .ops-land { fill: #16233a; stroke: #2a3a58; }
+ .ops-borders { fill: none; stroke: #2a3a58; opacity: 0.7; }
+ .ops-station-dot { fill: #5a6a85; opacity: 0.55; }

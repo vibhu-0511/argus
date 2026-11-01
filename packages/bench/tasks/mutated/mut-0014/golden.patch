@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -434,7 +434,7 @@
+ .ops-horizon-line { position: absolute; left: 0; right: 0; height: 1px; background: var(--border-primary); }
+ .ops-horizon-now { position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: var(--accent-primary); z-index: 2; pointer-events: none; }
+ .ops-horizon-nowtag { position: absolute; top: 4px; left: 1px; transform: translateX(-50%); z-index: 4; padding: 1px 7px; border-radius: 999px; background: var(--accent-primary); color: var(--text-on-accent); font-size: 11px; font-weight: 750; white-space: nowrap; }
++.ops-horizon-dot { position: absolute; z-index: 3; width: 26px; height: 26px; margin-left: -13px; padding: 0; border: none; border-radius: 50%; font-size: 12px; font-weight: 750; line-height: 26px; text-align: center; color: #1a1208; }
+-
+ .ops-horizon-plot.expanded .ops-horizon-dot { transform: scale(1.4); }
+ .ops-horizon-dot.past, .ops-horizon-dot.watch { background: #8d99a8; color: #1c2430; }
+ .ops-horizon-dot.crit { background: #f07178; color: #2a0c10; }

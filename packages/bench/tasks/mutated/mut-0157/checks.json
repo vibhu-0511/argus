@@ -1,0 +1,12 @@
+[
+  {
+    "params": {
+      "css": "apps/canvas/src/ops/ops.css",
+      "expected": "12px",
+      "flow": "/login",
+      "property": "gap",
+      "selector": ".ops-horizon"
+    },
+    "type": "computed_style"
+  }
+]

@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -162,7 +162,7 @@
+ .ops-leg-card { display: flex; flex-direction: column; gap: 2px; padding: 14px 16px; border: 1px solid var(--border-primary); border-radius: 10px; background: var(--surface-card); }
+ .ops-leg-side { font: 600 11px var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-tertiary); }
+ .ops-leg-code { font: 700 30px var(--font-mono); letter-spacing: 0.04em; color: var(--text-primary); }
+-.ops-leg-city { font-size: 13px; color: var(--text-secondary); }
++.ops-leg-city { font-size: 17px; color: var(--text-secondary); }
+ .ops-leg-code[title], [data-testid="ops-place"][title] { cursor: help; }
+ .ops-leg-date { font-size: 12px; color: var(--text-tertiary); margin-bottom: 8px; }
+ .ops-leg-times { display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; margin: 0; font-size: 13px; }

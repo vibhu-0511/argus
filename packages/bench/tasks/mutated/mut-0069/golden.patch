@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -189,7 +189,7 @@
+ .ops-position--short .ops-position-count { color: var(--accent-error); }
+ .ops-position-deadhead { font: 600 12px var(--font-mono); color: var(--text-tertiary); }
+ .ops-crew-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 6px; margin: 0; padding: 0; list-style: none; }
++.ops-crew-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 6px 10px; border-radius: 8px; background: var(--surface-card); min-width: 0; }
+-
+ .ops-crew-pos { min-width: 30px; padding: 2px 6px; border-radius: 4px; background: var(--bg-tertiary); text-align: center; font: 700 11px var(--font-mono); color: var(--text-secondary); }
+ .ops-crew-name { flex: 1 1 110px; min-width: 0; font-size: 13px; color: var(--text-primary); overflow-wrap: anywhere; }
+ .ops-crew-row .ops-pill { flex: none; white-space: nowrap; }

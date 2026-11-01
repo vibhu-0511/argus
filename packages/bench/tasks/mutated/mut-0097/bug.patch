@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -145,7 +145,7 @@
+  * spinner's corners toggled the scrollbar twice a turn. Clipping the row keeps the round ink and drops the box corners. */
+ .ops-recheck-pending, .ops-loading-note { overflow: clip; }
+ .ops-recheck-pending { display: flex; align-items: flex-start; gap: 10px; }
+-.ops-spinner { flex: none; width: 14px; height: 14px; margin-top: 3px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: ops-spin 0.8s linear infinite; }
++
+ @keyframes ops-spin { to { transform: rotate(360deg); } }
+ @media (prefers-reduced-motion: reduce) { .ops-spinner { animation-duration: 2.4s; } }
+ .ops-detail-strip { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }

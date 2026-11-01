@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -261,7 +261,7 @@
+ .ops-rc-rules { width: 100%; table-layout: fixed; margin-top: 10px; border-collapse: collapse; font-size: 12px; }
+ .ops-rc-col-rule { width: 60%; }
+ .ops-rc-col-value { width: 24%; }
++.ops-rc-col-margin { width: 16%; }
+-
+ .ops-rc-rules th { text-align: left; font-weight: 600; color: var(--text-tertiary); }
+ .ops-rc-rules th, .ops-rc-rules td { padding: 4px 6px; border-top: 1px solid var(--border-primary); vertical-align: top; overflow-wrap: break-word; }
+ .ops-rc-rules td:nth-child(2), .ops-rc-rules td:nth-child(3) { font-family: var(--font-mono); overflow-wrap: normal; white-space: nowrap; }

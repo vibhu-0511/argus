@@ -1,0 +1,12 @@
+[
+  {
+    "params": {
+      "css": "apps/canvas/src/ops/ops.css",
+      "expected": "absolute",
+      "flow": "/desk?sel=console",
+      "property": "position",
+      "selector": ".ops-timeline-tick"
+    },
+    "type": "computed_style"
+  }
+]

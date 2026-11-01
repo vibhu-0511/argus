@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -106,7 +106,7 @@
+ .ops-airport--base .ops-halo { stroke: #34d399; opacity: 0.8; }
+ .ops-airport--base .ops-origin-mark { fill: #34d399; }
+ .ops-dest-mark { fill: #8494ac; }
+-.ops-event { cursor: pointer; }
++
+ .ops-event--delay circle { fill: #ffb547; }
+ .ops-event--delay text { fill: #ffb547; font-family: var(--font-mono); font-weight: 600; paint-order: stroke; stroke: #0a0f1a; stroke-linejoin: round; }
+ .ops-event--cancelled path { stroke: #f472b6; stroke-linecap: round; }

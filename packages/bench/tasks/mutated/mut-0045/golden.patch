@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -73,7 +73,7 @@
+ .ops-grid { display: flex; flex-direction: column; gap: 12px; }
+ .ops-grid--both { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 12px; align-items: start; }
+ @media (max-width: 1200px) { .ops-grid--both { grid-template-columns: minmax(0, 1fr); } }
++.ops-table { overflow-x: auto; }
+-
+ .ops-time { white-space: nowrap; }
+ 
+ /* The SVG map, after the dcortex-gen2 ops map: a fixed dark field in both themes, in the Radar's green-black.

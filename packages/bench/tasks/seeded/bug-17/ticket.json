@@ -1,0 +1,8 @@
+{
+  "id": "BUG-17",
+  "text": "Text smaller than 12 px in many places (Radar, Horizon, Flights, Control Tower, admin tags).\n\nOn a phone at arm's length, 10 to 11 px text is hard to read. Counted per screen: Radar about 20 elements (labels such as INBOUND · LAST 24 H at 11 px, the CANCELLED tag at 10 px, scale labels at 10 px). Radar detail cards show CRITICAL, GROUND TIME, MINIMUM and DEPARTURE DELAY at 10 px. Horizon has Act now and Keep an eye at 11.5 px. The Flights list uses 11 px for crew position and status. Control Tower rules cells are 11 px. Admin tags (Read-only, Active, Intact, Failed, shadow) are 11.5 px.\n\nFont sizes are set per component, with no minimum. Set a floor of 12 px for any text. No visible text under 12 px on any screen. Admin tags are 12 px or more.\n\nThe patches in this task cover apps/canvas/src/ops/radar.css only. Horizon, Flights, Control Tower and the admin tags are the same bug and are not in these diffs yet.",
+  "screenshot": {
+    "media_type": "image/png",
+    "path": "shots/radar-card.png"
+  }
+}

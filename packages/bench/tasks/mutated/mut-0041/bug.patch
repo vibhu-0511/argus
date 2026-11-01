@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -464,7 +464,7 @@
+ .ops-horizon-chevron { color: var(--text-tertiary); }
+ 
+ /* A box that is still being read says so: a shimmering placeholder instead of a zero or a blank. */
+-.ops-skel { display: inline-block; border-radius: 4px; background: linear-gradient(90deg, rgba(148,163,184,.14) 25%, rgba(148,163,184,.3) 50%, rgba(148,163,184,.14) 75%); background-size: 200% 100%; animation: ops-skel-shimmer 1.4s ease-in-out infinite; }
++
+ .ops-skel--num { width: 2.2ch; height: 1em; vertical-align: -0.1em; }
+ .ops-skel--line { display: block; height: 10px; margin: 8px 0; }
+ .ops-skel--block { display: block; height: 48px; margin: 10px 0; border-radius: 6px; }
