@@ -274,12 +274,12 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 - [ ] P6-T16 Write ADR-021: Webhooks as hints with reconciliation [ME] 1h
 - [ ] P6-T17 Write ADR-022: Free-tier deployment topology [ME] 1h
 - [x] P6-T18 Write ADR-023: QA signal via MRTR or review comments [ME] 1h
-- [ ] P6-T19 Run crash-recovery experiment: kill the process at each step boundary [ME] 3h
+- [x] P6-T19 Run crash-recovery experiment: kill the process at each step boundary [ME] 3h
 
 ## Week 24 — P6, P7 (20 h scheduled)
 
 - [ ] P6-T20 Add CI job for flow tests with a Postgres service container, no LLM [CLAUDE] 2h
-- [ ] P6-T21 Break it: kill the worker after the PR is opened but before state is saved [ME] 2h
+- [x] P6-T21 Break it: kill the worker after the PR is opened but before state is saved [ME] 2h
 - [x] P6-T22 Break it: deliver the same webhook twice [ME] 2h
 - [ ] P6-T23 Break it: let Render sleep and drop a webhook [ME] 2h
 - [x] P6-T24 Break it: suspend Neon mid-run [ME] 2h
