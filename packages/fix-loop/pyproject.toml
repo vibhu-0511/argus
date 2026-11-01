@@ -1,0 +1,17 @@
+[project]
+name = "fix-loop"
+version = "0.1.0"
+description = "From-scratch fix agent. One git worktree per task."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = ["argus-core", "pydantic>=2.14.1"]
+
+[project.scripts]
+fix-loop = "fix_loop.__main__:main"
+
+[tool.uv.sources]
+argus-core = { workspace = true }
+
+[build-system]
+requires = ["uv_build>=0.12.2,<0.13.0"]
+build-backend = "uv_build"
