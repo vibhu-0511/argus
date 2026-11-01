@@ -1,0 +1,31 @@
+# Render Blueprint for argus-flow (P6-T12). Steps and what is not verified: docs/notes/p6-t12.md.
+# Native Python, no Dockerfile: Render adds uv to a Python service when uv.lock is in the repo root,
+# and `.python-version` (3.12) in the root picks the Python version. Keys only; every secret is
+# `sync: false`, so Render asks for it when the Blueprint is first applied and no value is in this file.
+# There is deliberately no DBOS conductor key and no DBOS_* / DBOS__* variable (docs/notes/p6-t11.md).
+services:
+  - type: web
+    name: argus-flow
+    runtime: python
+    plan: free
+    buildCommand: uv sync --frozen --package flow --no-dev
+    startCommand: uv run --frozen --no-sync --package flow uvicorn --factory flow.service:create_service_app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeployTrigger: "off"
+    envVars:
+      - key: ARGUS_FLOW_DATABASE_URL # Neon direct (not pooled) URL with sslmode=require
+        sync: false
+      - key: GITHUB_WEBHOOK_SECRET
+        sync: false
+      - key: GITHUB_DISPATCH_TOKEN # fine-grained, Actions read/write on the one repository
+        sync: false
+      - key: GITHUB_TOKEN # read-only, for the poller
+        sync: false
+      - key: ARGUS_FLOW_REPO # owner/name of the repository whose issues are tickets
+        sync: false
+      - key: ARGUS_FLOW_QA_REVIEWERS # comma separated GitHub logins allowed to approve; unset allows nobody
+        sync: false
+      - key: ARGUS_FLOW_QA_TIMEOUT_SECONDS # how long a reviewer may take; the code default (60 s) is for tests
+        sync: false
+      - key: ARGUS_FLOW_POLL_ENABLED # off until the GitHub write client exists (docs/notes/p6-t12.md)
+        value: "false"
