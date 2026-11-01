@@ -72,6 +72,8 @@ flowchart LR
     NORM["attribute normalizer<br/>langfuse and phoenix profiles"]:::p5
     EGATE["eval-gate.yml<br/>stored results, no model"]:::p5
     DASH["static dashboard<br/>opens from disk"]:::p5
+    PAGES["dashboard.yml<br/>GitHub Pages deploy"]:::p5
+    ABLH["ablation harness<br/>strong-only vs routed policy"]:::p5
   end
 
   BUGSMITH --> FILTER
@@ -142,6 +144,11 @@ flowchart LR
   EXPORT --> TRACES
   EGATE --> GATE
   RUNNER -. "results files" .-> DASH
+  PAGES --> DASH
+  ABLH --> ROUTER
+  ABLH --> RUNNER
+  ROUTER -- "stage per call" --> FIX
+  ROUTER -- "stage per call" --> REPRO
 
   classDef p0 fill:#dbeafe,stroke:#1d4ed8,stroke-width:1.5px,color:#111827
   style S0 fill:none,stroke:#1d4ed8,stroke-width:1.5px
@@ -156,7 +163,7 @@ flowchart LR
   classDef p5 fill:#fce7f3,stroke:#be185d,stroke-width:4px,color:#111827
   style S5 fill:none,stroke:#be185d,stroke-width:4px
   classDef ext fill:#ffffff,stroke:#6b7280,color:#111827,stroke-dasharray: 4 3
-  linkStyle 46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67 stroke-width:3px
+  linkStyle 46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72 stroke-width:3px
 ```
 
 ## How to read it
@@ -180,6 +187,8 @@ Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink.
 - `argus_core.router` and `routing.yaml`: repro and localize go to the cheap tier, fix to the strong tier, with a fallback to the other host. The loop does not use it yet (T14).
 - The fix prompt has a byte-stable prefix, and the ledger keeps cached and fresh tokens apart.
 - Spans go through an attribute normalizer (profiles for Langfuse and Phoenix; unknown names pass through and are counted), then an OTLP exporter chosen from environment variables with a bounded queue. The swap to a second backend was shown with a local Phoenix and two local receivers. The Langfuse export is built but no trace has been seen there.
+- The fix loop and the repro agent can take a router and record the tier, host and model on each step. The ablation harness holds the two policies (all strong, or routed) and the table script. No real run has been made.
+- `dashboard.yml` builds the page and deploys it to GitHub Pages (never run on GitHub yet). The normalizer has a strict switch that raises on a renamed attribute, and a dead trace backend costs one bounded timeout.
 - `eval-gate.yml` runs the gate on a stored results pair, and `packages/dashboard` builds a static page from the results files. ADR-015 and ADR-017 record the choices.
 - `eval multimodal`: the SWE-bench Multimodal `dev` subset, with the dropped rows and reasons listed.
 - Per-task detail: `docs/architecture/p5.md`.
