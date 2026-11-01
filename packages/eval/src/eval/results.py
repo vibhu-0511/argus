@@ -93,7 +93,7 @@ class Results(_Model):
     dollar_equivalent: float | None = Field(
         default=None,
         alias="$_equivalent",
-        description="List-price dollar equivalent of the tokens (P5-T11). null until the price table is used.",
+        description="List-price dollar equivalent of the scored tokens (argus_core.prices). null when there are no tokens.",
     )
     tasks: list[TaskRow]
 

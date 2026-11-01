@@ -7,8 +7,11 @@ import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
+from argus_core.prices import UnknownModelPrice, dollar_equivalent
 from argus_core.types import Check, CheckType, Task, TaskMeta, Ticket
 
 from eval.__main__ import main
@@ -20,7 +23,7 @@ ROOT = Path(__file__).resolve().parents[3]
 SCHEMA = Path(__file__).resolve().parents[1] / "schemas" / "results.schema.json"
 WORKED = ROOT / "packages" / "fix-loop" / "runs" / "p4b-full-summary-h10" / "trajectory.jsonl"
 NOW = datetime(2026, 11, 1, 12, 0, 0, tzinfo=UTC)
-CONFIG = AgentConfig(name="stub", model="stub-model", host="local", factory="eval.stub:make")
+CONFIG = AgentConfig(name="stub", model="openai/gpt-oss-20b", host="local", factory="eval.stub:make")
 
 
 def _task(i: int, tier: str = "easy") -> Task:
@@ -72,7 +75,7 @@ def test_stub_run_aggregates():
     assert [t.tier for t in r.tasks] == ["easy"] * 5 + ["hard"] * 5
     assert r.created_at == "2026-11-01T12:00:00Z"
     assert r.trajectory_metrics is None
-    assert r.dollar_equivalent is None
+    assert r.dollar_equivalent == round(dollar_equivalent("openai/gpt-oss-20b", 1000, 100, 400), 6)
 
 
 def test_excluded_stays_out_and_error_counts_against():
@@ -158,3 +161,15 @@ def test_committed_example_is_valid_results():
     example = SCHEMA.with_name("results.example.json")
     r = Results.model_validate_json(example.read_text(encoding="utf-8"))
     assert r.dollar_equivalent is None and r.counts.excluded == 1
+
+
+def test_unknown_model_with_tokens_is_an_error_not_zero():
+    config = CONFIG.model_copy(update={"model": "no-such-model"})
+    with pytest.raises(UnknownModelPrice):
+        run_eval([_task(0)], lambda t: Outcome("resolved", tokens_in=10, tokens_out=1), config, now=NOW)
+
+
+def test_unknown_model_without_tokens_gives_null():
+    config = CONFIG.model_copy(update={"model": "no-such-model"})
+    r = run_eval([_task(0)], lambda t: Outcome("resolved"), config, now=NOW)
+    assert r.dollar_equivalent is None
