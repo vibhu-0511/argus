@@ -16,6 +16,7 @@ from typing import Literal
 from argus_core.client import Completion
 from argus_core.ledger import Ledger
 from argus_core.ledger import Usage as LedgerUsage
+from argus_core.telemetry import chat_span, record_completion, record_tool_error, tool_span, traced_agent
 from argus_core.types import StopReason, Ticket, Trajectory, TrajectoryMeta, TrajectoryStep
 
 from repro_agent.browser import ToolUnavailable
@@ -41,6 +42,7 @@ class LoopResult:
     trajectory_path: Path
 
 
+@traced_agent("repro-agent")
 def run_repro(
     *,
     ticket: Ticket,
@@ -74,7 +76,7 @@ def run_repro(
     reason = StopReason.retry_cap
     for index in range(cap):
         try:
-            completion = _ask(ledger, model, complete, messages)
+            completion = _ask(ledger, model, complete, messages, index)
         except Exception as exc:
             from argus_core.ledger import QuotaExceeded
 
@@ -96,7 +98,10 @@ def run_repro(
             messages.append({"role": "user", "content": problem})
             continue
         try:
-            trees = _within(tool_timeout, run_trees, script)
+            with tool_span("run_trees", run_id=run_id, step=index) as tool:
+                trees = _within(tool_timeout, run_trees, script)
+                if not (trees.failed_on_buggy and trees.passed_on_golden):
+                    record_tool_error(tool, "not-a-repro", failed=False)
         except (ToolUnavailable, TimeoutError):
             steps.append(_step(index, usage, raw=text, tool_error="tool-unavailable", stop_reason=StopReason.tool_unavailable))
             reason = StopReason.tool_unavailable
@@ -121,11 +126,15 @@ def run_repro(
     return LoopResult(reason, saved, path)
 
 
-def _ask(ledger: Ledger, model: str, complete: Callable[[list[dict]], Completion], messages: list[dict]) -> Completion:
+def _ask(
+    ledger: Ledger, model: str, complete: Callable[[list[dict]], Completion], messages: list[dict], step: int | None = None
+) -> Completion:
     holder: list[Completion] = []
 
     def send() -> LedgerUsage:
-        holder.append(complete(messages))
+        with chat_span(model, step=step) as span:
+            holder.append(complete(messages))
+            record_completion(span, model, holder[-1])
         usage = holder[-1].usage
         return LedgerUsage(usage.tokens_in, usage.tokens_out, usage.tokens_cached)
 
