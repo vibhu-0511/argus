@@ -1,0 +1,26 @@
+{
+  "task_id": "seed-e05",
+  "variant": "B",
+  "stop_reason": "submit",
+  "repro_stop_reason": "retry-cap",
+  "repro_found": false,
+  "score_exit": 1,
+  "verdict": "unresolved",
+  "model_turns": 10,
+  "turns_by_stage": {
+    "repro": 3,
+    "fix": 7
+  },
+  "turns_by_tier": {
+    "cheap": 3,
+    "strong": 7
+  },
+  "models": [
+    "claude-haiku-5-5",
+    "claude-sonnet-5-5"
+  ],
+  "token_source": "chars/4 estimate",
+  "started_at": 1793537866.8910577,
+  "finished_at": 1793538979.0594015,
+  "wall_s": 1112.2
+}

@@ -1,0 +1,24 @@
+{
+  "task_id": "seed-h06",
+  "variant": "A",
+  "stop_reason": "consecutive-timeout",
+  "repro_stop_reason": "retry-cap",
+  "repro_found": false,
+  "score_exit": 2,
+  "verdict": "excluded",
+  "model_turns": 9,
+  "turns_by_stage": {
+    "repro": 2,
+    "fix": 7
+  },
+  "turns_by_tier": {
+    "strong": 9
+  },
+  "models": [
+    "claude-sonnet-5-5"
+  ],
+  "token_source": "chars/4 estimate",
+  "started_at": 1793549278.6923537,
+  "finished_at": 1793550967.019804,
+  "wall_s": 1688.3
+}
