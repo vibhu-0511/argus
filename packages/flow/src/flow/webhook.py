@@ -11,17 +11,22 @@ event type and delivery id from the headers, derives the ticket id from the
 payload, schedules `enqueue_reconcile(ticket_id)` to run after the response is
 sent, and returns 202. It makes no GitHub call and waits for nothing, so it
 answers well inside GitHub's 10 s timeout. See `flow.enqueue` for the workflow
-id contract. Architecture: docs/architecture/p6.md.
+id contract. A review comment from an allowed reviewer that carries `/argus approve` or `/argus reject`
+(P6-T10, `flow.review_comment`) is the one event that is more than a hint: it is parsed from the
+payload alone, handed to `qa_send` after the response and not enqueued. Architecture: docs/architecture/p6.md.
 """
 import hashlib
 import hmac
 import json
 import logging
 import os
+from collections.abc import Callable
 
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Request
 
 from flow.enqueue import Enqueuer, HintDedup
+from flow.review_comment import EVENTS as REVIEW_EVENTS
+from flow.review_comment import ReviewSignal, parse_review_event
 
 SECRET_ENV = "GITHUB_WEBHOOK_SECRET"
 SIGNATURE_HEADER = "X-Hub-Signature-256"
@@ -59,7 +64,9 @@ def ticket_id_of(payload: dict) -> str | None:
     return f"{repo}#{number}" if repo and number else None
 
 
-def create_app(enqueuer: Enqueuer, dedup: HintDedup | None = None) -> FastAPI:
+def create_app(
+    enqueuer: Enqueuer, dedup: HintDedup | None = None, qa_send: Callable[[ReviewSignal], None] | None = None
+) -> FastAPI:
     app = FastAPI(title="argus-flow webhook")
     dedup = dedup if dedup is not None else HintDedup()
 
@@ -71,6 +78,12 @@ def create_app(enqueuer: Enqueuer, dedup: HintDedup | None = None) -> FastAPI:
                 dedup.forget(delivery_id)  # let GitHub's redelivery through
             log.exception("enqueue failed for %s", ticket_id)
 
+    def send_qa(signal: ReviewSignal) -> None:
+        try:
+            qa_send(signal)
+        except Exception:  # e.g. no workflow for the ticket yet; the signal key makes a second try safe
+            log.exception("QA signal for %s was not delivered", signal.ticket_id)
+
     @app.post("/webhook", status_code=202)
     async def webhook(request: Request, background: BackgroundTasks) -> dict[str, str]:
         body = await verified_body(request)
@@ -80,6 +93,10 @@ def create_app(enqueuer: Enqueuer, dedup: HintDedup | None = None) -> FastAPI:
             payload = json.loads(body)
         except ValueError:
             raise HTTPException(status_code=400, detail="body is not JSON")
+        signal = parse_review_event(event, payload) if qa_send and event in REVIEW_EVENTS else None
+        if signal is not None:
+            background.add_task(send_qa, signal)
+            return {"status": "qa-signal", "event": event, "ticket": signal.ticket_id, "decision": signal.decision}
         ticket_id = ticket_id_of(payload) if isinstance(payload, dict) else None
         if ticket_id is None:
             return {"status": "ignored", "event": event}

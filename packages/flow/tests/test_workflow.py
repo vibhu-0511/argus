@@ -256,3 +256,41 @@ def test_a_bad_signal_is_refused_before_it_is_sent(enqueuer, world, ticket):
     assert mailbox_rows(ticket) == 0
     send_qa_signal(ticket, "approve", "mrtr", "1")  # let the workflow end
     wait_until(lambda: world.github.labels.get(ticket) == "done")
+
+
+# --- P6-T10: the same signal from a GitHub review comment, through the webhook -----------------
+
+
+def test_a_review_comment_resumes_the_waiting_workflow_without_mcp(enqueuer, world, ticket, monkeypatch):
+    import hashlib
+    import hmac
+    import json
+
+    from fastapi.testclient import TestClient
+
+    from flow.review_comment import REVIEWERS_ENV, send_review_signal
+    from flow.webhook import EVENT_HEADER, SECRET_ENV, SIGNATURE_HEADER, create_app
+
+    monkeypatch.setenv(SECRET_ENV, "test-secret-not-real")
+    monkeypatch.setenv(REVIEWERS_ENV, "alice")
+    client = TestClient(create_app(enqueuer, qa_send=send_review_signal))
+    handle = enqueuer.enqueue(ticket)
+    wait_until(lambda: world.github.labels.get(ticket) == "awaiting-qa")
+    payload = {
+        "action": "submitted",
+        "review": {"id": 77, "body": "ship it\n/argus approve", "user": {"login": "Alice"}},
+        "pull_request": {"number": 3, "title": f"Argus fix for {ticket}", "head": {"ref": branch_name(ticket)}},
+        "repository": {"full_name": "acme/x"},
+    }
+    body = json.dumps(payload).encode()
+    sig = "sha256=" + hmac.new(b"test-secret-not-real", body, hashlib.sha256).hexdigest()
+    for _ in range(2):  # GitHub delivers it twice
+        r = client.post("/webhook", content=body, headers={SIGNATURE_HEADER: sig, EVENT_HEADER: "pull_request_review"})
+        assert r.json()["status"] == "qa-signal"
+    out = handle.get_result()
+    assert out["state"] == "done" and out["reason"] == "approve via review-comment by alice"
+    assert mailbox_rows(ticket) == 1 and not world.github.prs[branch_name(ticket)].draft
+    key = qa_signal_key(ticket, "review-comment", "review-77")
+    with psycopg.connect(os.environ[DATABASE_URL_ENV]) as conn:
+        row = conn.execute("select message_uuid from dbos.notifications where destination_uuid = %s", (ticket,)).fetchone()
+    assert row[0] == f"{key}::{ticket}"
