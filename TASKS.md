@@ -99,94 +99,94 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 - [x] P2-T17 Break it: edit a file after the repo-map is built [ME] 2h
 - [x] P2-T18 Break it: connect with a client that speaks an older MCP spec [ME] 2h
 - [x] P2-T19 Write package READMEs and phase report against P1 [CLAUDE] 1h
-- [ ] P3-T00 Re-verify pinned versions via web search [CLAUDE] 1h
-- [ ] P3-T01 Read the mini-swe-agent source and the context-engineering post, write notes [ME] 2h
-- [ ] P3-T02 Define agent tool schemas: read_file, list_dir, search, edit, run_cmd, submit [ME] 4h
-- [ ] P3-T03 Add ast-grep as a structural search and rewrite tool [PAIR] 3h
+- [x] P3-T00 Re-verify pinned versions via web search [CLAUDE] 1h
+- [x] P3-T01 Read the mini-swe-agent source and the context-engineering post, write notes [ME] 2h
+- [x] P3-T02 Define agent tool schemas: read_file, list_dir, search, edit, run_cmd, submit [ME] 4h
+- [x] P3-T03 Add ast-grep as a structural search and rewrite tool [PAIR] 3h
 
 ## Week 9 — P3 (19 h scheduled)
 
-- [ ] P3-T04 Build worktree manager: create and destroy a git worktree per task [CLAUDE] 2h
-- [ ] P3-T05 Build Docker sandbox runner: `--network none`, CPU and memory caps, worktree mount, checks read-only [CLAUDE] 3h
-- [ ] P3-T06 Build core agent loop: message history, model call, stop conditions [ME] 4h
-- [ ] P3-T07 Build tool dispatch with argument validation and error handling [ME] 3h
-- [ ] P3-T08 Build trajectory recorder (every step as a Trajectory record) [PAIR] 3h
-- [ ] P3-T09 Build context budget manager: token counting and a strategy interface [ME] 4h
+- [x] P3-T04 Build worktree manager: create and destroy a git worktree per task [CLAUDE] 2h
+- [x] P3-T05 Build Docker sandbox runner: `--network none`, CPU and memory caps, worktree mount, checks read-only [CLAUDE] 3h
+- [x] P3-T06 Build core agent loop: message history, model call, stop conditions [ME] 4h
+- [x] P3-T07 Build tool dispatch with argument validation and error handling [ME] 3h
+- [x] P3-T08 Build trajectory recorder (every step as a Trajectory record) [PAIR] 3h
+- [x] P3-T09 Build context budget manager: token counting and a strategy interface [ME] 4h
 
 ## Week 10 — P3 (19 h scheduled)
 
-- [ ] P3-T10 Implement context strategy: output caps [ME] 3h
-- [ ] P3-T11 Implement context strategy: offload-to-files with a pointer [ME] 3h
-- [ ] P3-T12 Implement context strategy: rolling summary [ME] 3h
-- [ ] P3-T13 Write AGENTS.md for the dcortex worktree and load it into the system prompt [PAIR] 2h
-- [ ] P3-T14 Build gates: build, typecheck, lint, unit tests and bench checks run before submit [PAIR] 3h
-- [ ] P3-T15 Feed gate results back into the loop as structured messages [ME] 3h
-- [ ] P3-T16 Wire the repro script and locate() hint into the task prompt [PAIR] 2h
+- [x] P3-T10 Implement context strategy: output caps [ME] 3h
+- [x] P3-T11 Implement context strategy: offload-to-files with a pointer [ME] 3h
+- [x] P3-T12 Implement context strategy: rolling summary [ME] 3h
+- [x] P3-T13 Write AGENTS.md for the dcortex worktree and load it into the system prompt [PAIR] 2h
+- [x] P3-T14 Build gates: build, typecheck, lint, unit tests and bench checks run before submit [PAIR] 3h
+- [x] P3-T15 Feed gate results back into the loop as structured messages [ME] 3h
+- [x] P3-T16 Wire the repro script and locate() hint into the task prompt [PAIR] 2h
 
 ## Week 11 — P3 (20 h scheduled)
 
-- [ ] P3-T17 Set up mini-swe-agent against the OpenAI-compatible endpoint [PAIR] 4h
-- [ ] P3-T18 Run fix-loop baseline (no compaction) on a 30-task stratified subset [ME] 3h
-- [ ] P3-T19 Run context ablation: all four strategies on the same 30 tasks [ME] 4h
-- [ ] P3-T20 Run mini-swe-agent on the same 30 tasks [ME] 3h
-- [ ] P3-T21 Label failed runs with a failure taxonomy [ME] 3h
-- [ ] P3-T22 Write ADR-008: Loop control, stop conditions and tool-call format [ME] 1h
-- [ ] P3-T23 Write ADR-009: Context management policy [ME] 1h
-- [ ] P3-T24 Write ADR-010: Sandbox baseline (worktree plus Docker, no network) [ME] 1h
+- [x] P3-T17 Set up mini-swe-agent against the OpenAI-compatible endpoint [PAIR] 4h
+- [x] P3-T18 Run fix-loop baseline (no compaction) on a 30-task stratified subset [ME] 3h
+- [x] P3-T19 Run context ablation: all four strategies on the same 30 tasks [ME] 4h
+- [x] P3-T20 Run mini-swe-agent on the same 30 tasks [ME] 3h
+- [x] P3-T21 Label failed runs with a failure taxonomy [ME] 3h
+- [x] P3-T22 Write ADR-008: Loop control, stop conditions and tool-call format [ME] 1h
+- [x] P3-T23 Write ADR-009: Context management policy [ME] 1h
+- [x] P3-T24 Write ADR-010: Sandbox baseline (worktree plus Docker, no network) [ME] 1h
 
 ## Week 12 — P3, P4 (21 h scheduled)
 
-- [ ] P3-T25 Write ADR-011: Framework adoption rule after the baseline [ME] 1h
-- [ ] P3-T26 Add CI job: unit tests and dependency check on recorded trajectories, no LLM [CLAUDE] 2h
-- [ ] P3-T27 Build deterministic replay of a recorded trajectory with no LLM call [PAIR] 2h
-- [ ] P3-T28 Break it: make the model repeat the same tool call [ME] 2h
-- [ ] P3-T29 Break it: return a 5 MB tool output [ME] 2h
-- [ ] P3-T30 Break it: make the model send malformed tool arguments [ME] 2h
-- [ ] P3-T31 Break it: let the model try to edit the bench checks [ME] 2h
-- [ ] P3-T32 Break it: make the model run a destructive shell command [ME] 2h
-- [ ] P3-T33 Write package README and phase report against P2 and P0 [CLAUDE] 1h
-- [ ] P4-T00 Re-verify pinned versions via web search [CLAUDE] 1h
-- [ ] P4-T01 Read Panickssery, Krippendorff and Snell, write notes [ME] 2h
-- [ ] P4-T02 Build pixel-diff check against the golden screenshot with region masks [PAIR] 2h
+- [x] P3-T25 Write ADR-011: Framework adoption rule after the baseline [ME] 1h
+- [x] P3-T26 Add CI job: unit tests and dependency check on recorded trajectories, no LLM [CLAUDE] 2h
+- [x] P3-T27 Build deterministic replay of a recorded trajectory with no LLM call [PAIR] 2h
+- [x] P3-T28 Break it: make the model repeat the same tool call [ME] 2h
+- [x] P3-T29 Break it: return a 5 MB tool output [ME] 2h
+- [x] P3-T30 Break it: make the model send malformed tool arguments [ME] 2h
+- [x] P3-T31 Break it: let the model try to edit the bench checks [ME] 2h
+- [x] P3-T32 Break it: make the model run a destructive shell command [ME] 2h
+- [x] P3-T33 Write package README and phase report against P2 and P0 [CLAUDE] 1h
+- [x] P4-T00 Re-verify pinned versions via web search [CLAUDE] 1h
+- [x] P4-T01 Read Panickssery, Krippendorff and Snell, write notes [ME] 2h
+- [x] P4-T02 Build pixel-diff check against the golden screenshot with region masks [PAIR] 2h
 
 ## Week 13 — P4 (20 h scheduled)
 
-- [ ] P4-T03 Build overflow check (scroll width, off-viewport elements) [PAIR] 2h
-- [ ] P4-T04 Build axe-core check reporting only new violations versus the clean baseline [CLAUDE] 2h
-- [ ] P4-T05 Build console check reporting new errors and warnings [CLAUDE] 2h
-- [ ] P4-T06 Build the verifier pipeline: fixed order, short-circuit, structured verdict [ME] 4h
-- [ ] P4-T07 Write ADR-012: Gate ordering and short-circuit policy [ME] 1h
-- [ ] P4-T08 Write the judge rubric: does the fix match the ticket's intent without collateral change [ME] 4h
-- [ ] P4-T09 Generate candidate pairs for the calibration set from bench runs [PAIR] 2h
-- [ ] P4-T10 Label all 100 calibration pairs by hand [ME] 3h
+- [x] P4-T03 Build overflow check (scroll width, off-viewport elements) [PAIR] 2h
+- [x] P4-T04 Build axe-core check reporting only new violations versus the clean baseline [CLAUDE] 2h
+- [x] P4-T05 Build console check reporting new errors and warnings [CLAUDE] 2h
+- [x] P4-T06 Build the verifier pipeline: fixed order, short-circuit, structured verdict [ME] 4h
+- [x] P4-T07 Write ADR-012: Gate ordering and short-circuit policy [ME] 1h
+- [x] P4-T08 Write the judge rubric: does the fix match the ticket's intent without collateral change [ME] 4h
+- [x] P4-T09 Generate candidate pairs for the calibration set from bench runs [PAIR] 2h
+- [x] P4-T10 Label all 100 calibration pairs by hand [ME] 3h
 
 ## Week 14 — P4 (21 h scheduled)
 
-- [ ] P4-T11 Build the local Gemma judge runner with vision input (Ollama, CPU) [ME] 4h
-- [ ] P4-T12 Implement Krippendorff's alpha with a bootstrap interval and test it against a published worked example [ME] 3h
-- [ ] P4-T13 Run the local judge over the 100 pairs (overnight, CPU) [ME] 3h
-- [ ] P4-T14 Iterate the rubric and prompt until alpha reaches 0.80 or the budget is spent [ME] 4h
-- [ ] P4-T15 Check for a free hosted Gemma for runtime judging and decide the runtime path [ME] 2h
-- [ ] P4-T16 Build the same-family judge runner (Mistral vision model) [ME] 2h
-- [ ] P4-T17 Run ablation: same-family vs cross-family judge on the calibration set [ME] 3h
+- [x] P4-T11 Build the local Gemma judge runner with vision input (Ollama, CPU) [ME] 4h
+- [x] P4-T12 Implement Krippendorff's alpha with a bootstrap interval and test it against a published worked example [ME] 3h
+- [x] P4-T13 Run the local judge over the 100 pairs (overnight, CPU) [ME] 3h
+- [x] P4-T14 Iterate the rubric and prompt until alpha reaches 0.80 or the budget is spent [ME] 4h
+- [x] P4-T15 Check for a free hosted Gemma for runtime judging and decide the runtime path [ME] 2h
+- [x] P4-T16 Build the same-family judge runner (Mistral vision model) [ME] 2h
+- [x] P4-T17 Run ablation: same-family vs cross-family judge on the calibration set [ME] 3h
 
 ## Week 15 — P4 (19 h scheduled)
 
-- [ ] P4-T18 Write ADR-013: Judge selection [ME] 1h
-- [ ] P4-T19 Build best-of-k sampler: k candidate patches, verifier and judge pick one [ME] 3h
-- [ ] P4-T20 Run best-of-k with k = 1, 3, 5 on the 30-task subset [ME] 4h
-- [ ] P4-T21 Write ADR-014: Best-of-k policy and cost cap [ME] 2h
-- [ ] P4-T22 Wire the verifier into fix-loop as the final gate with a retry on rejection [ME] 3h
-- [ ] P4-T23 Add CI job for verify tests on recorded fixtures, no LLM calls [CLAUDE] 2h
-- [ ] P4-T24 Break it: swap the order of before and after images, and pad the explanation [ME] 2h
-- [ ] P4-T25 Break it: submit a fix that passes the target check but breaks another route [ME] 2h
+- [x] P4-T18 Write ADR-013: Judge selection [ME] 1h
+- [x] P4-T19 Build best-of-k sampler: k candidate patches, verifier and judge pick one [ME] 3h
+- [x] P4-T20 Run best-of-k with k = 1, 3, 5 on the 30-task subset [ME] 4h
+- [x] P4-T21 Write ADR-014: Best-of-k policy and cost cap [ME] 2h
+- [x] P4-T22 Wire the verifier into fix-loop as the final gate with a retry on rejection [ME] 3h
+- [x] P4-T23 Add CI job for verify tests on recorded fixtures, no LLM calls [CLAUDE] 2h
+- [x] P4-T24 Break it: swap the order of before and after images, and pad the explanation [ME] 2h
+- [x] P4-T25 Break it: submit a fix that passes the target check but breaks another route [ME] 2h
 
 ## Week 16 — P4, P5 (20 h scheduled)
 
-- [ ] P4-T26 Break it: introduce a screenshot that differs only by font loading [ME] 2h
-- [ ] P4-T27 Break it: put a prompt injection in the ticket text [ME] 2h
-- [ ] P4-T28 Break it: stop the judge backend mid-run [ME] 2h
-- [ ] P4-T29 Write package README and phase report against P3 [CLAUDE] 1h
+- [x] P4-T26 Break it: introduce a screenshot that differs only by font loading [ME] 2h
+- [x] P4-T27 Break it: put a prompt injection in the ticket text [ME] 2h
+- [x] P4-T28 Break it: stop the judge backend mid-run [ME] 2h
+- [x] P4-T29 Write package README and phase report against P3 [CLAUDE] 1h
 - [ ] P5-T00 Re-verify pinned versions via web search [CLAUDE] 1h
 - [ ] P5-T01 Read the OTel GenAI conventions and the reliable-agents paper, write notes [ME] 1h
 - [ ] P5-T02 Define trajectory metrics with exact formulas [ME] 3h
