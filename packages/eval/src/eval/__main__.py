@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
+from eval.gate import gate_main
 from eval.metrics import format_summary, load_dir, summarize
 from eval.results import schema_json
 from eval.runner import AgentConfig, load_agent, load_tasks, run_eval
@@ -27,7 +28,14 @@ def main(argv: list[str] | None = None) -> int:
 
     sub.add_parser("schema", help="print the results JSON Schema")
 
+    gate = sub.add_parser("gate", help="compare a results file with a baseline; exit 1 on a regression")
+    gate.add_argument("results", type=Path)
+    gate.add_argument("--baseline", type=Path, required=True)
+    gate.add_argument("--config", type=Path, help="default: packages/eval/gate.toml")
+
     args = parser.parse_args(argv)
+    if args.command == "gate":
+        return gate_main(args.results, args.baseline, args.config)
     if args.command == "schema":
         print(schema_json(), end="")
     elif args.command == "run":
