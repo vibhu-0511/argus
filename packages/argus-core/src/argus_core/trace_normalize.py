@@ -6,11 +6,14 @@ A profile is a table: argus attribute -> (backend attribute, optional value chan
 
 `KNOWN` is every name argus emits. A name outside it passes through unchanged and is counted in `unmapped`, so a
 semconv rename (the spec is still `Development`) shows up as a number, not as a silent hole in the backend.
+Strict mode (`strict=True` or `ARGUS_TRACE_STRICT=1`, for tests and CI, off by default) raises `UnmappedAttribute` instead of
+passing the name through. Run inside a span processor the SDK catches and logs that error, so the run is not broken.
 """
 
 from __future__ import annotations
 
 import logging
+import os
 from collections import Counter
 from collections.abc import Callable, Sequence
 from typing import Any
@@ -79,12 +82,17 @@ PROFILES: dict[str, dict[str, Rule]] = {
 }
 
 
+class UnmappedAttribute(ValueError):
+    """Strict mode met an attribute name argus does not know. The message holds the name, never the value."""
+
+
 class NormalizingExporter(SpanExporter):
     """Wraps another exporter; every span gets the profile's names before it is exported."""
 
-    def __init__(self, inner: SpanExporter, profile: str = "none") -> None:
+    def __init__(self, inner: SpanExporter, profile: str = "none", strict: bool = False) -> None:
         self.inner = inner
         self.rules = PROFILES[profile]
+        self.strict = strict or os.environ.get("ARGUS_TRACE_STRICT") == "1"
         self.unmapped: Counter[str] = Counter()
 
     def normalize(self, attributes: dict[str, Any]) -> dict[str, Any]:
@@ -97,6 +105,8 @@ class NormalizingExporter(SpanExporter):
                 if name not in self.unmapped:
                     log.warning("trace attribute %r is not one argus knows; sent unchanged", name)  # name only, never the value
                 self.unmapped[name] += 1
+                if self.strict:
+                    raise UnmappedAttribute(f"trace attribute {name!r} is not one argus knows; add it to KNOWN and the profiles")
             out[name] = value
         return out
 

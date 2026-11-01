@@ -27,3 +27,24 @@ The first call is cold in both rows. In the stable row the system message is cac
 **Fix.** Keep dynamic content after the stable prefix: the time, ticket and run id go in the first user turn, as `user_message` and `run_fix(user=...)` already do. `test_cache_prefix.py` stays as the guard.
 
 Run: `uv run pytest packages/fix-loop/tests/test_cache_busting_prefix.py packages/fix-loop/tests/test_cache_prefix.py -q`
+
+## P5-T24 attribute rename
+
+Tests: the last four in `packages/argus-core/tests/test_trace_normalize.py` (`RENAMED`). The shipped code change is a strict switch in `trace_normalize.py`, off by default. The new name `gen_ai.usage.input_token_count` is made up; the GenAI spec has not renamed `gen_ai.usage.input_tokens`.
+
+**Induced failure.** A fixture span carries `gen_ai.usage.input_token_count` where argus writes `gen_ai.usage.input_tokens`, as a semconv revision might. Argus code is unchanged, so this is what a backend would receive after such a revision.
+
+**Expected signal.** The normalizer's mapping test fails on the unknown name, and `unmapped` is non-zero.
+
+**Observed.**
+
+- Before this task nothing could fail. An unknown name passed through unchanged, the counter went to 1 and one warning was logged (name only, never the value). The Phoenix profile did not rename it, so `llm.token_count.prompt` was missing and no test noticed.
+- Now `NormalizingExporter(..., strict=True)` (or `ARGUS_TRACE_STRICT=1`) raises `UnmappedAttribute: trace attribute 'gen_ai.usage.input_token_count' is not one argus knows; add it to KNOWN and the profiles`. This holds for all three profiles (`none`, `langfuse`, `phoenix`). The counter is already `{name: 1}` when it raises. `test_mapped_attribute` now runs strict, so a rename in the argus side of the tables fails the suite too.
+- Default (strict off) is unchanged: the span goes out with the new name, counter 1, warning logged. A production run is never stopped by a rename.
+- Inside a real span processor the SDK catches the error and logs `Exception while exporting Span`; that span is not exported and the code that made it carries on. So strict mode is loud in a direct `normalize` call and in the log, not as a crash of the run. Use it in tests and CI only.
+
+**Fix.** Add the new name to `KNOWN` and to each profile that maps the old one (Phoenix: `llm.token_count.prompt`), and keep `gen_ai.usage.input_tokens` as an alias so older spans still map. `test_adding_the_new_name_with_the_old_one_kept_as_alias_fixes_it` does this with `monkeypatch` and shows: new name mapped, old name mapped, `unmapped` empty, strict mode quiet. In the real fix a row for the new name also goes into `EXPECTED`, which `test_every_rule_has_a_test_row` requires. Langfuse maps neither name (it reads the GenAI names itself), so for that profile only `KNOWN` changes.
+
+**Not shown.** No real backend was sent the renamed span.
+
+Run: `uv run pytest packages/argus-core/tests/test_trace_normalize.py -q`
