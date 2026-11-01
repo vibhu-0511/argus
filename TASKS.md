@@ -252,8 +252,8 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 
 ## Week 22 — P6 (20 h scheduled)
 
-- [ ] P6-T00 Re-verify pinned versions via web search [CLAUDE] 1h
-- [ ] P6-T01 Read the DBOS docs and the MRTR and Tasks sections of the MCP post, write notes [ME] 1h
+- [x] P6-T00 Re-verify pinned versions via web search [CLAUDE] 1h
+- [x] P6-T01 Read the DBOS docs and the MRTR and Tasks sections of the MCP post, write notes [ME] 1h
 - [ ] P6-T02 Design the workflow state machine: states, transitions, idempotency keys [ME] 3h
 - [ ] P6-T03 Implement the workflow with DBOS durable steps against a local Postgres [ME] 4h
 - [ ] P6-T04 Dispatch agent jobs to GitHub Actions as the execution plane and collect artifacts [PAIR] 3h

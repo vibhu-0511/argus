@@ -45,7 +45,7 @@ The limits above are what was found on the web. Mistral no longer publishes its 
 | Dashboard | GitHub Pages, as a static site |
 | Sandboxes | Docker `--network none` locally and on Actions, then gVisor, then Firecracker on the Actions KVM runner. Each tier is measured in P7 and written up in ADR-025 |
 
-### Versions checked on 2026-11-01 (tracing rows) and 2026-10-30 (the rest)
+### Versions checked on 2026-11-01 (tracing rows, and the DBOS, MCP, Render, Neon and GitHub rows) and 2026-10-30 (the rest)
 | Component | Version |
 |---|---|
 | React | 19.3.1 |
@@ -55,7 +55,7 @@ The limits above are what was found on the web. Mistral no longer publishes its 
 | `@playwright/mcp` | 0.0.83 |
 | MCP spec | **2026-07-28**: stateless core, MRTR `input_required` / `inputResponses`, Tasks moved to the `io.modelcontextprotocol/tasks` extension |
 | MCP Python SDK | 2.3.0 |
-| DBOS Python | 3.x |
+| DBOS Python | 3.x (PyPI `dbos` 3.4.0, checked 2026-11-01) |
 | OTel GenAI semconv | `model/manifest.yaml` stability: development. Manifest `schema_url`: `https://opentelemetry.io/schemas/gen-ai-dev/1.42.0-dev`. README schema URL: TODO. Core semconv dependency: v1.44.0. Core semconv v1.42.0 (2026-06-12) moved `gen_ai.*` to this repo. README: "This repository extends the OpenTelemetry Semantic Conventions with GenAI-specific conventions." |
 | `opentelemetry-api`, `opentelemetry-sdk`, `opentelemetry-exporter-otlp-proto-http` | 1.45.2 each (PyPI, uploaded 2026-10-29) |
 | `langfuse` (Python) | 5.1.0 (PyPI, MIT, uploaded 2026-10-30) |
@@ -66,6 +66,8 @@ The limits above are what was found on the web. Mistral no longer publishes its 
 2026-10-30, P2-T00: pins re-checked. React 19.3.1, Vite 8.3.5, Tailwind 4.3.3, Playwright 1.64.1, `@playwright/mcp` 0.0.83, MCP spec 2026-07-28, MCP Python SDK 2.3.0, and DBOS Python 3.x (PyPI `dbos` latest stable 3.4.0) are unchanged. Vite's npm description is still "Native-ESM powered web dev build tool", and the v8.3.5 README still says the production build bundles with Rolldown. Playwright 1.64.1 still depends only on `playwright-core`. The v1.64.1 `playwright-core` README still does not mention MCP. `@playwright/mcp` 0.0.83 still depends on `playwright` and `playwright-core` at `1.64.0-alpha-1790635538000`. The Playwright `next` dist-tag is now `1.65.0-alpha-2026-10-30`. That tag stays off the pinned row. The MCP spec's latest stable GitHub release is still tag `2026-07-28`, not a draft and not a prerelease, with `updated_at` `2026-07-28T16:47:49Z`. The MCP Python SDK 2.3.0 page still does not name a spec date. OTel GenAI `stability: development`, manifest `schema_url` `https://opentelemetry.io/schemas/gen-ai-dev/1.42.0-dev`, README schema URL TODO, core semconv dependency v1.44.0, and the manifest's last commit on 2026-08-04 are unchanged.
 
 2026-11-01, P5-T00: tracing rows re-checked; React, Vite, Tailwind, Playwright, MCP and DBOS were not in this task's scope and keep their 2026-10-30 check. OTel GenAI is still `stability: development`, in `open-telemetry/semantic-conventions-genai` (the `opentelemetry.io` GenAI pages now only say "Moved"). Schema URL, dependency v1.44.0 and README `TODO` are unchanged, and the GitHub releases list is empty. Langfuse Cloud Hobby is 50k units/month, 30 days of data access, 2 users; what happens after 50k is not confirmed. Langfuse takes OTLP over HTTP only (no gRPC). Phoenix is ELv2 and runs locally with `phoenix serve` on port 6006. Groq's table for `openai/gpt-oss-20b`, `openai/gpt-oss-120b` and `qwen/qwen3.8-27b` is still 30 RPM, 1K RPD, 8K TPM, 200K TPD under the Developer-plan wording, and whether the Free tab differs is not confirmed. Sources and the full table: `docs/notes/p5-t00-versions.md`.
+
+2026-11-01, P6-T00: DBOS, MCP, Render, Neon and GitHub rows re-checked. DBOS Python stays 3.x (PyPI `dbos` 3.4.0, MIT, uploaded 2026-10-28; Postgres recommended, SQLite allowed; `use_listen_notify` defaults to True and must not change after the system database is created; recovery needs a stable executor id and a pinned application version; Conductor is optional and off without a `conductor_key`). MCP spec is still 2026-07-28 and the Python SDK is still 2.3.0. Render Free web service: spins down after 15 minutes idle, cold start "about one minute" ("30 to 60" is not stated), 750 free instance hours per workspace per month. Neon Free: 100 CU-hours/project, scale to zero after 5 minutes and cannot be disabled; the Compute section of the plans page says "/project/month", the table does not. GitHub webhook: respond with a 2XX within 10 seconds. P6-T00's dependency P5.5-T17 is waived. Sources and the full tables: `docs/notes/p6-t00-versions.md`.
 
 - **React 19 source mapping.** Re-check the React 19.2 removal of `source`/`self` from `jsxDEV` against React 19.3.1. The build-time `data-src` attribute remains the P2 route (ADR-006). Checked 2026-10-29: Babel's jsx-development docs still say those arguments were removed in React 19.2, and the React 19.3 changelog index lists no reversal. Checked again 2026-10-30 for P2-T00: Babel's `sourceSelf` option still says those arguments were removed since React 19.2. The React 19.3 blog's notable-changes list does not mention `jsxDEV` or `_debugSource`.
 - Re-verified by the T00 task at the start of every phase.
@@ -306,7 +308,7 @@ Values stay "measure in P0" until `docs/quotas.md` (P0-T06) is written. Limits a
 | P4 | Local Ollama Gemma (judge), Mistral vision (same-family control), Mistral (best-of-k) | measure in P0 | measure in P0 | k=5 multiplies the fixer's quota use by 5 per bug: the biggest quota consumer |
 | P5 | Groq, Mistral; Langfuse Cloud Hobby for traces | measure in P0 | measure in P0 | Langfuse Hobby: 50k units per month. Routing run is the quota experiment |
 | P5.5 | Groq (draft skills), Mistral (runs) | measure in P0 | measure in P0 | Collecting train trajectories is the main cost |
-| P6 | Models as above; Neon free Postgres; Render free web service; GitHub Actions minutes | measure in P0 | measure in P0 | Neon free compute: 100 CU-hours/project. "per month" is not stated. Render cold start is about one minute. "30 to 60" seconds is not stated |
+| P6 | Models as above; Neon free Postgres; Render free web service; GitHub Actions minutes | measure in P0 | measure in P0 | Neon free compute: 100 CU-hours/project. The plans-page table omits "per month"; its Compute section says "100 CU-hours/project/month" (checked 2026-11-01). Render cold start is about one minute. "30 to 60" seconds is not stated |
 | P7 | Models for the red-team; Actions minutes on the KVM runner | measure in P0 | measure in P0 | promptfoo runs are quota-bound |
 | P8 | All providers, split per tenant; Actions minutes in tenant repos | measure in P0 | measure in P0 | Per-tenant budget is a share of the day's provider quota |
 | P9 | Mistral, Groq; Sentry fixtures offline | measure in P0 | measure in P0 | No live Sentry needed |
@@ -345,7 +347,7 @@ Cut in this order when time or quota runs out:
 | P8 | A public GitHub App, a landing README and a demo video |
 
 **Known free-tier collisions** (each owned by a P6 task and an ADR, measured rather than assumed):
-- **Render vs Neon.** An always-on Render service with DBOS polling would keep Neon awake, which likely exceeds Neon's 100 CU-hours/project. "per month" is not stated.
+- **Render vs Neon.** An always-on Render service with DBOS polling would keep Neon awake, which likely exceeds Neon's 100 CU-hours/project. The plans-page table omits "per month"; its Compute section says "100 CU-hours/project/month" (checked 2026-11-01).
 - **Render cold starts.** They take about one minute. "30 to 60" seconds is not stated. That is longer than GitHub's 10 s webhook timeout.
 - **Planned design:** webhooks are treated as hints, and a reconciliation poller restores state from GitHub, the source of truth.
 
