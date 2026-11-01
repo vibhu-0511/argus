@@ -20,6 +20,11 @@ password, so it is never logged, never put in an error message and never written
   one it replaces.
 
 No conductor key: `dbos_config` never sets one. Notes: docs/notes/p6-t03.md.
+
+TLS (P6-T11): libpq's default `sslmode=prefer` falls back to plain text without a word, so
+`FlowSettings.from_env` refuses a URL for any host but this machine unless it asks for TLS
+(`sslmode=require`, `verify-ca` or `verify-full`). DBOS passes the URL's query string to psycopg
+unchanged. Which Neon endpoint to use and why: docs/notes/p6-t11.md.
 """
 
 from __future__ import annotations
@@ -28,6 +33,7 @@ import os
 from dataclasses import dataclass
 
 from dbos import DBOSConfig
+from psycopg.conninfo import conninfo_to_dict
 
 DATABASE_URL_ENV = "ARGUS_FLOW_DATABASE_URL"
 QA_TIMEOUT_ENV = "ARGUS_FLOW_QA_TIMEOUT_SECONDS"
@@ -38,6 +44,18 @@ USE_LISTEN_NOTIFY = False
 # Short on purpose so a test or a local run ends quickly. A deploy must set ARGUS_FLOW_QA_TIMEOUT_SECONDS
 # to how long a reviewer may take (T12); otherwise every ticket times out after this long.
 DEFAULT_QA_TIMEOUT_SECONDS = 60.0
+TLS_MODES = frozenset({"require", "verify-ca", "verify-full"})
+LOCAL_HOSTS = frozenset({"localhost", "127.0.0.1", "::1", ""})  # "" is a Unix socket
+
+
+def require_tls(url: str) -> None:
+    """Raise unless a connection to `url` is local or insists on TLS. The message never has the URL."""
+    try:
+        parts = conninfo_to_dict(url)
+    except Exception:  # the driver's message can echo the URL
+        raise RuntimeError(f"{DATABASE_URL_ENV} is not a valid Postgres URL") from None
+    if parts.get("host", "") not in LOCAL_HOSTS and parts.get("sslmode") not in TLS_MODES:
+        raise RuntimeError(f"{DATABASE_URL_ENV} must ask for TLS: add sslmode=require (or verify-full) to the URL")
 
 
 @dataclass(frozen=True)
@@ -54,6 +72,7 @@ class FlowSettings:
         url = os.environ.get(DATABASE_URL_ENV, "")
         if not url:
             raise RuntimeError(f"{DATABASE_URL_ENV} is not set")
+        require_tls(url)
         raw = os.environ.get(QA_TIMEOUT_ENV, "")
         try:
             timeout = float(raw) if raw else DEFAULT_QA_TIMEOUT_SECONDS
