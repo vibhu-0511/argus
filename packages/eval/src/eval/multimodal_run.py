@@ -9,7 +9,7 @@ A patch only counts as resolved or unresolved when the SWE-bench harness has gra
 logs/evaluation/<run_id>/<model> folder) or it is empty. Any other produced patch is `excluded` with the reason
 "patch produced, not scored": never resolved, never in the resolve-rate denominator.
 
-Layout under --root: <id>/checkout/, <id>/images/, <id>/prompt.txt, <id>/model.diff, <id>/setup_error.txt (a task that could not be set up), <id>/excluded.txt (a task found invalid; its text is the reason).
+Layout under --root: <id>/checkout/, <id>/images/, <id>/prompt.txt, <id>/model.diff, <id>/setup_error.txt (a task that could not be set up), <id>/excluded.txt (a task found invalid; its text is the reason), <id>/not_graded.txt (why a produced patch has no harness report).
 """
 
 from __future__ import annotations
@@ -127,7 +127,8 @@ def task_row(task: MultimodalTask, root: Path, reports: Path | None = None) -> T
     elif not (work / "model.diff").read_text(encoding="utf-8").strip():
         verdict, reason = "unresolved", "empty patch (the agent changed nothing; not run through the harness)"
     elif (graded := _graded(reports, task.id)) is None:
-        reason = f"{NOT_SCORED}: no harness report for it yet"
+        why = (work / "not_graded.txt").read_text(encoding="utf-8").strip() if (work / "not_graded.txt").exists() else "no harness report for it yet"
+        reason = f"{NOT_SCORED}: {why}"  # not_graded.txt: written by hand when grading failed for infrastructure reasons
     else:
         verdict = "resolved" if graded else "unresolved"
     return TaskRow(

@@ -131,3 +131,14 @@ def test_empty_patch_is_unresolved(tmp_path, origin):
     run.finish(task, root)  # the agent changed nothing
     row = run.task_row(task, root)
     assert row.verdict == "unresolved" and "empty patch" in row.reason
+
+
+def test_not_graded_reason_comes_from_the_file(tmp_path, origin):
+    repo, base = origin
+    task, root = task_at(base), tmp_path / "run"
+    run.prepare(task, root, repo_url=repo.as_uri(), download=fake_download)
+    stub_agent(root / task.id / "checkout")
+    run.finish(task, root)
+    (root / task.id / "not_graded.txt").write_text("harness test timeout twice", encoding="utf-8")
+    row = run.task_row(task, root)
+    assert row.verdict == "excluded" and row.reason == f"{run.NOT_SCORED}: harness test timeout twice"
