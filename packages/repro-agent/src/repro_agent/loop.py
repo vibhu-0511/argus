@@ -16,6 +16,7 @@ from typing import Literal
 from argus_core.client import Completion
 from argus_core.ledger import Ledger
 from argus_core.ledger import Usage as LedgerUsage
+from argus_core.router import Router
 from argus_core.telemetry import chat_span, record_completion, record_tool_error, tool_span, traced_agent
 from argus_core.types import StopReason, Ticket, Trajectory, TrajectoryMeta, TrajectoryStep
 
@@ -48,19 +49,23 @@ def run_repro(
     ticket: Ticket,
     task_dir: Path,
     model: str,
-    ledger: Ledger,
-    complete: Callable[[list[dict]], Completion],
     run_trees: Callable[[str], TreeRun],
     out_dir: Path,
     cap: int,
     run_id: str,
     host: str,
     git_commit: str,
+    ledger: Ledger | None = None,
+    complete: Callable[[list[dict]], Completion] | None = None,
+    router: Router | None = None,
+    stage: str = "repro",
     mode: Literal["text", "image"] = "text",
     tool_timeout: float = 120,
 ) -> LoopResult:
     if cap < 1:
         raise ValueError("cap must be at least 1")
+    if router is None and (ledger is None or complete is None):
+        raise ValueError("pass ledger and complete, or a router")
     out_dir.mkdir(parents=True, exist_ok=True)
     prompt = assemble_prompt(ticket, mode, task_dir)
     if not hasattr(prompt, "text"):
@@ -75,8 +80,14 @@ def run_repro(
     saved: str | None = None
     reason = StopReason.retry_cap
     for index in range(cap):
+        trace: dict[str, str] | None = None
         try:
-            completion = _ask(ledger, model, complete, messages, index)
+            if router is None:
+                completion = _ask(ledger, model, complete, messages, index)
+            else:
+                # the router does the ledger accounting and the chat span; a second ledger call here would count twice
+                routed = router.complete(stage, messages, token_estimate=1)
+                completion, trace = routed.completion, routed.trace()
         except Exception as exc:
             from argus_core.ledger import QuotaExceeded
 
@@ -88,13 +99,13 @@ def run_repro(
         text = completion.content.strip()
         usage = completion.usage
         if not text:
-            steps.append(_step(index, usage, raw="", tool_error="empty"))
+            steps.append(_step(index, usage, trace=trace, raw="", tool_error="empty"))
             messages.append({"role": "user", "content": "The reply was empty. Return a Playwright script."})
             continue
         script = _script_of(text)
         problem = _problem(script)
         if problem is not None:
-            steps.append(_step(index, usage, raw=text, tool_error=problem))
+            steps.append(_step(index, usage, trace=trace, raw=text, tool_error=problem))
             messages.append({"role": "user", "content": problem})
             continue
         try:
@@ -103,15 +114,15 @@ def run_repro(
                 if not (trees.failed_on_buggy and trees.passed_on_golden):
                     record_tool_error(tool, "not-a-repro", failed=False)
         except (ToolUnavailable, TimeoutError):
-            steps.append(_step(index, usage, raw=text, tool_error="tool-unavailable", stop_reason=StopReason.tool_unavailable))
+            steps.append(_step(index, usage, trace=trace, raw=text, tool_error="tool-unavailable", stop_reason=StopReason.tool_unavailable))
             reason = StopReason.tool_unavailable
             break
         if trees.failed_on_buggy and trees.passed_on_golden:
             saved = script
             reason = StopReason.submit
-            steps.append(_step(index, usage, raw=text, stop_reason=StopReason.submit))
+            steps.append(_step(index, usage, trace=trace, raw=text, stop_reason=StopReason.submit))
             break
-        steps.append(_step(index, usage, raw=text, tool_error="not-a-repro"))
+        steps.append(_step(index, usage, trace=trace, raw=text, tool_error="not-a-repro"))
         messages.append(
             {"role": "user", "content": "The script must fail on the buggy tree and pass on the golden tree."}
         )
@@ -195,7 +206,7 @@ def _problem(script: str) -> str | None:
     return None
 
 
-def _step(index: int, usage: object, *, raw: str, tool_error: str | None = None, stop_reason: StopReason | None = None) -> TrajectoryStep:
+def _step(index: int, usage: object, *, raw: str, tool_error: str | None = None, stop_reason: StopReason | None = None, trace: dict[str, str] | None = None) -> TrajectoryStep:
     return TrajectoryStep(
         index=index,
         tokens_in=usage.tokens_in,
@@ -204,6 +215,7 @@ def _step(index: int, usage: object, *, raw: str, tool_error: str | None = None,
         raw_response=raw,
         tool_error=tool_error,
         stop_reason=stop_reason,
+        **(trace or {}),
     )
 
 

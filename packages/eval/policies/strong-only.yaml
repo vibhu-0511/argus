@@ -1,0 +1,11 @@
+# Variant A of the P5-T14 ablation: every stage runs on the strong tier. Variant B is argus_core/routing.yaml as it is.
+# The strong tier below is copied from routing.yaml on purpose; a test fails if the two drift apart.
+stages:
+  repro: strong
+  localize: strong
+  fix: strong
+tiers:
+  strong:
+    primary: {host: groq, model: openai/gpt-oss-120b}
+    fallback: {host: mistral, model: devstral-small-latest}
+fallback_on: [quota_exceeded, http_429]

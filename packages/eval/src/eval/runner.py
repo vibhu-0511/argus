@@ -45,6 +45,7 @@ class Outcome:
     tokens_cached: int = 0
     latency_s: float | None = None  # replaces the measured wall time (a replay has none worth keeping)
     trajectory: str | None = None
+    dollars: float | None = None  # the agent's own list-price figure, for runs that span several models (a routed run)
 
 
 Agent = Callable[[Task], Outcome]
@@ -69,12 +70,15 @@ def run_eval(
     clock: Callable[[], float] = time.perf_counter,
 ) -> Results:
     rows: list[TaskRow] = []
+    dollars_by_task: dict[str, float] = {}
     for task in tasks:
         start = clock()
         try:
             outcome = agent(task)
         except Exception as exc:  # a crashed agent is a result, not a crashed eval
             outcome = Outcome("error", reason=f"{type(exc).__name__}: {exc}")
+        if outcome.dollars is not None:
+            dollars_by_task[task.id] = outcome.dollars
         latency = outcome.latency_s if outcome.latency_s is not None else clock() - start
         rows.append(
             TaskRow(
@@ -91,10 +95,12 @@ def run_eval(
                 trajectory=outcome.trajectory,
             )
         )
-    return _aggregate(rows, config, run_id or config.name, now or datetime.now(UTC))
+    return _aggregate(rows, config, run_id or config.name, now or datetime.now(UTC), dollars_by_task)
 
 
-def _aggregate(rows: list[TaskRow], config: AgentConfig, run_id: str, now: datetime) -> Results:
+def _aggregate(
+    rows: list[TaskRow], config: AgentConfig, run_id: str, now: datetime, dollars_by_task: dict[str, float]
+) -> Results:
     count = {v: sum(r.verdict == v for r in rows) for v in ("resolved", "unresolved", "excluded", "error")}
     scored = [r for r in rows if r.verdict != "excluded"]
     total = len(scored)
@@ -103,7 +109,11 @@ def _aggregate(rows: list[TaskRow], config: AgentConfig, run_id: str, now: datet
         field: sum(getattr(r.tokens, field) for r in scored) for field in ("tokens_in", "tokens_out", "tokens_cached")
     }
     # no tokens, no price needed; tokens on an unpriced model raise UnknownModelPrice (never a silent 0)
-    dollars = dollar_equivalent(config.model, **token_sum) if token_sum["tokens_in"] or token_sum["tokens_out"] else None
+    if dollars_by_task:  # the agent priced its own tokens model by model; a task it could not price makes the total unknown
+        priced = all(r.task_id in dollars_by_task for r in scored if r.tokens.tokens_in or r.tokens.tokens_out)
+        dollars = sum(dollars_by_task.get(r.task_id, 0.0) for r in scored) if priced else None
+    else:
+        dollars = dollar_equivalent(config.model, **token_sum) if token_sum["tokens_in"] or token_sum["tokens_out"] else None
     latencies = [r.latency_s for r in scored if r.latency_s is not None]
     p50, p95 = percentile(latencies, 50), percentile(latencies, 95)
     runs = [run_metrics(load_trajectory(Path(r.trajectory))) for r in rows if r.trajectory]
