@@ -1,0 +1,19 @@
+{
+  "ticket": "acme/shop#12",
+  "expect": "received",
+  "why": "Issue opened, the webhook was dropped, nothing else exists.",
+  "issue": {
+    "number": 12,
+    "title": "Checkout total is wrong",
+    "state": "open",
+    "labels": [],
+    "html_url": "https://github.com/acme/shop/issues/12"
+  },
+  "pulls": [],
+  "ref": null,
+  "runs": {
+    "total_count": 0,
+    "workflow_runs": []
+  },
+  "comments": []
+}
