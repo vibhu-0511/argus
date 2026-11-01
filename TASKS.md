@@ -50,29 +50,29 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 - [x] P0-T29 Run ablation: seeded vs mutated bugs under the one-shot baseline [ME] 2h
 - [x] P0-T30 Break it: exhaust the quota ledger mid-run [ME] 2h
 - [x] P0-T31 Write package README and phase report [CLAUDE] 1h
-- [ ] P1-T00 Re-verify pinned versions via web search [CLAUDE] 1h
-- [ ] P1-T01 Spike: call Playwright MCP from an MCP Python SDK v2 client [ME] 3h
+- [x] P1-T00 Re-verify pinned versions via web search [CLAUDE] 1h
+- [x] P1-T01 Spike: call Playwright MCP from an MCP Python SDK v2 client [ME] 3h
 
 ## Week 5 — P1 (20 h scheduled)
 
-- [ ] P1-T02 Write ADR-004: Playwright MCP vs direct Playwright as tool [ME] 1h
-- [ ] P1-T03 Read the MCP 2026-07-28 post and the playwright-mcp README, write notes [ME] 1h
-- [ ] P1-T04 Define repro tool schemas (navigate, snapshot, click, type, assert-visible, screenshot) [ME] 2h
-- [ ] P1-T05 Build Docker image to run Playwright repro scripts with no network egress beyond the app [CLAUDE] 2h
-- [ ] P1-T06 Assemble ticket and screenshot prompt (text-only and text-plus-image modes) [PAIR] 2h
-- [ ] P1-T07 Build repro agent loop: generate script, run it, revise on error, hard retry cap [ME] 4h
-- [ ] P1-T08 Build repro verifier: script must fail on buggy tree and pass on golden tree [ME] 2h
-- [ ] P1-T09 Add CI job for repro-agent tests on recorded fixtures, no LLM calls [CLAUDE] 2h
-- [ ] P1-T10 Run repro-agent on 30 seeded tasks, text only [ME] 2h
-- [ ] P1-T11 Run repro-agent on 30 seeded tasks, text plus screenshot [ME] 2h
+- [x] P1-T02 Write ADR-004: Playwright MCP vs direct Playwright as tool [ME] 1h
+- [x] P1-T03 Read the MCP 2026-07-28 post and the playwright-mcp README, write notes [ME] 1h
+- [x] P1-T04 Define repro tool schemas (navigate, snapshot, click, type, assert-visible, screenshot) [ME] 2h
+- [x] P1-T05 Build Docker image to run Playwright repro scripts with no network egress beyond the app [CLAUDE] 2h
+- [x] P1-T06 Assemble ticket and screenshot prompt (text-only and text-plus-image modes) [PAIR] 2h
+- [x] P1-T07 Build repro agent loop: generate script, run it, revise on error, hard retry cap [ME] 4h
+- [x] P1-T08 Build repro verifier: script must fail on buggy tree and pass on golden tree [ME] 2h
+- [x] P1-T09 Add CI job for repro-agent tests on recorded fixtures, no LLM calls [CLAUDE] 2h
+- [x] P1-T10 Run repro-agent on 30 seeded tasks, text only [ME] 2h
+- [x] P1-T11 Run repro-agent on 30 seeded tasks, text plus screenshot [ME] 2h
 
 ## Week 6 — P1, P2 (20 h scheduled)
 
-- [ ] P1-T12 Write ADR-005: When to include the screenshot in ticket context [ME] 1h
-- [ ] P1-T13 Break it: give the agent a vague ticket with no steps [ME] 2h
-- [ ] P1-T14 Break it: make the script pass on the buggy tree (selector too loose) [ME] 2h
-- [ ] P1-T15 Break it: kill the MCP server mid-run [ME] 2h
-- [ ] P1-T16 Write package README and phase report against P0 [CLAUDE] 1h
+- [x] P1-T12 Write ADR-005: When to include the screenshot in ticket context [ME] 1h
+- [x] P1-T13 Break it: give the agent a vague ticket with no steps [ME] 2h
+- [x] P1-T14 Break it: make the script pass on the buggy tree (selector too loose) [ME] 2h
+- [x] P1-T15 Break it: kill the MCP server mid-run [ME] 2h
+- [x] P1-T16 Write package README and phase report against P0 [CLAUDE] 1h
 - [ ] P2-T00 Re-verify pinned versions via web search [CLAUDE] 1h
 - [ ] P2-T01 Read React issue #32574 and the Aider repo-map docs, write notes [ME] 1h
 - [ ] P2-T02 Build Vite plugin that injects `data-src` on JSX host elements [PAIR] 4h

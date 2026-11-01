@@ -1,0 +1,35 @@
+{
+  "$id": "https://argus.local/schemas/repro/screenshot.schema.json",
+  "additionalProperties": false,
+  "description": "Capture a screenshot of the page, or of the node with this role and accessible name.",
+  "properties": {
+    "name": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Accessible name. Required when role is set.",
+      "title": "Name"
+    },
+    "role": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Accessibility role. Omit for the whole page.",
+      "title": "Role"
+    }
+  },
+  "title": "ScreenshotArgs",
+  "type": "object"
+}

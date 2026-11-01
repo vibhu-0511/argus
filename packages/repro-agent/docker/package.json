@@ -1,0 +1,8 @@
+{
+  "name": "argus-repro-sandbox",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "playwright": "1.64.1"
+  }
+}
