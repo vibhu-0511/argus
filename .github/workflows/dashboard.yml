@@ -1,7 +1,7 @@
 name: dashboard
 
 # Builds packages/dashboard from the results files in the repo and publishes it to GitHub Pages.
-# No model call, no network beyond GitHub, no secrets. Pages must be switched on by the repo owner
+# No model call, no network beyond GitHub, no tokens or keys. Pages must be switched on by the repo owner
 # (Settings > Pages > Source: GitHub Actions); see docs/notes/p5-t22.md.
 on:
   workflow_dispatch:
