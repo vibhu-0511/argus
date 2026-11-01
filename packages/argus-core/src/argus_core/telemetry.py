@@ -4,8 +4,9 @@ Names and where each is set: `docs/notes/p5-semconv.md`. Message text is never p
 With no provider started the API hands out no-op spans, so a run behaves as before.
 
 Where spans go is chosen from the environment (`trace_config`, steps in `docs/notes/p5-t07.md`):
-`ARGUS_TRACE_BACKEND` is `console` (default), `langfuse` or `otlp`. Keys are read from the environment
-only; they are never written to a file, a log line or a span.
+`ARGUS_TRACE_BACKEND` is `console` (default), `langfuse` or `otlp`; `ARGUS_TRACE_PROFILE` (`langfuse`, `phoenix`, `none`)
+picks the attribute names (`trace_normalize`). Keys are read from the environment only; they are never written to
+a file, a log line or a span.
 """
 
 from __future__ import annotations
@@ -13,6 +14,7 @@ from __future__ import annotations
 import base64
 import os
 import sys
+from collections import Counter
 from collections.abc import Iterator, Mapping
 from contextlib import contextmanager
 from contextvars import ContextVar
@@ -34,6 +36,7 @@ from opentelemetry.sdk.trace.export import (
 from opentelemetry.trace import Span, SpanKind, Status, StatusCode
 
 from argus_core.prices import UnknownModelPrice, dollar_equivalent
+from argus_core.trace_normalize import PROFILES, NormalizingExporter
 
 SCHEMA_VERSION = "1"
 LANGFUSE_DEFAULT_HOST = "https://cloud.langfuse.com"  # EU region; a US project sets LANGFUSE_BASE_URL
@@ -42,6 +45,7 @@ LANGFUSE_DEFAULT_HOST = "https://cloud.langfuse.com"  # EU region; a US project 
 EXPORT_TIMEOUT_S = 3
 QUEUE_SIZE = 512
 _provider: TracerProvider | None = None
+_normalizer: NormalizingExporter | None = None
 _in_chat: ContextVar[bool] = ContextVar("argus_in_chat", default=False)
 
 
@@ -52,6 +56,7 @@ class TraceConfigError(ValueError):
 @dataclass(frozen=True)
 class TraceConfig:
     backend: str  # console | langfuse | otlp
+    profile: str  # normalizer profile, a key of `PROFILES`
     endpoint: str | None = None
     headers: Mapping[str, str] = field(default_factory=dict, repr=False)  # holds the secret: kept out of repr
 
@@ -66,8 +71,11 @@ def trace_config(env: Mapping[str, str] | None = None) -> TraceConfig:
     """Read the export settings from `env` (default `os.environ`). Raises `TraceConfigError` if something is missing."""
     env = os.environ if env is None else env
     backend = (env.get("ARGUS_TRACE_BACKEND") or "console").lower()
+    profile = (env.get("ARGUS_TRACE_PROFILE") or ("langfuse" if backend == "langfuse" else "none")).lower()
+    if profile not in PROFILES:
+        raise TraceConfigError(f"ARGUS_TRACE_PROFILE must be one of {sorted(PROFILES)}")
     if backend == "console":
-        return TraceConfig(backend)
+        return TraceConfig(backend, profile)
     if backend == "langfuse":
         missing = [k for k in ("LANGFUSE_PUBLIC_KEY", "LANGFUSE_SECRET_KEY") if not env.get(k)]
         if missing:
@@ -76,7 +84,7 @@ def trace_config(env: Mapping[str, str] | None = None) -> TraceConfig:
         host = (env.get("LANGFUSE_BASE_URL") or env.get("LANGFUSE_HOST") or LANGFUSE_DEFAULT_HOST).rstrip("/")
         # Langfuse takes OTLP over HTTP only. Ingestion version 4 shows new data at once instead of up to 10 minutes late.
         headers = {"Authorization": f"Basic {basic}", "x-langfuse-ingestion-version": "4"}
-        return TraceConfig(backend, f"{host}/api/public/otel/v1/traces", headers)
+        return TraceConfig(backend, profile, f"{host}/api/public/otel/v1/traces", headers)
     if backend == "otlp":
         traces = env.get("OTEL_EXPORTER_OTLP_TRACES_ENDPOINT")
         base = env.get("OTEL_EXPORTER_OTLP_ENDPOINT")
@@ -85,40 +93,51 @@ def trace_config(env: Mapping[str, str] | None = None) -> TraceConfig:
                 "ARGUS_TRACE_BACKEND=otlp needs OTEL_EXPORTER_OTLP_TRACES_ENDPOINT or OTEL_EXPORTER_OTLP_ENDPOINT"
             )
         headers = _headers(env.get("OTEL_EXPORTER_OTLP_TRACES_HEADERS") or env.get("OTEL_EXPORTER_OTLP_HEADERS") or "")
-        return TraceConfig(backend, traces or f"{base.rstrip('/')}/v1/traces", headers)
+        return TraceConfig(backend, profile, traces or f"{base.rstrip('/')}/v1/traces", headers)
     raise TraceConfigError("ARGUS_TRACE_BACKEND must be console, langfuse or otlp")
 
 
-def _default_exporter() -> SpanExporter:
-    """The one place an exporter is chosen: read from the environment."""
+def _default_exporter() -> NormalizingExporter:
+    """The one place an exporter is chosen: read from the environment, wrapped to use the profile's attribute names."""
     config = trace_config()
     if config.backend == "console":
-        return ConsoleSpanExporter()
-    return OTLPSpanExporter(endpoint=config.endpoint, headers=dict(config.headers), timeout=EXPORT_TIMEOUT_S)
+        inner: SpanExporter = ConsoleSpanExporter()
+    else:
+        inner = OTLPSpanExporter(endpoint=config.endpoint, headers=dict(config.headers), timeout=EXPORT_TIMEOUT_S)
+    return NormalizingExporter(inner, config.profile)
 
 
 def start_tracing(exporter: SpanExporter | None = None) -> TracerProvider:
     """Start (or replace) the provider argus spans go to.
 
-    With no `exporter` the environment decides (`trace_config`). A network exporter gets a batch processor with a
-    bounded queue and a short timeout, so an unreachable backend drops spans instead of blocking the run.
-    A passed `exporter` (tests) gets every span as emitted, synchronously.
+    With no `exporter` the environment decides (`trace_config`) and spans get the profile's attribute names. A network
+    exporter gets a batch processor with a bounded queue and a short timeout, so an unreachable backend drops spans
+    instead of blocking the run. A passed `exporter` (tests) gets every span as emitted, unnormalized, synchronously.
     """
-    global _provider
+    global _provider, _normalizer
     _provider = TracerProvider(resource=Resource.create({"argus.trace.schema_version": SCHEMA_VERSION}))
     processor: SpanProcessor
-    if exporter is None and trace_config().backend != "console":
-        processor = BatchSpanProcessor(
-            _default_exporter(),
-            max_queue_size=QUEUE_SIZE,
-            schedule_delay_millis=2000,
-            max_export_batch_size=QUEUE_SIZE,  # one batch holds the whole queue: a dead backend costs one timeout, not eight
-            export_timeout_millis=EXPORT_TIMEOUT_S * 1000,
-        )
+    if exporter is not None:
+        _normalizer, processor = None, SimpleSpanProcessor(exporter)
     else:
-        processor = SimpleSpanProcessor(exporter or _default_exporter())
+        _normalizer = _default_exporter()
+        if isinstance(_normalizer.inner, ConsoleSpanExporter):
+            processor = SimpleSpanProcessor(_normalizer)
+        else:
+            processor = BatchSpanProcessor(
+                _normalizer,
+                max_queue_size=QUEUE_SIZE,
+                schedule_delay_millis=2000,
+                max_export_batch_size=QUEUE_SIZE,  # one batch holds the whole queue: a dead backend costs one timeout, not eight
+                export_timeout_millis=EXPORT_TIMEOUT_S * 1000,
+            )
     _provider.add_span_processor(processor)
     return _provider
+
+
+def unmapped_attributes() -> Counter[str]:
+    """Attribute names the normalizer did not know, with counts, since `start_tracing`. Empty with a passed exporter."""
+    return _normalizer.unmapped if _normalizer else Counter()
 
 
 def _tracer() -> trace.Tracer:
@@ -269,7 +288,7 @@ def _smoke() -> int:
         agent.set_attribute("argus.stop_reason", "submit")
     config = trace_config()
     result = _default_exporter().export(memory.get_finished_spans())
-    print(f"backend={config.backend} endpoint={config.endpoint or '-'} export={result.name}")
+    print(f"backend={config.backend} profile={config.profile} endpoint={config.endpoint or '-'} export={result.name}")
     return 0 if result.name == "SUCCESS" else 1
 
 
