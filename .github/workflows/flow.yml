@@ -1,0 +1,55 @@
+name: flow
+
+# argus-flow tests against a real Postgres (service container). No model call, no cloud account, no credential
+# of any kind: the database password below is a throwaway value for the container that lives as long as the job.
+# The state machine, webhook and reconcile tests need no database; the DBOS workflow tests use ARGUS_FLOW_DATABASE_URL.
+# The Neon suspend tests also need ARGUS_FLOW_TEST_CONTAINER (a Docker container they stop and start) and skip here.
+on:
+  push:
+    paths:
+      - "packages/flow/**"
+      - "packages/argus-core/**"
+      - ".github/workflows/flow.yml"
+      - "uv.lock"
+      - "pyproject.toml"
+  pull_request:
+    paths:
+      - "packages/flow/**"
+      - "packages/argus-core/**"
+      - ".github/workflows/flow.yml"
+      - "uv.lock"
+      - "pyproject.toml"
+
+permissions:
+  contents: read
+
+env:
+  FLOW_CI_PG_PASSWORD: flow-ci-throwaway-not-a-secret
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: ${{ env.FLOW_CI_PG_PASSWORD }}
+          POSTGRES_DB: argus_flow_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d argus_flow_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+      - run: uv sync --all-packages --locked
+      # named first so a failure in the core three reads clearly; the full suite below runs them again
+      - run: uv run --all-packages python -m pytest packages/flow/tests/test_states.py packages/flow/tests/test_webhook.py packages/flow/tests/test_reconcile.py -q
+      - run: uv run --all-packages python -m pytest packages/flow/tests -q
+        env:
+          ARGUS_FLOW_DATABASE_URL: postgresql://postgres:${{ env.FLOW_CI_PG_PASSWORD }}@localhost:5432/argus_flow_test
