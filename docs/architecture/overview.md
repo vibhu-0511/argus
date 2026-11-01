@@ -1,6 +1,6 @@
-# Architecture overview (P0 to P3)
+# Architecture overview (P0 to P4)
 
-As-built view of Argus after phase P3. Later phases are not drawn. This file grows by one phase in each stacked pull request; the diagram source is the same text the PR description shows.
+As-built view of Argus after phase P4. Later phases are not drawn. This file grows by one phase in each stacked pull request; the diagram source is the same text the PR description shows.
 
 ```mermaid
 flowchart LR
@@ -40,13 +40,21 @@ flowchart LR
     ABL["retrieval harness<br/>and ablation"]:::p2
   end
 
-  subgraph S3 ["P3 fix loop (NEW IN THIS PR)"]
+  subgraph S3 ["P3 fix loop"]
     FIX["fix-loop run_fix<br/>named stop reasons"]:::p3
     TOOLS["six typed tools<br/>exact-match edit"]:::p3
     WT["worktree and Docker sandbox<br/>network none"]:::p3
     CTX["context budget<br/>four strategies"]:::p3
     GATES["build, typecheck,<br/>lint, unit, bench gates"]:::p3
     TRAJ["trajectory JSONL<br/>and replay"]:::p3
+  end
+
+  subgraph S4 ["P4 verify (NEW IN THIS PR)"]
+    CHECKS["checks in order<br/>pixel, overflow, axe, console"]:::p4
+    JUDGE["vision judge<br/>advisory only"]:::p4
+    BOK["best-of-k<br/>default k 1, cap 5"]:::p4
+    CAL["100 calibration pairs<br/>and alpha code"]:::p4
+    VCI["verify.yml<br/>stored-pair gate"]:::p4
   end
 
   BUGSMITH --> FILTER
@@ -88,6 +96,13 @@ flowchart LR
   FIX --> TRAJ
   FIX --> CLIENT
   GATES -- "bench gate" --> SCORER
+  FIX -- "verify callback" --> CHECKS
+  CHECKS --> BOK
+  JUDGE -. "never overrides a passed check" .-> BOK
+  JUDGE --> CLIENT
+  BOK --> FIX
+  CAL --> JUDGE
+  VCI --> CHECKS
 
   classDef p0 fill:#dbeafe,stroke:#1d4ed8,stroke-width:1.5px,color:#111827
   style S0 fill:none,stroke:#1d4ed8,stroke-width:1.5px
@@ -95,10 +110,12 @@ flowchart LR
   style S1 fill:none,stroke:#0e7490,stroke-width:1.5px
   classDef p2 fill:#dcfce7,stroke:#15803d,stroke-width:1.5px,color:#111827
   style S2 fill:none,stroke:#15803d,stroke-width:1.5px
-  classDef p3 fill:#fef9c3,stroke:#a16207,stroke-width:4px,color:#111827
-  style S3 fill:none,stroke:#a16207,stroke-width:4px
+  classDef p3 fill:#fef9c3,stroke:#a16207,stroke-width:1.5px,color:#111827
+  style S3 fill:none,stroke:#a16207,stroke-width:1.5px
+  classDef p4 fill:#ffedd5,stroke:#c2410c,stroke-width:4px,color:#111827
+  style S4 fill:none,stroke:#c2410c,stroke-width:4px
   classDef ext fill:#ffffff,stroke:#6b7280,color:#111827,stroke-dasharray: 4 3
-  linkStyle 29,30,31,32,33,34,35,36,37,38 stroke-width:3px
+  linkStyle 39,40,41,42,43,44,45 stroke-width:3px
 ```
 
 ## How to read it
@@ -113,19 +130,20 @@ flowchart LR
 
 Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange.
 
-## What P3 adds
+## What P4 adds
 
-- `packages/fix-loop`: six typed tools (no write-file; an edit must match exactly once) and a loop with named stop reasons.
-- A throwaway git worktree plus a Docker sandbox with no network, 1 CPU, 512 MB and the checks mounted read-only.
-- Four context strategies, five gates (build, typecheck, lint, unit, bench), a trajectory file per run and a replay command.
-- Saved runs under `packages/fix-loop/runs`. The `verify` callback and the `verify-reject` stop are already in the loop; the checks behind them arrive in P4.
+- `packages/verify`: four fixed checks in a fixed order (pixel, overflow, axe, console); a hard failure returns one verdict and stops.
+- A vision judge that is advisory only and never overrides a passing check run.
+- Best-of-k selection (default k = 1, cap 5), the Krippendorff-alpha code and a CI gate on a stored before/after pair (`verify.yml`).
+- 100 calibration pairs of real Canvas screenshots with blank human labels, and the best-of-k runs `packages/fix-loop/runs/p4-t20-*`.
 
 ## Earlier phases
 
 - **P0 bench and quota ledger:** `packages/bench`: 30 seeded and 300 generated bug tasks, and the scorer that runs a task's Playwright checks against a copy of Canvas with no model call.
 - **P1 repro agent:** `packages/repro-agent`: a loop that asks a model for a Playwright script, runs it, revises on error and stops at a cap with a named stop reason.
 - **P2 dom2src:** `packages/dom2src-plugin`: a Vite plugin that stamps `data-src="file:line:col"` on elements in dev and test builds.
+- **P3 fix loop:** `packages/fix-loop`: six typed tools (no write-file; an edit must match exactly once) and a loop with named stop reasons.
 
 ## Sources
 
-Built from `PLAN.md` (Architecture) and, where they exist, the `docs/architecture/pN.md` "As built" sections. Edges not stated word for word there: `RVERIFY --> SCORER` (the verifier runs a script on a task's buggy and golden trees); `SEEDED -.-> ABL` (retrievers are scored by the golden patch's file); `GATES --> SCORER` (the `bench` gate).
+Built from `PLAN.md` (Architecture) and, where they exist, the `docs/architecture/pN.md` "As built" sections. Edges not stated word for word there: `RVERIFY --> SCORER` (the verifier runs a script on a task's buggy and golden trees); `SEEDED -.-> ABL` (retrievers are scored by the golden patch's file); `GATES --> SCORER` (the `bench` gate); `BOK --> FIX` (best-of-k picks among fix-loop candidates, `phases/P04-verify.md` T19).

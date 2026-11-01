@@ -145,48 +145,48 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 - [x] P3-T31 Break it: let the model try to edit the bench checks [ME] 2h
 - [x] P3-T32 Break it: make the model run a destructive shell command [ME] 2h
 - [x] P3-T33 Write package README and phase report against P2 and P0 [CLAUDE] 1h
-- [ ] P4-T00 Re-verify pinned versions via web search [CLAUDE] 1h
-- [ ] P4-T01 Read Panickssery, Krippendorff and Snell, write notes [ME] 2h
-- [ ] P4-T02 Build pixel-diff check against the golden screenshot with region masks [PAIR] 2h
+- [x] P4-T00 Re-verify pinned versions via web search [CLAUDE] 1h
+- [x] P4-T01 Read Panickssery, Krippendorff and Snell, write notes [ME] 2h
+- [x] P4-T02 Build pixel-diff check against the golden screenshot with region masks [PAIR] 2h
 
 ## Week 13 — P4 (20 h scheduled)
 
-- [ ] P4-T03 Build overflow check (scroll width, off-viewport elements) [PAIR] 2h
-- [ ] P4-T04 Build axe-core check reporting only new violations versus the clean baseline [CLAUDE] 2h
-- [ ] P4-T05 Build console check reporting new errors and warnings [CLAUDE] 2h
-- [ ] P4-T06 Build the verifier pipeline: fixed order, short-circuit, structured verdict [ME] 4h
-- [ ] P4-T07 Write ADR-012: Gate ordering and short-circuit policy [ME] 1h
-- [ ] P4-T08 Write the judge rubric: does the fix match the ticket's intent without collateral change [ME] 4h
-- [ ] P4-T09 Generate candidate pairs for the calibration set from bench runs [PAIR] 2h
-- [ ] P4-T10 Label all 100 calibration pairs by hand [ME] 3h
+- [x] P4-T03 Build overflow check (scroll width, off-viewport elements) [PAIR] 2h
+- [x] P4-T04 Build axe-core check reporting only new violations versus the clean baseline [CLAUDE] 2h
+- [x] P4-T05 Build console check reporting new errors and warnings [CLAUDE] 2h
+- [x] P4-T06 Build the verifier pipeline: fixed order, short-circuit, structured verdict [ME] 4h
+- [x] P4-T07 Write ADR-012: Gate ordering and short-circuit policy [ME] 1h
+- [x] P4-T08 Write the judge rubric: does the fix match the ticket's intent without collateral change [ME] 4h
+- [x] P4-T09 Generate candidate pairs for the calibration set from bench runs [PAIR] 2h
+- [x] P4-T10 Label all 100 calibration pairs by hand [ME] 3h
 
 ## Week 14 — P4 (21 h scheduled)
 
-- [ ] P4-T11 Build the local Gemma judge runner with vision input (Ollama, CPU) [ME] 4h
-- [ ] P4-T12 Implement Krippendorff's alpha with a bootstrap interval and test it against a published worked example [ME] 3h
-- [ ] P4-T13 Run the local judge over the 100 pairs (overnight, CPU) [ME] 3h
-- [ ] P4-T14 Iterate the rubric and prompt until alpha reaches 0.80 or the budget is spent [ME] 4h
-- [ ] P4-T15 Check for a free hosted Gemma for runtime judging and decide the runtime path [ME] 2h
-- [ ] P4-T16 Build the same-family judge runner (Mistral vision model) [ME] 2h
-- [ ] P4-T17 Run ablation: same-family vs cross-family judge on the calibration set [ME] 3h
+- [x] P4-T11 Build the local Gemma judge runner with vision input (Ollama, CPU) [ME] 4h
+- [x] P4-T12 Implement Krippendorff's alpha with a bootstrap interval and test it against a published worked example [ME] 3h
+- [x] P4-T13 Run the local judge over the 100 pairs (overnight, CPU) [ME] 3h
+- [x] P4-T14 Iterate the rubric and prompt until alpha reaches 0.80 or the budget is spent [ME] 4h
+- [x] P4-T15 Check for a free hosted Gemma for runtime judging and decide the runtime path [ME] 2h
+- [x] P4-T16 Build the same-family judge runner (Mistral vision model) [ME] 2h
+- [x] P4-T17 Run ablation: same-family vs cross-family judge on the calibration set [ME] 3h
 
 ## Week 15 — P4 (19 h scheduled)
 
-- [ ] P4-T18 Write ADR-013: Judge selection [ME] 1h
-- [ ] P4-T19 Build best-of-k sampler: k candidate patches, verifier and judge pick one [ME] 3h
-- [ ] P4-T20 Run best-of-k with k = 1, 3, 5 on the 30-task subset [ME] 4h
-- [ ] P4-T21 Write ADR-014: Best-of-k policy and cost cap [ME] 2h
-- [ ] P4-T22 Wire the verifier into fix-loop as the final gate with a retry on rejection [ME] 3h
-- [ ] P4-T23 Add CI job for verify tests on recorded fixtures, no LLM calls [CLAUDE] 2h
-- [ ] P4-T24 Break it: swap the order of before and after images, and pad the explanation [ME] 2h
-- [ ] P4-T25 Break it: submit a fix that passes the target check but breaks another route [ME] 2h
+- [x] P4-T18 Write ADR-013: Judge selection [ME] 1h
+- [x] P4-T19 Build best-of-k sampler: k candidate patches, verifier and judge pick one [ME] 3h
+- [x] P4-T20 Run best-of-k with k = 1, 3, 5 on the 30-task subset [ME] 4h
+- [x] P4-T21 Write ADR-014: Best-of-k policy and cost cap [ME] 2h
+- [x] P4-T22 Wire the verifier into fix-loop as the final gate with a retry on rejection [ME] 3h
+- [x] P4-T23 Add CI job for verify tests on recorded fixtures, no LLM calls [CLAUDE] 2h
+- [x] P4-T24 Break it: swap the order of before and after images, and pad the explanation [ME] 2h
+- [x] P4-T25 Break it: submit a fix that passes the target check but breaks another route [ME] 2h
 
 ## Week 16 — P4, P5 (20 h scheduled)
 
-- [ ] P4-T26 Break it: introduce a screenshot that differs only by font loading [ME] 2h
-- [ ] P4-T27 Break it: put a prompt injection in the ticket text [ME] 2h
-- [ ] P4-T28 Break it: stop the judge backend mid-run [ME] 2h
-- [ ] P4-T29 Write package README and phase report against P3 [CLAUDE] 1h
+- [x] P4-T26 Break it: introduce a screenshot that differs only by font loading [ME] 2h
+- [x] P4-T27 Break it: put a prompt injection in the ticket text [ME] 2h
+- [x] P4-T28 Break it: stop the judge backend mid-run [ME] 2h
+- [x] P4-T29 Write package README and phase report against P3 [CLAUDE] 1h
 - [ ] P5-T00 Re-verify pinned versions via web search [CLAUDE] 1h
 - [ ] P5-T01 Read the OTel GenAI conventions and the reliable-agents paper, write notes [ME] 1h
 - [ ] P5-T02 Define trajectory metrics with exact formulas [ME] 3h

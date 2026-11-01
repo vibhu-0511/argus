@@ -48,6 +48,8 @@ importers:
 
   packages/target-app: {}
 
+  packages/verify: {}
+
 packages:
 
   '@oxc-project/types@0.156.0':
