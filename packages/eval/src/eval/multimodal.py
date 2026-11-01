@@ -21,6 +21,7 @@ from argus_core.types import Ticket
 from pydantic import BaseModel, ConfigDict, Field
 
 DATASET = "princeton-nlp/SWE-bench_Multimodal"
+DATASET_V2 = "SWE-bench/SWE-bench_Multimodal"  # v2 (2026-09-01): same dev rows plus image, eval_script; what the harness grades against
 SPLIT = "dev"  # pinned; `test` has no gold patch or image_assets
 SERVER = "https://datasets-server.huggingface.co/rows"
 PAGE = 10  # the server answers 502/503 on big pages; small pages with retries get through
@@ -192,9 +193,16 @@ def add_cli(sub: Any) -> None:
     from eval import multimodal_run  # late import: multimodal_run imports this module
 
     multimodal_run.add_cli(cmds)
+    from eval import multimodal_grade
+
+    multimodal_grade.add_cli(cmds)
 
 
 def run_cli(args: Any) -> int:
+    if args.mm_command == "grade":
+        from eval import multimodal_grade
+
+        return multimodal_grade.grade(args)
     if args.mm_command in ("prepare", "finish", "predictions", "results"):
         from eval import multimodal_run
 

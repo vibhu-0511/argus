@@ -110,9 +110,8 @@ def predictions(tasks: list[MultimodalTask], root: Path, model: str) -> list[dic
 
 def _graded(reports: Path | None, task_id: str) -> bool | None:
     """resolved flag from the harness's report.json for this instance, None when there is none."""
-    for path in (reports.glob(f"**/{task_id}/report.json") if reports else []):
-        return bool(json.loads(path.read_text(encoding="utf-8"))[task_id]["resolved"])
-    return None
+    found = sorted(reports.glob(f"**/{task_id}/report.json"), key=lambda p: p.stat().st_mtime) if reports else []  # newest wins after a re-run
+    return bool(json.loads(found[-1].read_text(encoding="utf-8"))[task_id]["resolved"]) if found else None
 
 
 def task_row(task: MultimodalTask, root: Path, reports: Path | None = None) -> TaskRow:
