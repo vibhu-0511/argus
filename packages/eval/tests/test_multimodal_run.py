@@ -114,10 +114,20 @@ def test_every_task_gets_a_row_with_a_reason(tmp_path, origin):
     run.finish(empty, root)  # the agent changed nothing
     with pytest.raises(run.SetupError):
         run.prepare(broken, root, repo_url=(tmp_path / "missing").as_uri(), download=fake_download)
+    (root / empty.id / "excluded.txt").write_text("ticket does not match the gold patch", encoding="utf-8")
     res = run.results([ok, empty, broken], root, AgentConfig(name="stub", model="stub", factory="x:y"))
     by_id = {r.task_id: r for r in res.tasks}
     assert len(res.tasks) == 3
     assert by_id[ok.id].verdict == "excluded" and "not run" in by_id[ok.id].reason
-    assert by_id[empty.id].verdict == "unresolved" and "empty patch" in by_id[empty.id].reason
+    assert by_id[empty.id].verdict == "excluded" and by_id[empty.id].reason.startswith("invalid task: ticket does not match")
     assert by_id[broken.id].verdict == "excluded" and by_id[broken.id].reason.startswith("setup failed")
-    assert res.counts.model_dump() == {"resolved": 0, "unresolved": 1, "excluded": 2, "error": 0}
+    assert res.counts.model_dump() == {"resolved": 0, "unresolved": 0, "excluded": 3, "error": 0}
+
+
+def test_empty_patch_is_unresolved(tmp_path, origin):
+    repo, base = origin
+    task, root = task_at(base), tmp_path / "run"
+    run.prepare(task, root, repo_url=repo.as_uri(), download=fake_download)
+    run.finish(task, root)  # the agent changed nothing
+    row = run.task_row(task, root)
+    assert row.verdict == "unresolved" and "empty patch" in row.reason

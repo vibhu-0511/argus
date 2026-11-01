@@ -42,3 +42,14 @@ def test_grade_records_resolved_unresolved_and_error_and_skips_resolved(tmp_path
     g.grade(args)  # second pass: the resolved one is skipped, the other two run again
     assert len(calls) == n + 4
     assert "already resolved, skipped" in capsys.readouterr().out
+
+
+def test_ids_come_from_a_predictions_file(tmp_path, monkeypatch):
+    preds = tmp_path / "preds.jsonl"
+    preds.write_text(json.dumps({"instance_id": "markedjs__marked-1435", "model_name_or_path": "m", "model_patch": "x"}) + "\n", encoding="utf-8")
+    cmds = []
+    monkeypatch.setattr(g.subprocess, "run", lambda cmd, **kw: cmds.append(cmd))
+    monkeypatch.setattr(g, "windows_fix_missing", lambda py: False)
+    args = Namespace(swebench_python="py", predictions=str(preds), ids=None, run_prefix="t", cwd=tmp_path, force=False, remove_images=False, dry_run=False)
+    g.grade(args)
+    assert [c[c.index("--instance_ids") + 1] for c in cmds if c[0] == "py"] == ["markedjs__marked-1435"]

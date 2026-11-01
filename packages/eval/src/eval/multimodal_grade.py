@@ -53,7 +53,7 @@ def grade(args) -> int:
     out.mkdir(parents=True, exist_ok=True)
     if windows_fix_missing(py):
         raise SystemExit('the swebench harness on Windows needs `newline=""` on its eval.sh/patch.diff write_text calls (docs/notes/p5-t20.md); not applied in ' + py)
-    ids = args.ids or ([json.loads(line)["instance_id"] for line in args.predictions.read_text(encoding="utf-8").splitlines() if line.strip()]
+    ids = args.ids or ([json.loads(line)["instance_id"] for line in Path(args.predictions).read_text(encoding="utf-8").splitlines() if line.strip()]
                        if args.predictions != "gold" and Path(args.predictions).exists() else [t.id for t in load_subset()])
     summary_path = out / f"summary-{args.run_prefix}.json"
     summary = json.loads(summary_path.read_text(encoding="utf-8")) if summary_path.exists() else {}
