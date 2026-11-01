@@ -1,0 +1,528 @@
+{
+ "dev_rows": 102,
+ "selected": 15,
+ "excluded": [
+  {
+   "instance_id": "chartjs__Chart.js-9764",
+   "split": "dev",
+   "reason": "missing-image-assets",
+   "detail": "image_assets.problem_statement has no URLs"
+  },
+  {
+   "instance_id": "chartjs__Chart.js-9766",
+   "split": "dev",
+   "reason": "missing-image-assets",
+   "detail": "image_assets.problem_statement has no URLs"
+  },
+  {
+   "instance_id": "chartjs__Chart.js-10806",
+   "split": "dev",
+   "reason": "missing-image-assets",
+   "detail": "image_assets.problem_statement has no URLs"
+  },
+  {
+   "instance_id": "chartjs__Chart.js-7951",
+   "split": "dev",
+   "reason": "missing-image-assets",
+   "detail": "image_assets.problem_statement has no URLs"
+  },
+  {
+   "instance_id": "chartjs__Chart.js-9199",
+   "split": "dev",
+   "reason": "missing-image-assets",
+   "detail": "image_assets.problem_statement has no URLs"
+  },
+  {
+   "instance_id": "chartjs__Chart.js-9678",
+   "split": "dev",
+   "reason": "missing-image-assets",
+   "detail": "image_assets.problem_statement has no URLs"
+  },
+  {
+   "instance_id": "chartjs__Chart.js-8868",
+   "split": "dev",
+   "reason": "missing-image-assets",
+   "detail": "image_assets.problem_statement has no URLs"
+  },
+  {
+   "instance_id": "processing__p5.js-5917",
+   "split": "dev",
+   "reason": "statement-quotes-gold-patch",
+   "detail": "issue text contains 'gl_FragColor = vec4(uMaterialColor.rgb, 1.) * uMaterialColor.a;'"
+  },
+  {
+   "instance_id": "processing__p5.js-5970",
+   "split": "dev",
+   "reason": "statement-quotes-gold-patch",
+   "detail": "issue text contains 'const loc = attr.location;'"
+  },
+  {
+   "instance_id": "processing__p5.js-5915",
+   "split": "dev",
+   "reason": "statement-quotes-gold-patch",
+   "detail": "issue text contains 'this.lineVertexColors = [];'"
+  },
+  {
+   "instance_id": "processing__p5.js-6069",
+   "split": "dev",
+   "reason": "statement-quotes-gold-patch",
+   "detail": "issue text contains 'this._applyColorBlend(this.curStrokeColor);'"
+  },
+  {
+   "instance_id": "Automattic__wp-calypso-21409",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "gold patch 25586 chars > 4000"
+  },
+  {
+   "instance_id": "Automattic__wp-calypso-21648",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "gold patch 14476 chars > 4000"
+  },
+  {
+   "instance_id": "Automattic__wp-calypso-21769",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "gold patch 4747 chars > 4000"
+  },
+  {
+   "instance_id": "Automattic__wp-calypso-21977",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "gold patch 10352 chars > 4000"
+  },
+  {
+   "instance_id": "Automattic__wp-calypso-22026",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "gold patch 11344 chars > 4000"
+  },
+  {
+   "instance_id": "Automattic__wp-calypso-22242",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "repo already has 3 tasks"
+  },
+  {
+   "instance_id": "Automattic__wp-calypso-22621",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "gold patch 9538 chars > 4000"
+  },
+  {
+   "instance_id": "Automattic__wp-calypso-22709",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "gold patch 5689 chars > 4000"
+  },
+  {
+   "instance_id": "Automattic__wp-calypso-22782",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "repo already has 3 tasks"
+  },
+  {
+   "instance_id": "Automattic__wp-calypso-23017",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "gold patch 4019 chars > 4000"
+  },
+  {
+   "instance_id": "Automattic__wp-calypso-23377",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "gold patch 7376 chars > 4000"
+  },
+  {
+   "instance_id": "Automattic__wp-calypso-23915",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "repo already has 3 tasks"
+  },
+  {
+   "instance_id": "Automattic__wp-calypso-23991",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "gold patch 15541 chars > 4000"
+  },
+  {
+   "instance_id": "Automattic__wp-calypso-25160",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "gold patch 92219 chars > 4000"
+  },
+  {
+   "instance_id": "Automattic__wp-calypso-25257",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "gold patch 7462 chars > 4000"
+  },
+  {
+   "instance_id": "Automattic__wp-calypso-25725",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "gold patch 6557 chars > 4000"
+  },
+  {
+   "instance_id": "Automattic__wp-calypso-25778",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "repo already has 3 tasks"
+  },
+  {
+   "instance_id": "Automattic__wp-calypso-26008",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "gold patch 4063 chars > 4000"
+  },
+  {
+   "instance_id": "Automattic__wp-calypso-26286",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "repo already has 3 tasks"
+  },
+  {
+   "instance_id": "Automattic__wp-calypso-26335",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "gold patch 8130 chars > 4000"
+  },
+  {
+   "instance_id": "Automattic__wp-calypso-26816",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "gold patch 23773 chars > 4000"
+  },
+  {
+   "instance_id": "Automattic__wp-calypso-27090",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "gold patch 17365 chars > 4000"
+  },
+  {
+   "instance_id": "Automattic__wp-calypso-29804",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "repo already has 3 tasks"
+  },
+  {
+   "instance_id": "Automattic__wp-calypso-30240",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "gold patch 6446 chars > 4000"
+  },
+  {
+   "instance_id": "Automattic__wp-calypso-31830",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "repo already has 3 tasks"
+  },
+  {
+   "instance_id": "Automattic__wp-calypso-32764",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "gold patch 8275 chars > 4000"
+  },
+  {
+   "instance_id": "Automattic__wp-calypso-33245",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "repo already has 3 tasks"
+  },
+  {
+   "instance_id": "Automattic__wp-calypso-33752",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "repo already has 3 tasks"
+  },
+  {
+   "instance_id": "Automattic__wp-calypso-33948",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "gold patch 25477 chars > 4000"
+  },
+  {
+   "instance_id": "Automattic__wp-calypso-34435",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "repo already has 3 tasks"
+  },
+  {
+   "instance_id": "Automattic__wp-calypso-34519",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "gold patch 6497 chars > 4000"
+  },
+  {
+   "instance_id": "Automattic__wp-calypso-34597",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "gold patch 25302 chars > 4000"
+  },
+  {
+   "instance_id": "Automattic__wp-calypso-34820",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "gold patch 7819 chars > 4000"
+  },
+  {
+   "instance_id": "Automattic__wp-calypso-35531",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "repo already has 3 tasks"
+  },
+  {
+   "instance_id": "chartjs__Chart.js-11352",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "repo already has 3 tasks"
+  },
+  {
+   "instance_id": "chartjs__Chart.js-8162",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "repo already has 3 tasks"
+  },
+  {
+   "instance_id": "chartjs__Chart.js-8567",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "gold patch 5749 chars > 4000"
+  },
+  {
+   "instance_id": "chartjs__Chart.js-8593",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "gold patch 4703 chars > 4000"
+  },
+  {
+   "instance_id": "chartjs__Chart.js-8650",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "gold patch 6387 chars > 4000"
+  },
+  {
+   "instance_id": "chartjs__Chart.js-8705",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "gold patch 5009 chars > 4000"
+  },
+  {
+   "instance_id": "chartjs__Chart.js-8710",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "repo already has 3 tasks"
+  },
+  {
+   "instance_id": "chartjs__Chart.js-8867",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "repo already has 3 tasks"
+  },
+  {
+   "instance_id": "chartjs__Chart.js-9027",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "repo already has 3 tasks"
+  },
+  {
+   "instance_id": "chartjs__Chart.js-9101",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "repo already has 3 tasks"
+  },
+  {
+   "instance_id": "chartjs__Chart.js-9367",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "repo already has 3 tasks"
+  },
+  {
+   "instance_id": "chartjs__Chart.js-9399",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "repo already has 3 tasks"
+  },
+  {
+   "instance_id": "chartjs__Chart.js-9613",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "repo already has 3 tasks"
+  },
+  {
+   "instance_id": "chartjs__Chart.js-9871",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "gold patch 6197 chars > 4000"
+  },
+  {
+   "instance_id": "diegomura__react-pdf-1285",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "gold patch 176073 chars > 4000"
+  },
+  {
+   "instance_id": "diegomura__react-pdf-1341",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "repo already has 3 tasks"
+  },
+  {
+   "instance_id": "diegomura__react-pdf-1363",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "gold patch 5528 chars > 4000"
+  },
+  {
+   "instance_id": "diegomura__react-pdf-1541",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "repo already has 3 tasks"
+  },
+  {
+   "instance_id": "diegomura__react-pdf-1552",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "repo already has 3 tasks"
+  },
+  {
+   "instance_id": "diegomura__react-pdf-2400",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "repo already has 3 tasks"
+  },
+  {
+   "instance_id": "diegomura__react-pdf-433",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "gold patch 28722 chars > 4000"
+  },
+  {
+   "instance_id": "diegomura__react-pdf-471",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "repo already has 3 tasks"
+  },
+  {
+   "instance_id": "markedjs__marked-1674",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "repo already has 3 tasks"
+  },
+  {
+   "instance_id": "markedjs__marked-1683",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "repo already has 3 tasks"
+  },
+  {
+   "instance_id": "markedjs__marked-1739",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "repo already has 3 tasks"
+  },
+  {
+   "instance_id": "markedjs__marked-1821",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "repo already has 3 tasks"
+  },
+  {
+   "instance_id": "markedjs__marked-1825",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "repo already has 3 tasks"
+  },
+  {
+   "instance_id": "markedjs__marked-1889",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "repo already has 3 tasks"
+  },
+  {
+   "instance_id": "markedjs__marked-1936",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "gold patch 100528 chars > 4000"
+  },
+  {
+   "instance_id": "markedjs__marked-2483",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "repo already has 3 tasks"
+  },
+  {
+   "instance_id": "markedjs__marked-2627",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "gold patch 4454 chars > 4000"
+  },
+  {
+   "instance_id": "markedjs__marked-2811",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "repo already has 3 tasks"
+  },
+  {
+   "instance_id": "markedjs__marked-684",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "repo already has 3 tasks"
+  },
+  {
+   "instance_id": "processing__p5.js-3680",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "gold patch 5215 chars > 4000"
+  },
+  {
+   "instance_id": "processing__p5.js-3769",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "gold patch 19732 chars > 4000"
+  },
+  {
+   "instance_id": "processing__p5.js-4147",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "gold patch 35088 chars > 4000"
+  },
+  {
+   "instance_id": "processing__p5.js-4561",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "gold patch 11652 chars > 4000"
+  },
+  {
+   "instance_id": "processing__p5.js-5305",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "gold patch 15486 chars > 4000"
+  },
+  {
+   "instance_id": "processing__p5.js-5771",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "repo already has 3 tasks"
+  },
+  {
+   "instance_id": "processing__p5.js-5794",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "repo already has 3 tasks"
+  },
+  {
+   "instance_id": "processing__p5.js-5855",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "repo already has 3 tasks"
+  },
+  {
+   "instance_id": "processing__p5.js-6111",
+   "split": "dev",
+   "reason": "not-selected",
+   "detail": "repo already has 3 tasks"
+  }
+ ]
+}

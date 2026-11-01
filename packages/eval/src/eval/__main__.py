@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
+from eval import multimodal
 from eval.gate import gate_main
 from eval.metrics import format_summary, load_dir, summarize
 from eval.report import report_files
@@ -31,6 +32,7 @@ def main(argv: list[str] | None = None) -> int:
     report.add_argument("files", type=Path, nargs="*", help="none: empty template; one: this phase; two: previous, this")
 
     sub.add_parser("schema", help="print the results JSON Schema")
+    multimodal.add_cli(sub)
 
     gate = sub.add_parser("gate", help="compare a results file with a baseline; exit 1 on a regression")
     gate.add_argument("results", type=Path)
@@ -40,6 +42,8 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     if args.command == "gate":
         return gate_main(args.results, args.baseline, args.config)
+    if args.command == "multimodal":
+        return multimodal.run_cli(args)
     if args.command == "schema":
         print(schema_json(), end="")
     elif args.command == "report":
