@@ -1,6 +1,6 @@
-# Architecture overview (P0 to P5)
+# Architecture overview (P0 to P6)
 
-As-built view of Argus after phase P5 (so far). Later phases are not drawn. This file grows by one phase in each stacked pull request; the diagram source is the same text the PR description shows.
+As-built view of Argus after phase P6 (so far). Later phases are not drawn. This file grows by one phase in each stacked pull request; the diagram source is the same text the PR description shows.
 
 ```mermaid
 flowchart LR
@@ -9,6 +9,7 @@ flowchart LR
   PG[("copa-local Postgres")]:::ext
   HOSTS["Model hosts<br/>Groq, Mistral, Ollama"]:::ext
   TRACES["Trace backends<br/>Langfuse Cloud, Phoenix local"]:::ext
+  GITHUB["GitHub<br/>issues, PRs, Actions, webhooks"]:::ext
 
   subgraph S0 ["P0 bench and quota ledger"]
     CORE["argus-core<br/>Ticket, Task, Trajectory schemas"]:::p0
@@ -58,7 +59,7 @@ flowchart LR
     VCI["verify.yml<br/>stored-pair gate"]:::p4
   end
 
-  subgraph S5 ["P5 eval (NEW IN THIS PR)"]
+  subgraph S5 ["P5 eval"]
     METRICS["trajectory metrics<br/>five formulas, docs/metrics.md"]:::p5
     RUNNER["eval runner<br/>Wilson 95% interval, results JSON"]:::p5
     PRICES["price table<br/>dated list prices, dollar equivalent"]:::p5
@@ -74,6 +75,13 @@ flowchart LR
     DASH["static dashboard<br/>opens from disk"]:::p5
     PAGES["dashboard.yml<br/>GitHub Pages deploy"]:::p5
     ABLH["ablation harness<br/>strong-only vs routed policy"]:::p5
+  end
+
+  subgraph S6 ["P6 flow (NEW IN THIS PR)"]
+    STATES["workflow state machine<br/>10 states, 12 transitions, idempotency keys"]:::p6
+    WEBHOOK["webhook endpoint<br/>HMAC-SHA256, fail closed"]:::p6
+    HINT["hint handler<br/>202, no GitHub read, delivery-id dedup"]:::p6
+    ENQ["enqueue interface<br/>in-memory fake until DBOS lands"]:::p6
   end
 
   BUGSMITH --> FILTER
@@ -149,6 +157,13 @@ flowchart LR
   ABLH --> RUNNER
   ROUTER -- "stage per call" --> FIX
   ROUTER -- "stage per call" --> REPRO
+  GITHUB --> WEBHOOK
+  WEBHOOK --> HINT
+  HINT --> ENQ
+  STATES -. "workflow id key" .-> ENQ
+  STATES -. "step names, not imported" .-> REPRO
+  STATES -. "step names, not imported" .-> FIX
+  STATES -. "step names, not imported" .-> CHECKS
 
   classDef p0 fill:#dbeafe,stroke:#1d4ed8,stroke-width:1.5px,color:#111827
   style S0 fill:none,stroke:#1d4ed8,stroke-width:1.5px
@@ -160,10 +175,12 @@ flowchart LR
   style S3 fill:none,stroke:#a16207,stroke-width:1.5px
   classDef p4 fill:#ffedd5,stroke:#c2410c,stroke-width:1.5px,color:#111827
   style S4 fill:none,stroke:#c2410c,stroke-width:1.5px
-  classDef p5 fill:#fce7f3,stroke:#be185d,stroke-width:4px,color:#111827
-  style S5 fill:none,stroke:#be185d,stroke-width:4px
+  classDef p5 fill:#fce7f3,stroke:#be185d,stroke-width:1.5px,color:#111827
+  style S5 fill:none,stroke:#be185d,stroke-width:1.5px
+  classDef p6 fill:#ede9fe,stroke:#6d28d9,stroke-width:4px,color:#111827
+  style S6 fill:none,stroke:#6d28d9,stroke-width:4px
   classDef ext fill:#ffffff,stroke:#6b7280,color:#111827,stroke-dasharray: 4 3
-  linkStyle 46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72 stroke-width:3px
+  linkStyle 73,74,75,76,77,78,79 stroke-width:3px
 ```
 
 ## How to read it
@@ -176,9 +193,16 @@ flowchart LR
 | Dotted arrow | a stored input (`fixture`), a test-only link or an advisory link, not a live call |
 | Thick arrow | a link added in this phase |
 
-Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink.
+Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink, P6 violet.
 
-## What P5 adds (so far)
+## What P6 adds (so far)
+
+- `packages/flow`: the ticket workflow state machine (`flow.states`): ten states, 12 legal transitions, any other pair raises, and stable idempotency keys for each side effect. Pure Python, no DBOS yet.
+- A FastAPI webhook endpoint that checks GitHub's HMAC-SHA256 signature (secret from `GITHUB_WEBHOOK_SECRET`, fail closed) and a handler that treats the webhook as a hint: it enqueues a reconcile and returns 202 with no GitHub read. A repeated delivery id is a no-op. The enqueue is an interface with an in-memory fake until the DBOS workflow (T03).
+- Version re-check and DBOS and MRTR notes (`docs/notes/p6-t00-versions.md`, `p6-t01-dbos-mrtr.md`). Per-task detail: `docs/architecture/p6.md`.
+- P6 was started before P5.5 and before P5 finished, by the owner's choice (`docs/notes/p6-waves.md`).
+
+## What P5 added
 
 - `packages/eval`: the five trajectory metrics (steps, tool-error rate, redundant-call rate, stuck rate, recover-after-gate-failure rate) over stored trajectory files, and a runner that writes one results JSON with a Wilson 95% interval. The results JSON is the file the report, gate and dashboard read.
 - `packages/argus-core/prices.json`: dated list prices per model and the dollar-equivalent function. The runner and the spans use it.
