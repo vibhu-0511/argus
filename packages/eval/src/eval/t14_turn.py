@@ -42,7 +42,8 @@ from eval.runner import AgentConfig, Outcome, load_tasks, run_eval
 
 HOST = "claude-session"
 RUNS = Path(os.environ.get("T14_RUNS") or Path(__file__).resolve().parents[2] / "runs" / "t14")
-VARIANTS = {"A": ("ablation-A-claude-strong-only", POLICIES / "claude-strong-only.yaml"), "B": ("ablation-B-claude-routed", POLICIES / "claude-routed.yaml")}
+VARIANTS = {"A": ("ablation-A-claude-strong-only", POLICIES / "claude-strong-only.yaml"), "B": ("ablation-B-claude-routed", POLICIES / "claude-routed.yaml"),
+            "C": ("breakit-C-claude-cheap-fix", POLICIES / "claude-cheap-fix.yaml")}  # C: P5-T27 break-it, fix on the cheap tier
 WORKER_MODEL = {"claude-sonnet-5-5": "sonnet", "claude-haiku-5-5": "haiku"}  # the Agent tool's `model` parameter
 STRATEGY, BUDGET_TOKENS = "cap", 32_000  # the fix loop's context strategy and budget, the P3/P4 harness defaults
 REPRO_CAP = 3
