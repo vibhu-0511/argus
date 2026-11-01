@@ -81,9 +81,16 @@ Run the pipeline as a durable workflow, deployed free on Render and Neon, with G
 
 | Report | Resolve rate | Tokens/bug | $-equivalent | p50 latency | p95 latency |
 |---|---|---|---|---|---|
-| Previous phase | — | — | — | — | — |
-| This phase | — | — | — | — | — |
+| Previous phase (P5) | — | — | — | — | — |
+| This phase (P6) | — | — | — | 4.92 s (recovery, see note) | 6.05 s (recovery, see note) |
 | Delta | — | — | — | — | — |
+
+*Filled on 2026-11-02 (P6-T25). Not complete, on purpose.*
+- **Previous phase (P5): all dashes.** P5's final numbers did not exist in this branch when this was written (the P5 routing ablation was still running when P6 started early; `docs/notes/p6-waves.md`). Nothing was copied from P5 drafts or estimated. Fill the row from the P5 report when P5 is final.
+- **This phase (P6): resolve rate, tokens/bug and $-equivalent are dashes** because no model was run in P6: the crash-recovery experiment used fake runners (`docs/notes/p6-t19.md`). Those columns belong to the P5 ablation.
+- **The two latency cells are not a per-bug latency.** They are the DBOS variant's (B) recovery time after a hard kill, nearest-rank p50 and p95 over 150 kills, from `packages/flow/results/p6-t19/results-B.json` and `docs/notes/p6-t19.md`: it is the time from starting the second process to its `DONE` line, so it includes interpreter start and imports and was not measured on a quiet machine. Plain function (A) for reference: 3.03 s and 6.01 s. Do not subtract P5's latency from these when it exists; they measure a different thing.
+- **Delta: dashes** wherever either side is a dash, which is every cell here.
+- Not measured in P6, so not in the table: Render cold start (T13), Neon CU-hours (T14), any real GitHub round trip. Nothing is deployed (`packages/flow/README.md`, Status).
 
 ## ADRs to write
 All [ME].
