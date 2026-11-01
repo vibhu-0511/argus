@@ -7,6 +7,7 @@ flowchart LR
   TICKET["Ticket<br/>text and optional screenshot"]:::ext
   CANVAS["dcortex Canvas<br/>system under test"]:::ext
   PG[("copa-local Postgres")]:::ext
+  FPG[("DBOS system database<br/>local Postgres now, Neon later")]:::ext
   HOSTS["Model hosts<br/>Groq, Mistral, Ollama"]:::ext
   TRACES["Trace backends<br/>Langfuse Cloud, Phoenix local"]:::ext
   GITHUB["GitHub<br/>issues, PRs, Actions, webhooks"]:::ext
@@ -81,7 +82,9 @@ flowchart LR
     STATES["workflow state machine<br/>10 states, 12 transitions, idempotency keys"]:::p6
     WEBHOOK["webhook endpoint<br/>HMAC-SHA256, fail closed"]:::p6
     HINT["hint handler<br/>202, no GitHub read, delivery-id dedup"]:::p6
-    ENQ["enqueue interface<br/>in-memory fake until DBOS lands"]:::p6
+    ENQ["enqueue interface<br/>DbosEnqueuer, one workflow per ticket id"]:::p6
+    WF["DBOS ticket workflow<br/>five idempotent steps, stored results"]:::p6
+    CFG["flow config<br/>listen_notify off, pinned version and executor"]:::p6
   end
 
   BUGSMITH --> FILTER
@@ -164,6 +167,10 @@ flowchart LR
   STATES -. "step names, not imported" .-> REPRO
   STATES -. "step names, not imported" .-> FIX
   STATES -. "step names, not imported" .-> CHECKS
+  ENQ --> WF
+  WF -- "moves only via next_state" --> STATES
+  WF --> FPG
+  CFG --> WF
 
   classDef p0 fill:#dbeafe,stroke:#1d4ed8,stroke-width:1.5px,color:#111827
   style S0 fill:none,stroke:#1d4ed8,stroke-width:1.5px
@@ -180,7 +187,7 @@ flowchart LR
   classDef p6 fill:#ede9fe,stroke:#6d28d9,stroke-width:4px,color:#111827
   style S6 fill:none,stroke:#6d28d9,stroke-width:4px
   classDef ext fill:#ffffff,stroke:#6b7280,color:#111827,stroke-dasharray: 4 3
-  linkStyle 73,74,75,76,77,78,79 stroke-width:3px
+  linkStyle 73,74,75,76,77,78,79,80,81,82,83 stroke-width:3px
 ```
 
 ## How to read it
@@ -198,7 +205,8 @@ Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink, P6 violet.
 ## What P6 adds (so far)
 
 - `packages/flow`: the ticket workflow state machine (`flow.states`): ten states, 12 legal transitions, any other pair raises, and stable idempotency keys for each side effect. Pure Python, no DBOS yet.
-- A FastAPI webhook endpoint that checks GitHub's HMAC-SHA256 signature (secret from `GITHUB_WEBHOOK_SECRET`, fail closed) and a handler that treats the webhook as a hint: it enqueues a reconcile and returns 202 with no GitHub read. A repeated delivery id is a no-op. The enqueue is an interface with an in-memory fake until the DBOS workflow (T03).
+- A FastAPI webhook endpoint that checks GitHub's HMAC-SHA256 signature (secret from `GITHUB_WEBHOOK_SECRET`, fail closed) and a handler that treats the webhook as a hint: it enqueues a reconcile and returns 202 with no GitHub read. A repeated delivery id is a no-op. The enqueue is an interface; `DbosEnqueuer` starts the workflow under the ticket id.
+- `flow.workflow` (T03): the ticket workflow as a DBOS workflow with five idempotent steps (repro, fix, verify, open PR, hand-off), step results stored in Postgres, find-or-create PR on one stable draft branch. `flow.config` fixes `use_listen_notify` off, a pinned application version and executor id, and no conductor key. The repro, fix and verify runners and the GitHub client are injected fakes; nothing dispatches to Actions yet (T04) and the QA wait is a stub (T08).
 - Version re-check and DBOS and MRTR notes (`docs/notes/p6-t00-versions.md`, `p6-t01-dbos-mrtr.md`). Per-task detail: `docs/architecture/p6.md`.
 - P6 was started before P5.5 and before P5 finished, by the owner's choice (`docs/notes/p6-waves.md`).
 
