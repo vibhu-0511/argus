@@ -1,0 +1,47 @@
+name: dashboard
+
+# Builds packages/dashboard from the results files in the repo and publishes it to GitHub Pages.
+# No model call, no network beyond GitHub, no secrets. Pages must be switched on by the repo owner
+# (Settings > Pages > Source: GitHub Actions); see docs/notes/p5-t22.md.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]  # the repo's default branch; the github-pages environment only accepts deploys from it by default
+    paths:
+      - "packages/dashboard/**"
+      - "packages/eval/results/**"
+      - ".github/workflows/dashboard.yml"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v6
+      # Only the two files the page needs; links in index.html are relative, so it works under /<repo>/.
+      - name: Build the page
+        run: |
+          python3 packages/dashboard/build.py --out _site
+          cp packages/dashboard/index.html _site/index.html
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
