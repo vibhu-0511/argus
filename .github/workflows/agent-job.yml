@@ -1,0 +1,90 @@
+name: agent-job
+
+# Execution plane of the ticket workflow (P6-T04). Dispatched by flow.actions.ActionsRunner, one run
+# per pipeline step. Not triggered by push, so the secret below is never exposed to a fork's pull request.
+# Contract with the runner: the run title is the run key (the runner finds the run by it), and the job
+# uploads one artifact `argus-result` holding result.json, plus patch.diff and trajectory.jsonl when made.
+# Inputs reach the shell only through env, never through ${{ }} inside a script.
+run-name: ${{ inputs.run_key }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      ticket_id:
+        description: Ticket id, owner/repo#number
+        required: true
+        type: string
+      step:
+        description: Pipeline step to run
+        required: true
+        type: choice
+        options: [repro, fix, verify]
+      run_key:
+        description: Idempotency key argus:<ticket_id>:dispatch-<step>:<attempt>
+        required: true
+        type: string
+      upstream:
+        description: Output of the step before (repro script for fix, patch for verify); may be empty
+        required: false
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+# One running and one pending run per key: a second dispatch of the same key waits behind the first.
+concurrency:
+  group: argus-${{ inputs.run_key }}
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ARGUS_TICKET_ID: ${{ inputs.ticket_id }}
+      ARGUS_STEP: ${{ inputs.step }}
+      ARGUS_RUN_KEY: ${{ inputs.run_key }}
+      ARGUS_UPSTREAM: ${{ inputs.upstream }}
+      ARGUS_OUT: ${{ github.workspace }}/argus-out
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: uv sync --all-packages --locked
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @argus/bench exec playwright install --with-deps chromium
+
+      - name: Run the step in the sandbox
+        env:
+          ARGUS_MODEL_API_KEY: ${{ secrets.ARGUS_MODEL_API_KEY }}
+        run: |
+          mkdir -p "$ARGUS_OUT"
+          printf '%s' "$ARGUS_UPSTREAM" > "$ARGUS_OUT/upstream.txt"
+          # Entry point contract: read ARGUS_STEP and upstream.txt, run repro, fix or verify, write
+          # result.json ({"ok": bool, "output": str}), patch.diff and trajectory.jsonl into ARGUS_OUT.
+          uv run --package flow python -m flow.agent_job
+
+      # A failed or missing step still leaves a result the runner can read.
+      - name: Write a failure result if the step wrote none
+        if: always()
+        run: |
+          mkdir -p "$ARGUS_OUT"
+          [ -f "$ARGUS_OUT/result.json" ] || python3 -c 'import json, os; json.dump({"ok": False, "output": "the step ended before it wrote a result"}, open(os.path.join(os.environ["ARGUS_OUT"], "result.json"), "w"))'
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: argus-result
+          path: |
+            ${{ github.workspace }}/argus-out/result.json
+            ${{ github.workspace }}/argus-out/patch.diff
+            ${{ github.workspace }}/argus-out/trajectory.jsonl
+          if-no-files-found: error
+          retention-days: 7
