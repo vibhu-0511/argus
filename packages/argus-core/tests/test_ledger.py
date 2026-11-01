@@ -87,3 +87,24 @@ def test_published_groq_table_loads_and_mistral_is_absent():
     assert groq.tokens_per_day == 200000
     assert groq.cached_counts is False
     assert "mistral-small-latest" not in quotas
+
+
+def test_cached_and_fresh_prompt_tokens_are_kept_apart(tmp_path: Path):
+    path = tmp_path / "ledger.json"
+    ledger = Ledger(path, {"m": _quota()})
+    ledger.call("m", lambda: Usage(tokens_in=10, tokens_out=3, tokens_cached=8))
+    ledger.call("m", lambda: Usage(tokens_in=10, tokens_out=3, tokens_cached=0))
+    state = Ledger(path, {"m": _quota()})._state["models"]["m"]
+    assert (state["cached"], state["fresh"]) == (8, 12)
+    assert state["tokens"] == 26 - 8
+
+
+def test_cached_tokens_count_toward_the_cap_only_when_cached_counts_is_true(tmp_path: Path):
+    usage = Usage(tokens_in=10, tokens_out=0, tokens_cached=8)
+    free = Ledger(tmp_path / "a.json", {"m": _quota(cached_counts=False)})
+    paid = Ledger(tmp_path / "b.json", {"m": _quota(cached_counts=True)})
+    free.call("m", lambda: usage)
+    paid.call("m", lambda: usage)
+    assert free._state["models"]["m"]["tokens"] == 2
+    assert paid._state["models"]["m"]["tokens"] == 10
+    assert paid._state["models"]["m"]["cached"] == 8

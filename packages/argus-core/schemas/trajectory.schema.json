@@ -75,8 +75,20 @@
     },
     "TrajectoryStep": {
       "additionalProperties": false,
-      "description": "One JSONL record. `tokens_cached` defaults to 0 when the field is omitted. `raw_response` keeps a rejected tool call visible to replay.",
+      "description": "One JSONL record. `tokens_cached` defaults to 0 when the field is omitted. `raw_response` keeps a rejected tool call visible to replay. `tier`, `host` and `model` say who served the call when a router chose; older records omit them.",
       "properties": {
+        "host": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Host"
+        },
         "index": {
           "minimum": 0,
           "title": "Index",
@@ -101,6 +113,18 @@
           "default": null,
           "title": "Message"
         },
+        "model": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Model"
+        },
         "raw_response": {
           "anyOf": [
             {
@@ -123,6 +147,18 @@
             }
           ],
           "default": null
+        },
+        "tier": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tier"
         },
         "tokens_cached": {
           "default": 0,
