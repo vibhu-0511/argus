@@ -294,3 +294,52 @@ def test_a_review_comment_resumes_the_waiting_workflow_without_mcp(enqueuer, wor
     with psycopg.connect(os.environ[DATABASE_URL_ENV]) as conn:
         row = conn.execute("select message_uuid from dbos.notifications where destination_uuid = %s", (ticket,)).fetchone()
     assert row[0] == f"{key}::{ticket}"
+
+
+# --- P6-T09: the same signal from an MRTR elicitation answer -----------------------------------
+
+
+def test_an_mrtr_answer_resumes_the_waiting_workflow(enqueuer, world, ticket):
+    import asyncio
+
+    from mcp import Client
+    from mcp_types import ElicitResult
+
+    from flow.qa_mcp import TOOL_NAME, qa_server
+
+    async def answer(context, params):
+        return ElicitResult(action="accept", content={"decision": "approve"})
+
+    async def call():
+        async with Client(qa_server(), mode="2026-07-28", elicitation_callback=answer) as client:
+            return await client.call_tool(TOOL_NAME, {"ticket_id": ticket})
+
+    handle = enqueuer.enqueue(ticket)
+    wait_until(lambda: world.github.labels.get(ticket) == "awaiting-qa")
+    assert handle.get_status().status == "PENDING"
+    result = asyncio.run(call())
+    assert result.structured_content["status"] == "signal-sent"
+    out = handle.get_result()
+    assert out["state"] == "done" and out["reason"] == "approve via mrtr by mcp-client"
+    assert result.structured_content["key"].startswith(f"argus:{ticket}:qa:mrtr:")
+    assert not world.github.prs[branch_name(ticket)].draft
+    assert mailbox_rows(ticket) == 1
+
+
+def test_an_mrtr_answer_for_a_ticket_without_a_workflow_is_a_tool_error(enqueuer, world, ticket):
+    import asyncio
+
+    from mcp import Client
+    from mcp_types import ElicitResult
+
+    from flow.qa_mcp import TOOL_NAME, qa_server
+
+    async def answer(context, params):
+        return ElicitResult(action="accept", content={"decision": "approve"})
+
+    async def call():
+        async with Client(qa_server(), mode="2026-07-28", elicitation_callback=answer) as client:
+            return await client.call_tool(TOOL_NAME, {"ticket_id": ticket})
+
+    result = asyncio.run(call())
+    assert result.is_error and "no workflow for ticket" in result.content[0].text
