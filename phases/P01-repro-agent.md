@@ -51,8 +51,10 @@ Turn a ticket (text, optionally a screenshot) into a Playwright reproduction scr
 
 ## Break it on purpose
 1. **Vague ticket (P1-T13).** *Induced failure:* a ticket that says "the page looks wrong" with no route or element. *Expected signal:* the retry cap is hit, stop reason `retry-cap`, no valid script. *Fix:* add a clarification step that asks for the missing route/element, or fail fast with a typed reason.
+   Observed: ticket text `the page looks wrong`, two empty replies, stop reason `retry-cap` on the last trajectory step, no script saved.
 2. **Script passes on the buggy tree (P1-T14).** *Induced failure:* a selector so loose that it matches in both trees. *Expected signal:* verifier verdict `passes-on-bug`. *Fix:* require the agent's script to include an assertion on the symptom, and feed the verdict back to the next attempt.
-3. **MCP server dies mid-run (P1-T15).** *Induced failure:* kill the Playwright MCP process during a tool call. *Expected signal:* tool-unavailable stop reason within the timeout, no hang. *Fix:* restart once with backoff, then fall back to direct Playwright as the tool.
+   Observed: the hand-made script only asserts that the Sign in heading is visible. Both trees pass. The verifier returned `passes-on-bug`. An assertion that is true on the bug is not enough; the verdict still has to be fed into the next attempt.
+3. **MCP server dies mid-run (P1-T15).** *Induced failure:* the Playwright MCP process dies during a tool call, or it has already exited when the next call starts. *Expected signal:* stop reason `tool-unavailable` within the timeout, no hang. *Fix:* restart the server once, then stop with `tool-unavailable`. Direct Playwright is not the fallback (ADR-004).
 
 ## Ablation
 **Hypothesis:** adding the screenshot to the ticket raises repro success on layout bugs enough to justify its extra tokens and quota.
@@ -61,16 +63,20 @@ Turn a ticket (text, optionally a screenshot) into a Playwright reproduction scr
 
 | Variant | Resolve rate (95% CI) | Tokens/bug (in, out, cached) | $-equivalent/bug | Quota share/bug | p50 latency | p95 latency | Repro success |
 |---|---|---|---|---|---|---|---|
-| A | — | — | — | — | — | — | — |
-| B | — | — | — | — | — | — | — |
+| A | 28/30 [0.786762, 0.981523] | 1.0000, 1.0000, 0.0000 | — | 0.001000 | — | — | 28/30 |
+| B | 28/30 [0.786762, 0.981523] | 1.0000, 1.0000, 0.0000 | — | 0.001000 | — | — | 28/30 |
+
+Both rows are the saved recorded-reply batches. They do not call a provider. The tree outcome is that recorded runner, not a browser on each task's own UI. Only BUG-17 has a screenshot. Attaching its 103536-byte PNG did not change a verdict. The ledger still charged 1 in, 1 out, 0 cached per task. Quota share is one request per task, 1/1000 of the daily cap. Latency was not measured. $-equivalent stays "—" until P5-T11.
 
 **Phase report (against previous phase):**
 
 | Report | Resolve rate | Tokens/bug | $-equivalent | p50 latency | p95 latency |
 |---|---|---|---|---|---|
-| Previous phase | — | — | — | — | — |
-| This phase | — | — | — | — | — |
-| Delta | — | — | — | — | — |
+| Previous phase | 0/10 [-0.000000, 0.277540] | 4585.0000, 1044.0000, 0.0000 | — | 3.652305s | 4.842286s |
+| This phase | 28/30 [0.786762, 0.981523] | 1.0000, 1.0000, 0.0000 | — | — | — |
+| Delta | +0.933333 | — | — | — | — |
+
+The previous row is the P0 live baseline. This row is the text-only batch, which ADR-005 keeps as the default. Its token cell is the recorded-reply ledger charge, not a provider bill, so the token and latency deltas are left blank.
 
 ## ADRs to write
 All [ME].

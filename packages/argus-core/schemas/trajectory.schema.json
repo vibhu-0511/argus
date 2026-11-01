@@ -8,7 +8,8 @@
         "QuotaExceeded",
         "stuck",
         "consecutive-timeout",
-        "retry-cap"
+        "retry-cap",
+        "tool-unavailable"
       ],
       "title": "StopReason",
       "type": "string"

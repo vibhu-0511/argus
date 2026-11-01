@@ -1,14 +1,15 @@
-# Architecture overview (P0)
+# Architecture overview (P0 to P1)
 
-As-built view of Argus after phase P0. Later phases are not drawn. This file grows by one phase in each stacked pull request; the diagram source is the same text the PR description shows.
+As-built view of Argus after phase P1. Later phases are not drawn. This file grows by one phase in each stacked pull request; the diagram source is the same text the PR description shows.
 
 ```mermaid
 flowchart LR
+  TICKET["Ticket<br/>text and optional screenshot"]:::ext
   CANVAS["dcortex Canvas<br/>system under test"]:::ext
   PG[("copa-local Postgres")]:::ext
   HOSTS["Model hosts<br/>Groq, Mistral, Ollama"]:::ext
 
-  subgraph S0 ["P0 bench and quota ledger (NEW IN THIS PR)"]
+  subgraph S0 ["P0 bench and quota ledger"]
     CORE["argus-core<br/>Ticket, Task, Trajectory schemas"]:::p0
     CLIENT["OpenAI-compatible<br/>model client"]:::p0
     LEDGER["Quota ledger<br/>hard stop before the request"]:::p0
@@ -21,6 +22,14 @@ flowchart LR
     GOLDEN["golden-fix runner<br/>and flake detector"]:::p0
     BASELINE["one-shot baseline"]:::p0
     CI["golden.yml<br/>manual dispatch"]:::p0
+  end
+
+  subgraph S1 ["P1 repro agent (NEW IN THIS PR)"]
+    REPRO["repro loop<br/>retry cap, stop reasons"]:::p1
+    PWMCP["Playwright MCP<br/>six tools"]:::p1
+    RSANDBOX["repro Docker image<br/>no egress beyond the app"]:::p1
+    RVERIFY["repro verifier<br/>fails on bug, passes on fix"]:::p1
+    REPLAY["fixture replay<br/>CI, no model"]:::p1
   end
 
   BUGSMITH --> FILTER
@@ -39,10 +48,20 @@ flowchart LR
   LEDGER --> HOSTS
   CORE -.-> CLIENT
   CORE -.-> SCORER
+  TICKET --> REPRO
+  REPRO --> PWMCP
+  REPRO --> RSANDBOX
+  REPRO --> RVERIFY
+  RVERIFY --> SCORER
+  REPRO --> CLIENT
+  REPLAY -.-> REPRO
 
-  classDef p0 fill:#dbeafe,stroke:#1d4ed8,stroke-width:4px,color:#111827
-  style S0 fill:none,stroke:#1d4ed8,stroke-width:4px
+  classDef p0 fill:#dbeafe,stroke:#1d4ed8,stroke-width:1.5px,color:#111827
+  style S0 fill:none,stroke:#1d4ed8,stroke-width:1.5px
+  classDef p1 fill:#cffafe,stroke:#0e7490,stroke-width:4px,color:#111827
+  style S1 fill:none,stroke:#0e7490,stroke-width:4px
   classDef ext fill:#ffffff,stroke:#6b7280,color:#111827,stroke-dasharray: 4 3
+  linkStyle 16,17,18,19,20,21,22 stroke-width:3px
 ```
 
 ## How to read it
@@ -57,14 +76,17 @@ flowchart LR
 
 Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange.
 
-## What P0 adds
+## What P1 adds
 
-- `packages/bench`: 30 seeded and 300 generated bug tasks, and the scorer that runs a task's Playwright checks against a copy of Canvas with no model call.
-- `packages/bugsmith`: breaks the UI on purpose (JSX and CSS rules); a generated bug is kept only if the checks fail on it and pass on the original.
-- A flake detector (repeat runs, quarantine on disagreement) and the golden-fix runner.
-- `packages/argus-core`: the Ticket, Task and Trajectory schemas, the OpenAI-compatible model client and the quota ledger that refuses a call before any request is sent.
-- `packages/target-app`: the binding to Canvas and Postgres. `golden.yml` is a manual workflow because the Canvas repo is private.
+- `packages/repro-agent`: a loop that asks a model for a Playwright script, runs it, revises on error and stops at a cap with a named stop reason.
+- Six browser tools behind Playwright MCP, and a Docker image that can reach only the app.
+- A verifier: a script is `valid` only if it fails on the buggy tree and passes on the golden tree.
+- A dead-server stop (`tool-unavailable`) and a recorded-fixture replay so CI needs no model. `repro.yml` runs on push.
+
+## Earlier phases
+
+- **P0 bench and quota ledger:** `packages/bench`: 30 seeded and 300 generated bug tasks, and the scorer that runs a task's Playwright checks against a copy of Canvas with no model call.
 
 ## Sources
 
-Built from `PLAN.md` (Architecture) and, where they exist, the `docs/architecture/pN.md` "As built" sections.
+Built from `PLAN.md` (Architecture) and, where they exist, the `docs/architecture/pN.md` "As built" sections. Edges not stated word for word there: `RVERIFY --> SCORER` (the verifier runs a script on a task's buggy and golden trees).
