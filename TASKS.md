@@ -266,7 +266,7 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 
 - [x] P6-T09 Add MRTR elicitation for the QA approval step [ME] 3h
 - [x] P6-T10 Add the plain GitHub review-comment fallback for QA approval [PAIR] 1h
-- [ ] P6-T11 Set up Neon free Postgres with reconnect handling for scale-to-zero [CLAUDE] 2h
+- [x] P6-T11 Set up Neon free Postgres with reconnect handling for scale-to-zero [CLAUDE] 2h
 - [ ] P6-T12 Deploy the FastAPI and DBOS service to Render free [CLAUDE] 3h
 - [ ] P6-T13 Measure the Render cold start against the 10 s webhook timeout [ME] 2h
 - [ ] P6-T14 Measure Neon CU-hours with DBOS polling over 48 hours [ME] 2h
@@ -282,7 +282,7 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 - [ ] P6-T21 Break it: kill the worker after the PR is opened but before state is saved [ME] 2h
 - [x] P6-T22 Break it: deliver the same webhook twice [ME] 2h
 - [ ] P6-T23 Break it: let Render sleep and drop a webhook [ME] 2h
-- [ ] P6-T24 Break it: suspend Neon mid-run [ME] 2h
+- [x] P6-T24 Break it: suspend Neon mid-run [ME] 2h
 - [ ] P6-T25 Write package README and phase report against P5 [CLAUDE] 1h
 - [ ] P7-T00 Re-verify pinned versions via web search [CLAUDE] 1h
 - [ ] P7-T01 Read the OWASP agentic top 10 and the Firecracker paper, write notes [ME] 1h
