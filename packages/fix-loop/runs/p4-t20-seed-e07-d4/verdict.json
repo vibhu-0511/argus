@@ -1,0 +1,9 @@
+{
+  "task_id": "seed-e07",
+  "stop_reason": "step-cap",
+  "score_exit": 2,
+  "verdict": "excluded",
+  "model": "claude-session",
+  "model_turns": 21,
+  "token_source": "chars/4 estimate"
+}

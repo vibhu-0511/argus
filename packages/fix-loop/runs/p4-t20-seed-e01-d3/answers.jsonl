@@ -1,0 +1,4 @@
+"{\"tool\": \"search\", \"arguments\": {\"query\": \"landing-brand\", \"path\": \"apps/canvas\"}}"
+"{\"tool\": \"read_file\", \"arguments\": {\"path\": \"apps/canvas/src/styles/landing.css\"}}"
+"{\"tool\": \"edit\", \"arguments\": {\"path\": \"apps/canvas/src/styles/landing.css\", \"old\": \"  font-size: 8px;\\n  font-weight: 600;\\n  letter-spacing: -0.01em;\", \"new\": \"  font-size: 20px;\\n  font-weight: 600;\\n  letter-spacing: -0.01em;\"}}"
+"{\"tool\": \"submit\", \"arguments\": {}}"

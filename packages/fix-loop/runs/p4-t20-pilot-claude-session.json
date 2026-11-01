@@ -1,0 +1,244 @@
+{
+ "run_id": "p4-t20-pilot-claude-session",
+ "model": "claude-session",
+ "tasks": [
+  "seed-e03",
+  "seed-e05",
+  "seed-e06"
+ ],
+ "selector": "task scorer (oracle); the judge was not used",
+ "draws": {
+  "seed-e03": [
+   {
+    "run_id": "p3-a-claude-seed-e03",
+    "verdict": "resolved",
+    "stop_reason": "submit",
+    "model_turns": 4,
+    "tokens_in": 15480,
+    "tokens_out": 104,
+    "tokens_cached": 0,
+    "scored_from": "verdict.json"
+   },
+   {
+    "run_id": "p4-t20-seed-e03-d2",
+    "verdict": "resolved",
+    "stop_reason": "submit",
+    "model_turns": 3,
+    "tokens_in": 3683,
+    "tokens_out": 85,
+    "tokens_cached": 0,
+    "scored_from": "verdict.rescored.json"
+   },
+   {
+    "run_id": "p4-t20-seed-e03-d3",
+    "verdict": "resolved",
+    "stop_reason": "submit",
+    "model_turns": 3,
+    "tokens_in": 3665,
+    "tokens_out": 86,
+    "tokens_cached": 0,
+    "scored_from": "verdict.rescored.json"
+   },
+   {
+    "run_id": "p4-t20-seed-e03-d4",
+    "verdict": "resolved",
+    "stop_reason": "submit",
+    "model_turns": 3,
+    "tokens_in": 3683,
+    "tokens_out": 85,
+    "tokens_cached": 0,
+    "scored_from": "verdict.rescored.json"
+   },
+   {
+    "run_id": "p4-t20-seed-e03-d5",
+    "verdict": "resolved",
+    "stop_reason": "submit",
+    "model_turns": 3,
+    "tokens_in": 14053,
+    "tokens_out": 83,
+    "tokens_cached": 0,
+    "scored_from": "verdict.rescored.json"
+   }
+  ],
+  "seed-e05": [
+   {
+    "run_id": "p3-a-claude-seed-e05",
+    "verdict": "unresolved",
+    "stop_reason": "submit",
+    "model_turns": 9,
+    "tokens_in": 299310,
+    "tokens_out": 232,
+    "tokens_cached": 0,
+    "scored_from": "verdict.rescored.json"
+   },
+   {
+    "run_id": "p4-t20-seed-e05-d2",
+    "verdict": "resolved",
+    "stop_reason": "submit",
+    "model_turns": 9,
+    "tokens_in": 109096,
+    "tokens_out": 351,
+    "tokens_cached": 0,
+    "scored_from": "verdict.rescored.json"
+   },
+   {
+    "run_id": "p4-t20-seed-e05-d3",
+    "verdict": "unresolved",
+    "stop_reason": "submit",
+    "model_turns": 6,
+    "tokens_in": 47266,
+    "tokens_out": 177,
+    "tokens_cached": 0,
+    "scored_from": "verdict.rescored.json"
+   },
+   {
+    "run_id": "p4-t20-seed-e05-d4",
+    "verdict": "resolved",
+    "stop_reason": "submit",
+    "model_turns": 5,
+    "tokens_in": 54620,
+    "tokens_out": 174,
+    "tokens_cached": 0,
+    "scored_from": "verdict.rescored.json"
+   },
+   {
+    "run_id": "p4-t20-seed-e05-d5",
+    "verdict": "unresolved",
+    "stop_reason": "submit",
+    "model_turns": 7,
+    "tokens_in": 103368,
+    "tokens_out": 218,
+    "tokens_cached": 0,
+    "scored_from": "verdict.rescored.json"
+   }
+  ],
+  "seed-e06": [
+   {
+    "run_id": "p3-a-claude-seed-e06",
+    "verdict": "resolved",
+    "stop_reason": "submit",
+    "model_turns": 7,
+    "tokens_in": 13504,
+    "tokens_out": 133,
+    "tokens_cached": 0,
+    "scored_from": "verdict.json"
+   },
+   {
+    "run_id": "p4-t20-seed-e06-d2",
+    "verdict": "resolved",
+    "stop_reason": "submit",
+    "model_turns": 7,
+    "tokens_in": 12360,
+    "tokens_out": 171,
+    "tokens_cached": 0,
+    "scored_from": "verdict.rescored.json"
+   },
+   {
+    "run_id": "p4-t20-seed-e06-d3",
+    "verdict": "unresolved",
+    "stop_reason": "token-cap",
+    "model_turns": 7,
+    "tokens_in": 470911,
+    "tokens_out": 160,
+    "tokens_cached": 0,
+    "scored_from": "verdict.rescored.json"
+   },
+   {
+    "run_id": "p4-t20-seed-e06-d4",
+    "verdict": "resolved",
+    "stop_reason": "submit",
+    "model_turns": 8,
+    "tokens_in": 15074,
+    "tokens_out": 190,
+    "tokens_cached": 0,
+    "scored_from": "verdict.rescored.json"
+   },
+   {
+    "run_id": "p4-t20-seed-e06-d5",
+    "verdict": "unresolved",
+    "stop_reason": "token-cap",
+    "model_turns": 3,
+    "tokens_in": 542946,
+    "tokens_out": 87,
+    "tokens_cached": 0,
+    "scored_from": "verdict.rescored.json"
+   }
+  ]
+ },
+ "all_draws_resolved": "10/15",
+ "best_of_k": {
+  "1": {
+   "resolved": 2,
+   "tasks": 3,
+   "rate": 0.6667,
+   "wilson95": [
+    0.2077,
+    0.9385
+   ],
+   "mean_loop_tokens_in_plus_out_per_task": 109588,
+   "selections": {
+    "seed-e03": {
+     "selected_index": 0,
+     "reason": "checks-pass"
+    },
+    "seed-e05": {
+     "selected_index": null,
+     "reason": "checks-fail"
+    },
+    "seed-e06": {
+     "selected_index": 0,
+     "reason": "checks-pass"
+    }
+   }
+  },
+  "3": {
+   "resolved": 3,
+   "tasks": 3,
+   "rate": 1.0,
+   "wilson95": [
+    0.4385,
+    1.0
+   ],
+   "mean_loop_tokens_in_plus_out_per_task": 325591,
+   "selections": {
+    "seed-e03": {
+     "selected_index": 0,
+     "reason": "checks-pass"
+    },
+    "seed-e05": {
+     "selected_index": 1,
+     "reason": "checks-pass"
+    },
+    "seed-e06": {
+     "selected_index": 0,
+     "reason": "checks-pass"
+    }
+   }
+  },
+  "5": {
+   "resolved": 3,
+   "tasks": 3,
+   "rate": 1.0,
+   "wilson95": [
+    0.4385,
+    1.0
+   ],
+   "mean_loop_tokens_in_plus_out_per_task": 570452,
+   "selections": {
+    "seed-e03": {
+     "selected_index": 0,
+     "reason": "checks-pass"
+    },
+    "seed-e05": {
+     "selected_index": 1,
+     "reason": "checks-pass"
+    },
+    "seed-e06": {
+     "selected_index": 0,
+     "reason": "checks-pass"
+    }
+   }
+  }
+ },
+ "token_source": "chars/4 estimate of the loop's messages, not provider usage"
+}

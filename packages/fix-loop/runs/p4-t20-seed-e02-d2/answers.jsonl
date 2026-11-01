@@ -1,0 +1,7 @@
+"{\"tool\": \"search\", \"arguments\": {\"query\": \"ops-shell\", \"path\": \"apps/canvas/src\"}}"
+"{\"tool\": \"run_cmd\", \"arguments\": {\"command\": \"grep -rniE 'shell' apps/canvas/src --include=*.css | head -40\"}}"
+"{\"tool\": \"search\", \"arguments\": {\"query\": \"shell\", \"path\": \"apps/canvas/src\"}}"
+"{\"tool\": \"read_file\", \"arguments\": {\"path\": \"apps/canvas/src/ops/OpsApp.tsx\"}}"
+"{\"tool\": \"search\", \"arguments\": {\"query\": \".ops-app\", \"path\": \"apps/canvas/src\"}}"
+"{\"tool\": \"edit\", \"arguments\": {\"path\": \"apps/canvas/src/ops/ops.css\", \"old\": \".ops-app { min-height: 100vh; display: flex; flex-direction: row; }\", \"new\": \".ops-app { min-height: 100vh; display: flex; flex-direction: column; }\"}}"
+"{\"tool\": \"submit\", \"arguments\": {}}"

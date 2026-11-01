@@ -1,0 +1,7 @@
+"{\"tool\": \"search\", \"arguments\": {\"query\": \"label\", \"path\": \"apps/canvas/src\"}}"
+"{\"tool\": \"run_cmd\", \"arguments\": {\"command\": \"grep -rn 'admin' apps/canvas/src --include=*.css | head -30\"}}"
+"{\"tool\": \"run_cmd\", \"arguments\": {\"command\": \"grep -rn 'admin' apps/canvas/src | grep '\\.css' | head -30\"}}"
+"{\"tool\": \"run_cmd\", \"arguments\": {\"command\": \"grep -rn 'admin' apps/canvas/src | grep -F .css | head -30\"}}"
+"{\"tool\": \"search\", \"arguments\": {\"query\": \"admin-label\", \"path\": \"apps/canvas/src\"}}"
+"{\"tool\": \"read_file\", \"arguments\": {\"path\": \"apps/canvas/src/ops/radar.css\"}}"
+"{\"tool\": \"search\", \"arguments\": {\"query\": \"div.\", \"path\": \"apps/canvas/src/ops/radar.css\"}}"

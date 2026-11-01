@@ -1,0 +1,24 @@
+diff --git a/apps/canvas/src/styles/tokens.css b/apps/canvas/src/styles/tokens.css
+--- a/apps/canvas/src/styles/tokens.css
++++ b/apps/canvas/src/styles/tokens.css
+@@ -176,7 +176,7 @@
+ .rcard:hover { border-color: var(--border-secondary); }
+ .rcard.active { border-color: var(--accent-warning); box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent-warning), transparent 55%); }
+ 
+-.glabel {
++div.glabel {
+   font-size: 10px;
+   font-weight: 700;
+   letter-spacing: 0.05em;
+diff --git a/apps/canvas/src/ops/radar.css b/apps/canvas/src/ops/radar.css
+--- a/apps/canvas/src/ops/radar.css
++++ b/apps/canvas/src/ops/radar.css
+@@ -93,7 +93,7 @@
+ @media (max-width: 1040px) { .radar-main { grid-template-columns: minmax(0, 1fr); gap: 28px; padding: 18px 16px 20px; } }
+ 
+ /* The feed. */
+-.radar-feed { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
++div.radar-feed { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+ .radar-feed-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+ .radar-eyebrow { display: block; font-family: var(--radar-mono); font-size: 11px; letter-spacing: 3px; color: var(--radar-dim); }
+ .radar-feed-head h1 { margin: 4px 0 0; font-size: 24px; font-weight: 600; letter-spacing: 1px; }
