@@ -70,11 +70,12 @@ Run the pipeline as a durable workflow, deployed free on Render and Neon, with G
 **Hypothesis:** a durable DBOS workflow completes every run after a crash with no duplicated side effects, while the same pipeline without durability loses runs or duplicates effects. The DBOS-vs-Temporal question is an ADR only; no Temporal variant is built.
 **Variants:** A = same pipeline as a plain function, no durability; B = DBOS durable workflow.
 **Metric:** runs completed after a crash, duplicate side effects, recovery time p50 and p95 per kill.
+**Result (P6-T19, 2026-11-01):** 10 hard kills at each of 15 kill points per variant (150 each), fake runners and GitHub client with a durable ledger, find-before-act the same in A and B. Both variants completed every run; the plain function repeats every earlier call after a restart (4.47 per kill against 0.93 for DBOS) and set the `done` label twice in the 10 kills after it. No model was run, so the last three columns stay empty. Details and limits: `docs/notes/p6-t19.md`.
 
 | Variant | Completed after crash | Duplicate side effects | Recovery p50 | Recovery p95 | Resolve rate (95% CI) | Tokens/bug (in, out, cached) | $-equivalent/bug |
 |---|---|---|---|---|---|---|---|
-| A | — | — | — | — | — | — | — |
-| B | — | — | — | — | — | — | — |
+| A | 150 of 150 | 20 (all at one kill point, a label set twice) | 3.03 s | 6.01 s | — | — | — |
+| B | 150 of 150 | 0 | 4.92 s | 6.05 s | — | — | — |
 
 **Phase report (against previous phase):**
 
