@@ -21,6 +21,7 @@ from argus_core.types import Ticket
 from pydantic import BaseModel, ConfigDict, Field
 
 DATASET = "princeton-nlp/SWE-bench_Multimodal"
+DATASET_V2 = "SWE-bench/SWE-bench_Multimodal"  # v2 (2026-09-01): same dev rows plus image, eval_script; what the harness grades against
 SPLIT = "dev"  # pinned; `test` has no gold patch or image_assets
 SERVER = "https://datasets-server.huggingface.co/rows"
 PAGE = 10  # the server answers 502/503 on big pages; small pages with retries get through
@@ -179,7 +180,7 @@ def load_subset(path: Path = DATA_DIR / "subset.json") -> list[MultimodalTask]:
 
 
 def add_cli(sub: Any) -> None:
-    """Register `multimodal fetch|build|prompt` on an argparse subparsers object."""
+    """Register `multimodal fetch|build|prompt|prepare|finish|predictions|results` on an argparse subparsers object."""
     mm = sub.add_parser("multimodal", help="SWE-bench Multimodal dev subset adapter")
     cmds = mm.add_subparsers(dest="mm_command", required=True)
     f = cmds.add_parser("fetch", help="download the dev split rows (with patches) to a file outside the repo")
@@ -189,9 +190,23 @@ def add_cli(sub: Any) -> None:
     b.add_argument("--out", type=Path, default=DATA_DIR)
     p = cmds.add_parser("prompt", help="print the agent prompt of one committed task")
     p.add_argument("instance_id")
+    from eval import multimodal_run  # late import: multimodal_run imports this module
+
+    multimodal_run.add_cli(cmds)
+    from eval import multimodal_grade
+
+    multimodal_grade.add_cli(cmds)
 
 
 def run_cli(args: Any) -> int:
+    if args.mm_command == "grade":
+        from eval import multimodal_grade
+
+        return multimodal_grade.grade(args)
+    if args.mm_command in ("prepare", "finish", "predictions", "results"):
+        from eval import multimodal_run
+
+        return multimodal_run.run_cli(args)
     if args.mm_command == "fetch":
         rows = fetch_dev()
         args.out.write_text(json.dumps(rows), encoding="utf-8")
