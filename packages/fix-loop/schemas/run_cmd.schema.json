@@ -1,0 +1,18 @@
+{
+  "$id": "https://argus.local/schemas/fix/run_cmd.schema.json",
+  "additionalProperties": false,
+  "description": "Run one command with the worktree as the working directory.",
+  "properties": {
+    "command": {
+      "description": "Command line. The working directory is the worktree.",
+      "minLength": 1,
+      "title": "Command",
+      "type": "string"
+    }
+  },
+  "required": [
+    "command"
+  ],
+  "title": "RunCmdArgs",
+  "type": "object"
+}

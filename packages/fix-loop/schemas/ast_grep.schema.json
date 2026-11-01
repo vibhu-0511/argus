@@ -1,0 +1,32 @@
+{
+  "$id": "https://argus.local/schemas/fix/ast_grep.schema.json",
+  "additionalProperties": false,
+  "description": "Run an ast-grep pattern over the Canvas tree and return file and line.",
+  "properties": {
+    "lang": {
+      "default": "tsx",
+      "description": "Language name, such as tsx.",
+      "minLength": 1,
+      "title": "Lang",
+      "type": "string"
+    },
+    "path": {
+      "default": ".",
+      "description": "File or directory under apps/canvas.",
+      "minLength": 1,
+      "title": "Path",
+      "type": "string"
+    },
+    "pattern": {
+      "description": "ast-grep pattern. A pattern the parser rejects is bad-pattern.",
+      "minLength": 1,
+      "title": "Pattern",
+      "type": "string"
+    }
+  },
+  "required": [
+    "pattern"
+  ],
+  "title": "AstGrepArgs",
+  "type": "object"
+}

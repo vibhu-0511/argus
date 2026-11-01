@@ -1,0 +1,16 @@
+{
+  "$id": "https://argus.local/schemas/fix/list_dir.schema.json",
+  "additionalProperties": false,
+  "description": "List the names in one directory inside the worktree.",
+  "properties": {
+    "path": {
+      "default": ".",
+      "description": "Directory relative to the worktree.",
+      "minLength": 1,
+      "title": "Path",
+      "type": "string"
+    }
+  },
+  "title": "ListDirArgs",
+  "type": "object"
+}

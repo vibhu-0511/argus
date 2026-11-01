@@ -1,0 +1,8 @@
+{
+  "$id": "https://argus.local/schemas/fix/submit.schema.json",
+  "additionalProperties": false,
+  "description": "Stop the run. The scored artifact is the worktree diff, not this call.",
+  "properties": {},
+  "title": "SubmitArgs",
+  "type": "object"
+}

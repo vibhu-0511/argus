@@ -1,0 +1,25 @@
+{
+  "$id": "https://argus.local/schemas/fix/search.schema.json",
+  "additionalProperties": false,
+  "description": "Find an exact string and return file and line.",
+  "properties": {
+    "path": {
+      "default": ".",
+      "description": "File or directory relative to the worktree.",
+      "minLength": 1,
+      "title": "Path",
+      "type": "string"
+    },
+    "query": {
+      "description": "Exact text to find. No regular expression.",
+      "minLength": 1,
+      "title": "Query",
+      "type": "string"
+    }
+  },
+  "required": [
+    "query"
+  ],
+  "title": "SearchArgs",
+  "type": "object"
+}
