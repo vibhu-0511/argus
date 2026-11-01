@@ -1,0 +1,10 @@
+{
+  "task_id": "seed-e02",
+  "stop_reason": "submit",
+  "score_exit": 0,
+  "verdict": "resolved",
+  "model": "claude-session",
+  "model_turns": 10,
+  "token_source": "chars/4 estimate",
+  "variant": "E mini-swe-agent"
+}

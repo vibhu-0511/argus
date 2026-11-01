@@ -1,0 +1,13 @@
+diff --git a/apps/canvas/src/styles/tokens.css b/apps/canvas/src/styles/tokens.css
+index 9b95319ca..5ad74b7e2 100644
+--- a/apps/canvas/src/styles/tokens.css
++++ b/apps/canvas/src/styles/tokens.css
+@@ -176,7 +176,7 @@ button.pill[aria-pressed]:disabled { opacity: 0.45; cursor: default; }
+ .rcard:hover { border-color: var(--border-secondary); }
+ .rcard.active { border-color: var(--accent-warning); box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent-warning), transparent 55%); }
+ 
+-.glabel {
++div.glabel {
+   font-size: 10px;
+   font-weight: 700;
+   letter-spacing: 0.05em;

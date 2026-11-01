@@ -1,0 +1,6 @@
+diff --git a/apps/canvas/src/ops/ops.css b/apps/canvas/src/ops/ops.css
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -2,7 +2,7 @@
+-.ops-app { min-height: 100vh; display: flex; flex-direction: row; }
++.ops-app { min-height: 100vh; display: flex; flex-direction: column; }

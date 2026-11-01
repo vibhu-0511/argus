@@ -1,0 +1,11 @@
+{
+  "run_id": "p4-t20-seed-e06-d2",
+  "task_id": "seed-e06",
+  "stop_reason": "submit",
+  "model_turns": 7,
+  "score_exit": 0,
+  "verdict": "resolved",
+  "empty_diff": true,
+  "model": "claude-session",
+  "note": "rescored from diff.patch on a fresh platform worktree; the original verdict.json came from a scorer that could not find @playwright/test in this checkout"
+}

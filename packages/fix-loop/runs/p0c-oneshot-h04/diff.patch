@@ -1,0 +1,13 @@
+diff --git a/apps/canvas/src/ops/ops.css b/apps/canvas/src/ops/ops.css
+index bc6c4864b..c482e3aa7 100644
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -78,7 +78,7 @@ html[data-theme="light"] .ops-show-chip--cancelled[aria-pressed="true"] { color:
+ 
+ /* The SVG map, after the dcortex-gen2 ops map: a fixed dark field in both themes, in the Radar's green-black.
+    Stroke widths and sizes are set per element in screen pixels; the colours live here. */
+-.ops-map { position: relative; display: block; border: 1px solid #1e2a40; border-radius: 8px; overflow: hidden; background: #0a0f1a; }
++.ops-map { position: relative; isolation: isolate; display: block; border: 1px solid #1e2a40; border-radius: 8px; overflow: hidden; background: #0a0f1a; }
+ .ops-map-head { display: flex; justify-content: space-between; gap: 12px; padding: 6px 12px; font: 600 11px var(--font-mono); letter-spacing: 0.04em; color: #8494ac; text-transform: uppercase; border-bottom: 1px solid #1e2a40; }
+ .ops-map-asof { color: #5a6a85; text-transform: none; }
+ .ops-map-svg { display: block; width: 100%; height: 62vh; min-height: 360px; background: #0a0f1a; cursor: grab; touch-action: none; }

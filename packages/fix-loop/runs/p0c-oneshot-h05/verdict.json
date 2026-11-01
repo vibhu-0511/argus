@@ -1,0 +1,12 @@
+{
+  "task_id": "seed-h05",
+  "applied": false,
+  "apply_error": "error: patch failed: apps/canvas/src/ops/radar.css:72\nerror: apps/canvas/src/ops/radar.css: patch does not apply",
+  "score_exit": null,
+  "verdict": "unresolved",
+  "model": "claude-session",
+  "tokens_in": 11132,
+  "tokens_out": 289,
+  "token_source": "chars/4 estimate",
+  "variant": "P0 one-shot, claude-session"
+}

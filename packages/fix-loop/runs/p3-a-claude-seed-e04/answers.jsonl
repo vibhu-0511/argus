@@ -1,0 +1,4 @@
+"{\"tool\": \"search\", \"arguments\": {\"query\": \"backdrop\", \"path\": \".\"}}"
+"{\"tool\": \"read_file\", \"arguments\": {\"path\": \"apps/canvas/src/styles/landing.css\"}}"
+"{\"tool\": \"edit\", \"arguments\": {\"path\": \"apps/canvas/src/styles/landing.css\", \"old\": \"  inset: 0;\\n  z-index: 1;\\n  display: grid;\", \"new\": \"  inset: 0;\\n  z-index: 100;\\n  display: grid;\"}}"
+"{\"tool\": \"submit\", \"arguments\": {}}"

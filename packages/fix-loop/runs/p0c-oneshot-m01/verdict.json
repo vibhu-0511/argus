@@ -1,0 +1,12 @@
+{
+  "task_id": "seed-m01",
+  "applied": true,
+  "apply_error": "",
+  "score_exit": 1,
+  "verdict": "unresolved",
+  "model": "claude-session",
+  "tokens_in": 7696,
+  "tokens_out": 316,
+  "token_source": "chars/4 estimate",
+  "variant": "P0 one-shot, claude-session"
+}

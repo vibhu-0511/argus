@@ -1,0 +1,4 @@
+"{\"tool\": \"search\", \"arguments\": {\"query\": \"overflow\", \"path\": \"apps/canvas/src\"}}"
+"{\"tool\": \"search\", \"arguments\": {\"query\": \"radar-modes\", \"path\": \"apps/canvas/src\"}}"
+"{\"tool\": \"edit\", \"arguments\": {\"path\": \"apps/canvas/src/ops/radar.css\", \"old\": \"border-radius: 8px; overflow: visible; background: transparent; }\", \"new\": \"border-radius: 8px; overflow: hidden; background: transparent; }\"}}"
+"{\"tool\": \"submit\", \"arguments\": {}}"

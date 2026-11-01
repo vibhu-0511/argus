@@ -1,0 +1,5 @@
+"{\"tool\": \"search\", \"arguments\": {\"query\": \"admin\", \"path\": \"apps/canvas/src\"}}"
+"{\"tool\": \"run_cmd\", \"arguments\": {\"command\": \"grep -rnE 'admin|feed' apps/canvas/src --include=*.css | grep -E 'label|feed' | head -40\"}}"
+"{\"tool\": \"run_cmd\", \"arguments\": {\"command\": \"grep -rnE 'div\\.(admin|feed|radar)|div\\.[a-z-]*(admin|feed)|(admin|feed)[a-z-]*\\s*div|^div' apps/canvas/src --include='*.css' | head -40; ls apps/canvas/src/ops | head -80\"}}"
+"{\"tool\": \"list_dir\", \"arguments\": {\"path\": \"apps/canvas/src/ops\"}}"
+"{\"tool\": \"list_dir\", \"arguments\": {\"path\": \"apps/canvas/src/ops\"}}"

@@ -1,0 +1,13 @@
+diff --git a/apps/canvas/src/styles/landing.css b/apps/canvas/src/styles/landing.css
+index 16cafdce2..c09b69ef9 100644
+--- a/apps/canvas/src/styles/landing.css
++++ b/apps/canvas/src/styles/landing.css
+@@ -226,7 +226,7 @@
+   top: 0;
+   height: var(--band-h);
+   z-index: 1;
+-  overflow: hidden;
++  overflow: visible;
+   background: #0a0f1a;
+   /* the photograph dissolves into the page background; ending on a flat colour would leave a visible seam */
+   -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 56%, transparent 100%);
