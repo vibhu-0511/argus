@@ -6,6 +6,7 @@ import argparse
 from pathlib import Path
 
 from eval.metrics import format_summary, load_dir, summarize
+from eval.report import report_files
 from eval.results import schema_json
 from eval.runner import AgentConfig, load_agent, load_tasks, run_eval
 
@@ -25,11 +26,16 @@ def main(argv: list[str] | None = None) -> int:
     run.add_argument("--out", type=Path, required=True)
     run.add_argument("--run-id", help="default: the agent name")
 
+    report = sub.add_parser("report", help="print the phase report table from <previous.json> <this.json>")
+    report.add_argument("files", type=Path, nargs="*", help="none: empty template; one: this phase; two: previous, this")
+
     sub.add_parser("schema", help="print the results JSON Schema")
 
     args = parser.parse_args(argv)
     if args.command == "schema":
         print(schema_json(), end="")
+    elif args.command == "report":
+        print(report_files(args.files), end="")
     elif args.command == "run":
         config = AgentConfig.model_validate_json(args.agent.read_text(encoding="utf-8"))
         results = run_eval(load_tasks(args.tasks), load_agent(config), config, run_id=args.run_id)

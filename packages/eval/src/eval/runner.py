@@ -15,6 +15,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from argus_core.prices import dollar_equivalent
 from argus_core.types import Task
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -101,6 +102,8 @@ def _aggregate(rows: list[TaskRow], config: AgentConfig, run_id: str, now: datet
     token_sum = {
         field: sum(getattr(r.tokens, field) for r in scored) for field in ("tokens_in", "tokens_out", "tokens_cached")
     }
+    # no tokens, no price needed; tokens on an unpriced model raise UnknownModelPrice (never a silent 0)
+    dollars = dollar_equivalent(config.model, **token_sum) if token_sum["tokens_in"] or token_sum["tokens_out"] else None
     latencies = [r.latency_s for r in scored if r.latency_s is not None]
     p50, p95 = percentile(latencies, 50), percentile(latencies, 95)
     runs = [run_metrics(load_trajectory(Path(r.trajectory))) for r in rows if r.trajectory]
@@ -126,5 +129,6 @@ def _aggregate(rows: list[TaskRow], config: AgentConfig, run_id: str, now: datet
             n=len(latencies),
         ),
         trajectory_metrics=summarize(runs) if runs else None,
+        dollar_equivalent=None if dollars is None else round(dollars, 6),
         tasks=rows,
     )

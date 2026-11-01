@@ -482,7 +482,7 @@
         }
       ],
       "default": null,
-      "description": "List-price dollar equivalent of the tokens (P5-T11). null until the price table is used.",
+      "description": "List-price dollar equivalent of the scored tokens (argus_core.prices). null when there are no tokens.",
       "title": "$ Equivalent"
     },
     "agent": {
