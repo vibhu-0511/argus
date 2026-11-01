@@ -1,0 +1,12 @@
+{
+  "where": "LOCAL throwaway Postgres, not Neon",
+  "postgres": "16.15 (Debian 16.15-1.pgdg13+2)",
+  "measured_seconds": 120.0,
+  "baseline_seconds": 10.0,
+  "baseline_transactions": 3,
+  "dbos_idle_transactions": 1673,
+  "dbos_idle_transactions_per_second": 13.94,
+  "open_connections_during_idle": 5,
+  "queue": "argus-flow, no workflow enqueued",
+  "at": "2026-11-01T19:56:16+00:00"
+}
