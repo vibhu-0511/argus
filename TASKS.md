@@ -260,7 +260,7 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 - [x] P6-T05 Build the FastAPI webhook endpoint with HMAC signature verification [PAIR] 2h
 - [x] P6-T06 Treat webhooks as hints: enqueue a reconcile and return immediately [ME] 1h
 - [ ] P6-T07 Build the reconciliation poller that rebuilds state from GitHub [ME] 3h
-- [ ] P6-T08 Add the QA signal wait with a timeout [ME] 2h
+- [x] P6-T08 Add the QA signal wait with a timeout [ME] 2h
 
 ## Week 23 — P6 (21 h scheduled)
 

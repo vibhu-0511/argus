@@ -29,6 +29,7 @@ class FakeGitHub:
         self.bodies: dict[str, tuple[str, str]] = {}  # branch -> (title, body) of the PR
         self.comments: dict[str, str] = {}  # key -> body
         self.labels: dict[str, str] = {}  # ticket -> current argus label state
+        self.closed: set[str] = set()  # branches whose PR was closed
         self.lookup_error: Exception | None = None
 
     def push_branch(self, branch: str, patch: str, key: str) -> None:
@@ -48,6 +49,17 @@ class FakeGitHub:
         self.bodies[branch] = (title, body)
         self.prs[branch] = PullRequest(len(self.prs) + 1, f"https://example.test/pr/{branch}", True)
         return self.prs[branch]
+
+    def ready_pr(self, branch: str) -> None:
+        self.calls.append("ready_pr")
+        pr = self.prs[branch]
+        if pr.draft:
+            self.prs[branch] = pr._replace(draft=False)
+
+    def close_pr(self, branch: str) -> None:
+        self.calls.append("close_pr")
+        self.prs[branch]  # a missing PR is an error, as on GitHub
+        self.closed.add(branch)
 
     def post_comment(self, ticket_id: str, key: str, body: str) -> None:
         self.calls.append("post_comment")
