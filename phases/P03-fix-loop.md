@@ -70,10 +70,15 @@ Write the agent loop that turns a ticket plus a reproduction into a patch, from 
 
 ## Break it on purpose
 1. **Repeated tool call (P3-T28).** *Induced failure:* a fake model that calls `read_file` on the same path forever. *Expected signal:* stuck detector fires, stop reason `stuck`, step count in the trajectory. *Fix:* detect N identical consecutive calls and end the run or inject a "you are repeating yourself" message once.
+   Observed: a fake model called `read_file` on `a.txt` with the same arguments. The run stopped on the third call with `stuck`. The trajectory has 3 steps, and the last step's stop reason is `stuck`.
 2. **Tool output flood (P3-T29).** *Induced failure:* `read_file` on a 5 MB file. *Expected signal:* the context budget manager triggers its strategy; no provider error about context length. *Fix:* cap or offload at the dispatch boundary, so a single tool result cannot exceed a fixed share of the window.
+   Observed: `read_file` on a 5 MB file of `x`. The budget manager called the cap strategy. The next model message was 8000 characters and ended with `[truncated]`. The run then submitted. It did not raise.
 3. **Malformed arguments (P3-T30).** *Induced failure:* a fake model sends `edit` with a missing field and a wrong type. *Expected signal:* typed validation error returned as the tool result; run continues; after repeated errors it stops. *Fix:* put the schema's required fields in the error message so the model can correct itself.
+   Observed: the second model call saw `failed: missing old`. Three malformed `edit` calls stopped as `retry-cap`, not `stuck`. A provider body `{"id": "resp-1"}` with no `choices` was `failed` (`provider payload missing choices`), and the run then submitted.
 4. **Editing the checks (P3-T31).** *Induced failure:* the model tries to overwrite a bench check to make it pass. *Expected signal:* write rejected by the read-only mount; the attempt is recorded. *Fix:* keep checks outside the writable tree, and fail any patch that touches them.
+   Observed: the first step ran `echo x > /checks/keep.txt` through `sandbox.run`. The trajectory step has `tool_name` `run_cmd` and `tool_error` `failed`. `keep.txt` stayed `same`.
 5. **Destructive command (P3-T32).** *Induced failure:* `rm -rf` on the repo root inside `run_cmd`. *Expected signal:* damage limited to the disposable worktree; the host tree hash is unchanged; the gate flags a broken tree. *Fix:* recreate the worktree per run, and never mount anything writable except the worktree.
+   Observed: `rm -f /work/a.txt` removed `a.txt` in the worktree. The host repo hash, excluding `.git`, was unchanged and the host file stayed `one`. The unit gate, which requires `a.txt`, failed. Three identical timeouts stop as `consecutive-timeout`, not `stuck`. `vim a.txt` is `not-allowed` (`interactive command rejected`) and the run continues.
 
 ## Ablation
 **Hypothesis:** at least one non-trivial context strategy (output caps, offload-to-files or summarize) beats no compaction on resolve rate or tokens/bug, and the from-scratch loop is competitive with mini-swe-agent under the same model.
@@ -82,19 +87,40 @@ Write the agent loop that turns a ticket plus a reproduction into a patch, from 
 
 | Variant | Resolve rate (95% CI) | Tokens/bug (in, out, cached) | $-equivalent/bug | Quota share/bug | p50 latency | p95 latency | Peak context tokens |
 |---|---|---|---|---|---|---|---|
-| A | — | — | — | — | — | — | — |
-| B | — | — | — | — | — | — | — |
-| C | — | — | — | — | — | — | — |
-| D | — | — | — | — | — | — | — |
-| E | — | — | — | — | — | — | — |
+| A (stateful, full memory) | 20/29 [0.507695, 0.827246] | 202904, 205, 0 | — | — | — | — | 37407 mean, 179383 max |
+| A (stateless, none) | 18/28 [0.458300, 0.792944] | 100467, 170, 0 | — | — | — | — | 34060 mean, 484541 max |
+| B | 21/28 [0.566440, 0.873237] | 43105, 200, 0 | — | — | — | — | 7276 mean, 18118 max |
+| C | 20/28 [0.529404, 0.847462] | 32430, 228, 0 | — | — | — | — | 5505 mean, 14400 max |
+| D | 17/29 [0.407375, 0.744871] | 23485, 250, 0 | — | — | — | — | 5180 mean, 8339 max |
+| E (mini-swe-agent) | 19/29 [0.473448, 0.800595] | 47878, 446, 0 | — | — | — | — | 6440 mean, 11249 max |
+
+Rows A (stateless), B, C and D are stateless per-step runs: one fresh Claude subagent per loop step, one run per task, 29 tasks, model `claude-session`, 32,000-token budget. The rate denominators leave out runs the scorer excluded (exit 2: none 1, cap 1, offload 1, summary 0), so A, B and C use 28. Tokens and peak context are chars/4 estimates, the mean is per task, and the summary row undercounts because the summarizer's calls are not trajectory rows. Source: `packages/fix-loop/swarm/tally.py`; write-up in `docs/notes/p3-finish.md` (section "Stateless context ablation on 29 tasks"). The four intervals overlap and one run per cell cannot rank the strategies. Row E is variant E: mini-swe-agent (mini 2.4.6, `mini.yaml` with the ADR-011 overrides plus `step_limit` 20) in the Argus Docker sandbox, answered by a fresh Claude subagent per step through a local OpenAI-compatible relay, scored on the worktree diff; 29 tasks, no exclusions, so 29 in the denominator. Same caveats: one run per cell, `claude-session`, not comparable with a Groq or Mistral row. Its interval overlaps stateless A, so by the ADR-011 rule it does not justify adopting a framework. Details: `docs/notes/p3-finish.md`, section "Variant E on 29 tasks".
+
+Row A is a live run with **Claude (a session as the model)**, not the plan's Devstral row, and is not comparable with a Groq or Mistral run. 29 of the 30 seeded tasks (`bug-17` is excluded: its patches no longer apply to the platform HEAD). Tokens and peak context are chars/4 estimates, tokens per bug is the mean over the 29. No provider quota applies, and latency was not recorded. Run ids and the per-task table: `packages/fix-loop/runs/README.md`. Rows B, C and D are not run on this stateful method: a Claude session keeps its own memory, so a context strategy cannot be tested on it (see the stateless rows above).
 
 **Phase report (against previous phase):**
 
 | Report | Resolve rate | Tokens/bug | $-equivalent | p50 latency | p95 latency |
 |---|---|---|---|---|---|
-| Previous phase | — | — | — | — | — |
-| This phase | — | — | — | — | — |
-| Delta | — | — | — | — | — |
+| Previous phase | — | — | — | 0.822504s | 2.906274s |
+| This phase, A stateful (full memory) | 20/29 [0.507695, 0.827246] (Claude session) | 202904, 205, 0 | — | — | — |
+| This phase, A stateless (none) | 18/28 [0.458300, 0.792944] | 100467, 170, 0 | — | — | — |
+| This phase, B (output caps) | 21/28 [0.566440, 0.873237] | 43105, 200, 0 | — | — | — |
+| This phase, C (offload) | 20/28 [0.529404, 0.847462] | 32430, 228, 0 | — | — | — |
+| This phase, D (summarize) | 17/29 [0.407375, 0.744871] | 23485, 250, 0 | — | — | — |
+| This phase, E (mini-swe-agent) | 19/29 [0.473448, 0.800595] | 47878, 446, 0 | — | — | — |
+| P0 one-shot, Claude session (same model, no tools, files given) | 23/29 [0.616096, 0.901541] | 8322, 257, 0 | — | — | — |
+| Delta, A stateful minus one-shot | -10.3 points | +194582, -52, 0 | — | — | — |
+| Delta, A stateless minus one-shot | -15.0 points | +92145, -87, 0 | — | — | — |
+| Delta, B minus one-shot | -4.3 points | +34783, -57, 0 | — | — | — |
+| Delta, C minus one-shot | -7.9 points | +24108, -29, 0 | — | — | — |
+| Delta, D minus one-shot | -20.7 points | +15163, -7, 0 | — | — | — |
+| Delta, E minus one-shot | -13.8 points | +39556, +189, 0 | — | — | — |
+| Delta against P2 | — | — | — | — | — |
+
+The previous row is P2's phase report. P2 did not resolve bugs. Its measured rate is top-1 file accuracy, so that resolve cell stays —. P2's latency is the pgvector per-task time. The this-phase row is variant A with Claude (a session) as the model on 29 of the 30 seeded tasks, a substitution for the Devstral row. Its resolve rate and tokens come from the run files in `packages/fix-loop/runs/` (log: `docs/notes/p3-finish.md`). Latency was not recorded, so it stays —. Delta stays — because P2 has no resolve rate or token figure to subtract from. The P0 baseline in `phases/P00-argus-bench.md` is `0/10 [-0.000000, 0.277540]`: a one-shot call to `openai/gpt-oss-20b` with no tools, a different model and method, so the two are not subtracted. `$-equivalent` stays — until P5-T11.
+
+The B, C, D and stateless-A rows are the stateless per-step runs from the Ablation table above: one run per cell, 29 tasks, model `claude-session`, so they are not comparable with a Groq or Mistral row. Every cell is printed by `packages/fix-loop/swarm/tally.py` from `verdict.json` and `trajectory.jsonl`; tokens are chars/4 estimates and the mean is per task. The denominators leave out runs the scorer excluded (exit 2): none 1, cap 1, offload 1, summary 0. The summary token cells undercount because the summarizer's calls are not trajectory rows. The stateful and stateless rows are different methods, so the stateful row is not a baseline for the stateless ones. The four intervals overlap, so the rows do not rank the strategies. Latency was not recorded in any row. Row E is filled from the variant E runs (see the Ablation table). The delta rows subtract the P0 one-shot row, not P2: P2 has no resolve rate, token figure or comparable latency to subtract from, so the P2 delta stays `—` in every column. The P0 baseline in `phases/P00-argus-bench.md` (`0/10`, one `openai/gpt-oss-20b` call) is a different model on 10 tasks, so it is not subtracted either. The one-shot row is that P0 method redone with the session model (`claude-session`): one call per task, the ticket plus the current text of the files named in `bug.patch`, no tools, a unified diff as the reply, applied and scored like a run. Resolve deltas are percentage points between point estimates over resolved+unresolved runs (the rows use 28 or 29 tasks); token deltas are the variant minus the one-shot mean (in, out, cached). Every delta interval overlaps the one-shot interval, so no delta is a measured gap. Read them with three limits: the one-shot prompt is handed the exact files that contain the bug, which the loop has to find itself; the one-shot row uses a GNU `patch` fallback for diffs that git would not apply (strict `git apply` gives 22/29 [0.578920, 0.877817]); and one run per cell, one model, `claude-session`, not comparable with a Groq or Mistral row. `$-equivalent` and latency stay `—`. Details: `docs/notes/p3-finish.md`, section "P0 one-shot baseline redone with the session model".
 
 ## ADRs to write
 All [ME].
