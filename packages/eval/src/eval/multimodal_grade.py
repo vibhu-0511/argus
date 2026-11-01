@@ -44,6 +44,8 @@ def newest_report(logs: Path, run_id: str, instance_id: str) -> dict | None:
 def summarize(report: dict | None, note: str = "") -> dict:
     if report is None:
         return {"status": "error", "resolved": False, "note": note or "no report.json"}
+    if "tests_status" not in report:  # the harness writes a bare report when the run itself failed (e.g. test timeout); that is not a verdict
+        return {"status": "error", "resolved": False, "note": note or "report without test results"}
     status = "resolved" if report["resolved"] else "infra_failure" if report.get("infra_failure") else "unresolved"
     return {"status": status, "resolved": bool(report["resolved"]), "patch_applied": report.get("patch_successfully_applied"), "note": note}
 
