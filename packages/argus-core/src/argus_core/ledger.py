@@ -97,6 +97,7 @@ class Ledger:
             raise QuotaExceeded(model, "tokens_per_minute", minute_tokens, quota.tokens_per_minute)
 
     def _record(self, model: str, usage: Usage) -> None:
+        # `tokens` is what counts against the cap; `cached` and `fresh` (prompt tokens that missed the cache) are kept apart.
         quota = self.quotas[model]
         charged = usage.tokens_in + usage.tokens_out
         if not quota.cached_counts:
@@ -106,12 +107,13 @@ class Ledger:
         bucket["requests"] += 1
         bucket["tokens"] += charged
         bucket["cached"] += usage.tokens_cached
+        bucket["fresh"] = bucket.get("fresh", 0) + max(usage.tokens_in - usage.tokens_cached, 0)
         bucket["events"].append({"t": self._now().isoformat(), "tokens": charged})
         self._save()
 
     def _bucket(self, model: str) -> dict:
         return self._state["models"].setdefault(
-            model, {"requests": 0, "tokens": 0, "cached": 0, "events": []}
+            model, {"requests": 0, "tokens": 0, "cached": 0, "fresh": 0, "events": []}
         )
 
     def _roll_day(self) -> None:
