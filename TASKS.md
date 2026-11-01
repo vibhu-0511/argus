@@ -204,7 +204,7 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 - [ ] P5-T08 Build the attribute normalizer between argus spans and backend conventions [ME] 3h
 - [ ] P5-T09 Prove the backend swap with a second local OTLP backend [PAIR] 1h
 - [ ] P5-T10 Write ADR-015: Trace backend and normalizer [ME] 1h
-- [ ] P5-T11 Compute tokens and list-price dollar equivalent from a dated price table [PAIR] 2h
+- [x] P5-T11 Compute tokens and list-price dollar equivalent from a dated price table [PAIR] 2h
 - [x] P5-T12 Build the router: cheap tier for repro and localize, strong tier for fix [ME] 4h
 - [x] P5-T13 Design prompt caching: stable prefix and cached-token accounting [ME] 2h
 - [ ] P5-T14 Run ablation: routing vs single strong model on the 30-task subset [ME] 4h

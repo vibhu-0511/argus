@@ -61,6 +61,12 @@ flowchart LR
     METRICS["trajectory metrics<br/>five formulas, docs/metrics.md"]:::p5
     RUNNER["eval runner<br/>Wilson 95% interval, results JSON"]:::p5
     PRICES["price table<br/>dated list prices, dollar equivalent"]:::p5
+    REPORT["phase report<br/>previous, this, delta"]:::p5
+    GATE["regression gate<br/>baseline lower bound, gate.toml"]:::p5
+    OTEL["OTel spans<br/>invoke_agent, chat, execute_tool"]:::p5
+    ROUTER["router<br/>routing.yaml, cheap and strong tier"]:::p5
+    PCACHE["prompt cache accounting<br/>stable prefix, cached vs fresh"]:::p5
+    MM["SWE-bench Multimodal adapter<br/>dev split, exclusions listed"]:::p5
   end
 
   BUGSMITH --> FILTER
@@ -113,7 +119,19 @@ flowchart LR
   SEEDED --> RUNNER
   RUNNER --> METRICS
   RUNNER -. "agent under test" .-> FIX
-  PRICES -. "wired in wave 2" .-> RUNNER
+  PRICES --> RUNNER
+  RUNNER --> REPORT
+  RUNNER --> GATE
+  MM --> RUNNER
+  FIX --> OTEL
+  REPRO --> OTEL
+  CLIENT --> OTEL
+  PRICES --> OTEL
+  ROUTER --> CLIENT
+  ROUTER --> LEDGER
+  ROUTER -. "tier on each step" .-> TRAJ
+  PCACHE --> LEDGER
+  PCACHE -. "stable prefix" .-> FIX
 
   classDef p0 fill:#dbeafe,stroke:#1d4ed8,stroke-width:1.5px,color:#111827
   style S0 fill:none,stroke:#1d4ed8,stroke-width:1.5px
@@ -128,7 +146,7 @@ flowchart LR
   classDef p5 fill:#fce7f3,stroke:#be185d,stroke-width:4px,color:#111827
   style S5 fill:none,stroke:#be185d,stroke-width:4px
   classDef ext fill:#ffffff,stroke:#6b7280,color:#111827,stroke-dasharray: 4 3
-  linkStyle 46,47,48,49,50 stroke-width:3px
+  linkStyle 46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61 stroke-width:3px
 ```
 
 ## How to read it
@@ -146,7 +164,12 @@ Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink.
 ## What P5 adds (so far)
 
 - `packages/eval`: the five trajectory metrics (steps, tool-error rate, redundant-call rate, stuck rate, recover-after-gate-failure rate) over stored trajectory files, and a runner that writes one results JSON with a Wilson 95% interval. The results JSON is the file the report, gate and dashboard read.
-- `packages/argus-core/prices.json`: dated list prices per model and the dollar-equivalent function. Not wired into results yet.
+- `packages/argus-core/prices.json`: dated list prices per model and the dollar-equivalent function. The runner and the spans use it.
+- `eval report` and `eval gate`: the phase report table, and a gate that fails when a run is below the baseline's Wilson lower bound. All thresholds are in `gate.toml`.
+- `argus_core.telemetry`: OTel spans for each model call, tool call and agent run. With no provider started they do nothing.
+- `argus_core.router` and `routing.yaml`: repro and localize go to the cheap tier, fix to the strong tier, with a fallback to the other host. The loop does not use it yet (T14).
+- The fix prompt has a byte-stable prefix, and the ledger keeps cached and fresh tokens apart.
+- `eval multimodal`: the SWE-bench Multimodal `dev` subset, with the dropped rows and reasons listed.
 - Per-task detail: `docs/architecture/p5.md`.
 
 ## What P4 added
