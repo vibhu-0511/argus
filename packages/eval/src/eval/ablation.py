@@ -11,8 +11,8 @@ of phases/P05-argus-eval.md. Anything it cannot measure prints as a dash.
 
 Agent config `params`: `out_dir` (required), `stub` (no model call, no git, no scorer), `resolve` (stub: task ids
 to resolve), `quotas`, `ledger`, `hosts` ({host: {base_url, key_env}}), `clients` (`module:function` returning
-{host: client}, to bring your own model host), `repro` (default true), `run_trees` (`module:function` returning the
-repro tree runner; no live one exists yet), `step_cap`, `token_cap`, `repro_cap`, `context_budget`, `strategy`
+{host: client}, to bring your own model host), `repro` (default true), `run_trees` (`module:function` returning a function
+task directory -> repro tree runner; `repro_agent.trees:live` is the live one, it needs `python -m repro_agent.trees up`), `step_cap`, `token_cap`, `repro_cap`, `context_budget`, `strategy`
 (`none` or `cap`).
 
 ponytail: `localize` is in both policies but nothing in the pipeline makes a chat call for it (dom2src locates with
@@ -141,9 +141,9 @@ def _agent(config: AgentConfig, policy_path: Path):
         quotas = {m: replace(q, requests_per_minute=10**9, tokens_per_minute=10**9) for m, q in quotas.items()}
     router = Router(policy, Ledger(Path(p.get("ledger", out_dir / "ledger.json")), quotas), _clients(p, policy))
     use_repro = bool(p.get("repro", True))
-    run_trees = _import(p["run_trees"])() if p.get("run_trees") else None
-    if use_repro and run_trees is None and not stub:
-        raise ValueError("no live repro tree runner exists yet: pass params.run_trees (module:function) or params.repro=false")
+    trees_for = _import(p["run_trees"])() if p.get("run_trees") else None
+    if use_repro and trees_for is None and not stub:
+        raise ValueError("no live repro tree runner given: pass params.run_trees (repro_agent.trees:live) or params.repro=false")
     if p.get("strategy", "none") not in ("none", "cap"):
         raise ValueError("params.strategy must be 'none' or 'cap'")
     budget = int(p["context_budget"]) if p.get("context_budget") else None
@@ -167,7 +167,7 @@ def _agent(config: AgentConfig, policy_path: Path):
             if use_repro:
                 repro = run_repro(
                     ticket=task.ticket, task_dir=Path(p.get("tasks_dir", SEEDED)) / task.id, model=config.model,
-                    run_trees=run_trees or (lambda _script: TreeRun(True, True)), out_dir=work / "repro", cap=int(p.get("repro_cap", 3)),
+                    run_trees=trees_for(Path(p.get("tasks_dir", SEEDED)) / task.id) if trees_for else (lambda _script: TreeRun(True, True)), out_dir=work / "repro", cap=int(p.get("repro_cap", 3)),
                     run_id=task.id, host=config.host, git_commit=commit, router=router, stage="repro",
                 )
                 script, paths = repro.script, [repro.trajectory_path]
@@ -327,6 +327,8 @@ def render(a: Measured, b: Measured, quotas: dict[str, ModelQuota]) -> str:
     out = []
     if any(m.results.agent.params.get("stub") for m in (a, b)):
         out.append("**STUB RUN: these figures come from a stub model, not from a real run. They measure nothing.**\n")
+    if any(m.results.agent.params.get("claude_session") for m in (a, b)):
+        out.append("**Claude-session tiers (sonnet = strong, haiku = cheap, via the subagent model parameter). Tokens are chars/4 estimates of the messages and leave out each subagent's harness overhead; $ is their list-price equivalent; latency is wall clock with several tasks at once; the quota cell is a dash because the only cap is self-imposed.**\n")
     out += [HEADER]
     for label, m in (("A", a), ("B", b)):
         out.append(f"| {label} ({m.results.agent.name}) | " + " | ".join(_cells(m, quotas)) + " |")
