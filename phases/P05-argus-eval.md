@@ -86,9 +86,11 @@ Measure the whole pipeline at trajectory level with traces and a CI regression g
 
 | Report | Resolve rate | Tokens/bug | $-equivalent | p50 latency | p95 latency |
 |---|---|---|---|---|---|
-| Previous phase | — | — | — | — | — |
-| This phase | — | — | — | — | — |
-| Delta | — | — | — | — | — |
+| Previous phase | 69.0% (20/29) | 203,109 | — | — | — |
+| This phase | 71.4% (20/28) | 34,940 | $0.0694 | 1617.0 s | 5097.5 s |
+| Delta | +2.5 pp (not significant) | not comparable | — | — | — |
+
+*Generated with `python -m eval report packages/eval/results/baseline.json packages/eval/results/ablation-B.json`. Previous phase = the P3 variant A run (stateful loop, context strategy `none`, 20 of 29; it is also the P4 best-of-k k = 1 draw); P4 added no resolve rate of its own. This phase = the routed pipeline of the P5 ablation (variant B, Claude sessions, stateless turns, context strategy `cap`, 20 of 28 after one scorer exclusion). They are not the same method, so the resolve-rate delta is inside both intervals and means no change. The tokens/bug delta of -82.8% that the generator prints is a change of context strategy and of how tokens were counted (chars/4 of the messages here), not an effect of P5, so it is shown as not comparable. Latency is only measured for this phase, and not comparable across methods. $-equivalent was '—' in P4 and starts here.*
 
 ## ADRs to write
 All [ME].
