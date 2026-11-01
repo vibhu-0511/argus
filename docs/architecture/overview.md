@@ -8,6 +8,7 @@ flowchart LR
   CANVAS["dcortex Canvas<br/>system under test"]:::ext
   PG[("copa-local Postgres")]:::ext
   HOSTS["Model hosts<br/>Groq, Mistral, Ollama"]:::ext
+  TRACES["Trace backends<br/>Langfuse Cloud, Phoenix local"]:::ext
 
   subgraph S0 ["P0 bench and quota ledger"]
     CORE["argus-core<br/>Ticket, Task, Trajectory schemas"]:::p0
@@ -67,6 +68,10 @@ flowchart LR
     ROUTER["router<br/>routing.yaml, cheap and strong tier"]:::p5
     PCACHE["prompt cache accounting<br/>stable prefix, cached vs fresh"]:::p5
     MM["SWE-bench Multimodal adapter<br/>dev split, exclusions listed"]:::p5
+    EXPORT["OTLP export<br/>env config, bounded queue"]:::p5
+    NORM["attribute normalizer<br/>langfuse and phoenix profiles"]:::p5
+    EGATE["eval-gate.yml<br/>stored results, no model"]:::p5
+    DASH["static dashboard<br/>opens from disk"]:::p5
   end
 
   BUGSMITH --> FILTER
@@ -132,6 +137,11 @@ flowchart LR
   ROUTER -. "tier on each step" .-> TRAJ
   PCACHE --> LEDGER
   PCACHE -. "stable prefix" .-> FIX
+  OTEL --> NORM
+  NORM --> EXPORT
+  EXPORT --> TRACES
+  EGATE --> GATE
+  RUNNER -. "results files" .-> DASH
 
   classDef p0 fill:#dbeafe,stroke:#1d4ed8,stroke-width:1.5px,color:#111827
   style S0 fill:none,stroke:#1d4ed8,stroke-width:1.5px
@@ -146,7 +156,7 @@ flowchart LR
   classDef p5 fill:#fce7f3,stroke:#be185d,stroke-width:4px,color:#111827
   style S5 fill:none,stroke:#be185d,stroke-width:4px
   classDef ext fill:#ffffff,stroke:#6b7280,color:#111827,stroke-dasharray: 4 3
-  linkStyle 46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62 stroke-width:3px
+  linkStyle 46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67 stroke-width:3px
 ```
 
 ## How to read it
@@ -169,6 +179,8 @@ Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink.
 - `argus_core.telemetry`: OTel spans for each model call, tool call and agent run. With no provider started they do nothing.
 - `argus_core.router` and `routing.yaml`: repro and localize go to the cheap tier, fix to the strong tier, with a fallback to the other host. The loop does not use it yet (T14).
 - The fix prompt has a byte-stable prefix, and the ledger keeps cached and fresh tokens apart.
+- Spans go through an attribute normalizer (profiles for Langfuse and Phoenix; unknown names pass through and are counted), then an OTLP exporter chosen from environment variables with a bounded queue. The swap to a second backend was shown with a local Phoenix and two local receivers. The Langfuse export is built but no trace has been seen there.
+- `eval-gate.yml` runs the gate on a stored results pair, and `packages/dashboard` builds a static page from the results files. ADR-015 and ADR-017 record the choices.
 - `eval multimodal`: the SWE-bench Multimodal `dev` subset, with the dropped rows and reasons listed.
 - Per-task detail: `docs/architecture/p5.md`.
 
