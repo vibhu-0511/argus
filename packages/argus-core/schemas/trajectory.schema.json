@@ -1,0 +1,194 @@
+{
+  "$defs": {
+    "StopReason": {
+      "enum": [
+        "submit",
+        "step-cap",
+        "token-cap",
+        "QuotaExceeded",
+        "stuck",
+        "consecutive-timeout",
+        "retry-cap"
+      ],
+      "title": "StopReason",
+      "type": "string"
+    },
+    "TrajectoryMeta": {
+      "additionalProperties": false,
+      "properties": {
+        "git_commit": {
+          "minLength": 1,
+          "title": "Git Commit",
+          "type": "string"
+        },
+        "host": {
+          "minLength": 1,
+          "title": "Host",
+          "type": "string"
+        },
+        "model": {
+          "minLength": 1,
+          "title": "Model",
+          "type": "string"
+        },
+        "prompt_hash": {
+          "minLength": 1,
+          "title": "Prompt Hash",
+          "type": "string"
+        },
+        "run_id": {
+          "minLength": 1,
+          "title": "Run Id",
+          "type": "string"
+        },
+        "seed": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Seed"
+        },
+        "task_id": {
+          "minLength": 1,
+          "title": "Task Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "run_id",
+        "task_id",
+        "model",
+        "host",
+        "prompt_hash",
+        "git_commit"
+      ],
+      "title": "TrajectoryMeta",
+      "type": "object"
+    },
+    "TrajectoryStep": {
+      "additionalProperties": false,
+      "description": "One JSONL record. `tokens_cached` defaults to 0 when the field is omitted. `raw_response` keeps a rejected tool call visible to replay.",
+      "properties": {
+        "index": {
+          "minimum": 0,
+          "title": "Index",
+          "type": "integer"
+        },
+        "kind": {
+          "const": "step",
+          "default": "step",
+          "title": "Kind",
+          "type": "string"
+        },
+        "message": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Message"
+        },
+        "raw_response": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Raw Response"
+        },
+        "stop_reason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StopReason"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "tokens_cached": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Tokens Cached",
+          "type": "integer"
+        },
+        "tokens_in": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Tokens In",
+          "type": "integer"
+        },
+        "tokens_out": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Tokens Out",
+          "type": "integer"
+        },
+        "tool_error": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tool Error"
+        },
+        "tool_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tool Name"
+        }
+      },
+      "required": [
+        "index"
+      ],
+      "title": "TrajectoryStep",
+      "type": "object"
+    }
+  },
+  "$id": "https://argus.local/schemas/trajectory.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "$ref": "#/$defs/TrajectoryMeta"
+    },
+    "steps": {
+      "items": {
+        "$ref": "#/$defs/TrajectoryStep"
+      },
+      "title": "Steps",
+      "type": "array"
+    }
+  },
+  "required": [
+    "meta",
+    "steps"
+  ],
+  "title": "Trajectory",
+  "type": "object"
+}

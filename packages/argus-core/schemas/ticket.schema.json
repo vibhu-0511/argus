@@ -1,0 +1,56 @@
+{
+  "$defs": {
+    "Screenshot": {
+      "additionalProperties": false,
+      "properties": {
+        "media_type": {
+          "minLength": 1,
+          "title": "Media Type",
+          "type": "string"
+        },
+        "path": {
+          "minLength": 1,
+          "title": "Path",
+          "type": "string"
+        }
+      },
+      "required": [
+        "media_type",
+        "path"
+      ],
+      "title": "Screenshot",
+      "type": "object"
+    }
+  },
+  "$id": "https://argus.local/schemas/ticket.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "minLength": 1,
+      "title": "Id",
+      "type": "string"
+    },
+    "screenshot": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Screenshot"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "text": {
+      "minLength": 1,
+      "title": "Text",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "text"
+  ],
+  "title": "Ticket",
+  "type": "object"
+}
