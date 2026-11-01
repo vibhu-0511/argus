@@ -1,0 +1,1 @@
+{"text": "No z tokens in tokens.css. Look at the head of tokens.css and the tokens test.", "command": "cd /work/apps/canvas/src && sed -n 1,30p styles/tokens.css; sed -n 1,40p styles/tokens.test.ts"}

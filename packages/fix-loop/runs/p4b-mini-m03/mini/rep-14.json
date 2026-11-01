@@ -1,0 +1,1 @@
+{"text": "Both rules look wrong: .radar-modes has overflow: visible and .radar-list has overflow-y: visible. Print the full lines to confirm.", "command": "cd /work/apps/canvas/src/ops && sed -n '76p;157p' radar.css"}

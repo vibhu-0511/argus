@@ -1,0 +1,1 @@
+{"command": "grep -rnI '8px' /work 2>/dev/null | grep -v node_modules | grep -iE 'clock|label|admin|radar' | head -30"}

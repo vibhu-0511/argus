@@ -1,0 +1,1 @@
+{"text": "grep rejected --include; retry with plain recursive grep excluding node_modules.", "command": "grep -rniE 'backdrop' . -l --exclude-dir=node_modules --exclude-dir=.git 2>/dev/null | head -20"}

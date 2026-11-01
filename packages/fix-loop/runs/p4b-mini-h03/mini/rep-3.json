@@ -1,0 +1,1 @@
+{"text": "Look for overflow/clip-related rules in the radar and landing CSS.", "command": "cd /work/apps/canvas/src && grep -niE 'overflow|clip|contain|mask' ops/radar.css styles/landing.css | head -60"}

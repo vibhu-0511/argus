@@ -1,0 +1,1 @@
+{"text": "BusyBox grep has no --include; use a bounded find for css files outside node_modules.", "command": "cd /work && timeout 20 find apps domains platform -name node_modules -prune -o -name '*.css' -print | head -30"}

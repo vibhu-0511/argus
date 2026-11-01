@@ -1,0 +1,1 @@
+{"text": "No 'radar' matches; look at repo layout and search for 'clock'/'time' rules.", "command": "cd /work && ls && grep -rIil 'clock' . 2>/dev/null | grep -v -e node_modules -e '^./.git/' | head -30"}

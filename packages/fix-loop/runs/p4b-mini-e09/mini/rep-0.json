@@ -1,0 +1,1 @@
+{"text": "Search for overflow-related styles in the repo.", "command": "cd /work && grep -rniE 'overflow' --include=*.css --include=*.scss --include=*.tsx --include=*.jsx --include=*.html --include=*.js --include=*.ts . --exclude-dir=node_modules | head -40"}

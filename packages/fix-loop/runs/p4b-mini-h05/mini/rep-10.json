@@ -1,0 +1,1 @@
+{"text": "Whole-tree grep is too slow. Check which landing classes the landing component uses, and the existing radar-clock rules.", "command": "cd /work/apps/canvas/src && timeout 20 grep -rnE 'landing-logo|landing-brand|landing-wordmark' screens ops *.tsx | head -20; grep -nE 'radar-brand-title|radar-clock' ops/radar.css | cut -c1-160"}

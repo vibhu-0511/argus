@@ -1,0 +1,1 @@
+{"text": "git is unavailable. Find css files while pruning node_modules.", "command": "cd /work && find . -name node_modules -prune -o -name '*.css' -print | head -50"}

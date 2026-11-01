@@ -1,0 +1,1 @@
+{"text": "git is unavailable. Use timeout-bounded grep over source dirs, excluding heavy directories.", "command": "cd /work && timeout 20 grep -rniE 'landing' --include='*.py' --include='*.ts' --include='*.tsx' --include='*.js' --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=.venv apps domains functions platform tools 2>/dev/null | grep -iE 'stack|bar' | head -30"}

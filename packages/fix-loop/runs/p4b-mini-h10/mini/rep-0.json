@@ -1,0 +1,1 @@
+{"text": "Start by exploring the repo for the landing band and ops map controls.", "command": "cd /work && grep -rniE 'landing|ops.?map|z-index|zIndex' --include=* -l . 2>/dev/null | grep -v node_modules | head -30"}

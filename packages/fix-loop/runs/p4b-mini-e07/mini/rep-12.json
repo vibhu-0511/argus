@@ -1,0 +1,1 @@
+{"text": "No admin hits in platform/canvas-ui. Search it for 8px or size 8.", "command": "cd /work && timeout 20 grep -rnE '8px|fontSize: ?8,' platform/canvas-ui/styles.css platform/canvas-ui/src 2>/dev/null | cut -c1-220 | head -40"}

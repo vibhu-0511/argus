@@ -1,0 +1,1 @@
+{"text": "Find the CSS for the operations grid and the radar locked card, plus where those classes are defined.", "command": "cd /work/apps/canvas && grep -rnE 'ops-grid|radar-locked|ops-clocks' --include=*.css --include=*.tsx src | grep -v test | head -40"}

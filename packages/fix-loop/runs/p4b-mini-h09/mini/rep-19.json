@@ -1,0 +1,1 @@
+{"text": "Both overflow regressions are fixed: .radar-list is back to overflow-y: auto and .landing-band is back to overflow: hidden. Submitting.", "command": "echo COMPLETE_TASK_AND_SUBMIT_FINAL_OUTPUT"}

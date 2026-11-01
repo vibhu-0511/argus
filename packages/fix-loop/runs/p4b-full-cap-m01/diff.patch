@@ -1,0 +1,22 @@
+diff --git a/apps/canvas/src/ops/radar.css b/apps/canvas/src/ops/radar.css
+index f2869186c..6871e58d1 100644
+--- a/apps/canvas/src/ops/radar.css
++++ b/apps/canvas/src/ops/radar.css
+@@ -68,7 +68,7 @@
+ .radar-feed-pill--stale .radar-live-dot { background: var(--radar-amber); box-shadow: 0 0 10px var(--radar-amber); }
+ .radar-live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--radar-accent); box-shadow: 0 0 10px var(--radar-accent); animation: radar-livedot 1.2s infinite; }
+ .radar-clock { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.1; font-family: var(--radar-mono); }
+-.radar-clock-time { font-size: 20px; font-weight: 600; }
++.radar-clock-time { font-size: 14px; font-weight: 600; }
+ .radar-clock--utc .radar-clock-time { color: var(--radar-dim); }
+ .radar-clock-label { font-size: 10px; letter-spacing: 2px; color: var(--radar-dim); }
+ .radar-head-button { min-height: 36px; padding: 6px 12px; border: 1px solid rgba(59, 130, 246, 0.35); border-radius: 8px; background: transparent; color: var(--radar-muted); font-family: var(--radar-mono); font-size: 12px; font-weight: 600; letter-spacing: 1.5px; cursor: pointer; }
+@@ -172,7 +172,7 @@ button.radar-secondary:hover { background: rgba(59, 130, 246, 0.08); }
+ .radar-row-age { font-size: 14px; font-weight: 600; color: var(--radar-ink); }
+ .radar-row-clock { font-size: 11px; color: var(--radar-dim); }
+ .radar-row-text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+-.radar-row-title { font-size: 14px; font-weight: 600; color: var(--radar-ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
++.radar-row-title { font-size: 13px; font-weight: 600; color: var(--radar-ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+ .radar-row-detail { font-size: 12px; color: var(--radar-detail); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+ 
+ .radar-tag { min-width: 62px; box-sizing: border-box; padding: 3px 6px; border-radius: 4px; font-family: var(--radar-mono); font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-align: center; white-space: nowrap; }

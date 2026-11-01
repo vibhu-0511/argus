@@ -1,0 +1,8 @@
+{
+  "task_id": "BUG-17",
+  "verdict": "excluded",
+  "stop_reason": null,
+  "model": "claude-session",
+  "model_turns": 0,
+  "reason": "setup error before any model turn: bug.patch does not apply to platform HEAD ac86acc (apps/canvas/src/ops/radar.css:70), and golden.patch does not apply either; neither applies at any of the last 24 commits that touched radar.css. radar.css has drifted since the task was written. Left out of the Wilson denominator, as baseline.py does for a setup error."
+}

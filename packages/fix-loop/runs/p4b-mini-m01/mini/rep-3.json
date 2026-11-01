@@ -1,0 +1,1 @@
+{"text": "Prior greps found nothing. Search for 8px font sizes in any file type.", "command": "cd /work && grep -rnE '8px|text-8|fontSize: *8' . --exclude-dir=node_modules --exclude-dir=.git 2>/dev/null | head -40"}

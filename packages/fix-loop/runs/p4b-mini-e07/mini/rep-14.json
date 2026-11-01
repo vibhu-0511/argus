@@ -1,0 +1,1 @@
+{"text": "Find tokens.css and any label/size tokens set to 8px.", "command": "cd /work && timeout 25 find platform apps/canvas/design -name node_modules -prune -o -name 'tokens*' -print 2>/dev/null | head; timeout 20 grep -rnE -- '--[a-z-]*(label|badge|chip|tag|token)[a-z-]*: *8px' platform apps/canvas/design apps/canvas/src 2>/dev/null | cut -c1-200 | head -20"}

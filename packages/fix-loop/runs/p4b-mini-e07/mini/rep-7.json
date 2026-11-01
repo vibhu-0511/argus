@@ -1,0 +1,1 @@
+{"text": "BusyBox grep lacks --include; grep canvas src directly for admin and font sizes.", "command": "cd /work && timeout 20 grep -rniE 'admin' apps/canvas/src apps/canvas/design apps/work-os/src -l | head -20"}

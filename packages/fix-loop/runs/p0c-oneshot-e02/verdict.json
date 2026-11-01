@@ -1,0 +1,12 @@
+{
+  "task_id": "seed-e02",
+  "applied": false,
+  "apply_error": "error: patch failed: apps/canvas/src/ops/ops.css:2\nerror: apps/canvas/src/ops/ops.css: patch does not apply",
+  "score_exit": null,
+  "verdict": "unresolved",
+  "model": "claude-session",
+  "tokens_in": 11914,
+  "tokens_out": 74,
+  "token_source": "chars/4 estimate",
+  "variant": "P0 one-shot, claude-session"
+}

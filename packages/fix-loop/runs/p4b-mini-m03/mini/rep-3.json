@@ -1,0 +1,1 @@
+{"text": "The full find timed out. Use git grep, which only searches tracked files and is faster.", "command": "cd /work && git grep -li radar | head -30"}

@@ -1,0 +1,1 @@
+{"text": "BusyBox grep lacks --include. Use grep -ril over the repo excluding node_modules via find prune.", "command": "find /work -path '*/node_modules' -prune -o -path '*/.git' -prune -o -type f -print | xargs grep -il 'ops' | head -30"}

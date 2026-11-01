@@ -1,0 +1,1 @@
+{"text": "Operations and Timeline are in apps/canvas/src/ops. Look for where they are composed together.", "command": "cd /work/apps/canvas/src && ls ops && grep -rn -E 'Operations|Timeline' --include=* ops/*.tsx screens/*.tsx 2>/dev/null | grep -v test | grep -E 'import|<Operations|<Timeline' | head -20"}

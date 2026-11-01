@@ -1,0 +1,1 @@
+{"text": "Inspect the brand-related rules in landing.css.", "command": "cd /work/apps/canvas/src/styles && sed -n '40,60p;245,260p' landing.css"}

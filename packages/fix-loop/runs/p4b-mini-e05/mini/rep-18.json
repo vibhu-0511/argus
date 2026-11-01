@@ -1,0 +1,1 @@
+{"text": "Radar.tsx and radar.css exist in apps/canvas/src/ops. Search them for clock/time handling.", "command": "cd /work/apps/canvas/src/ops && timeout 20 grep -n -i -e clock -e 'time' Radar.tsx | head -40; wc -l Radar.tsx Radar.test.tsx"}

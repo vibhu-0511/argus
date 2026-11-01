@@ -1,0 +1,8 @@
+"{\"tool\": \"search\", \"arguments\": {\"query\": \"radar\", \"path\": \"apps/canvas/src\"}}"
+"{\"tool\": \"run_cmd\", \"arguments\": {\"command\": \"grep -rniE 'ops-shell|opsshell|radar-feed|radarfeed|feed-layout' apps/canvas/src --include=*.css | head -40\"}}"
+"{\"tool\": \"run_cmd\", \"arguments\": {\"command\": \"find apps/canvas/src -name '*.css' | head -50; grep -rnE 'flex-direction' apps/canvas/src | head -40\"}}"
+"{\"tool\": \"list_dir\", \"arguments\": {\"path\": \"apps/canvas/src\"}}"
+"{\"tool\": \"list_dir\", \"arguments\": {\"path\": \"apps/canvas/src/styles\"}}"
+"{\"tool\": \"list_dir\", \"arguments\": {\"path\": \"apps/canvas/src/ops\"}}"
+"{\"tool\": \"search\", \"arguments\": {\"query\": \"flex-direction\", \"path\": \"apps/canvas/src/ops/ops.css\"}}"
+"{\"tool\": \"read_file\", \"arguments\": {\"path\": \"apps/canvas/src/ops/ops.css\"}}"

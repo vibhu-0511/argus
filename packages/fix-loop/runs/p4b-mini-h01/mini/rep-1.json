@@ -1,0 +1,1 @@
+{"text": "BusyBox grep has no --include; retry with -rnE only.", "command": "grep -rnE '8px' /work --exclude-dir=node_modules --exclude-dir=.git | head -50"}

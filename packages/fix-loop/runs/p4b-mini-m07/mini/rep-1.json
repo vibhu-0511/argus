@@ -1,0 +1,1 @@
+{"text": "BusyBox grep lacks --include; use find and grep -rn instead.", "command": "grep -rniE '8px|font-size: ?8\b|fontSize: ?8\b' /work --exclude-dir=node_modules --exclude-dir=.git | head -30"}

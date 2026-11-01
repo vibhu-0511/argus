@@ -1,0 +1,1 @@
+{"text": "Look inside packs for clock/radar/time-related files.", "command": "cd /work/rules/domain/airline/packs && ls | head -50 && timeout 20 find . -type f | grep -i -e clock -e radar -e time | head -30"}

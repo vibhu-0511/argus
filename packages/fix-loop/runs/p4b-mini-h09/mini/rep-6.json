@@ -1,0 +1,1 @@
+{"text": "radar.css:157 has .radar-list with overflow-y: visible, which looks like the list no longer clipping. Inspect that area and search for the landing band.", "command": "cd /work/apps/canvas/src/ops && sed -n '155,160p' radar.css && grep -rniE 'landing' radar.css ops.css Radar.tsx | head -20"}

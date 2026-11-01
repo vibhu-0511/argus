@@ -1,0 +1,7 @@
+"{\"tool\": \"search\", \"arguments\": {\"query\": \"admin-label\", \"path\": \".\"}}"
+"{\"tool\": \"search\", \"arguments\": {\"query\": \"label\", \"path\": \"platform/canvas-ui\"}}"
+"{\"tool\": \"search\", \"arguments\": {\"query\": \"admin\", \"path\": \"platform/canvas-ui\"}}"
+"{\"tool\": \"search\", \"arguments\": {\"query\": \"--label\", \"path\": \"platform/canvas-ui\"}}"
+"{\"tool\": \"search\", \"arguments\": {\"query\": \"8px\", \"path\": \"platform/canvas-ui/styles.css\"}}"
+"{\"tool\": \"search\", \"arguments\": {\"query\": \"admin\", \"path\": \".\"}}"
+"{\"tool\": \"search\", \"arguments\": {\"query\": \"admin\", \"path\": \"apps/canvas\"}}"

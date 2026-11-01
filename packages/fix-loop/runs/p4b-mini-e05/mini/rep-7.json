@@ -1,0 +1,1 @@
+{"text": "No 'radar' matches anywhere. Search for 'clock' in rule/domain dirs and git history for deleted rule files.", "command": "cd /work && timeout 25 git log --oneline --diff-filter=D --name-only -i --grep=clock -n 10 2>/dev/null | head -30; timeout 20 grep -rIil -e 'clock' --exclude-dir=node_modules --exclude-dir=.git rules domains platform 2>/dev/null | head -30"}

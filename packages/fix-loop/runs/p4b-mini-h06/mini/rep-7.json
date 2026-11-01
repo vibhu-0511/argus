@@ -1,0 +1,1 @@
+{"text": "Look for css rules mentioning admin/radar in the canvas src css files.", "command": "cd /work/apps/canvas/src && grep -rnE 'admin|radar|feed' --include=*.css . | head -40"}

@@ -1,0 +1,1 @@
+{"text": "Find the CSS for landing and landing-band.", "command": "cd /work/apps/canvas && timeout 20 grep -rn -E 'landing' src --include=*.css | head -40"}

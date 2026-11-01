@@ -1,0 +1,1 @@
+{"text": "No 8px match in apps/canvas/src. List the directory to find landing/login files and stylesheets.", "command": "cd /work/apps/canvas/src && ls && timeout 20 grep -rliE 'brand|login' . | head -30"}

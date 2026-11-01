@@ -1,0 +1,1 @@
+{"text": "Use find on apps for ops/radar related files.", "command": "cd /work && find apps -type f -not -path '*/node_modules/*' | grep -iE 'radar|shell|ops' | head -40"}

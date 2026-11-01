@@ -1,0 +1,1 @@
+{"text": "BusyBox grep has no --include; use grep -r with find-free approach.", "command": "cd /work && grep -rniE overflow . 2>/dev/null | grep -v node_modules | head -40"}

@@ -1,0 +1,1 @@
+{"text": "radar.css is fixed. ops.css:31 .ops-operations also has flex-direction: row, which is the Operations row layout. Change it to column and show both lines.", "command": "cd /work/apps/canvas/src/ops && sed -i '31s/flex-direction: row;/flex-direction: column;/' ops.css && nl -ba ops.css | sed -n '31p' && nl -ba radar.css | sed -n '133p'"}

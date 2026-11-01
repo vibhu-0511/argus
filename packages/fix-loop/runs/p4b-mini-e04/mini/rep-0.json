@@ -1,0 +1,1 @@
+{"text": "Find where the login backdrop z-index is defined.", "command": "grep -rniE 'backdrop' --include=* . -l | head -20"}

@@ -1,0 +1,1 @@
+{"text": "Drop the div prefix so spans match.", "command": "cd /work/apps/canvas && sed -i -e 's/^div[.]glabel {/.glabel {/' -e 's/^div[.]btn {/.btn {/' src/styles/tokens.css && grep -nE '^[.](glabel|btn) [{]' src/styles/tokens.css"}

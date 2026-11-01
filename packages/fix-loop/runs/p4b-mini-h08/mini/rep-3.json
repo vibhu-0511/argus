@@ -1,0 +1,1 @@
+{"text": "No hits for 'locked' in app sources. Search more broadly for 'radar' across all files, excluding node_modules.", "command": "cd /work && grep -rliE 'radar' . --exclude-dir=node_modules --exclude-dir=.git --exclude=pnpm-lock.yaml --exclude=uv.lock 2>/dev/null | head -30"}

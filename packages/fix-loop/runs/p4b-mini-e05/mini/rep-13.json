@@ -1,0 +1,1 @@
+{"text": "No 'radar' anywhere; list rule keys/ids and descriptions in the regime JSON near the window specs to find a clock/time-of-day rule.", "command": "cd /work/domains/airline/crew/legality/src/regimes && timeout 20 grep -n -i -e '\"ruleId\"' -e '\"rule\"' -e '\"name\"' -e '\"label\"' -e 'clock' racp.json cars705.json | head -60"}

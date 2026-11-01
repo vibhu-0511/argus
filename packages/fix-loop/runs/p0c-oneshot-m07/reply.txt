@@ -1,0 +1,21 @@
+diff --git a/apps/canvas/src/styles/landing.css b/apps/canvas/src/styles/landing.css
+--- a/apps/canvas/src/styles/landing.css
++++ b/apps/canvas/src/styles/landing.css
+@@ -47,7 +47,7 @@
+   display: flex;
+   align-items: center;
+   gap: 10px;
+-  font-size: 8px;
++  font-size: 20px;
+   font-weight: 600;
+   letter-spacing: -0.01em;
+ }
+@@ -379,7 +379,7 @@
+ }
+ .auth-head h2 {
+   margin: 0;
+-  font-size: 8px;
++  font-size: 18px;
+   font-weight: 700;
+ }
+ .auth-x {

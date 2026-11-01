@@ -1,0 +1,1 @@
+{"text": "Full-tree searches time out. List apps and their src dirs, then search a narrow source dir.", "command": "cd /work && ls apps && ls apps/*/ | head -60"}

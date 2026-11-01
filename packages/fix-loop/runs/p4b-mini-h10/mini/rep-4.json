@@ -1,0 +1,1 @@
+{"text": "Look at z-index usage in landing.css and ops.css.", "command": "cd /work/apps/canvas/src && grep -nE 'z-index' styles/landing.css ops/ops.css"}

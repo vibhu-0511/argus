@@ -1,0 +1,22 @@
+diff --git a/apps/canvas/src/ops/radar.css b/apps/canvas/src/ops/radar.css
+--- a/apps/canvas/src/ops/radar.css
++++ b/apps/canvas/src/ops/radar.css
+@@ -71,7 +71,7 @@
+ .radar-live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--radar-accent); box-shadow: 0 0 10px var(--radar-accent); animation: radar-livedot 1.2s infinite; }
+ .radar-clock { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.1; font-family: var(--radar-mono); }
+-.radar-clock-time { font-size: 8px; font-weight: 600; }
++.radar-clock-time { font-size: 14px; font-weight: 600; }
+ .radar-clock--utc .radar-clock-time { color: var(--radar-dim); }
+ .radar-clock-label { font-size: 10px; letter-spacing: 2px; color: var(--radar-dim); }
+diff --git a/apps/canvas/src/styles/tokens.css b/apps/canvas/src/styles/tokens.css
+--- a/apps/canvas/src/styles/tokens.css
++++ b/apps/canvas/src/styles/tokens.css
+@@ -539,7 +539,7 @@
+ .rcard.active { border-color: var(--accent-warning); box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent-warning), transparent 55%); }
+ 
+ .glabel {
+-  font-size: 8px;
++  font-size: 12px;
+   font-weight: 700;
+   letter-spacing: 0.05em;
+   text-transform: uppercase;

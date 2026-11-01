@@ -1,0 +1,1 @@
+{"text": "The broad grep timed out. Use git grep, which only searches tracked files, to find the radar clock rules.", "command": "cd /work && git grep -liE 'radar' | head -30"}

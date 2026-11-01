@@ -1,0 +1,1 @@
+{"text": "Radar only appears in apps/bff/src/index.ts; inspect those lines.", "command": "cd /work && grep -niE 'radar|clock' apps/bff/src/index.ts | head -40"}

@@ -1,0 +1,1 @@
+{"text": "BusyBox grep lacks --exclude-dir; retry without it.", "command": "grep -rliE clock /work 2>/dev/null | grep -v node_modules | grep -v /.git/ | head -30"}

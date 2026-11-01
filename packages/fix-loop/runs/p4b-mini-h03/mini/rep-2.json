@@ -1,0 +1,1 @@
+{"text": "git is missing and the broad grep timed out. Narrow the search by file name to find radar/landing components.", "command": "cd /work && timeout 20 find apps -name node_modules -prune -o -iname '*radar*' -print -o -iname '*landing*' -print | head -30"}

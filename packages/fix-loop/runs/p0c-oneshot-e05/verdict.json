@@ -1,0 +1,12 @@
+{
+  "task_id": "seed-e05",
+  "applied": true,
+  "apply_error": "",
+  "score_exit": 0,
+  "verdict": "resolved",
+  "model": "claude-session",
+  "tokens_in": 7679,
+  "tokens_out": 292,
+  "token_source": "chars/4 estimate",
+  "variant": "P0 one-shot, claude-session"
+}

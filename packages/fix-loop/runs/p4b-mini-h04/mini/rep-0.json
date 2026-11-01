@@ -1,0 +1,1 @@
+{"text": "Start by finding where z-index is used for the login backdrop and ops map controls.", "command": "grep -rniE 'z-index|zIndex' /work --include=*.css --include=*.ts --include=*.tsx --include=*.js --include=*.jsx --include=*.scss --include=*.vue --include=*.html -l --exclude-dir=node_modules | head -50"}

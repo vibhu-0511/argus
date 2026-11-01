@@ -1,0 +1,1 @@
+{"text": "Check whether tests reference font sizes for the brand or auth heading.", "command": "cd /work/apps/canvas/src && grep -nE 'font|px' screens/LandingBrand.test.tsx screens/Landing.test.tsx screens/AuthModal.test.tsx | head -20"}

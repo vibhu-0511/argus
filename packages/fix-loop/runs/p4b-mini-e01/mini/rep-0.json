@@ -1,0 +1,1 @@
+{"text": "Find where the landing brand font size is set.", "command": "cd /work && grep -rniE 'brand' --include=*.css --include=*.tsx --include=*.ts --include=*.js --include=*.html --include=*.scss . --exclude-dir=node_modules | head -40"}

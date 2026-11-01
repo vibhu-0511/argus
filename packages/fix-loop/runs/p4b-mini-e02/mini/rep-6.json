@@ -1,0 +1,1 @@
+{"text": "Canvas has ops.tsx and an ops dir; look for the shell component and its layout styles.", "command": "timeout 20 ls /work/apps/canvas/src/ops /work/apps/canvas/src/styles; timeout 20 grep -rniE 'shell' /work/apps/canvas/src/ops.tsx /work/apps/canvas/src/styles | head -30"}

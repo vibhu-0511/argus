@@ -1,0 +1,1 @@
+{"text": "Search the canvas src CSS for other overflow: visible declarations, which may be the landing band half of the bug.", "command": "cd /work/apps/canvas/src && grep -rnE 'overflow(-[xy])?: *(visible|unset|initial)' --include=*.css . | cut -c1-300 | head -20"}

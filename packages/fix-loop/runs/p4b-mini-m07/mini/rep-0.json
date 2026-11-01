@@ -1,0 +1,1 @@
+{"text": "Find where the landing brand and login heading font sizes are set.", "command": "grep -rniE 'font-size|fontSize' /work --include=*.css --include=*.tsx --include=*.jsx --include=*.html --include=*.js --include=*.ts --exclude-dir=node_modules --exclude-dir=.git | grep -iE '8px|: ?8\b' | head -30"}

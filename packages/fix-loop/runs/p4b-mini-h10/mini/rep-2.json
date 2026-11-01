@@ -1,0 +1,1 @@
+{"text": "The first grep returned nothing, probably due to the odd flags. Retry with simpler flags restricted to source dirs.", "command": "cd /work && grep -rliE 'landing|ops-?map|opsmap|z-?index' apps domains platform --exclude-dir=node_modules --exclude-dir=.git | head -40"}

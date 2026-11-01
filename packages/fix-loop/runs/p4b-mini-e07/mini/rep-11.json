@@ -1,0 +1,1 @@
+{"text": "styles.css has no admin hits; look in the rest of platform/canvas-ui (tokens.css etc.) for admin/label tokens with 8px.", "command": "cd /work && ls platform/canvas-ui && timeout 20 grep -rniE 'admin' platform/canvas-ui | cut -c1-220 | head -30"}

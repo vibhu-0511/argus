@@ -1,0 +1,1 @@
+{"text": "Full-tree searches time out. Narrow to knowledge-base docs mentioning the radar clock rules.", "command": "cd /work/knowledge-base && timeout 20 grep -rniE 'radar.{0,20}clock|clock.{0,20}label|clock.time' . 2>/dev/null | head -20"}

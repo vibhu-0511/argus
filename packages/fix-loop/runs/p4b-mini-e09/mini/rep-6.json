@@ -1,0 +1,1 @@
+{"text": "Search source for the .landing CSS rule.", "command": "cd /work/apps/canvas/src && grep -rn 'landing {' . | head -20"}

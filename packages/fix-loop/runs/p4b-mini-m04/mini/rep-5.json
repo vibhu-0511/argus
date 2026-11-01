@@ -1,0 +1,1 @@
+{"text": "Backdrop z-index 1 and bar z-index 0 look too low next to header/hero at 10. Check bar rules and other z-index values in the app css first.", "command": "cd /work/apps/canvas/src && sed -n 1,35p styles/landing.css && grep -rn 'z-index' --include=*.css . | grep -v landing.css | head -30"}

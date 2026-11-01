@@ -1,0 +1,1 @@
+{"text": "No div rule in styles.css. Search other css/html/tsx files under /work for div.<class> selectors.", "command": "timeout 25 find /work -maxdepth 6 -name node_modules -prune -o -name '*.css' -print -o -name '*.html' -print -o -name '*.tsx' -print | head -500 | xargs timeout 20 grep -nE 'div[.][A-Za-z_-]+ *[{]' | head -20"}

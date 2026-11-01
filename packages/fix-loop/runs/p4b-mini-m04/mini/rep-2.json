@@ -1,0 +1,1 @@
+{"text": "Previous grep timed out; restrict to apps/canvas/src and look for login/landing/z-index.", "command": "cd /work/apps/canvas/src && grep -rIil -e 'login' -e 'landing' . | head -30"}

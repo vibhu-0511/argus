@@ -1,0 +1,1 @@
+{"text": "Search the canvas app and platform for ops/clock/time rule files by name, with a timeout.", "command": "cd /work && timeout 25 find apps/canvas platform/canvas-ui platform/canvas-format -type f -not -path '*/node_modules/*' 2>/dev/null | grep -i -e clock -e radar -e rule -e ops | head -40"}

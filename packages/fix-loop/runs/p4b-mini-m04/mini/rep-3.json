@@ -1,0 +1,1 @@
+{"text": "Look for z-index in landing/auth css and AuthModal.", "command": "cd /work/apps/canvas/src && grep -rn -i -e 'z-index' -e 'zIndex' styles/landing.css screens/AuthModal.tsx screens/Landing.tsx | head -40"}

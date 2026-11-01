@@ -1,0 +1,1 @@
+{"text": "Found landing.css. View the bar styles and surrounding rules.", "command": "cd /work/apps/canvas/src/styles && sed -n '1,45p' landing.css; grep -nE 'z-index' landing.css"}

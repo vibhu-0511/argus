@@ -1,0 +1,1 @@
+{"text": "Grep earlier failed oddly; the files live in apps/canvas/src/ops. Look for locked and layout in those files.", "command": "cd /work/apps/canvas/src/ops && grep -niE 'lock|flex|grid|row|column' Operations.tsx Radar.tsx radar.css | head -80"}

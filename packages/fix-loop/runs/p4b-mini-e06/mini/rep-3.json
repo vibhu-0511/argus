@@ -1,0 +1,1 @@
+{"text": "Only one CSS file found; grep it for the label rule.", "command": "grep -n -B2 -A4 'label' /work/platform/canvas-ui/styles.css | head -60"}

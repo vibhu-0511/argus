@@ -1,0 +1,1 @@
+{"text": "Both .ops-operations and .ops-timeline use flex-direction: row; switch them to column so children stack.", "command": "cd /work/apps/canvas/src/ops && sed -i -e '31s/flex-direction: row/flex-direction: column/' -e '36s/flex-direction: row/flex-direction: column/' ops.css && sed -n '31p;36p' ops.css"}

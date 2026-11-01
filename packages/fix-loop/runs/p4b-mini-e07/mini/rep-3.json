@@ -1,0 +1,1 @@
+{"text": "The previous find timed out, probably walking node_modules. Prune node_modules and search source files for admin label with sizes.", "command": "cd /work && timeout 25 find apps packages -name node_modules -prune -o -type f -name '*.ts*' -print -o -type f -name '*.css' -print | xargs grep -niE 'admin' 2>/dev/null | grep -iE 'label' | head -30"}

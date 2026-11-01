@@ -1,0 +1,1 @@
+{"text": "No CSS matched; search more broadly for selectors with div and admin/button.", "command": "cd /work && grep -rnE 'div[.#]?[a-z-]*(admin|button|label)' . --exclude-dir=node_modules --exclude-dir=.git | head -30"}

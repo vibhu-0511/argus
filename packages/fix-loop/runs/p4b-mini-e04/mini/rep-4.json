@@ -1,0 +1,1 @@
+{"text": "Find login-related files in apps/canvas (excluding node_modules) and grep for z-index there.", "command": "cd /work/apps/canvas && timeout 20 find . -path ./node_modules -prune -o -type f -iname '*login*' -print | head -20; timeout 20 grep -rniE 'z-?index|zIndex' design 2>/dev/null | head -20"}

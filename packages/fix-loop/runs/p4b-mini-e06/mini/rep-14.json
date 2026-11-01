@@ -1,0 +1,1 @@
+{"text": "Look for any 10px rule inside canvas-ui src (CSS-in-JS or style strings) that uses a div selector.", "command": "timeout 20 grep -rnE '10px' /work/platform/canvas-ui/src | grep -E 'div' | head -20"}

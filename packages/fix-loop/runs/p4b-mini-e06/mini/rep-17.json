@@ -1,0 +1,1 @@
+{"text": "Inspect the div.glabel rule in tokens.css.", "command": "sed -n '170,195p' /work/apps/canvas/src/styles/tokens.css; grep -rn 'glabel' /work/apps/canvas/src | head -20"}

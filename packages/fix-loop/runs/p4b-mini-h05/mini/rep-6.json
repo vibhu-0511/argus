@@ -1,0 +1,1 @@
+{"text": "Look at radar.css for the clock rule and find landing/brand size declarations in canvas css.", "command": "cd /work/apps/canvas/src && grep -niE 'clock' ops/radar.css | head -20; ls; timeout 20 grep -rniE 'landing' --include=*.css . | head -20"}

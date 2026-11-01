@@ -1,0 +1,1 @@
+{"text": "Both .radar-feed (line 96) and .radar-locked (line 133) use flex-direction: row; change to column, matching the rest of the stacked panels.", "command": "cd /work/apps/canvas/src/ops && sed -i '96s/flex-direction: row/flex-direction: column/;133s/flex-direction: row/flex-direction: column/' radar.css && sed -n '96p;133p' radar.css"}

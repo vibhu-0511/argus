@@ -1,0 +1,1 @@
+{"text": "Earlier greps returned nothing; search source files (css/tsx/ts) for div selectors tied to admin/radar, ignoring case and dirs like node_modules.", "command": "cd /work && grep -rIliE 'radar|admin-?label|adminlabel' apps platform domains functions tools tests --exclude-dir=node_modules --exclude-dir=.git 2>/dev/null | head -30"}

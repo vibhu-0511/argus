@@ -1,0 +1,1 @@
+{"text": "The .radar-feed rule at radar.css:96 sets flex-direction: row, which is the bug. Change it to column and confirm the edit.", "command": "cd /work/apps/canvas/src/ops && sed -i '96s/flex-direction: row;/flex-direction: column;/' radar.css && sed -n '95,97p' radar.css && grep -n 'radar-feed' radarLayout.test.ts | head"}

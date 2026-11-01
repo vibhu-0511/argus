@@ -1,0 +1,1 @@
+{"text": "Try arbitrary 8px sizes and admin/label token definitions.", "command": "cd /work && timeout 25 grep -rnE 'text-.8px.|--[a-z-]*(admin|label)[a-z-]*:' apps/canvas/src platform/canvas-ui platform/canvas-format 2>/dev/null | cut -c1-200 | head -30"}

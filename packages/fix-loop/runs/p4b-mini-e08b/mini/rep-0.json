@@ -1,0 +1,1 @@
+{"text": "I need to find the radar feed code first. I'll search the repo for it.", "command": "cd /work && grep -ril radar --include=* . 2>/dev/null | grep -v node_modules | head -30"}

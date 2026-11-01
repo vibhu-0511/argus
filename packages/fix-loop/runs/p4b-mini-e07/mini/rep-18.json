@@ -1,0 +1,1 @@
+{"text": "Search css/ts/tsx source dirs for exactly 8px font sizes.", "command": "cd /work && timeout 25 grep -rnE 'font-size: *8(px|;)|fontSize: *8[^0-9.]|text-.8px.' apps/canvas/src apps/engineering-ops apps/work-os/src platform/canvas-ui/src platform/canvas-ui/styles.css platform/canvas-format 2>/dev/null | grep -v node_modules | cut -c1-220 | head -30"}

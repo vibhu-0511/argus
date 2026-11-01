@@ -1,0 +1,1 @@
+{"text": "Source is likely a design token. Search platform/canvas-ui and canvas design dirs for label/admin tokens with 8px.", "command": "cd /work && timeout 20 grep -rniE 'label' platform/canvas-ui apps/canvas/design 2>/dev/null | grep -E '8px|: ?8[,;]?( |$)' | cut -c1-200 | head -30"}

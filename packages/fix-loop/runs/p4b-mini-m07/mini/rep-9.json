@@ -1,0 +1,1 @@
+{"text": "Set .landing-brand (line 48) and .auth-head h2 (line 415) to readable sizes.", "command": "cd /work/apps/canvas/src/styles && sed -i '48s/8px/18px/;415s/8px/20px/' landing.css && sed -n '48p;415p' landing.css"}

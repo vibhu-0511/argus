@@ -1,0 +1,1 @@
+{"text": "Start by searching for the landing bar stacking code.", "command": "cd /work && grep -rniE 'landing' --include=* . 2>/dev/null | grep -iE 'bar|stack' | head -30"}

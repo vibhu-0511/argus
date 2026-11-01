@@ -1,0 +1,1 @@
+{"text": "Find the radar feed CSS and the markup of the feed, plus how .ops-app children are laid out.", "command": "cd /work/apps/canvas/src && grep -rnE 'radar-feed|radar-.*feed|feed' --include=*.css . | head -30; grep -rnE 'radar-feed|className=\"[^\"]*feed' --include=*.tsx . | head -10; grep -n 'ops-app' ops/OpsApp.tsx | head"}

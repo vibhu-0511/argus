@@ -1,0 +1,1 @@
+{"text": "Retry grep with busybox-compatible flags.", "command": "grep -rli radar /work --exclude-dir=node_modules --exclude-dir=.git | head -30"}

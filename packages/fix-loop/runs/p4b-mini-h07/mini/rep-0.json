@@ -1,0 +1,1 @@
+{"text": "Find where 8px is used for the radar clock and admin label.", "command": "grep -rnE '8px' /work --include=* -I --exclude-dir=node_modules --exclude-dir=.git | grep -iE 'clock|label|admin|radar' | head -30"}

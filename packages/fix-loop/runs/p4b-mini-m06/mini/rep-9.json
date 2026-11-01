@@ -1,0 +1,1 @@
+{"text": "Search any file type for div. selectors with admin/btn/button classes.", "command": "cd /work/apps/canvas && timeout 25 grep -rn 'div.admin' src | head -20; timeout 25 grep -rn 'div.btn' src | head -20"}

@@ -1,0 +1,1 @@
+{"text": "The previous find timed out. Use a bounded depth and look only at CSS files.", "command": "timeout 20 find /work -maxdepth 4 -name '*.css' -not -path '*/node_modules/*' | head -30"}

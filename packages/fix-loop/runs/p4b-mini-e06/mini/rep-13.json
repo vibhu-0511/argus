@@ -1,0 +1,1 @@
+{"text": "Search canvas-ui src and test for admin or div-qualified label rules.", "command": "timeout 20 grep -rniE 'admin' /work/platform/canvas-ui/src /work/platform/canvas-ui/test | grep -iE 'label' | head -30"}

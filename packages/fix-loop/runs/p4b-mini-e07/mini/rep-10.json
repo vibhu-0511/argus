@@ -1,0 +1,1 @@
+{"text": "Source is likely in platform/canvas-ui/styles.css. Search for admin/token/role/badge near small font sizes.", "command": "cd /work && timeout 20 grep -rniE 'admin|token' platform/canvas-ui/styles.css | cut -c1-220 | head -30"}

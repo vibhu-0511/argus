@@ -1,0 +1,1 @@
+{"text": "BusyBox grep lacks --include; use -r with -l and filter via find-less grep on dirs.", "command": "grep -rniE 'z-index|zIndex' /work --exclude-dir=node_modules --exclude-dir=.git -l | head -50"}

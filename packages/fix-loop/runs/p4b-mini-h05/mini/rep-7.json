@@ -1,0 +1,1 @@
+{"text": "Inspect radar.css head rules and find landing/brand rules in the styles dir.", "command": "cd /work/apps/canvas/src && sed -n 60,92p ops/radar.css; ls styles; grep -rniE 'landing|brand' styles | head -30"}

@@ -1,0 +1,1 @@
+{"text": "Look at Landing.tsx for stack/bar related code.", "command": "cd /work/apps/canvas/src/screens && grep -niE 'stack|bar|zindex|z-index' Landing.tsx | head -40; wc -l Landing.tsx"}

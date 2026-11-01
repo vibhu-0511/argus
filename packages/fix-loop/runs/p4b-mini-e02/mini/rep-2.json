@@ -1,0 +1,1 @@
+{"text": "Too broad. Search for files named like an ops shell.", "command": "find /work -path '*/node_modules' -prune -o -path '*/.git' -prune -o -type f -print | grep -iE 'opsshell|ops-shell|ops_shell|opslayout' | head -30"}

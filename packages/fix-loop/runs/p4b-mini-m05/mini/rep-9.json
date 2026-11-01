@@ -1,0 +1,1 @@
+{"text": "Check the radar css and ops css for clock rules.", "command": "cd /work/apps/canvas/src/ops && grep -n -iE 'clock|time' radar.css | head -40; echo ---; grep -n -iE 'clock' ops.css | head -40"}

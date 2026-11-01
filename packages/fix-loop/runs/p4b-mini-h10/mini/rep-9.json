@@ -1,0 +1,1 @@
+{"text": "No z tokens exist. Look at tokens.test.ts and the top of tokens.css to see conventions before adding stack-level tokens.", "command": "cd /work/apps/canvas/src && sed -n '1,60p' styles/tokens.test.ts; sed -n '1,30p' styles/tokens.css"}

@@ -1,0 +1,1 @@
+{"text": "A match was found in apps/canvas/src/styles/tokens.css; inspect it.", "command": "grep -nE 'div[.#]?[A-Za-z_-]*label|div[.][A-Za-z_-]*admin' /work/apps/canvas/src/styles/tokens.css"}

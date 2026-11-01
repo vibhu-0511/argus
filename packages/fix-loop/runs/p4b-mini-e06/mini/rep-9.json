@@ -1,0 +1,1 @@
+{"text": "No div selector in styles.css; look for div.<class> selectors elsewhere in canvas-ui.", "command": "timeout 20 grep -rnE 'div[.][a-z-]*(label|admin)' /work/platform/canvas-ui | grep -v node_modules | head -20"}

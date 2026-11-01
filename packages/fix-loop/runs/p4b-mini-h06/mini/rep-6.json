@@ -1,0 +1,1 @@
+{"text": "Only one css file found so far. Look at it for div rules and search apps/canvas/src for admin/radar related names.", "command": "cd /work && grep -nE 'div' apps/canvas/src/insights/desk/assistant.css | head -30; grep -rIlE 'radar|Radar|admin|Admin' apps/canvas/src 2>/dev/null | head -20"}

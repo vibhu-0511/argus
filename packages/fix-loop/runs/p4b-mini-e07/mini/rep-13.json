@@ -1,0 +1,1 @@
+{"text": "Search token definitions with label/admin and 8 in platform and apps/canvas/design.", "command": "cd /work && timeout 25 grep -rniE '(label|admin)[a-z-]*[\"]?: *[\"]?8(px)?' platform/canvas-ui platform/canvas-format apps/canvas/design 2>/dev/null | cut -c1-220 | head -30"}

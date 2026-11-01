@@ -1,0 +1,13 @@
+diff --git a/apps/canvas/src/styles/landing.css b/apps/canvas/src/styles/landing.css
+index 16cafdce2..42be7f8ec 100644
+--- a/apps/canvas/src/styles/landing.css
++++ b/apps/canvas/src/styles/landing.css
+@@ -412,7 +412,7 @@ html[data-theme="light"] .landing-powered {
+ }
+ .auth-head h2 {
+   margin: 0;
+-  font-size: 17px;
++  font-size: 18px;
+   font-weight: 700;
+ }
+ .auth-x {

@@ -1,0 +1,1 @@
+{"text": "Start by locating the radar clock time rule in the repo.", "command": "cd /work && grep -ril 'radar' --include='*' . 2>/dev/null | grep -v node_modules | head -30"}

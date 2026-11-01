@@ -1,0 +1,1 @@
+{"text": "Find where the operations and timeline layout lives.", "command": "grep -rIl -i 'timeline' apps --include=*.tsx --include=*.ts --include=*.css --include=*.vue --include=*.html -s --exclude-dir=node_modules | head -30"}

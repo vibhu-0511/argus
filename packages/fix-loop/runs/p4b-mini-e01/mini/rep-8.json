@@ -1,0 +1,1 @@
+{"text": "Previous grep timed out. Search only css files in canvas/src for landing/brand rules, with a narrow file list.", "command": "cd /work/apps/canvas/src && ls | head -80 && ls | grep -iE 'landing|login|auth|brand'"}

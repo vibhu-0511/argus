@@ -1,0 +1,24 @@
+diff --git a/apps/canvas/src/styles/landing.css b/apps/canvas/src/styles/landing.css
+--- a/apps/canvas/src/styles/landing.css
++++ b/apps/canvas/src/styles/landing.css
+@@ -45,7 +45,7 @@
+   display: flex;
+   align-items: center;
+   gap: 10px;
+-  font-size: 20px;
++  font-size: 8px;
+   font-weight: 600;
+   letter-spacing: -0.01em;
+ }
+diff --git a/apps/canvas/src/styles/tokens.css b/apps/canvas/src/styles/tokens.css
+--- a/apps/canvas/src/styles/tokens.css
++++ b/apps/canvas/src/styles/tokens.css
+@@ -177,7 +177,7 @@
+ .rcard.active { border-color: var(--accent-warning); box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent-warning), transparent 55%); }
+ 
+ .glabel {
+-  font-size: 10px;
++  font-size: 8px;
+   font-weight: 700;
+   letter-spacing: 0.05em;
+   text-transform: uppercase;

@@ -1,0 +1,1 @@
+{"text": "Searches over the whole repo time out. Restrict to apps/canvas/src and look for 8px.", "command": "cd /work/apps/canvas/src && timeout 20 grep -rnE '8px|ontSize: ?8\b' . | head -30"}

@@ -1,0 +1,1 @@
+{"text": "Landing.tsx is likely in screens; look at it and its test.", "command": "cd /work/apps/canvas/src/screens && ls | grep -i landing; head -80 Landing.tsx; grep -n -i -E 'clip|hidden|scroll' Landing.test.tsx"}

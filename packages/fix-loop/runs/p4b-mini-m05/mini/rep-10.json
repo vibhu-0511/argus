@@ -1,0 +1,1 @@
+{"text": "radar.css has .radar-clock but no .radar-clock-time or .radar-clock-label rules. Inspect the surrounding lines and the usages.", "command": "cd /work/apps/canvas/src/ops && sed -n '64,76p' radar.css; grep -n 'radar-clock' Radar.tsx | head"}

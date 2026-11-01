@@ -1,0 +1,1 @@
+{"text": "Rules dir has domain/. Search it for clock/time/radar-related names, with a timeout.", "command": "cd /work/rules && timeout 20 find . -type f | grep -i -e clock -e radar -e time -e curfew | head -30; ls domain | head -50"}

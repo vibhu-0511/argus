@@ -1,0 +1,4 @@
+"{\"tool\": \"search\", \"arguments\": {\"query\": \"clock\", \"path\": \".\"}}"
+"{\"tool\": \"search\", \"arguments\": {\"query\": \"clock_label\", \"path\": \".\"}}"
+"{\"tool\": \"search\", \"arguments\": {\"query\": \"radar.clock\", \"path\": \".\"}}"
+"{\"tool\": \"search\", \"arguments\": {\"query\": \"radar-clock\", \"path\": \".\"}}"

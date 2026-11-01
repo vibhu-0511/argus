@@ -1,0 +1,1 @@
+{"text": "Radar only appears in a comment. Look for rule files by name, shallow and pruned.", "command": "cd /work && find . -maxdepth 4 -name node_modules -prune -o -type f -iname '*rule*' -print 2>/dev/null | head -40"}

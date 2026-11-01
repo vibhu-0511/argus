@@ -1,0 +1,1 @@
+{"text": "BusyBox grep lacks --include, so earlier searches failed. Grep the css files directly for backdrop/login/z-index.", "command": "cd /work/apps/canvas/src && grep -niE 'backdrop|login|z-index' styles/landing.css styles/tokens.css ops/ops.css ops/radar.css insights/desk/desk.css insights/desk/assistant.css | head -40"}

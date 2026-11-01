@@ -1,0 +1,1 @@
+{"text": "Radar is the ops view; find ops dir and mode switch/list components in canvas src.", "command": "cd /work/apps/canvas/src && ls && ls ops 2>/dev/null | head -60; timeout 20 grep -rliE 'modeswitch|mode-switch|ModeToggle' . 2>/dev/null | head -20"}

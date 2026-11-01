@@ -1,0 +1,1 @@
+{"text": "Start by searching the repo for the radar clock rule and landing brand size declarations.", "command": "cd /work && git log --oneline | head -5 && git status --short | head && grep -rniE 'radar|brand' --include=*.css --include=*.scss --include=*.html --include=*.js --include=*.ts --include=*.tsx -l . 2>/dev/null | grep -v node_modules | head -30"}

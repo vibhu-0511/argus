@@ -1,0 +1,1 @@
+{"text": "First, explore the repository structure.", "command": "ls -la && git log --oneline | head -5"}

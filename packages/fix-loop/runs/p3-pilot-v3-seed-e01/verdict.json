@@ -1,0 +1,9 @@
+{
+  "task_id": "seed-e01",
+  "stop_reason": "submit",
+  "score_exit": 0,
+  "verdict": "resolved",
+  "model": "claude-session",
+  "model_turns": 7,
+  "token_source": "chars/4 estimate"
+}

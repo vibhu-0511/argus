@@ -1,0 +1,1 @@
+{"text": "Previous grep hit nonexistent dirs. List /work top level and find files containing 8px via find+xargs.", "command": "cd /work && ls && find . -path ./node_modules -prune -o -path ./.git -prune -o -type f -print | xargs grep -nE '8px' 2>/dev/null | head -50"}

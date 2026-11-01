@@ -1,0 +1,1 @@
+{"text": "Look at context around the radar mention in openapi.json.", "command": "cd /work && sed -n '13095,13130p' apps/bff/openapi.json"}

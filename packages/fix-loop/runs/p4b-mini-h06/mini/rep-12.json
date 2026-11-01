@@ -1,0 +1,1 @@
+{"text": "Drop the div qualifier from both selectors.", "command": "cd /work/apps/canvas/src && sed -i 's/^div[.]glabel {/.glabel {/' styles/tokens.css && sed -i 's/^div[.]radar-feed {/.radar-feed {/' ops/radar.css && grep -n '^[.]glabel {' styles/tokens.css; grep -n '^[.]radar-feed {' ops/radar.css"}

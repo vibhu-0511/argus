@@ -1,0 +1,1 @@
+{"text": "BusyBox grep has no --include. Use find on the css files in ops and insights/desk instead, looking for overflow rules set to visible.", "command": "cd /work/apps/canvas/src && find ops insights -name '*.css' | xargs grep -nE 'overflow(-[xy])?: *(visible|unset|initial)' | cut -c1-300 | head -20"}
