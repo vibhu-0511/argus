@@ -7,6 +7,8 @@ uv run --package eval python -m eval metrics <dir> [--glob PATTERN] [--json]
 uv run --package eval python -m eval run --tasks tasks.json --agent agent.json --out results.json [--run-id ID]
 uv run --package eval python -m eval report [previous.json] [this.json]
 uv run --package eval python -m eval schema
+uv run --all-packages python -m eval.ablation tasks --out tasks.json
+uv run --all-packages python -m eval.ablation table A.json B.json
 uv run --package eval python packages/eval/scripts/run_noise.py
 uv run pytest packages/eval/tests -q
 ```
@@ -15,6 +17,7 @@ uv run pytest packages/eval/tests -q
 - `run`: runs an agent over a task list and writes one results JSON.
 - `report`: the phase report table (Previous phase, This phase, Delta) from two results files. One file is read as this phase; no file prints the empty template. Tokens/bug is in + out per task; $-equivalent is per task.
 - `scripts/run_noise.py`: run-to-run noise of one variant from the five stored draws per task, and the gate rules on every pair of draws. The figures behind `gate.toml` (ADR-017).
+- `eval.ablation`: the P5-T14 routing ablation harness (policies in `policies/`, agent factories, the table). Commands and open points: `docs/notes/p5-t14.md`.
 - `schema`: prints the results JSON Schema (committed at `schemas/results.schema.json`; a test fails if the file and the models drift).
 
 ## Inputs of `run`
