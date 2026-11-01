@@ -50,11 +50,12 @@ def wait_for_database(
     attempts: int | None = None,
     first_delay: float = FIRST_DELAY_SECONDS,
     max_delay: float = MAX_DELAY_SECONDS,
-    connect_timeout: int = CONNECT_TIMEOUT_SECONDS,
+    connect_timeout: int | None = None,
     sleep: Callable[[float], None] = time.sleep,
 ) -> int:
     """Return the number of the attempt that got an answer, or raise `DatabaseUnavailable`."""
     attempts = ATTEMPTS if attempts is None else attempts
+    connect_timeout = CONNECT_TIMEOUT_SECONDS if connect_timeout is None else connect_timeout
     delay = first_delay
     for attempt in range(1, attempts + 1):
         try:
