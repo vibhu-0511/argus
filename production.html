@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Argus · one ticket in production</title>
+<style>
+  :root {
+    --ink:#1f2937; --mute:#6b7280; --bg:#f6f8fb; --card:#fff; --line:#e5e7eb;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --accent:#1d4ed8;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.5 Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  header { display:flex; justify-content:space-between; align-items:flex-end; gap:24px; padding:28px 28px 0; max-width:1180px; margin:0 auto; }
+  h1 { margin:0; font-size:22px; letter-spacing:-.02em; }
+  h1 span { color:var(--mute); font-weight:500; }
+  header p { margin:8px 0 0; max-width:680px; color:#374151; font-size:14px; }
+  .controls { display:flex; gap:8px; flex:none; }
+  button { font:600 13px inherit; padding:8px 12px; border-radius:8px; border:1px solid #cbd5e1; background:#fff; cursor:pointer; color:var(--ink); }
+  button:hover { border-color:#64748b; }
+  button.primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+  button:disabled { opacity:.4; cursor:default; }
+
+  main, .wrap { max-width:1180px; margin:0 auto; padding:18px 28px; }
+  .wrap { padding-bottom:0; }
+
+  .shape { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
+  .shape article { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px 14px; }
+  .shape b { display:block; font-size:13px; }
+  .shape span { display:block; margin-top:4px; color:var(--mute); font-size:12px; line-height:1.4; }
+  .k { font:600 10px var(--mono); letter-spacing:.06em; text-transform:uppercase; color:#4338ca; }
+
+  .ticket { display:grid; grid-template-columns:1.4fr .8fr; gap:12px; margin-top:12px; }
+  .issue, .orch { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 16px; }
+  .issue h2, .orch h2 { margin:0 0 8px; font-size:13px; }
+  .meta { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; }
+  .pill { font:600 11px var(--mono); padding:2px 7px; border-radius:999px; background:#f3f4f6; color:#374151; }
+  .pill.on { background:#dbeafe; color:#1d4ed8; }
+  .issue p, .orch p { margin:0; font-size:13.5px; color:#374151; }
+  .orch ol { margin:8px 0 0; padding-left:18px; font-size:13px; color:#374151; }
+  .orch li + li { margin-top:4px; }
+
+  .rail { display:flex; gap:0; align-items:center; overflow-x:auto; padding:4px 0 2px; }
+  .rail button { border:0; background:transparent; padding:0; display:flex; align-items:center; gap:0; border-radius:0; }
+  .node { display:flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px; border:1px solid var(--line); background:#fff; font-size:12px; font-weight:600; color:var(--mute); white-space:nowrap; }
+  .node i { font-style:normal; font:600 10px var(--mono); width:18px; height:18px; border-radius:50%; display:grid; place-items:center; background:#f3f4f6; }
+  .rail button.past .node, .rail button.here .node { color:var(--ink); border-color:#bfdbfe; background:#eff6ff; }
+  .rail button.here .node { border-color:#1d4ed8; box-shadow:0 0 0 3px #dbeafe; }
+  .rail button.past .node i, .rail button.here .node i { background:#1d4ed8; color:#fff; }
+  .arrow { width:18px; height:1px; background:#cbd5e1; flex:none; }
+
+  .layout { display:grid; grid-template-columns:280px 1fr; gap:16px; align-items:start; }
+  .steps { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:4px; position:sticky; top:12px; }
+  .steps button { text-align:left; width:100%; border:1px solid transparent; background:transparent; padding:8px 10px; border-radius:10px; }
+  .steps button small { display:block; color:var(--mute); font-weight:500; font-size:11px; }
+  .steps button.on { background:#fff; border-color:#bfdbfe; }
+  .steps button b { font-weight:650; font-size:13px; }
+
+  .detail { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px 18px 16px; min-height:420px; }
+  .detail h2 { margin:0; font-size:18px; letter-spacing:-.02em; }
+  .where { margin:6px 0 12px; color:var(--mute); font-size:12.5px; }
+  .where b { color:#4338ca; font-weight:650; }
+  .detail > p { margin:0 0 12px; font-size:14.5px; }
+  .cols { display:grid; grid-template-columns:1.15fr .85fr; gap:12px; }
+  ul.clean { margin:0; padding-left:18px; font-size:13.5px; }
+  ul.clean li + li { margin-top:5px; }
+  h3 { margin:0 0 6px; font-size:11px; letter-spacing:.07em; text-transform:uppercase; color:var(--mute); }
+  pre { margin:0; padding:12px; border-radius:10px; background:#0f172a; color:#e2e8f0; font:12px/1.45 var(--mono); overflow:auto; white-space:pre-wrap; }
+  .side { display:flex; flex-direction:column; gap:10px; }
+  .box { border:1px solid var(--line); border-radius:10px; padding:10px 12px; background:#fafbfc; }
+  .box p { margin:0; font-size:13px; }
+  .box.bad { background:#fff7ed; border-color:#fed7aa; }
+  .box.ok { background:#f0fdf4; border-color:#bbf7d0; }
+  .guards { display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
+  .guards span { font-size:11px; padding:3px 8px; border-radius:999px; background:#f3f4f6; color:#6b7280; }
+  .guards span.on { background:#fee2e2; color:#991b1b; }
+  iframe.report { width:100%; height:560px; margin:0 0 14px; border:1px solid var(--line); border-radius:12px; background:#fff; }
+
+  .rules { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
+  .rules article { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px 14px; }
+  .rules b { display:block; font-size:13px; margin-bottom:4px; }
+  .rules p { margin:0; font-size:12.5px; color:#374151; }
+  footer { max-width:1180px; margin:0 auto; padding:4px 28px 28px; color:var(--mute); font-size:12px; }
+
+  @media (max-width: 900px) {
+    header, .shape, .ticket, .layout, .rules { display:block; }
+    .shape article, .issue, .orch, .rules article { margin-bottom:10px; }
+    .layout { display:block; }
+    .steps { position:static; flex-direction:row; overflow-x:auto; margin-bottom:12px; }
+    .steps button { width:auto; flex:none; }
+    .cols { display:block; }
+    .side { margin-top:12px; }
+    header { display:block; }
+    .controls { margin-top:12px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Argus <span>· one ticket in production</span></h1>
+    <p>A labelled GitHub issue becomes one durable workflow. The state machine calls one specialist per state, checkpoints the result, and opens a single pull request. Specialists return a result and stop. They do not message each other.</p>
+  </div>
+  <div class="controls">
+    <button id="prev" type="button">Back</button>
+    <button id="play" class="primary" type="button">Play the run</button>
+    <button id="next" type="button">Next</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <section class="shape">
+    <article><span class="k">Source of truth</span><b>Tenant GitHub repo</b><span>Issue, pull request, and Actions run. The agent job executes here, in the tenant's reusable workflow.</span></article>
+    <article><span class="k">Control plane</span><b>FastAPI + DBOS on Render</b><span>Durable steps in Neon Postgres. Accepts webhooks, dispatches work, waits for QA.</span></article>
+    <article><span class="k">Execution</span><b>GitHub Actions</b><span>Repro, locate, fix, and verify run in a worktree and a Docker sandbox with no network.</span></article>
+    <article><span class="k">Models</span><b>Router + quota ledger</b><span>Cheap tier for repro and locate. Strong tier for the fix. Local cross-family judge after the checks.</span></article>
+  </section>
+
+  <section class="ticket">
+    <div class="issue">
+      <h2>Worked example · issue #142</h2>
+      <div class="meta">
+        <span class="pill">you/shop-ui</span>
+        <span class="pill">public repo</span>
+        <span class="pill on">label: argus</span>
+      </div>
+      <p><b>Pay button is clipped on a phone.</b> On <code>/cart</code> at 375px the “Pay now” button runs off the right edge. Expected: the full button sits inside the viewport. This page follows that ticket. Amounts such as tokens and latency stay blank until a real run writes them.</p>
+    </div>
+    <div class="orch">
+      <h2>Who orchestrates</h2>
+      <p>DBOS is the orchestrator. A planner with subagents stays off unless the P8 ablation wins on both resolve rate and tokens per bug.</p>
+      <ol>
+        <li>Read GitHub, then advance one state.</li>
+        <li>Dispatch that state to Actions.</li>
+        <li>Store the step result before the next transition.</li>
+      </ol>
+    </div>
+  </section>
+</div>
+
+<div class="wrap"><div class="rail" id="rail"></div></div>
+
+<main>
+  <div class="layout">
+    <ol class="steps" id="steps"></ol>
+    <article class="detail" id="detail"></article>
+  </div>
+</main>
+
+<div class="wrap">
+  <section class="rules">
+    <article><b>GitHub is the record</b><p>The webhook asks the service to look. The reconciliation poller rebuilds state from the issue, the pull request, and the Actions run.</p></article>
+    <article><b>One effect, safe to retry</b><p>Opening a pull request is find-or-create, keyed by the ticket. A crash after the PR exists and before the checkpoint still leaves one PR.</p></article>
+    <article><b>Checks decide</b><p>Pixel diff, overflow, axe, and console run in that order and stop at the first hard failure. The vision judge writes an intent note after a full pass.</p></article>
+    <article><b>Code stays in the tenant repo</b><p>The control plane mints a short-lived installation token for that repo only. The sandbox has no network. Free-tier prompts see public code only.</p></article>
+  </section>
+</div>
+<footer>Worked example of the production path in PLAN.md and architecture.html. States match the P6 machine: repro → fix → verify → PR → awaiting-qa → done. The planner variant is the P8 ablation, kept only if it wins on both success and tokens.</footer>
+
+<script>
+const RAIL = [
+  ['queued', 'Queued'],
+  ['repro', 'Repro'],
+  ['fix', 'Fix'],
+  ['verify', 'Verify'],
+  ['pr', 'PR open'],
+  ['qa', 'Awaiting QA'],
+  ['done', 'Done'],
+];
+
+const GUARDS = [
+  '① Ticket is data',
+  '② Tool schema',
+  '③ Result redaction',
+  '④ Gates before submit',
+  '⑤ Verifier, fail closed',
+];
+
+const STEPS = [
+  {
+    rail: 'queued',
+    title: 'A label starts the run',
+    where: 'Tenant repo · GitHub',
+    phase: 'Intake',
+    summary: 'Someone labels issue #142 with argus on your own public repo. The issue text is the bug report. It is untrusted data for every later prompt, kept apart from the system instructions.',
+    does: [
+      'Repo you/shop-ui, issue #142, label argus.',
+      'The body names the route (/cart), the viewport (375px), and the expected result (button fully visible).',
+      'No model runs on this step. The control plane has not started yet.',
+    ],
+    artifact: `issue: you/shop-ui#142
+title: Pay button is clipped on a phone
+labels: [argus]
+body: |
+  On /cart at 375px, "Pay now" is cut off
+  on the right. Expected: the full button
+  sits inside the viewport.`,
+    checkpoint: 'Nothing is stored in Neon yet. GitHub holds the issue.',
+    breaks: 'If the label event is dropped because Render is asleep, the poller still sees the labelled issue and starts the same workflow.',
+    guards: [0],
+  },
+  {
+    rail: 'queued',
+    title: 'Webhook returns 202',
+    where: 'Control plane · Render',
+    phase: 'P6',
+    summary: 'GitHub posts the delivery. FastAPI checks the HMAC signature, stores the delivery id, enqueues a reconcile, and returns 202. The handler does not read GitHub and does not start the agent.',
+    does: [
+      'A bad signature gets 401.',
+      'The same delivery id a second time is a no-op. One workflow per ticket.',
+      'The handler is timed so it can answer inside GitHub’s 10 second window while the process is warm.',
+    ],
+    artifact: `POST /github/webhook
+X-GitHub-Delivery: 8f3c-142
+X-Hub-Signature-256: sha256:…
+
+202 Accepted
+{ "enqueued": "reconcile",
+  "delivery_id": "8f3c-142" }`,
+    checkpoint: 'Delivery id 8f3c-142 is stored. The workflow key is you/shop-ui#142.',
+    breaks: 'A cold start that misses the 10 second window loses this POST. The poller reads the labelled issue and enqueues the same key.',
+    guards: [0],
+  },
+  {
+    rail: 'queued',
+    title: 'The workflow checkpoints',
+    where: 'Control plane · DBOS + Neon',
+    phase: 'P6',
+    summary: 'DBOS opens one workflow for the ticket and writes the first state. Every later side effect has an idempotency key. Illegal transitions are rejected by the state machine.',
+    does: [
+      'State becomes repro. The next step is the only legal move.',
+      'Neon holds the step results. A restart resumes from the last stored step.',
+      'A suspended Neon compute wakes on the next query, then the workflow continues.',
+    ],
+    artifact: `workflow: you/shop-ui#142
+state: repro
+idempotency:
+  open-pr: you/shop-ui#142
+  delivery: 8f3c-142
+stored_steps: []`,
+    checkpoint: 'State repro is durable before Actions is called.',
+    breaks: 'Kill the process here and the restart loads this row. It does not create a second workflow.',
+    guards: [],
+  },
+  {
+    rail: 'repro',
+    title: 'Dispatch into the tenant repo',
+    where: 'Control plane → GitHub Actions',
+    phase: 'P8',
+    summary: 'The control plane mints a short-lived installation token scoped to you/shop-ui and dispatches the reusable workflow. Repro, fix, and verify run on Actions, in that repo. The Argus server does not clone the code to edit it.',
+    does: [
+      'A token for you/shop-ui fails if it is used on another repo.',
+      'The tenant’s workflow is a short workflow_call. Secrets stay the tenant’s.',
+      'Per-tenant quota is checked before any model call. One tenant exhausting its budget leaves the others running.',
+    ],
+    artifact: `dispatch: workflow_call
+repo: you/shop-ui
+ref: main @ a1b2c3d
+token: installation, shop-ui only, short-lived
+job: repro → fix → verify`,
+    checkpoint: 'State stays repro until the Actions artifact comes back.',
+    breaks: 'If the dispatch itself fails, the step is retried with the same workflow key. A second successful dispatch does not open a second job for the same step result.',
+    guards: [],
+  },
+  {
+    rail: 'repro',
+    title: 'Reproduce the bug',
+    where: 'Actions · repro-agent · cheap tier',
+    phase: 'P1',
+    summary: 'The repro agent writes a Playwright script from the ticket text. The router sends this call to the cheap tier. The script counts only if it fails on the buggy tree. A screenshot in the ticket is optional context. The verifier of the script is the run, not the model’s claim.',
+    does: [
+      'Playwright MCP drives the cart page at 375×812.',
+      'The script asserts the Pay now button’s right edge is inside the viewport.',
+      'On this tree the assertion fails. That failure is the repro verdict.',
+      'The loop has a hard retry cap and records a stop reason.',
+    ],
+    artifact: `// repro/142.spec.ts
+test('pay button inside 375px', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto('/cart');
+  const box = await page.getByRole('button',
+    { name: 'Pay now' }).boundingBox();
+  expect(box.x + box.width).toBeLessThanOrEqual(375);
+});
+
+verdict: fail on buggy tree
+router: cheap tier  (repro)`,
+    checkpoint: 'The failing script and the verdict are the step result. State can move to fix.',
+    breaks: 'If no script fails on the buggy tree, the workflow stops with that reason. It does not invent a locate hint or a patch.',
+    guards: [0, 1],
+  },
+  {
+    rail: 'fix',
+    title: 'Point at the source line',
+    where: 'Actions · locate() · cheap tier',
+    phase: 'P2',
+    summary: 'The failing button carries a build-time data-src attribute, because React 19 no longer exposes _debugSource. locate() returns the file and line. A wrapper that matches several nodes returns candidates instead of a guess.',
+    does: [
+      'The Vite plugin writes data-src in the dev build and strips it from the production build.',
+      'For this button the attribute is src/cart/PayButton.tsx:18.',
+      'The cheap tier is used if the agent has to choose among candidates. A single hit needs no strong model.',
+    ],
+    artifact: `selector: getByRole('button', { name: 'Pay now' })
+data-src: src/cart/PayButton.tsx:18:4
+locate():
+  file: src/cart/PayButton.tsx
+  line: 18
+  ambiguous: false`,
+    checkpoint: 'file:line is stored on the workflow. The fix prompt will receive it as a hint, next to the failing script.',
+    breaks: 'An ambiguous locate stores the candidate list. The fix agent sees the candidates. The tool does not pick one silently.',
+    guards: [1],
+  },
+  {
+    rail: 'fix',
+    title: 'Patch inside the sandbox',
+    where: 'Actions · fix-loop · strong tier',
+    phase: 'P3',
+    summary: 'One agent, written as a loop, gets a clean worktree at a1b2c3d and a container with no network. The system prompt holds AGENTS.md, the failing script, and the locate hint. The ticket text stays in the user message. The router sends the fix to the strong tier.',
+    does: [
+      'Observe: read src/cart/PayButton.tsx. The button has min-width: 320px inside a padded 375px column.',
+      'Act: edit that rule so the button is width 100% and can shrink.',
+      'Gates, read-only: build, typecheck, lint, unit tests and bench checks. A failed gate returns a typed error and the loop continues until a stop condition.',
+      'Stop conditions: submit, step cap, token cap, quota exceeded, or stuck. Each one is written on the trajectory.',
+      'At 80% of the context budget the manager caps output, offloads it to a file, or summarizes. This ticket is small, so the budget is not the thing that stops the loop.',
+    ],
+    artifact: `worktree: a1b2c3d  (destroyed after the run)
+sandbox: docker --network none
+
+edit src/cart/PayButton.tsx:18
+- min-width: 320px;
++ width: 100%;
++ min-width: 0;
+
+run_gates: build pass · tsc pass ·
+           lint pass · unit pass · bench pass
+stop: submit
+router: strong tier  (fix)
+trajectory: 142.jsonl`,
+    checkpoint: 'The patch and the trajectory are the step result. The worktree is deleted. State can move to verify.',
+    breaks: 'QuotaExceeded stops this tenant’s loop and records the reason. Other tenants keep their own budgets. The model cannot edit the bench checks. They are mounted read-only.',
+    guards: [0, 1, 2, 3],
+  },
+  {
+    rail: 'verify',
+    title: 'Checks first, then the judge',
+    where: 'Actions · verifier',
+    phase: 'P4',
+    summary: 'The verifier runs four deterministic checks in a fixed order and stops at the first hard failure. On this patch, overflow at 375px is the original bug, and it passes. The other three pass too. Only then does the cross-family vision judge look at before and after and write whether the ticket’s intent is met.',
+    does: [
+      'Order: pixel diff (with region masks) → overflow → axe, new violations only → console, new errors and warnings.',
+      'A failed overflow check never calls the judge. The workflow allows one retry of the fix, then stops fail-closed. No pull request is opened.',
+'The judge is Gemma, a different family from the fixer. Checks run first; the judge does not override a passed check run; best-of-k stays inside the selector.',
+    ],
+    artifact: `verdict: pass
+checks:
+  pixel:    pass
+  overflow: pass   (375px, Pay now inside)
+  axe:      pass   (no new violations)
+  console:  pass   (no new errors or warnings)
+judge: intent met
+       (does not override a passed check run)
+retry_used: false`,
+    checkpoint: 'The structured verdict is stored. State can move to the fix report.',
+    breaks: 'If overflow still fails, the reason is “overflow at 375px”, the judge is skipped, and one fix retry is allowed. A second failure ends the run with no PR.',
+    guards: [4],
+  },
+  {
+    rail: 'pr',
+    title: 'Share the fix report',
+    where: 'Actions artifact',
+    phase: 'P8',
+    summary: 'The run stores the patch and the verdict with the Actions artifacts. No sample HTML report is attached until a task names that file.',
+    does: [
+      'Before: PayButton.tsx sets min-width: 320px, and the button is clipped.',
+      'After: the same rule is width: 100% and min-width: 0, and the label sits inside the viewport.',
+      'A re-run replaces this file on the same pull request. The reviewer does not get a second report.',
+    ],
+    artifact: `issue: you/shop-ui#142
+before: min-width 320px
+after:  width 100% · min-width 0
+shots: cart-375-before.png
+       cart-375-after.png`,
+    checkpoint: 'The HTML file is stored with the Actions artifacts before the pull request body is written.',
+    breaks: 'A re-run replaces the artifacts on the same pull request. The ticket still has one report.',
+    guards: [4],
+  },
+  {
+    rail: 'pr',
+    title: 'Open one pull request',
+    where: 'Control plane → GitHub',
+    phase: 'P6',
+    summary: 'P6-T21 opens the PR; P8-T09 is the tenant-workflow path that calls that same opener. The workflow opens the PR with find-or-create on you/shop-ui#142. The body links the per-check verdict and the trajectory. The Actions artifact is the patch that gets committed.',
+    does: [
+      'The idempotency key is the ticket id.',
+      'The PR body links the checks and the judge note.',
+      'Langfuse receives the OTel trace for this run. The audit log appends a hash-chained record.',
+    ],
+    artifact: `PR #87  you/shop-ui
+title: Fix clipped Pay button on /cart
+key: you/shop-ui#142
+body:
+  pixel pass · overflow pass
+  axe pass · console pass
+  judge: intent met
+  trajectory: 142.jsonl
+state: awaiting-qa`,
+    checkpoint: 'State moves to awaiting-qa only after the PR number is stored.',
+    breaks: 'Kill the worker after GitHub has PR #87 and before Neon stores it. Restart runs the step again, finds #87 by the ticket key, and stores that number. A second PR is not opened.',
+    guards: [4],
+  },
+  {
+    rail: 'qa',
+    title: 'Wait for a person',
+    where: 'Control plane · QA signal',
+    phase: 'P6',
+    summary: 'The workflow pauses in awaiting-qa. A person approves or rejects. The shipping path is either MCP MRTR (the server returns input_required, the client sends inputResponses) or a GitHub review comment with an approve keyword. A timeout lands in a defined terminal state and leaves the PR open for a person.',
+    does: [
+      'Approve resumes the workflow and marks the run done.',
+      'Reject stores the reason and stops. The PR stays for a person to close or rework.',
+      'The spec version used for MRTR is logged. The review-comment path works with no MCP client.',
+    ],
+    artifact: `state: awaiting-qa
+wait: input_required  |  review comment
+comment on PR #87: approve
+→ resume
+timeout: terminal state, PR left open`,
+    checkpoint: 'The approve or reject signal is the step result.',
+    breaks: 'A missed webhook during the wait is repaired by the poller, which reads the review comment from GitHub and resumes the same workflow.',
+    guards: [],
+  },
+  {
+    rail: 'done',
+    title: 'Done, then backport',
+    where: 'Tenant repo · backport bot',
+    phase: 'P8',
+    summary: 'State is done. The issue keeps its link to PR #87. After the PR is merged, the backport bot cherry-picks the fix onto the release branch. A conflict becomes a comment. The bot does not force the cherry-pick.',
+    does: [
+      'The trajectory, verdict, and trace id stay attached to the run.',
+      'The quota ledger has the tenant, the tier, and the cached-token split for every model call on #142.',
+      'The worktree and the container are already gone. GitHub and Neon are what remain.',
+    ],
+    artifact: `state: done
+pr: #87 merged
+audit: hash-chained append
+backport: release branch
+  conflict → comment, no force
+ledger: tenant you/shop-ui
+  repro  cheap
+  locate cheap
+  fix    strong
+  judge  local`,
+    checkpoint: 'Terminal state. A repeated webhook for #142 does not start a second fix.',
+    breaks: 'A cherry-pick conflict stops the bot at a comment on the release PR. The merged fix on the default branch stays as it is.',
+    guards: [],
+  },
+];
+
+const railEl = document.getElementById('rail');
+const stepsEl = document.getElementById('steps');
+const detailEl = document.getElementById('detail');
+let index = 0;
+let timer = null;
+
+railEl.innerHTML = RAIL.map(([id, label], i) =>
+  `<button type="button" data-rail="${id}"><span class="node"><i>${i + 1}</i>${label}</span></button>${i < RAIL.length - 1 ? '<span class="arrow"></span>' : ''}`
+).join('');
+
+stepsEl.innerHTML = STEPS.map((s, i) =>
+  `<li><button type="button" data-i="${i}"><b>${String(i + 1).padStart(2, '0')}  ${s.title}</b><small>${s.phase} · ${s.where}</small></button></li>`
+).join('');
+
+function render() {
+  const s = STEPS[index];
+  const railIndex = RAIL.findIndex(([id]) => id === s.rail);
+  railEl.querySelectorAll('button').forEach((b) => {
+    const at = RAIL.findIndex(([id]) => id === b.dataset.rail);
+    b.classList.toggle('past', at < railIndex);
+    b.classList.toggle('here', at === railIndex);
+  });
+  stepsEl.querySelectorAll('button').forEach((b) => b.classList.toggle('on', Number(b.dataset.i) === index));
+  const active = stepsEl.querySelector('button.on');
+  active?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+
+  const evidence = `<pre>${s.artifact}</pre>`;
+  detailEl.innerHTML = `
+    <h2>${s.title}</h2>
+    <p class="where"><b>${s.phase}</b> · ${s.where} · state <b>${s.rail}</b></p>
+    <p>${s.summary}</p>
+    <div class="cols">
+      <div>
+        <h3>On issue #142</h3>
+        <ul class="clean">${s.does.map((d) => `<li>${d}</li>`).join('')}</ul>
+        <div class="guards">${GUARDS.map((g, i) => `<span class="${s.guards.includes(i) ? 'on' : ''}">${g}</span>`).join('')}</div>
+      </div>
+      <div class="side">
+        ${evidence}
+        <div class="box ok"><h3>Checkpoint</h3><p>${s.checkpoint}</p></div>
+        <div class="box bad"><h3>If this step breaks</h3><p>${s.breaks}</p></div>
+      </div>
+    </div>`;
+  document.getElementById('prev').disabled = index === 0;
+  document.getElementById('next').disabled = index === STEPS.length - 1;
+}
+
+function go(n) {
+  index = Math.max(0, Math.min(STEPS.length - 1, n));
+  render();
+}
+function stop() {
+  if (timer) { clearInterval(timer); timer = null; }
+  document.getElementById('play').textContent = 'Play the run';
+}
+
+document.getElementById('prev').onclick = () => { stop(); go(index - 1); };
+document.getElementById('next').onclick = () => { stop(); go(index + 1); };
+document.getElementById('play').onclick = () => {
+  if (timer) { stop(); return; }
+  if (index === STEPS.length - 1) go(0);
+  document.getElementById('play').textContent = 'Pause';
+  timer = setInterval(() => {
+    if (index >= STEPS.length - 1) { stop(); return; }
+    go(index + 1);
+  }, 2200);
+};
+stepsEl.addEventListener('click', (e) => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  stop();
+  go(Number(b.dataset.i));
+});
+railEl.addEventListener('click', (e) => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  stop();
+  const i = STEPS.findIndex((s) => s.rail === b.dataset.rail);
+  if (i >= 0) go(i);
+});
+addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight') { stop(); go(index + 1); }
+  if (e.key === 'ArrowLeft') { stop(); go(index - 1); }
+});
+
+render();
+</script>
+</body>
+</html>

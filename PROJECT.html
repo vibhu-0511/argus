@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Argus · project</title>
+<style>
+  :root {
+    --ink:#1f2937; --mute:#6b7280; --bg:#f6f8fb; --card:#fff; --line:#e5e7eb;
+    --accent:#1d4ed8; --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body {
+    margin:0; background:var(--bg); color:var(--ink);
+    font:16px/1.55 Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  }
+  a { color:var(--accent); text-decoration-thickness:1px; text-underline-offset:2px; }
+  code, .mono { font-family:var(--mono); font-size:.86em; }
+  header.hero {
+    padding:36px 28px 28px; background:#fff; border-bottom:1px solid var(--line);
+  }
+  .wrap { max-width:1080px; margin:0 auto; }
+  header.hero .kicker {
+    margin:0 0 8px; font:600 12px var(--mono); letter-spacing:.08em;
+    text-transform:uppercase; color:var(--accent);
+  }
+  h1 { margin:0; font-size:34px; letter-spacing:-.03em; line-height:1.15; }
+  h1 span { color:var(--mute); font-weight:500; }
+  .lede { margin:14px 0 0; max-width:740px; font-size:18px; color:#374151; }
+  .status {
+    margin-top:18px; padding:12px 14px; border-radius:10px;
+    background:#fffbeb; border:1px solid #fde68a; color:#78350f; font-size:14px;
+  }
+  nav.toc {
+    position:sticky; top:0; z-index:5; background:rgba(246,248,251,.92);
+    backdrop-filter:blur(8px); border-bottom:1px solid var(--line);
+  }
+  nav.toc .wrap {
+    display:flex; gap:14px; overflow:auto; padding:10px 28px;
+    font:600 12px var(--mono); white-space:nowrap;
+  }
+  nav.toc a { color:#374151; text-decoration:none; }
+  nav.toc a:hover { color:var(--accent); }
+  main { padding:8px 0 64px; }
+  section { padding:28px 28px 8px; }
+  h2 { margin:0 0 12px; font-size:22px; letter-spacing:-.02em; }
+  h3 { margin:22px 0 8px; font-size:17px; }
+  p { margin:0 0 12px; max-width:760px; }
+  ul, ol { margin:0 0 14px; padding-left:1.2em; max-width:760px; }
+  li { margin:4px 0; }
+  .grid { display:grid; gap:12px; }
+  .grid.two { grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); }
+  .card {
+    background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 16px;
+  }
+  .card b { display:block; margin-bottom:4px; }
+  .card p { margin:0; font-size:14px; color:#374151; max-width:none; }
+  table {
+    width:100%; border-collapse:collapse; background:#fff; border:1px solid var(--line);
+    border-radius:12px; overflow:hidden; font-size:14px; margin:8px 0 16px;
+  }
+  .scroll { overflow:auto; border-radius:12px; }
+  th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { background:#f8fafc; font-size:12px; letter-spacing:.02em; color:#374151; }
+  tr:last-child td { border-bottom:0; }
+  .phase {
+    border:1px solid var(--line); border-left:4px solid var(--c); background:#fff;
+    border-radius:12px; padding:14px 16px; margin:0 0 12px;
+  }
+  .phase .meta { font:600 12px var(--mono); color:var(--c); margin:0 0 6px; }
+  .phase h3 { margin:0 0 6px; }
+  .phase p { font-size:14.5px; }
+  .flow { display:grid; gap:8px; margin:8px 0 16px; }
+  .step {
+    display:grid; grid-template-columns:28px 1fr; gap:10px; align-items:start;
+    background:#fff; border:1px solid var(--line); border-radius:10px; padding:10px 12px;
+  }
+  .n {
+    width:28px; height:28px; border-radius:8px; display:grid; place-items:center;
+    background:#dbeafe; color:#1d4ed8; font:700 13px var(--mono);
+  }
+  .step b { display:block; }
+  .step p { margin:2px 0 0; font-size:14px; }
+  .call { background:#fff; border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin:12px 0; }
+  .call strong { color:#b91c1c; }
+  footer {
+    padding:24px 28px 40px; color:var(--mute); font-size:13px; border-top:1px solid var(--line);
+  }
+  @media print {
+    nav.toc { display:none; }
+    body { background:#fff; }
+    .phase, .card, .step, table { break-inside:avoid; }
+  }
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <p class="kicker">Learning plan · documents only</p>
+    <h1>Argus <span>turns a UI bug ticket into a verified pull request.</span></h1>
+    <p class="lede">Reproduce the bug, find the source, fix it in a sandbox, check that the fix matches the ticket, and hand it back. Built to learn the agentic layer at architect level, from backend engineering, at $0 and about 20 hours a week.</p>
+    <p class="status">This folder holds the plan, not the software. No application code is written in the planning step. Every results cell stays empty until a real run fills it. Nothing on this page is a measured number. Same text, as Markdown: <a href="PROJECT.md">PROJECT.md</a>.</p>
+  </div>
+</header>
+
+<nav class="toc" aria-label="On this page">
+  <div class="wrap">
+    <a href="#run">A run</a>
+    <a href="#constraints">Constraints</a>
+    <a href="#packages">Packages</a>
+    <a href="#stack">Stack</a>
+    <a href="#metrics">Metrics</a>
+    <a href="#phases">Phases</a>
+    <a href="#weeks">Weeks</a>
+    <a href="#risks">Risks</a>
+    <a href="#adrs">ADRs</a>
+    <a href="#read">Read next</a>
+  </div>
+</nav>
+
+<main>
+<section id="run">
+  <div class="wrap">
+    <h2>What a finished run does</h2>
+    <p>GitHub is the source of truth: issues in, pull requests out. A labelled issue starts a durable workflow. The control plane (FastAPI with DBOS, on Render free, state in Neon free Postgres) treats the webhook as a hint and returns immediately. A reconciliation poller rebuilds state by reading GitHub, because a free Render service can sleep longer than GitHub's 10 second webhook timeout.</p>
+    <p>The agent job runs on GitHub Actions. From P8 it runs as a reusable workflow inside the tenant's own repository.</p>
+    <div class="flow">
+      <div class="step"><span class="n">1</span><div><b>Reproduce</b><p><code>repro-agent</code> writes a Playwright script from the ticket text, and optionally a screenshot. The script is kept only if it fails on the buggy tree and passes on the golden fix.</p></div></div>
+      <div class="step"><span class="n">2</span><div><b>Locate</b><p>A Vite plugin stamps <code>data-src="file:line:col"</code> on JSX host elements in dev and test builds. <code>locate()</code> maps a DOM selector back to a source location, and returns candidates when the mapping is ambiguous. React 19 removed <code>_debugSource</code>, so a build-time attribute is the robust route.</p></div></div>
+      <div class="step"><span class="n">3</span><div><b>Fix</b><p><code>fix-loop</code> is an agent loop written from scratch, with no agent framework. It reads, searches, edits, and submits inside a git worktree mounted in Docker with <code>--network none</code>. Bench checks are read-only. Gates (build, typecheck, lint, unit tests, bench checks) run before submit.</p></div></div>
+      <div class="step"><span class="n">4</span><div><b>Verify</b><p>Pixel diff, overflow, new axe-core violations, and new console errors run first. A cross-family vision judge (Gemma, not the Mistral fixer) then asks whether the fix matches the ticket without collateral change. It is a hard gate only if Krippendorff's alpha against hand labels reaches 0.80. Best-of-k (k = 1, 3, 5) picks among candidate patches.</p></div></div>
+      <div class="step"><span class="n">5</span><div><b>Hand back</b><p>The workflow waits for a human QA signal: MCP MRTR elicitation (<code>input_required</code> / <code>inputResponses</code>, spec 2026-07-28) or a plain GitHub review comment. The pull request carries the verdict, the judge label, a trajectory link, and before/after screenshots. A backport bot comments instead of forcing when a cherry-pick conflicts.</p></div></div>
+    </div>
+    <p>Traces leave as OTLP spans. Langfuse Cloud Hobby is the default viewer, and an attribute normalizer keeps the backend swappable. A static dashboard on GitHub Pages shows resolve rate, tokens, latency, and trajectory metrics. CI compares a new results file to the stored baseline using confidence intervals, with no model call.</p>
+    <p>P9, optional and first on the cut list, runs the same loop on a second lane: a Sentry-style error event becomes a failing pytest, then a verified backend fix. Live Sentry is not required.</p>
+  </div>
+</section>
+
+<section id="constraints">
+  <div class="wrap">
+    <h2>Constraints</h2>
+    <div class="grid two">
+      <article class="card"><b>$0</b><p>Free and open-source tools only. Every model is open-weight, on a free hosted tier or on the local CPU.</p></article>
+      <article class="card"><b>20 hours a week</b><p>13th-gen Intel i7-13620H, 16 GB RAM, no discrete GPU, Docker 29.5, WSL2 Ubuntu.</p></article>
+      <article class="card"><b>Public code only</b><p>Free-tier prompts may be used for training. Only synthetic or public code goes through them. The P8 install target is one of your own public repos.</p></article>
+      <article class="card"><b>No framework before the baseline</b><p>No agent framework before the P3 loop exists. Adopting one later needs an ADR, measured against mini-swe-agent (ADR-011).</p></article>
+      <article class="card"><b>Same scorecard every phase</b><p>Each phase ends with an ablation and reports resolve rate, tokens/bug, dollar-equivalent, and p50/p95 latency against the previous phase. Each phase starts by re-checking pinned versions.</p></article>
+      <article class="card"><b>Empty until measured</b><p>A results cell stays “—” until a run id backs it. Ablation tables in the phase files ship blank on purpose.</p></article>
+    </div>
+    <h3>Who writes what</h3>
+    <div class="scroll">
+    <table>
+      <thead><tr><th>Owner</th><th>Owns</th></tr></thead>
+      <tbody>
+        <tr><td><b>[ME]</b></td><td>Agent loop, tool schemas, context manager, verifier, judge rubric and calibration, eval scorer, workflow state machine, threat model, every ADR</td></tr>
+        <tr><td><b>[CLAUDE]</b></td><td>target-app UI, seeded-bug boilerplate, CI YAML, Dockerfiles, dashboards, glue</td></tr>
+        <tr><td><b>[PAIR]</b></td><td>You write it, and Claude reviews</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</section>
+
+<section id="packages">
+  <div class="wrap">
+    <h2>Monorepo</h2>
+    <p>This folder becomes the root. Python packages share one uv workspace. TypeScript packages share one pnpm workspace. Today only the planning documents and three HTML companions exist.</p>
+    <div class="scroll">
+    <table>
+      <thead><tr><th>Package</th><th>Language</th><th>Phase</th><th>Holds</th></tr></thead>
+      <tbody>
+        <tr><td><code>argus-core</code></td><td>Python</td><td>P0</td><td>Ticket, Task, Trajectory types; OpenAI-compatible model client; quota ledger; OTel helpers</td></tr>
+        <tr><td><code>target-app</code></td><td>TypeScript</td><td>P0</td><td>React 19.2, Vite 8, Tailwind 4. Six routes, animations off, fonts pinned</td></tr>
+        <tr><td><code>bench</code></td><td>Python + TS</td><td>P0</td><td>Scorer CLI and Playwright checks</td></tr>
+        <tr><td><code>bugsmith</code></td><td>TypeScript</td><td>P0</td><td>Deterministic JSX and CSS mutation generator. No LLM</td></tr>
+        <tr><td><code>repro-agent</code></td><td>Python</td><td>P1</td><td>Reproduction agent and the fail-before / pass-after verifier</td></tr>
+        <tr><td><code>dom2src-plugin</code></td><td>TypeScript</td><td>P2</td><td>Vite plugin that injects <code>data-src</code> and strips it from production</td></tr>
+        <tr><td><code>dom2src-mcp</code></td><td>Python</td><td>P2</td><td><code>locate()</code> MCP server, SDK v2, spec 2026-07-28</td></tr>
+        <tr><td><code>fix-loop</code></td><td>Python</td><td>P3</td><td>Agent loop, tools, context manager, sandbox runner, gates</td></tr>
+        <tr><td><code>verify</code></td><td>Python + TS</td><td>P4</td><td>Deterministic checks, judge, best-of-k</td></tr>
+        <tr><td><code>eval</code></td><td>Python</td><td>P5</td><td>Eval runner, trajectory metrics, regression gate</td></tr>
+        <tr><td><code>dashboard</code></td><td>Static</td><td>P5</td><td>GitHub Pages site built from results JSON</td></tr>
+        <tr><td><code>skills/</code></td><td>Markdown</td><td>P5.5</td><td>Reviewed skill files, agentskills.io format</td></tr>
+        <tr><td><code>flow</code></td><td>Python</td><td>P6</td><td>FastAPI + DBOS control plane and the reconciliation poller</td></tr>
+        <tr><td><code>guard</code></td><td>Docs + config</td><td>P7</td><td>Threat model, promptfoo, escape tests, audit-log verifier</td></tr>
+        <tr><td><code>app</code></td><td>Python</td><td>P8</td><td>GitHub App and the reusable workflow</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>P9 adds a small FastAPI target backend and lane-specific tools. It reuses <code>argus-core</code>, <code>fix-loop</code>, <code>verify</code>, <code>eval</code>, and <code>flow</code>.</p>
+    <h3>Shared types and the loop</h3>
+    <ul>
+      <li><b>Ticket.</b> The bug report: text, and optionally a screenshot.</li>
+      <li><b>Task.</b> Ticket, bug patch, golden patch, checks, and meta. Valid only when checks fail on the buggy tree and pass on the golden tree.</li>
+      <li><b>Trajectory.</b> One record per step, with tokens in, out, and cached, plus a stop reason. A recorded trajectory replays with no model call.</li>
+      <li><b>Fix tools.</b> <code>read_file</code>, <code>list_dir</code>, <code>search</code>, <code>edit</code>, <code>run_cmd</code>, <code>submit</code>, plus ast-grep. Repro tools: <code>navigate</code>, <code>snapshot</code>, <code>click</code>, <code>type</code>, <code>assert-visible</code>, <code>screenshot</code>. <code>locate()</code> is its own MCP server.</li>
+      <li><b>Stop conditions.</b> <code>submit</code>, step cap, token cap, <code>QuotaExceeded</code>, or stuck detection. Malformed arguments return a typed error to the model.</li>
+      <li><b>Context strategies.</b> None, output caps, offload-to-files, rolling summary. The manager switches strategy at 80% of the window.</li>
+      <li><b>Quota ledger.</b> Hard-stops before an HTTP request would cross a measured daily cap. Cached tokens are counted apart. State survives a restart. From P8 the key includes a tenant id.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="stack">
+  <div class="wrap">
+    <h2>Stack</h2>
+    <p>One OpenAI-compatible client covers every host. The host is <code>base_url</code> and a key, not a code branch. Mistral no longer publishes free-tier numbers, so P0-T06 measures every limit into <code>docs/quotas.md</code>, and that file wins over this table.</p>
+    <div class="scroll">
+    <table>
+      <thead><tr><th>Role</th><th>Model</th><th>Host</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>Fixer</td><td>Devstral 2 / Devstral Small 2</td><td>Mistral free tier</td><td>Coding-agent model. The Mistral pricing page does not state these names, Apache-2.0 for Small, or 68–72% on SWE-bench Verified. No replacement number is written here</td></tr>
+        <tr><td>Cheap tier</td><td>openai/gpt-oss-20b, qwen/qwen3.8-27b</td><td>Developer-plan organization limits: RPM 30, RPD 1K, TPM 8K, TPD 200K. Cached tokens do not count. "free tier" is not stated</td><td>Repro, localize, summaries. Caching is a quota lever</td></tr>
+        <tr><td>Intent judge</td><td>Gemma 4</td><td>Local Ollama <code>gemma4:e4b</code> on CPU. Hosted Gemma only if a P0 check finds a free one</td><td>A different family from the fixer, so self-preference can be measured</td></tr>
+        <tr><td>Same-family judge</td><td>A Mistral vision model</td><td>Mistral free tier</td><td>The ablation control</td></tr>
+        <tr><td>Embeddings</td><td>Local open model</td><td>Ollama or sentence-transformers on CPU</td><td>Offline, free</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="scroll">
+    <table>
+      <thead><tr><th>Concern</th><th>Choice</th></tr></thead>
+      <tbody>
+        <tr><td>CI and execution</td><td>GitHub Actions on a public repo. Linux runners exposing <code>/dev/kvm</code> since October 2025 is not stated on the Actions billing page</td></tr>
+        <tr><td>Control plane</td><td>Render free web service, FastAPI with DBOS in-process, Neon free Postgres. Render's free Postgres expires after 30 days, so it is not used</td></tr>
+        <tr><td>Traces</td><td>OTLP to Langfuse Cloud Hobby (free, 50k units/month). MIT is not stated on the pricing page. Phoenix is the swap target; its ELv2 licence is noted in ADR-015</td></tr>
+        <tr><td>Dashboard</td><td>GitHub Pages, static</td></tr>
+        <tr><td>Sandboxes</td><td>Docker <code>--network none</code>, then gVisor, then Firecracker. Measured in P7, decided in ADR-025</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <h3>Versions checked on 2026-10-28</h3>
+    <p>Each phase's T00 task re-checks this table. Re-check the React 19.2 removal of <code>source</code> and <code>self</code> from <code>jsxDEV</code> against React 19.3.1. The build-time <code>data-src</code> attribute remains the P2 route (ADR-006).</p>
+    <div class="scroll">
+    <table>
+      <thead><tr><th>Component</th><th>Version</th></tr></thead>
+      <tbody>
+        <tr><td>React</td><td>19.3.1</td></tr>
+        <tr><td>Vite</td><td>8.3.5 (Rolldown-based is not stated)</td></tr>
+        <tr><td>Tailwind</td><td>4.3.3</td></tr>
+        <tr><td>Playwright</td><td>1.64.1 (whether this package bundles MCP is not stated)</td></tr>
+        <tr><td><code>@playwright/mcp</code></td><td>0.0.83</td></tr>
+        <tr><td>MCP spec</td><td>2026-07-28: stateless core, MRTR <code>input_required</code> / <code>inputResponses</code>, Tasks moved to the <code>io.modelcontextprotocol/tasks</code> extension</td></tr>
+        <tr><td>MCP Python SDK</td><td>2.3.0</td></tr>
+        <tr><td>DBOS Python</td><td>3.x</td></tr>
+        <tr><td>OTel GenAI semconv</td><td>Development status, a stable release, and June 2026 are not stated. The dedicated-repo README says it extends the GenAI conventions</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</section>
+
+<section id="metrics">
+  <div class="wrap">
+    <h2>Metrics contract</h2>
+    <p>Every phase reports these four numbers on the same evaluation set, against the previous phase.</p>
+    <div class="scroll">
+    <table>
+      <thead><tr><th>Metric</th><th>Definition</th></tr></thead>
+      <tbody>
+        <tr><td>Resolve rate</td><td>Resolved over attempted, Wilson 95% interval. Resolved means the scorer passes, no bench check file was touched, and from P4 the verifier accepts. Exit 2 and quarantined tasks are excluded from attempted</td></tr>
+        <tr><td>Tokens/bug</td><td>Mean of input, output, and cached tokens, summed over every agent, retry, judge call, and best-of-k sample. Reported separately</td></tr>
+        <tr><td>$-equivalent</td><td>Tokens times list prices in <code>prices.json</code> (URL and date per model). A comparison unit, not money spent. P0 through P4 leave this cell as "—" until P5-T11</td></tr>
+        <tr><td>Latency p50 / p95</td><td>Wall-clock from task start to final patch. Time waiting for a quota reset is excluded and reported separately</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <ul>
+      <li>Ablations use a 30-task stratified subset. P8's single-vs-multi comparison uses 20 tasks.</li>
+      <li>Every run records model, host, seed, prompt hash, and git commit.</li>
+      <li>A difference smaller than the Wilson interval is reported as no difference.</li>
+      <li>From P5, <code>docs/metrics.md</code> fixes trajectory formulas: steps, tool-error rate, redundant-call rate, stuck rate, recover-after-gate-failure rate.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="phases">
+  <div class="wrap">
+    <h2>Phases</h2>
+    <p>Core work is P0 through P8: <b>556 hours, 255 tasks</b>, the sum of the phase table, in 28 weeks of work plus 2 buffer weeks, so 30 weeks, at 20 hours a week. P9 adds about 40 hours and 17 tasks. An earlier sketch of ~23 weeks does not hold at $0, because free-tier caps stretch eval runs across nights. The hard cut line is the end of P6: that is the deployed core.</p>
+    <div class="scroll">
+    <table>
+      <thead><tr><th>Phase</th><th>Hours</th><th>Tasks</th><th>Adds</th><th>Ablation</th></tr></thead>
+      <tbody>
+        <tr><td>P0 bench + bugsmith</td><td>76</td><td>32</td><td>Quota ledger; JSX/CSS mutations toward 300+ tasks</td><td>Seeded vs mutated, one-shot baseline</td></tr>
+        <tr><td>P1 repro-agent</td><td>32</td><td>17</td><td>Playwright MCP. A no-go is ADR-004, not an unscheduled direct-Playwright build</td><td>Text only vs text plus screenshot</td></tr>
+        <tr><td>P2 dom2src</td><td>44</td><td>20</td><td><code>data-src</code> plugin; <code>locate()</code> server</td><td>Repo-map/LSP vs pgvector vs locate, top-1 file accuracy</td></tr>
+        <tr><td>P3 fix-loop</td><td>84</td><td>34</td><td>Loop from scratch; sandbox; context budget; gates</td><td>Four context strategies, plus mini-swe-agent</td></tr>
+        <tr><td>P4 verify</td><td>72</td><td>30</td><td>Pixel, overflow, axe, console; Gemma judge</td><td>Same-family vs cross-family; best-of-k at 1, 3, 5</td></tr>
+        <tr><td>P5 eval</td><td>64</td><td>29</td><td>Trajectory metrics; OTel; router; CI gate; dashboard</td><td>Routing vs one strong model</td></tr>
+        <tr><td>P5.5 skills</td><td>28</td><td>18</td><td>Skills from trajectories; poisoned-skill red team</td><td>With vs without skills on held-out bugs</td></tr>
+        <tr><td>P6 flow</td><td>52</td><td>26</td><td>DBOS, QA wait, Render, reconciliation</td><td>Crash recovery. DBOS vs Temporal is an ADR only</td></tr>
+        <tr><td>P7 guard</td><td>44</td><td>23</td><td>Threat model ASI01–ASI10; audit log; sandbox tiers</td><td>Docker vs gVisor vs Firecracker</td></tr>
+        <tr><td>P8 app</td><td>60</td><td>26</td><td>GitHub App; tenant workflow; backport; planner</td><td>Single agent vs planner. Kept only if both metrics win</td></tr>
+        <tr><td>P9 backend (optional)</td><td>40</td><td>17</td><td>Sentry-style event to pytest to fix</td><td>Reuse ratio, by module and by lines</td></tr>
+        <tr><td><b>Core P0–P8</b></td><td><b>556</b></td><td><b>255</b></td><td></td><td></td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <article class="phase" style="--c:#1d4ed8">
+      <p class="meta">P0 · weeks 1–4 · 76 h · argus-core, target-app, bench, bugsmith</p>
+      <h3>A benchmark that scores a fix with no model in the loop</h3>
+      <p>Golden-fix CI passes on all 30 hand-seeded tasks with zero model calls. <code>bugsmith</code> emits 300 or more tasks that fail checks before the fix and pass after, and two runs with the same seed hash identically. Six UI archetypes, three difficulty tiers, ten seeded tasks per tier. Flake detection runs each check five times and quarantines mixed results. The ledger refuses an over-cap call before any HTTP request. ADRs 001–003.</p>
+    </article>
+    <article class="phase" style="--c:#0e7490">
+      <p class="meta">P1 · weeks 4–6 · 32 h · repro-agent</p>
+      <h3>A ticket becomes a Playwright script that fails on the bug</h3>
+      <p>A spike calls Playwright MCP from MCP Python SDK v2 and writes a go or no-go. If it is no-go, direct Playwright is the tool (ADR-004). The loop generates, runs, and revises, with a hard retry cap. The verifier returns <code>valid</code>, <code>passes-on-bug</code>, <code>fails-on-golden</code>, or <code>error</code>. CI replays fixtures with no model calls. ADRs 004–005.</p>
+    </article>
+    <article class="phase" style="--c:#15803d">
+      <p class="meta">P2 · weeks 6–8 · 44 h · dom2src-plugin, dom2src-mcp</p>
+      <h3>A rendered element maps back to a file and line</h3>
+      <p><code>data-src</code> is on every JSX host element in dev and test, and absent from production. <code>locate()</code> errors are <code>not-found</code>, <code>ambiguous</code>, or <code>no-source-info</code>. Wrappers return ranked candidates. Compared against a repo-map plus LSP, and against pgvector with a local embedding model, on top-1 file accuracy. ADRs 006–007.</p>
+    </article>
+    <article class="phase" style="--c:#a16207">
+      <p class="meta">P3 · weeks 8–12 · 84 h · fix-loop</p>
+      <h3>The loop, written from scratch, inside a sandbox</h3>
+      <p>The largest phase. A git worktree per task, Docker with <code>--network none</code>, CPU and memory caps, checks read-only. Four context strategies on the same 30 tasks, then mini-swe-agent on those tasks with the same model. A recorded trajectory replays byte for byte. CI fails if an agent framework appears in the dependencies. ADRs 008–011.</p>
+    </article>
+    <article class="phase" style="--c:#c2410c">
+      <p class="meta">P4 · weeks 12–16 · 72 h · verify</p>
+      <h3>Did the patch fix the bug, and only the bug</h3>
+      <p>Checks run in a fixed order and short-circuit. You label 100 pairs before seeing any judge output. Target agreement is Krippendorff's alpha of at least 0.80, with a bootstrap interval. If the budget runs out below that, ADR-013 makes the judge advisory only. A Mistral vision judge is the self-preference control. Best-of-k at k = 1, 3, and 5. k = 5 is the biggest quota consumer, because it multiplies fixer calls by five. ADRs 012–014.</p>
+    </article>
+    <article class="phase" style="--c:#be185d">
+      <p class="meta">P5 · weeks 16–20 · 64 h · eval, dashboard · buffer week 17</p>
+      <h3>How the agent got there, and whether routing is worth it</h3>
+      <p>OTel GenAI spans, still a development spec, plus a normalizer so Langfuse and a local Phoenix can show the same run. The router is data: cheap tier for repro and localize, strong tier for fix. The system prompt is a byte-stable prefix so caching can hit. CI fails when resolve rate drops below the baseline's lower bound. A SWE-bench Multimodal subset of 10 to 20 tasks is adapted in; exclusions are listed. Dashboard on GitHub Pages. ADRs 015–017.</p>
+    </article>
+    <article class="phase" style="--c:#7e22ce">
+      <p class="meta">P5.5 · weeks 20–21 · 28 h · skills/</p>
+      <h3>Skills from successful runs, and a poisoned skill that cannot take over</h3>
+      <p>At least five reviewed skills in the agentskills.io format. The loader shows name and description only, and loads the body on demand. Distilled from a train set that does not overlap the 30-task held-out subset. Trust controls: review flag, content-hash pin, per-skill tool allowlist. ADRs 018–019.</p>
+    </article>
+    <article class="phase" style="--c:#4338ca">
+      <p class="meta">P6 · weeks 22–24 · 52 h · flow · hard cut line</p>
+      <h3>A durable workflow that survives crashes, sleep, and lost webhooks</h3>
+      <p>DBOS checkpoints each step. Opening a pull request is find-or-create, keyed by ticket id. The webhook checks HMAC, enqueues a reconcile, and returns 202. The poller rebuilds state from the issue, the PR, and the Actions run. QA waits until approve, reject, or timeout. Render cold start is measured against the 10 second timeout. Neon CU-hours are measured over 48 hours against the 100 CU-hour monthly free limit. DBOS vs Temporal is written, not built. ADRs 020–023. Stopping here is still a deployed core.</p>
+    </article>
+    <article class="phase" style="--c:#b91c1c">
+      <p class="meta">P7 · weeks 24–27 · 44 h · guard · buffer week 25</p>
+      <h3>Threat model, red team, and three sandbox tiers</h3>
+      <p>ASI01 through ASI10, each with a threat, a control, and a residual risk. Secrets stay out of prompts, logs, trajectories, and traces. The App token is least-privilege and short-lived. The audit log is append-only and hash-chained. promptfoo covers injection via ticket, repo file, and skill. Escape probes: network, host filesystem, Docker socket, metadata address, fork bomb, symlink. Tiers: Docker, gVisor, Firecracker on the Actions KVM runner. ADRs 024–026.</p>
+    </article>
+    <article class="phase" style="--c:#047857">
+      <p class="meta">P8 · weeks 27–30 · 60 h · app</p>
+      <h3>A public GitHub App. The job runs in the tenant's repo</h3>
+      <p>A reusable workflow keeps the code and the tenant's secrets off your servers (ADR-027). Config is <code>.argus.yml</code>. Intake starts on a label, and ignores it when the actor lacks write access. The PR body has the verdict, judge label, trajectory link, and two screenshots. The backport bot comments on conflict. A planner plus subagents is kept only if it wins on both resolve rate and tokens (ADR-029). Demo install is one of your own public repos. The video, under four minutes, shows a success, a verifier rejection, and a quota refusal. ADRs 027–029.</p>
+    </article>
+    <article class="phase" style="--c:#4b5563">
+      <p class="meta">P9 · weeks 30–32 · ~40 h · optional, cut first</p>
+      <h3>The same loop, on a backend bug, to see what was actually shared</h3>
+      <p>A small FastAPI app (auth, CRUD, one background job) gets Python mutations. An exported Sentry event becomes a Ticket. No live Sentry. The repro step is a pytest, reusing the P1 verifier. The P3 fixer is reused with a pytest gate. No copy of the P3 code. Email and bearer tokens are redacted before any model call. A script reports reuse by module and by lines. ADR-030.</p>
+    </article>
+  </div>
+</section>
+
+<section id="weeks">
+  <div class="wrap">
+    <h2>Thirty weeks</h2>
+    <p>The checklist, with owner and hours on every task, is <a href="TASKS.md">TASKS.md</a>. Buffer weeks have no scheduled tasks.</p>
+    <div class="scroll">
+    <table>
+      <thead><tr><th>Week</th><th>Milestone</th></tr></thead>
+      <tbody>
+        <tr><td>1–3</td><td>Types, quotas, ledger, target-app, 30 seeded tasks, golden-fix CI, bugsmith operators</td></tr>
+        <tr><td>4</td><td><b>P0 done.</b> 300+ valid tasks. MCP interop spike starts</td></tr>
+        <tr><td>6</td><td><b>P1 done.</b> <code>data-src</code> plugin starts</td></tr>
+        <tr><td>8</td><td><b>P2 done.</b> Fix-loop tool schemas</td></tr>
+        <tr><td>12</td><td><b>P3 done.</b> Pixel diff starts</td></tr>
+        <tr><td>16</td><td><b>P4 done.</b></td></tr>
+        <tr><td>17</td><td>Buffer</td></tr>
+        <tr><td>20</td><td><b>P5 done.</b> Skills start</td></tr>
+        <tr><td>21</td><td><b>P5.5 done</b></td></tr>
+        <tr><td>24</td><td><b>P6 done. Deployed core. Hard cut line.</b></td></tr>
+        <tr><td>25</td><td>Buffer</td></tr>
+        <tr><td>27</td><td><b>P7 done.</b> GitHub App manifest</td></tr>
+        <tr><td>30</td><td><b>P8 done.</b> Demo and release checklist. Optional P9 starts</td></tr>
+        <tr><td>32</td><td><b>P9 done</b>, if it is not cut</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <h3>What is deployed, and when</h3>
+    <div class="scroll">
+    <table>
+      <thead><tr><th>Through</th><th>Running</th></tr></thead>
+      <tbody>
+        <tr><td>P3</td><td>Golden-fix on every push. No model calls, no secrets</td></tr>
+        <tr><td>P4</td><td>Plus verify tests on stored screenshots</td></tr>
+        <tr><td>P5</td><td>GitHub Pages dashboard, Langfuse traces, CI regression gate</td></tr>
+        <tr><td>P5.5</td><td>Skill-file lint</td></tr>
+        <tr><td>P6</td><td>Render + Neon control plane, Actions as the execution plane</td></tr>
+        <tr><td>P7</td><td>Secrets outside the repo, no-egress tested on Actions, audit log verified in CI</td></tr>
+        <tr><td>P8</td><td>Public GitHub App, landing README, demo video</td></tr>
+        <tr><td>P9</td><td>Backend golden-fix joins CI. No new host</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="call">
+      <p><strong>Free-tier collisions, measured in P6.</strong> An always-on Render service with DBOS polling would likely keep Neon awake past 100 CU-hours/project. "per month" is not stated. Render cold starts take about one minute. "30 to 60" seconds is not stated. That misses GitHub's 10 second webhook timeout. So webhooks are hints, and a poller restores state from GitHub.</p>
+    </div>
+  </div>
+</section>
+
+<section id="risks">
+  <div class="wrap">
+    <h2>Risks, and what gets cut</h2>
+    <div class="scroll">
+    <table>
+      <thead><tr><th>#</th><th>Risk</th><th>Mitigation</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Free tiers change or disappear. GitHub Models was reportedly retired in July 2026</td><td>One client, two hosts per role, a ledger, local Ollama for the judge and embeddings</td></tr>
+        <tr><td>2</td><td>The open-weight fixer resolves too few bugs for ablations to show a signal</td><td>Difficulty tiers, confidence intervals, a 30-task subset</td></tr>
+        <tr><td>3</td><td>Neon compute and Render sleep collide with DBOS polling</td><td>Measure in P6. ADR-021 and ADR-022</td></tr>
+        <tr><td>4</td><td>Playwright MCP may not speak the 2026-07-28 spec</td><td>P1 spike. Fallback is direct Playwright as a tool</td></tr>
+        <tr><td>5</td><td>Seven months at 20 hours a week</td><td>Hard cut after P6. Buffer weeks after P4 and P6</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <h3>Cut in this order</h3>
+    <ol>
+      <li>P9, the whole backend lane</li>
+      <li>P8 multi-tenancy, down to a single-tenant App</li>
+      <li>P5.5, skills</li>
+      <li>Firecracker, reduced to an ADR plus a gVisor measurement</li>
+      <li>MRTR elicitation, replaced by review comments</li>
+      <li>SWE-bench Multimodal, keeping the synthetic set only</li>
+    </ol>
+    <p>Never cut: the P3 loop, the P4 judge calibration, bugsmith, the P5 OTel work, or best-of-k.</p>
+    <h3>Three tasks most likely to force a redesign</h3>
+    <ol>
+      <li><b>P0-T24</b>, the bugsmith validity filter. The 300-task set depends on it keeping only mutations that fail before and pass after.</li>
+      <li><b>P4-T14</b>, judge calibration. Alpha of 0.80 on CPU may not be reachable. ADR-013 is the advisory-only fallback.</li>
+      <li><b>P6-T12 and P6-T14</b>, DBOS on Render and Neon. The CU-hour measurement may force a different poll cadence.</li>
+    </ol>
+  </div>
+</section>
+
+<section id="adrs">
+  <div class="wrap">
+    <h2>Thirty decisions</h2>
+    <p>All written by [ME], as <code>docs/adr/NNNN-title.md</code>.</p>
+    <div class="scroll">
+    <table>
+      <thead><tr><th>ADR</th><th>Phase</th><th>Decision</th></tr></thead>
+      <tbody>
+        <tr><td>001</td><td>P0</td><td>Task and Trajectory schema</td></tr>
+        <tr><td>002</td><td>P0</td><td>Quota ledger: hard stop, cached tokens, day boundary</td></tr>
+        <tr><td>003</td><td>P0</td><td>Mutation validity and flake policy</td></tr>
+        <tr><td>004</td><td>P1</td><td>Playwright MCP vs direct Playwright</td></tr>
+        <tr><td>005</td><td>P1</td><td>When a screenshot earns its tokens</td></tr>
+        <tr><td>006</td><td>P2</td><td><code>data-src</code> vs source maps</td></tr>
+        <tr><td>007</td><td>P2</td><td>Which retriever is the default</td></tr>
+        <tr><td>008</td><td>P3</td><td>Stop conditions and tool-call format</td></tr>
+        <tr><td>009</td><td>P3</td><td>Context management policy</td></tr>
+        <tr><td>010</td><td>P3</td><td>Sandbox baseline: worktree plus Docker, no network</td></tr>
+        <tr><td>011</td><td>P3</td><td>What evidence would justify an agent framework</td></tr>
+        <tr><td>012</td><td>P4</td><td>Gate order and short-circuit</td></tr>
+        <tr><td>013</td><td>P4</td><td>Which judge ships if alpha stays below 0.80</td></tr>
+        <tr><td>014</td><td>P4</td><td>Best-of-k policy and cost cap</td></tr>
+        <tr><td>015</td><td>P5</td><td>Trace backend and the attribute normalizer</td></tr>
+        <tr><td>016</td><td>P5</td><td>Which stages go to which model tier</td></tr>
+        <tr><td>017</td><td>P5</td><td>CI gate thresholds from measured noise</td></tr>
+        <tr><td>018</td><td>P5.5</td><td>What a trajectory must show before it becomes a skill</td></tr>
+        <tr><td>019</td><td>P5.5</td><td>Review flag, hash pin, tool allowlist</td></tr>
+        <tr><td>020</td><td>P6</td><td>DBOS vs Temporal, decision only</td></tr>
+        <tr><td>021</td><td>P6</td><td>Webhooks as hints, GitHub as source of truth</td></tr>
+        <tr><td>022</td><td>P6</td><td>Render sleep and Neon compute</td></tr>
+        <tr><td>023</td><td>P6</td><td>QA via MRTR or a review comment</td></tr>
+        <tr><td>024</td><td>P7</td><td>Threat model and trust boundaries</td></tr>
+        <tr><td>025</td><td>P7</td><td>Which sandbox tier is the default</td></tr>
+        <tr><td>026</td><td>P7</td><td>Secret lifetimes and token scopes</td></tr>
+        <tr><td>027</td><td>P8</td><td>Tenancy via a reusable workflow in the tenant repo</td></tr>
+        <tr><td>028</td><td>P8</td><td>Per-tenant quota budgets</td></tr>
+        <tr><td>029</td><td>P8</td><td>Planner plus subagents, kept only if both metrics win</td></tr>
+        <tr><td>030</td><td>P9</td><td>Which interfaces held when a second lane was added</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</section>
+
+<section id="read">
+  <div class="wrap">
+    <h2>Where to read next</h2>
+    <div class="grid two">
+      <article class="card"><b><a href="PLAN.md">PLAN.md</a></b><p>Stack, architecture diagram, metrics, risks, cut list.</p></article>
+      <article class="card"><b><a href="TASKS.md">TASKS.md</a></b><p>Flat checklist in execution order. 255 core tasks, 17 optional.</p></article>
+      <article class="card"><b><a href="repo-structure.md">repo-structure.md</a></b><p>Package layout once the monorepo exists.</p></article>
+      <article class="card"><b><a href="phases/P00-argus-bench.md">phases/</a></b><p>One file per phase: acceptance criteria, break-it cases, empty ablation tables.</p></article>
+      <article class="card"><b><a href="architecture.html">architecture.html</a></b><p>Interactive block diagram of the pipeline.</p></article>
+      <article class="card"><b><a href="production.html">production.html</a></b><p>One ticket through the deployed system.</p></article>
+      <article class="card"><b><a href="142-fix.html">142-fix.html</a></b><p>A sample fix report.</p></article>
+      <article class="card"><b><a href="PROJECT.md">PROJECT.md</a></b><p>This page, as Markdown.</p></article>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">Argus learning plan. Versions in the stack table were checked on 2026-10-01 and are re-checked at the start of every phase. Open this file in a browser; it has no external assets.</div>
+</footer>
+</body>
+</html>
