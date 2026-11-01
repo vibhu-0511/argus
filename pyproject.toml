@@ -13,7 +13,7 @@ argus-core = { workspace = true }
 argus-bench = { workspace = true }
 
 [tool.uv.workspace]
-members = ["packages/argus-core", "packages/bench", "packages/repro-agent", "packages/dom2src-mcp", "packages/fix-loop", "packages/verify"]
+members = ["packages/argus-core", "packages/bench", "packages/repro-agent", "packages/dom2src-mcp", "packages/fix-loop", "packages/verify", "packages/eval"]
 
 [dependency-groups]
 dev = ["pytest>=8"]

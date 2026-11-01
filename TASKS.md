@@ -189,9 +189,9 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 - [x] P4-T29 Write package README and phase report against P3 [CLAUDE] 1h
 - [x] P5-T00 Re-verify pinned versions via web search [CLAUDE] 1h
 - [x] P5-T01 Read the OTel GenAI conventions and the reliable-agents paper, write notes [ME] 1h
-- [ ] P5-T02 Define trajectory metrics with exact formulas [ME] 3h
-- [ ] P5-T03 Implement trajectory metrics over stored JSONL [ME] 3h
-- [ ] P5-T04 Build eval runner with aggregation and Wilson confidence intervals [ME] 3h
+- [x] P5-T02 Define trajectory metrics with exact formulas [ME] 3h
+- [x] P5-T03 Implement trajectory metrics over stored JSONL [ME] 3h
+- [x] P5-T04 Build eval runner with aggregation and Wilson confidence intervals [ME] 3h
 - [ ] P5-T05 Build phase-over-phase report generator (markdown from results JSON) [PAIR] 2h
 
 ## Week 17 — Buffer week (no scheduled tasks; catch up, or finish quota-bound eval runs)

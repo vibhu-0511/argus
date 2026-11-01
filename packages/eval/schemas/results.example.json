@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "run_id": "example",
+  "created_at": "2026-11-01T12:00:00Z",
+  "agent": {
+    "name": "example-stub",
+    "model": "stub-model",
+    "host": "local",
+    "params": {
+      "note": "no model call"
+    }
+  },
+  "counts": {
+    "resolved": 1,
+    "unresolved": 1,
+    "excluded": 1,
+    "error": 0
+  },
+  "resolve_rate": {
+    "successes": 1,
+    "total": 2,
+    "rate": 0.5,
+    "ci_low": 0.094529,
+    "ci_high": 0.905471,
+    "interval": "wilson95"
+  },
+  "tokens": {
+    "total": {
+      "tokens_in": 325489,
+      "tokens_out": 744,
+      "tokens_cached": 12000
+    },
+    "per_task": {
+      "tokens_in": 162744.5,
+      "tokens_out": 372.0,
+      "tokens_cached": 6000.0
+    }
+  },
+  "latency_s": {
+    "p50": 114.95,
+    "p95": 181.325,
+    "n": 2
+  },
+  "trajectory_metrics": {
+    "trajectories": 1,
+    "steps": {
+      "total": 20,
+      "mean": 20.0,
+      "median": 20.0
+    },
+    "tool_error_rate": {
+      "value": 0.1,
+      "num": 2,
+      "den": 20
+    },
+    "redundant_call_rate": {
+      "value": 0.35,
+      "num": 7,
+      "den": 20
+    },
+    "stuck_rate": {
+      "value": 0.0,
+      "num": 0,
+      "den": 1
+    },
+    "recover_after_gate_failure_rate": {
+      "value": null,
+      "num": 0,
+      "den": 0
+    }
+  },
+  "$_equivalent": null,
+  "tasks": [
+    {
+      "task_id": "seed-e01",
+      "tier": "easy",
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 4,
+      "tokens": {
+        "tokens_in": 15480,
+        "tokens_out": 104,
+        "tokens_cached": 0
+      },
+      "latency_s": 41.2,
+      "trajectory": null
+    },
+    {
+      "task_id": "seed-m01",
+      "tier": "medium",
+      "verdict": "unresolved",
+      "reason": null,
+      "stop_reason": "step-cap",
+      "steps": 20,
+      "tokens": {
+        "tokens_in": 310009,
+        "tokens_out": 640,
+        "tokens_cached": 12000
+      },
+      "latency_s": 188.7,
+      "trajectory": "packages/fix-loop/runs/p4b-full-summary-h10/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-h01",
+      "tier": "hard",
+      "verdict": "excluded",
+      "reason": "bug.patch does not apply to the target checkout",
+      "stop_reason": null,
+      "steps": null,
+      "tokens": {
+        "tokens_in": 0,
+        "tokens_out": 0,
+        "tokens_cached": 0
+      },
+      "latency_s": null,
+      "trajectory": null
+    }
+  ]
+}

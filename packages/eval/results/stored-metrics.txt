@@ -1,0 +1,17 @@
+# P3: the 29 scored runs (p3-*). bug-17 has no trajectory; p3-pilot-v1-invalid is nested and not matched.
+$ uv run --package eval python -m eval metrics packages/fix-loop/runs --glob 'p3-*/trajectory.jsonl'
+trajectories: 29
+steps: total 225, mean 7.76, median 7.0
+tool_error_rate: 0.1111 (25/225)
+redundant_call_rate: 0.0000 (0/191)
+stuck_rate: 0.0000 (0/29)
+recover_after_gate_failure_rate: n/a (0/0)
+
+# P4: best-of-k runs (p4-t20-*) and context-strategy runs (p4b-*)
+$ uv run --package eval python -m eval metrics packages/fix-loop/runs --glob 'p4*/trajectory.jsonl'
+trajectories: 264
+steps: total 2177, mean 8.25, median 7.0
+tool_error_rate: 0.0914 (199/2177)
+redundant_call_rate: 0.0205 (39/1898)
+stuck_rate: 0.0038 (1/264)
+recover_after_gate_failure_rate: n/a (0/0)
