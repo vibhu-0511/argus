@@ -18,6 +18,7 @@ from flow.config import DATABASE_URL_ENV, FlowSettings
 from flow.dbos_runtime import DbosEnqueuer, launch, shutdown
 from flow.fakes import FakeGitHub, FakeRunner
 from flow.github_read import HttpGitHubReader
+from flow.qa import send_qa_signal
 from flow.reconcile import DbosLookup, GitHubReadError, PollConfig, Reconciler
 from flow.states import TERMINAL, branch_name, effect_key
 from flow.workflow import Deps, Outcome, PullRequest, set_deps
@@ -56,9 +57,15 @@ def setup(enqueuer, name: str):
     ticket = f"acme/{uuid.uuid4().hex[:8]}#12"
     fx = load(name, ticket)
     world = World(ticket, fx)
-    set_deps(Deps(world.repro, world.fix, world.verify, world.github))
+    set_deps(Deps(world.repro, world.fix, world.verify, world.github, qa_timeout_seconds=60.0))
     poller = Reconciler(reader_for(fx), DbosLookup(), enqueuer)
     return ticket, fx, world, poller
+
+
+def approve_and_wait(ticket: str) -> dict:
+    """The workflow now waits in awaiting-qa (T08); a review-comment approve lets it finish."""
+    send_qa_signal(ticket, "approve", "review-comment", "t07", by="reviewer")
+    return DBOS.retrieve_workflow(ticket).get_result()
 
 
 def workflows(ticket: str) -> int:
@@ -69,7 +76,7 @@ def test_a_new_ticket_never_seen_gets_one_workflow_and_one_pr(enqueuer):
     ticket, fx, world, poller = setup(enqueuer, "new_ticket")
     first = poller.reconcile(ticket)
     assert (first.state.value, first.action) == ("received", "started")
-    out = DBOS.retrieve_workflow(ticket).get_result()
+    out = approve_and_wait(ticket)
     assert out["state"] == "done"
     second = poller.reconcile(ticket)  # poll again
     assert second.action == "exists" and (second.workflow_status, second.workflow_state) == ("SUCCESS", "done")
@@ -82,7 +89,7 @@ def test_a_workflow_started_from_github_state_finds_the_runs_and_the_pr(enqueuer
     ticket, fx, world, poller = setup(enqueuer, name)
     out = poller.reconcile(ticket)
     assert (out.state.value, out.action) == (state, "started")
-    assert DBOS.retrieve_workflow(ticket).get_result()["state"] == "done"
+    assert approve_and_wait(ticket)["state"] == "done"
     assert workflows(ticket) == 1
     for runner, step in ((world.repro, "repro"), (world.fix, "fix"), (world.verify, "verify")):
         assert len(runner.runs) == 1, step  # one run per step key, the existing one reused
@@ -106,7 +113,7 @@ def test_webhook_and_poller_meet_on_one_workflow(enqueuer):
     enqueuer.enqueue_reconcile(ticket)  # the webhook's call, as in flow.webhook
     out = poller.reconcile(ticket)  # the poller finds it
     assert out.action == "exists"
-    DBOS.retrieve_workflow(ticket).get_result()
+    approve_and_wait(ticket)
     enqueuer.enqueue_reconcile(ticket)  # a late hint
     assert workflows(ticket) == 1 and len(world.github.prs) == 1 and len(world.repro.runs) == 1
 
@@ -115,7 +122,7 @@ def test_the_other_order_poller_first_then_webhook_is_also_one_workflow(enqueuer
     ticket, fx, world, poller = setup(enqueuer, "new_ticket")
     assert poller.reconcile(ticket).action == "started"
     enqueuer.enqueue_reconcile(ticket)
-    DBOS.retrieve_workflow(ticket).get_result()
+    approve_and_wait(ticket)
     assert workflows(ticket) == 1 and len(world.github.prs) == 1
 
 
@@ -138,7 +145,7 @@ def test_poll_once_twice_leaves_one_workflow_per_ticket(enqueuer):
     reader = OneIssue("t", transport=transport(fx))  # same recorded JSON
     poller = Reconciler(reader, DbosLookup(), enqueuer, PollConfig(repo="acme/x"))
     first = poller.poll_once()
-    DBOS.retrieve_workflow(ticket).get_result()
+    approve_and_wait(ticket)
     second = poller.poll_once()
     assert [r.action for r in first.reconciled] == ["started"] and [r.action for r in second.reconciled] == ["exists"]
     assert first.errors == second.errors == {} and workflows(ticket) == 1 and len(world.github.prs) == 1
