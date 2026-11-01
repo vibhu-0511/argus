@@ -273,7 +273,7 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 - [ ] P6-T15 Write ADR-020: DBOS vs Temporal (decision only) [ME] 2h
 - [ ] P6-T16 Write ADR-021: Webhooks as hints with reconciliation [ME] 1h
 - [ ] P6-T17 Write ADR-022: Free-tier deployment topology [ME] 1h
-- [ ] P6-T18 Write ADR-023: QA signal via MRTR or review comments [ME] 1h
+- [x] P6-T18 Write ADR-023: QA signal via MRTR or review comments [ME] 1h
 - [ ] P6-T19 Run crash-recovery experiment: kill the process at each step boundary [ME] 3h
 
 ## Week 24 — P6, P7 (20 h scheduled)
