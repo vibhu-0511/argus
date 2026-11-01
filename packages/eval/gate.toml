@@ -1,5 +1,5 @@
 # Regression gate thresholds (P5-T16). The only place they live; `python -m eval gate` reads this file.
-# Values are starting points. ADR-017 (P5-T18) sets them from the observed run-to-run noise.
+# ADR-017 (docs/adr/0017-ci-gate-thresholds.md) chose these values from the observed run-to-run noise. Only the repo owner changes them, in a reviewed PR.
 
 [resolve_rate]
 # z of the Wilson interval put around the baseline's successes/total. 1.96 = 95%, the same interval the results files store.

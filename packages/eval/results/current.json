@@ -1,0 +1,500 @@
+{
+  "schema_version": 1,
+  "run_id": "p3-a-claude-baseline",
+  "created_at": "2026-11-01T12:00:00Z",
+  "agent": {
+    "name": "p3-variant-a-claude-session",
+    "model": "claude-session",
+    "host": "claude-session",
+    "params": {
+      "source": "packages/fix-loop/runs/p3-a-claude-results.json",
+      "token_source": "chars/4 estimate",
+      "latency": "not recorded"
+    }
+  },
+  "counts": {
+    "resolved": 20,
+    "unresolved": 9,
+    "excluded": 1,
+    "error": 0
+  },
+  "resolve_rate": {
+    "successes": 20,
+    "total": 29,
+    "rate": 0.689655,
+    "ci_low": 0.507695,
+    "ci_high": 0.827246,
+    "interval": "wilson95"
+  },
+  "tokens": {
+    "total": {
+      "tokens_in": 5884209,
+      "tokens_out": 5946,
+      "tokens_cached": 0
+    },
+    "per_task": {
+      "tokens_in": 202903.759,
+      "tokens_out": 205.034,
+      "tokens_cached": 0.0
+    }
+  },
+  "latency_s": {
+    "p50": null,
+    "p95": null,
+    "n": 0
+  },
+  "trajectory_metrics": null,
+  "$_equivalent": null,
+  "tasks": [
+    {
+      "task_id": "bug-17",
+      "tier": "medium",
+      "verdict": "excluded",
+      "reason": "bug.patch does not apply to platform HEAD ac86acc",
+      "stop_reason": null,
+      "steps": null,
+      "tokens": {
+        "tokens_in": 0,
+        "tokens_out": 0,
+        "tokens_cached": 0
+      },
+      "latency_s": null,
+      "trajectory": null
+    },
+    {
+      "task_id": "seed-e01",
+      "tier": "easy",
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 7,
+      "tokens": {
+        "tokens_in": 111997,
+        "tokens_out": 167,
+        "tokens_cached": 0
+      },
+      "latency_s": null,
+      "trajectory": "packages/fix-loop/runs/p3-pilot-v3-seed-e01/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-e02",
+      "tier": "easy",
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 7,
+      "tokens": {
+        "tokens_in": 54001,
+        "tokens_out": 161,
+        "tokens_cached": 0
+      },
+      "latency_s": null,
+      "trajectory": "packages/fix-loop/runs/p3-a-claude-seed-e02/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-e03",
+      "tier": "easy",
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 4,
+      "tokens": {
+        "tokens_in": 15480,
+        "tokens_out": 104,
+        "tokens_cached": 0
+      },
+      "latency_s": null,
+      "trajectory": "packages/fix-loop/runs/p3-a-claude-seed-e03/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-e04",
+      "tier": "easy",
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 4,
+      "tokens": {
+        "tokens_in": 19654,
+        "tokens_out": 91,
+        "tokens_cached": 0
+      },
+      "latency_s": null,
+      "trajectory": "packages/fix-loop/runs/p3-a-claude-seed-e04/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-e05",
+      "tier": "easy",
+      "verdict": "unresolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 9,
+      "tokens": {
+        "tokens_in": 299310,
+        "tokens_out": 232,
+        "tokens_cached": 0
+      },
+      "latency_s": null,
+      "trajectory": "packages/fix-loop/runs/p3-a-claude-seed-e05/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-e06",
+      "tier": "easy",
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 7,
+      "tokens": {
+        "tokens_in": 13504,
+        "tokens_out": 133,
+        "tokens_cached": 0
+      },
+      "latency_s": null,
+      "trajectory": "packages/fix-loop/runs/p3-a-claude-seed-e06/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-e07",
+      "tier": "easy",
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 9,
+      "tokens": {
+        "tokens_in": 375168,
+        "tokens_out": 172,
+        "tokens_cached": 0
+      },
+      "latency_s": null,
+      "trajectory": "packages/fix-loop/runs/p3-a-claude-seed-e07/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-e08",
+      "tier": "easy",
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 5,
+      "tokens": {
+        "tokens_in": 244323,
+        "tokens_out": 119,
+        "tokens_cached": 0
+      },
+      "latency_s": null,
+      "trajectory": "packages/fix-loop/runs/p3-a-claude-seed-e08/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-e09",
+      "tier": "easy",
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 4,
+      "tokens": {
+        "tokens_in": 21964,
+        "tokens_out": 97,
+        "tokens_cached": 0
+      },
+      "latency_s": null,
+      "trajectory": "packages/fix-loop/runs/p3-a-claude-seed-e09/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-e10",
+      "tier": "easy",
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 5,
+      "tokens": {
+        "tokens_in": 284765,
+        "tokens_out": 128,
+        "tokens_cached": 0
+      },
+      "latency_s": null,
+      "trajectory": "packages/fix-loop/runs/p3-a-claude-seed-e10/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-h01",
+      "tier": "hard",
+      "verdict": "unresolved",
+      "reason": null,
+      "stop_reason": "token-cap",
+      "steps": 9,
+      "tokens": {
+        "tokens_in": 404864,
+        "tokens_out": 221,
+        "tokens_cached": 0
+      },
+      "latency_s": null,
+      "trajectory": "packages/fix-loop/runs/p3-pilot-v2-seed-h01/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-h02",
+      "tier": "hard",
+      "verdict": "unresolved",
+      "reason": null,
+      "stop_reason": "token-cap",
+      "steps": 8,
+      "tokens": {
+        "tokens_in": 427388,
+        "tokens_out": 185,
+        "tokens_cached": 0
+      },
+      "latency_s": null,
+      "trajectory": "packages/fix-loop/runs/p3-a-claude-seed-h02/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-h03",
+      "tier": "hard",
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 6,
+      "tokens": {
+        "tokens_in": 66373,
+        "tokens_out": 171,
+        "tokens_cached": 0
+      },
+      "latency_s": null,
+      "trajectory": "packages/fix-loop/runs/p3-a-claude-seed-h03/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-h04",
+      "tier": "hard",
+      "verdict": "unresolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 17,
+      "tokens": {
+        "tokens_in": 225075,
+        "tokens_out": 410,
+        "tokens_cached": 0
+      },
+      "latency_s": null,
+      "trajectory": "packages/fix-loop/runs/p3-a-claude-seed-h04/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-h05",
+      "tier": "hard",
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "step-cap",
+      "steps": 20,
+      "tokens": {
+        "tokens_in": 378377,
+        "tokens_out": 648,
+        "tokens_cached": 0
+      },
+      "latency_s": null,
+      "trajectory": "packages/fix-loop/runs/p3-a-claude-seed-h05/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-h06",
+      "tier": "hard",
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "token-cap",
+      "steps": 8,
+      "tokens": {
+        "tokens_in": 443945,
+        "tokens_out": 164,
+        "tokens_cached": 0
+      },
+      "latency_s": null,
+      "trajectory": "packages/fix-loop/runs/p3-a-claude-seed-h06/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-h07",
+      "tier": "hard",
+      "verdict": "unresolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 8,
+      "tokens": {
+        "tokens_in": 106279,
+        "tokens_out": 227,
+        "tokens_cached": 0
+      },
+      "latency_s": null,
+      "trajectory": "packages/fix-loop/runs/p3-a-claude-seed-h07/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-h08",
+      "tier": "hard",
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 5,
+      "tokens": {
+        "tokens_in": 23724,
+        "tokens_out": 159,
+        "tokens_cached": 0
+      },
+      "latency_s": null,
+      "trajectory": "packages/fix-loop/runs/p3-a-claude-seed-h08/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-h09",
+      "tier": "hard",
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 5,
+      "tokens": {
+        "tokens_in": 30412,
+        "tokens_out": 144,
+        "tokens_cached": 0
+      },
+      "latency_s": null,
+      "trajectory": "packages/fix-loop/runs/p3-a-claude-seed-h09/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-h10",
+      "tier": "hard",
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 20,
+      "tokens": {
+        "tokens_in": 310009,
+        "tokens_out": 640,
+        "tokens_cached": 0
+      },
+      "latency_s": null,
+      "trajectory": "packages/fix-loop/runs/p3-a-claude-seed-h10/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-m01",
+      "tier": "medium",
+      "verdict": "unresolved",
+      "reason": null,
+      "stop_reason": "token-cap",
+      "steps": 7,
+      "tokens": {
+        "tokens_in": 401271,
+        "tokens_out": 169,
+        "tokens_cached": 0
+      },
+      "latency_s": null,
+      "trajectory": "packages/fix-loop/runs/p3-pilot-v3-seed-m01/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-m02",
+      "tier": "medium",
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 10,
+      "tokens": {
+        "tokens_in": 242114,
+        "tokens_out": 306,
+        "tokens_cached": 0
+      },
+      "latency_s": null,
+      "trajectory": "packages/fix-loop/runs/p3-a-claude-seed-m02/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-m03",
+      "tier": "medium",
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 7,
+      "tokens": {
+        "tokens_in": 370841,
+        "tokens_out": 193,
+        "tokens_cached": 0
+      },
+      "latency_s": null,
+      "trajectory": "packages/fix-loop/runs/p3-a-claude-seed-m03/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-m04",
+      "tier": "medium",
+      "verdict": "unresolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 6,
+      "tokens": {
+        "tokens_in": 24902,
+        "tokens_out": 188,
+        "tokens_cached": 0
+      },
+      "latency_s": null,
+      "trajectory": "packages/fix-loop/runs/p3-a-claude-seed-m04/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-m05",
+      "tier": "medium",
+      "verdict": "unresolved",
+      "reason": null,
+      "stop_reason": "token-cap",
+      "steps": 4,
+      "tokens": {
+        "tokens_in": 538752,
+        "tokens_out": 67,
+        "tokens_cached": 0
+      },
+      "latency_s": null,
+      "trajectory": "packages/fix-loop/runs/p3-a-claude-seed-m05/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-m06",
+      "tier": "medium",
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 6,
+      "tokens": {
+        "tokens_in": 14758,
+        "tokens_out": 118,
+        "tokens_cached": 0
+      },
+      "latency_s": null,
+      "trajectory": "packages/fix-loop/runs/p3-a-claude-seed-m06/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-m07",
+      "tier": "medium",
+      "verdict": "unresolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 7,
+      "tokens": {
+        "tokens_in": 70766,
+        "tokens_out": 217,
+        "tokens_cached": 0
+      },
+      "latency_s": null,
+      "trajectory": "packages/fix-loop/runs/p3-a-claude-seed-m07/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-m08",
+      "tier": "medium",
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 6,
+      "tokens": {
+        "tokens_in": 334380,
+        "tokens_out": 164,
+        "tokens_cached": 0
+      },
+      "latency_s": null,
+      "trajectory": "packages/fix-loop/runs/p3-a-claude-seed-m08/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-m09",
+      "tier": "medium",
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 5,
+      "tokens": {
+        "tokens_in": 29813,
+        "tokens_out": 151,
+        "tokens_cached": 0
+      },
+      "latency_s": null,
+      "trajectory": "packages/fix-loop/runs/p3-a-claude-seed-m09/trajectory.jsonl"
+    }
+  ]
+}
