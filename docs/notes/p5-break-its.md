@@ -75,3 +75,39 @@ Test: `packages/fix-loop/tests/test_backend_unreachable.py`. It runs the T06 stu
 **Not shown.** The test uses localhost only. A backend that answers slowly byte by byte, or DNS that hangs, was not tried; the OTLP exporter's timeout is a total budget per export, but I did not measure those cases.
 
 Run: `uv run --package fix-loop --with jsonschema pytest packages/fix-loop/tests/test_backend_unreachable.py -q`
+
+## P5-T27 wrong tier for a hard step (fix on the cheap model)
+
+**Induced failure.** Force the fix stage onto the cheap model (haiku) on all 29 seeded tasks. Variant C, policy `packages/eval/policies/claude-cheap-fix.yaml`: the routed policy of the ablation (variant B) with `fix: cheap` and nothing else changed. Claude sessions as the model, one run per task, the same harness and settings as the A and B ablation (`docs/notes/p5-t14-results.md`). All 29 runs have a verdict and every model turn ran on haiku (check: `turns_by_tier` in each `verdict.json` has only `cheap`).
+
+**Expected signal.** The resolve rate falls below the stored baseline's Wilson lower bound and `python -m eval gate` exits 1.
+
+**Observed.**
+
+```
+$ python -m eval gate packages/eval/results/breakit-C.json --baseline packages/eval/results/baseline.json
+gate: FAIL
+run     : breakit-C-claude-cheap-fix, 13/29 = 0.4483, Wilson [0.2841, 0.6245]
+baseline: p3-a-claude-baseline, 20/29 = 0.6897, Wilson [0.5077, 0.8272]
+FAIL resolve rate: run 0.4483 < baseline lower bound 0.5077 - margin 0.0000 = 0.5077 (z=1.96)
+ok   tokens per bug: run 56,687 vs baseline 203,109 (-72.1%, limit +100%)
+exit 1
+```
+
+The same gate on the two real ablation runs passes: variant B (routed) exits 0 at 20/28 = 0.714, variant A (all strong) exits 0 at 19/27 = 0.704.
+
+| Tier of the task | A (all strong) | B (routed) | C (fix on haiku) |
+|---|---|---|---|
+| easy | 10/10 | 9/10 | 9/10 |
+| medium | 6/9 | 7/9 | 3/9 |
+| hard | 3/8 | 4/9 | 1/10 |
+
+Paired against B on the 28 tasks B could be scored on: B resolved 7 tasks that C did not (`seed-h02`, `h03`, `h08`, `m03`, `m05`, `m07`, `m09`); C resolved none that B did not. The drop is on medium and hard tasks; easy tasks hold up.
+
+**What the gate did and did not catch.** It failed C and passed A and B, so the resolve-rate rule caught this change. It caught it only on the resolve rate: tokens per bug rose against B (56.7k against 34.9k, haiku takes more steps and larger prompts) but are far below the baseline's 203k, so the token rule did not fire. The comparison is against the stored P3 baseline (a different method: stateful loop, context strategy `none`), not against variant B, so a gap that small between two Claude-session variants would not necessarily trip it; this one is 20 to 31 points wide.
+
+**Cost note.** List-price equivalent for the 29 runs: C $0.17, B $1.94, A $2.21. Per resolved bug C is about eight times cheaper (about $0.013 against $0.097 for B), at a much lower chance of a fix. That is a trade-off the gate does not weigh.
+
+**Fix.** Restore the routing policy (`fix: strong`) and keep the gate as the guard. Nothing in the shipped policy changed; variant C is a test policy only.
+
+**Limits.** One run per cell, one model family, tiers set by a subagent parameter. The result says "haiku as fixer does worse on these tasks here", not what any other cheap model would do. B and C used the same repro brief; repro found nothing in nearly all runs, so the difference is the fix stage.
