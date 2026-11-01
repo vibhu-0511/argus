@@ -97,6 +97,8 @@ flowchart LR
     UNWIRED["GitHub write client<br/>not written, UnwiredGitHub raises"]:::p6
     CRASH["crash-recovery harness<br/>real process kills, ledger fakes"]:::p6
     FLOWCI["flow.yml<br/>Postgres service container, never run"]:::p6
+    COLD["cold-start timer<br/>signed ping, 10 s verdict, not run"]:::p6
+    NEONUSE["Neon usage probe<br/>CU-hours against polling, not run"]:::p6
   end
 
   BUGSMITH --> FILTER
@@ -203,6 +205,8 @@ flowchart LR
   SERVICE --> UNWIRED
   CRASH -. "hard-kills the worker" .-> WF
   FLOWCI -. "flow test suite" .-> WF
+  COLD -. "times the 202" .-> WEBHOOK
+  NEONUSE -. "reads usage of" .-> FPG
 
   classDef p0 fill:#dbeafe,stroke:#1d4ed8,stroke-width:1.5px,color:#111827
   style S0 fill:none,stroke:#1d4ed8,stroke-width:1.5px
@@ -219,7 +223,7 @@ flowchart LR
   classDef p6 fill:#ede9fe,stroke:#6d28d9,stroke-width:4px,color:#111827
   style S6 fill:none,stroke:#6d28d9,stroke-width:4px
   classDef ext fill:#ffffff,stroke:#6b7280,color:#111827,stroke-dasharray: 4 3
-  linkStyle 73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103 stroke-width:3px
+  linkStyle 73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105 stroke-width:3px
 ```
 
 ## How to read it
@@ -234,7 +238,7 @@ flowchart LR
 
 Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink, P6 violet.
 
-## What P6 adds (so far)
+## What P6 adds
 
 - `packages/flow`: the ticket workflow state machine (`flow.states`): ten states, 12 legal transitions, any other pair raises, and stable idempotency keys for each side effect. Pure Python, no DBOS yet.
 - A FastAPI webhook endpoint that checks GitHub's HMAC-SHA256 signature (secret from `GITHUB_WEBHOOK_SECRET`, fail closed) and a handler that treats the webhook as a hint: it enqueues a reconcile and returns 202 with no GitHub read. A repeated delivery id is a no-op. The enqueue is an interface; `DbosEnqueuer` starts the workflow under the ticket id.
@@ -246,6 +250,8 @@ Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink, P6 violet.
 - `flow.service` and `render.yaml` (T12): the one app Render would run, with `/health` that answers before the database is awake and a late-bound enqueuer so the webhook still answers 202. Not deployed; the workflow's GitHub write client is `UnwiredGitHub` (every call raises) because no real one exists yet, so the Blueprint keeps polling off.
 - Crash-recovery experiment (T19, T21): 150 real process kills per variant (plain function against DBOS) at 15 points, fake runners with a durable ledger. Both variants finished every run; DBOS repeated fewer calls (0.93 against 4.47 per kill) and made no duplicate effect, the plain function set one label twice. Killing after the PR is created left one draft PR (10 of 10).
 - `flow.yml` (T20) runs the flow tests on a Postgres service container but has not run on GitHub. A Render sleep that drops a webhook is shown locally (T23); a sleeping service runs no poller, an open finding.
+- Measurement tooling (T13, T14): a script that times the Render cold start with a signed ping against the 10 s webhook timeout, and a probe that compares Neon usage with what DBOS polling asks of the database. Neither has run against a real deploy; no cold-start time and no CU-hour figure exist. Owner steps are in `docs/notes/p6-t13.md` and `p6-t14.md`.
+- ADR-021 (webhooks as hints with reconciliation) and ADR-022 (free-tier topology) are written and marked proposed. `packages/flow/README.md` and the phase report hold the status; the P5 cells stay as dashes.
 - Version re-check and DBOS and MRTR notes (`docs/notes/p6-t00-versions.md`, `p6-t01-dbos-mrtr.md`). Per-task detail: `docs/architecture/p6.md`.
 - P6 was started before P5.5 and before P5 finished, by the owner's choice (`docs/notes/p6-waves.md`).
 
