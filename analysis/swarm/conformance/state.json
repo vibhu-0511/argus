@@ -1,0 +1,83 @@
+{
+  "lastRun": "2026-10-30",
+  "reports": [
+    "analysis/swarm/conformance/report-2026-10-30.md",
+    "analysis/swarm/conformance/report-2026-10-30-recheck.md"
+  ],
+  "lastChecked": {
+    "local:p0-bench": "97719bd02d610c09af3e6a9c3631a545626bd8e7",
+    "origin/p0-bench": "bc52e16",
+    "origin/claude/agent-swarm-verification-b4db5f": "ecdaf6f",
+    "origin/claude/quizzical-varahamihira-069352": "069f9c536060621c0f6e5fe2f2bf4587a4a0c453",
+    "local:claude/p2-conformance-fixes-593529": "cefd018"
+  },
+  "notes": {
+    "local:p0-bench": "10 commits ahead of origin/p0-bench (P2 T00-T19). Local only when checked.",
+    "local:claude/p2-conformance-fixes-593529": "Cut from local p0-bench 97719bd; merges PR 2 (069f9c5) plus 13 fix commits. Local only, no GitHub run when checked.",
+    "recheck": "A re-run checks only commits after these SHAs: git log <sha>..<ref> for each ref, plus any new remote branch or PR."
+  },
+  "p2Tasks_firstPass_at_97719bd": {
+    "CONFORMS": ["P2-T00", "P2-T01", "P2-T04", "P2-T05", "P2-T06", "P2-T07", "P2-T09", "P2-T11", "P2-T15", "P2-T16", "P2-T18", "P2-T19"],
+    "DEVIATES": ["P2-T02", "P2-T03", "P2-T08", "P2-T12", "P2-T13", "P2-T17"],
+    "UNVERIFIED": ["P2-T10"],
+    "CHECKED-WITHOUT-EVIDENCE": ["P2-T14"]
+  },
+  "recheck_at_cefd018": {
+    "fixed": ["T06/T08 ambiguous over MCP", "T17 committed index hashes", "T10 deps and pgvector setup", "T12 provenance (run id, raw output, accuracy reproduced)", "T19/H2 fixture label", "H3/H4 stale statements", "hazard 1 platform path", "hazard 2 pnpm-lock", "hazard 3 dom2src.yml all-packages", "hazard 4 PR1 merge conflicts (none)"],
+    "partlyFixed": ["T14 CI (workflow fixed, no GitHub run)", "T02 plugin on Canvas (spec written, not re-run by verifier)", "T03 attribute tests (run and pass, still fixture)"],
+    "notFixed": ["T12 experiment cannot compare variants", "T13 ADR-007 default order vs HLD edge 9", "E3 locate input scope"],
+    "openOwnerDecision": ["golden.yml manual-only (plan docs edited ahead of decision)", "task ownership", "private index.json", "ADR-007 default order", "push and merge order"],
+    "newRegressions": [],
+    "counts": {"fixed": 11, "partlyFixed": 3, "notFixed": 3, "openOwnerDecision": 1, "newRegression": 0}
+  },
+  "tests": {
+    "recheckPassed": {"dom2src_mcp_non_live": 51, "test_repo_map_with_platform": 4, "test_embed_fresh_compose": 3, "plugin_transform_with_platform": 7, "plugin_transform_without_platform": "6 pass 1 skipped", "plugin_test_attribute": 2, "ablation_rerun_accuracy": "matches committed run exactly; latency does not"},
+    "notRun": ["plugin test:canvas (adds a worktree to the private platform repo)", "Linux CPU-torch install", "GitHub Actions (branch not pushed)", "repro/bench suites"]
+  },
+  "ci": {
+    "origin/p0-bench": "golden and repro red on every push",
+    "pr1": "fixtures fail, golden fail (inherited, docs-only)",
+    "pr2": "workflow repro: python and bugsmith success (run 41094848224); golden.yml manual-only",
+    "dom2src.yml": "never run on GitHub; all steps reproduce green locally from a clean frozen install"
+  },
+  "p3": {
+    "report": "analysis/swarm/conformance/report-2026-10-30-p3.md",
+    "scope": "P3 fix-loop, UNCOMMITTED working tree of the main checkout (branch p0-bench, tip 97719bd)",
+    "snapshotTakenUtc": "2026-10-30T21:21:44Z",
+    "snapshotStillMatchedDiskAtUtc": "2026-10-30T21:27:19Z",
+    "snapshotHashes": "analysis/swarm/conformance/p3-snapshot-sha256.txt",
+    "recheck": "Compare the file hashes (and git status of the main checkout) to the snapshot; check only changed or new files, including the separate session's T17-T21, T23, T33 work and any commits after 97719bd.",
+    "tickedTasks": 27,
+    "openTasks": ["P3-T17", "P3-T18", "P3-T19", "P3-T20", "P3-T21", "P3-T23", "P3-T33"],
+    "ownerBlocked": "live fixer model (Mistral key unavailable on Free plan); T17/T18 first, T19-T21/T23/T33 follow",
+    "counts": {"CONFORMS": 23, "DEVIATES": 4, "UNVERIFIED": 0, "CHECKED-WITHOUT-EVIDENCE": 0},
+    "deviates": ["P3-T11 offload not a pluggable strategy", "P3-T22 ticked ahead of open dep T18", "P3-T25 ticked ahead of open dep T20", "P3-T26 CI fails in root-only env (undeclared jsonschema), never run"],
+    "doneWhen": {"1": "BLOCKED (owner), no run command", "2": "CONFORMS (direct deps only)", "3": "DEVIATES (sandbox not wired into run_cmd or gates)", "4": "DEVIATES/BLOCKED", "5": "BLOCKED (owner)", "6": "CONFORMS (edits only)", "7": "BLOCKED (owner)"},
+    "ownershipConflicts": {"ME": 17, "PAIR": 6, "CLAUDE": 4},
+    "tests": {"passedAllPackages": {"fix_loop": 47, "argus_core": 13}, "ciSelection": "43 passed with all packages; FAILS in a root-only env (jsonschema)", "dockerAndAstGrepPass": true, "lockfile": "uv lock --check ok; sync --locked ok", "frameworkCheck": "clean"},
+    "untouched": "P0-P2 packages, ADRs 0001-0007 and other workflows untouched; argus-learning.html deleted (unexplained); argus_core StopReason.summary added",
+    "notRun": ["any live model run", "Canvas npm gates", "GitHub Actions", "T00 web claims"]
+  },
+  "p4": {
+    "report": "analysis/swarm/conformance/report-2026-10-31-p4.md",
+    "scope": "P4 verify, UNCOMMITTED working tree of the main checkout (branch p0-bench, tip 97719bd), on top of uncommitted P3",
+    "snapshotTakenUtc": "2026-10-31T03:51:40Z",
+    "snapshotStillMatchedDiskAtUtc": "2026-10-31T04:14:35Z (P4 files unchanged; 4 P3 files changed and p3-failures.md added by the P3 finish session)",
+    "snapshotHashes": "analysis/swarm/conformance/p4-snapshot-sha256.txt",
+    "recheck": "Compare file hashes (and git status of the main checkout) to the snapshot; check changed or new files only, including labels.json, any judge or best-of-k run output, and any commits after 97719bd.",
+    "tickedTasks": 24,
+    "openTasks": ["P4-T10", "P4-T11", "P4-T13", "P4-T14", "P4-T17", "P4-T20"],
+    "ownerBlocked": "T10 human labels (and real calibration shots); T11/T13/T14/T17 Ollama not installed (gemma4:e4b ~9.6 GB), T17 also a Mistral key; T20 live fixer and an enforced cap",
+    "counts": {"CONFORMS": 12, "DEVIATES": 12, "UNVERIFIED": 0, "CHECKED-WITHOUT-EVIDENCE": 0},
+    "deviatesContent": ["P4-T03", "P4-T04", "P4-T05", "P4-T09", "P4-T19", "P4-T21", "P4-T29"],
+    "deviatesOrderOnly": ["P4-T15", "P4-T18", "P4-T24", "P4-T27", "P4-T28"],
+    "doneWhen": {"1": "DEVIATES (data-only, no capture, pixel check unusable at real size)", "2": "CONFORMS", "3": "BLOCKED (owner)", "4": "BLOCKED (owner), fallback decision written", "5": "BLOCKED (owner)", "6": "BLOCKED, honest"},
+    "ownershipConflicts": {"ME": 17, "PAIR": 2, "CLAUDE": 5},
+    "keyFindings": ["best_of_k has no default k and no cap (ADR-014 and README say default 1, cap 5)", "pixel_diff is O(changed x unchanged): 300x150 at 3% changed took 46 s", "1px hairline passes the fringe rule", "overflow/axe/console have no capture producer", "calibration pairs are 16x16 synthetic squares", "verify callable is a hook only, nothing builds it", "jsonschema undeclared (fix-loop.yml still fails in root-only env)", "Verdict has no judge label"],
+    "tests": {"passed": {"verify": 40, "verify_root_only_env": 40, "fix_loop": 51, "argus_core": 13, "node_capture": 1}, "ciCommands": "match exit 0, over exit 1", "lockfile": "uv lock --check ok; sync --locked ok", "alphaRecomputedByDefinition": 0.692},
+    "verifyYml": "would run on GitHub (package has no dependencies; root-only env passes); never run; no model calls",
+    "untouched": "P0-P2 packages, ADRs 0001-0007, golden/repro/dom2src workflows untouched; shared files edited: TASKS, PLAN, PROJECT, pyproject, uv.lock, pnpm-workspace, pnpm-lock, argus_core StopReason (+verify-reject), fix_loop/loop.py; argus-learning.html still deleted",
+    "notRun": ["any judge call", "browser capture of overflow/axe/console", "GitHub Actions", "published Krippendorff paper", "pixtral model id", "T00 web claims"]
+  },
+  "trackerCounts": {"TASKS.md@bc52e16": {"done": 49, "open": 223}, "TASKS.md@97719bd": {"done": 69, "open": 203}, "TASKS.md@cefd018": {"done": 68, "open": 204}, "explainerAndTrackerJson": {"done": 49, "open": 223}}
+}
