@@ -1,0 +1,12 @@
+{
+  "id": "077",
+  "ticket_id": "seed-e05",
+  "view": "ops-radar",
+  "constructed_as": "correct",
+  "shot_source": "real-canvas-mocked-api",
+  "after_variant": "correct:p4-t20-seed-e05-d2",
+  "after_source": "P3 run p4-t20-seed-e05-d2 (resolved) diff on platform HEAD",
+  "changed_ratio_vs_before": 0.002412,
+  "changed_ratio_vs_golden": 0.002128,
+  "label": null
+}

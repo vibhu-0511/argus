@@ -1,0 +1,37 @@
+{
+ "status": "vs labels.json = Claude drafts adopted by the owner (not independently human-labelled)",
+ "judge_run": "judge-p4-judge-claude-v2-heldout.jsonl",
+ "split": "held_out",
+ "pairs": 50,
+ "alpha": 0.6713,
+ "bootstrap95": [
+  0.4688,
+  0.8357
+ ],
+ "agreement": "40/50",
+ "false_accept_rate_vs_non_pass_labels": 0.1304,
+ "judge_labels": {
+  "pass": 27,
+  "fail": 12,
+  "collateral": 11
+ },
+ "labels": {
+  "pass": 27,
+  "collateral": 11,
+  "fail": 12
+ },
+ "confusion_label_to_judge": {
+  "collateral->collateral": 7,
+  "collateral->fail": 2,
+  "collateral->pass": 2,
+  "fail->collateral": 2,
+  "fail->fail": 9,
+  "fail->pass": 1,
+  "pass->collateral": 2,
+  "pass->fail": 1,
+  "pass->pass": 24
+ },
+ "error_count": 0,
+ "mean_seconds_per_pair": 0.0,
+ "order_disagreement_rate": "not computed: 0/50 reverse-order judgements"
+}

@@ -1,0 +1,12 @@
+{
+  "id": "045",
+  "ticket_id": "seed-e05",
+  "view": "ops-radar",
+  "constructed_as": "wrong",
+  "shot_source": "real-canvas-mocked-api",
+  "after_variant": "wrong:p3-a-claude-seed-e05",
+  "after_source": "P3 run p3-a-claude-seed-e05 (unresolved) diff on platform HEAD",
+  "changed_ratio_vs_before": 0.002508,
+  "changed_ratio_vs_golden": 0.002476,
+  "label": null
+}

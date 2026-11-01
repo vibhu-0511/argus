@@ -1,0 +1,14 @@
+{
+ "run_id": "p4-judge-gemma4e4b-rubric-v1",
+ "model": "gemma4:e4b",
+ "pairs": "fixtures/calibration",
+ "num_ctx": 8192,
+ "total": 200,
+ "started_utc": "2026-10-31T06:56:30.939247+00:00",
+ "status": "running",
+ "done": 101,
+ "last": "000/reverse",
+ "mean_seconds_per_job": 78.83315060198241,
+ "eta_seconds": 7804.481909596258,
+ "updated_utc": "2026-10-31T09:09:27.230602+00:00"
+}

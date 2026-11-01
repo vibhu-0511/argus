@@ -1,0 +1,1 @@
+The radar list and the landing band both stop clipping.
