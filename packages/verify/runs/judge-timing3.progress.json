@@ -1,0 +1,14 @@
+{
+ "run_id": "p4-judge-timing3",
+ "model": "gemma4:e4b",
+ "pairs": "fixtures/calibration",
+ "num_ctx": 8192,
+ "total": 3,
+ "started_utc": "2026-10-31T06:51:34.006495+00:00",
+ "status": "finished",
+ "done": 3,
+ "last": null,
+ "mean_seconds_per_job": 94.36209150000165,
+ "eta_seconds": 0.0,
+ "updated_utc": "2026-10-31T06:56:17.223024+00:00"
+}

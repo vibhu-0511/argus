@@ -1,0 +1,30 @@
+{
+ "status": "vs labels.json = Claude drafts adopted by the owner (not independently human-labelled)",
+ "judge_run": "judge-p4-judge-gemma4e4b-rubric-v1.jsonl",
+ "pairs": 100,
+ "alpha": -0.2448,
+ "bootstrap95": [
+  -0.3085,
+  -0.1923
+ ],
+ "dev_alpha": -0.2863,
+ "held_out_alpha": -0.1965,
+ "split": "seed 0, 50/50 by position",
+ "false_accept_rate_vs_non_pass_labels": 1.0,
+ "judge_labels": {
+  "pass": 100
+ },
+ "labels": {
+  "pass": 47,
+  "fail": 31,
+  "collateral": 22
+ },
+ "confusion_draft_to_judge": {
+  "collateral->pass": 22,
+  "fail->pass": 31,
+  "pass->pass": 47
+ },
+ "error_count": 0,
+ "mean_seconds_per_pair": 79.0,
+ "order_disagreement_rate": "not computed: 1/100 reverse-order judgements"
+}
