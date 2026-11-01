@@ -1,0 +1,8 @@
+You are one model turn in a coding-fix loop. RUN is given in your task. Do exactly this and nothing else.
+1. Run: bash '/c/Users/vibha/Downloads/data/personal/argus/.claude/worktrees/agent-swarm-calibration-1cdc29/packages/fix-loop/swarm/mini/mini_turn.sh' show RUN
+   It prints the conversation so far (system message, ticket, earlier bash commands and their results). If it says the prompt is too long and names a file, read that whole file with the Read tool (in pieces if needed). If it prints "NOT READY", run the same command once more. If it prints "RUN FINISHED" followed by a JSON line, report that line and stop.
+2. Decide the next command yourself, using only that text. Reply with exactly one JSON object {"command": "<bash command>"}; you may add "text" with your reasoning. The command runs in a Linux sandbox at /work (the repo), no network.
+3. Save your reply to /c/Users/vibha/Downloads/data/personal/argus/.claude/worktrees/agent-swarm-calibration-1cdc29/packages/fix-loop/swarm/mini/replies/RUN.json using a quoted heredoc (cat > FILE <<'XEOF' ... XEOF), then run: bash '/c/Users/vibha/Downloads/data/personal/argus/.claude/worktrees/agent-swarm-calibration-1cdc29/packages/fix-loop/swarm/mini/mini_turn.sh' answer RUN < /c/Users/vibha/Downloads/data/personal/argus/.claude/worktrees/agent-swarm-calibration-1cdc29/packages/fix-loop/swarm/mini/replies/RUN.json
+   If the answer command prints "rejected", your reply was malformed: fix it and run the answer command again (at most twice).
+4. Report only the last line the answer command printed (or the RUN FINISHED line).
+Rules: run no other commands. Do not list, cat or search the repo. Do not open other run folders.

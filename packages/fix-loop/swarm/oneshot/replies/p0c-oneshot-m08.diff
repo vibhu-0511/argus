@@ -1,0 +1,20 @@
+diff --git a/apps/canvas/src/ops/radar.css b/apps/canvas/src/ops/radar.css
+--- a/apps/canvas/src/ops/radar.css
++++ b/apps/canvas/src/ops/radar.css
+@@ -97,7 +97,7 @@
+ 
+ /* The feed. */
+-.radar-feed { display: flex; flex-direction: row; gap: 16px; min-width: 0; }
++.radar-feed { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+ .radar-feed-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+ .radar-eyebrow { display: block; font-family: var(--radar-mono); font-size: 11px; letter-spacing: 3px; color: var(--radar-dim); }
+ .radar-feed-head h1 { margin: 4px 0 0; font-size: 24px; font-weight: 600; letter-spacing: 1px; }
+@@ -133,7 +133,7 @@
+ .radar-chip--hot { color: var(--radar-amber-ink); }
+ .radar-chip[aria-pressed="true"] { background: rgba(59, 130, 246, 0.22); border-color: var(--radar-accent); color: var(--radar-on-pressed); }
+ 
+-.radar-locked { display: flex; flex-direction: row; gap: 10px; padding: 16px 18px; border-radius: 12px; border: 1px solid rgba(255, 181, 71, 0.5); background: linear-gradient(135deg, rgba(255, 181, 71, 0.1), rgba(59, 130, 246, 0.05)); }
++.radar-locked { display: flex; flex-direction: column; gap: 10px; padding: 16px 18px; border-radius: 12px; border: 1px solid rgba(255, 181, 71, 0.5); background: linear-gradient(135deg, rgba(255, 181, 71, 0.1), rgba(59, 130, 246, 0.05)); }
+ .radar-locked-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-family: var(--radar-mono); font-size: 11px; letter-spacing: 2px; color: var(--radar-dim); }
+ .radar-locked-mark { color: var(--radar-amber-ink); }
+ .radar-locked-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding-right: 36px; }

@@ -1,0 +1,12 @@
+Summary: The ticket text was never visible in the transcript. The work so far is a z-index / stacking-order investigation in the Canvas UI. Nothing has been edited.
+
+Findings:
+- apps/canvas/src/ops/ops.css z-index values: 2 (.ops-params-bar, .ops-horizon-now), 3 (.ops-horizon-dot), 4 (.ops-horizon-nowtag), 9 (.ops-map-controls, only used at OpsMap.tsx:204, no conflict), 20 (.ops-rules-detail, fixed drawer), 30 (.ops-horizon-pop, fixed), 40 (.ops-horizon-scrim, fixed).
+- apps/canvas/src/styles/landing.css: .landing-bar 2, .landing-header 10, .landing-hero 10, .landing-ambient 0, .landing-band 5, .landing-powered 10, .auth-backdrop (login modal, fixed) 100. The root .landing is position: fixed with no z-index, so it forms its own stacking context. No stacking bug is visible there. Not checked: whether .auth-backdrop renders inside or outside .landing.
+- No z-index CSS variables or tokens exist; all values are hard-coded.
+- The only inline zIndex in apps/canvas/src is SessionExpiryGuard.tsx:67, zIndex: 10.
+- platform/canvas-ui/styles.css uses 1-6 for sticky headers, 10-80 for menus, dropdowns and panels, and 200 for .dm-overlay.
+- SessionExpiryGuard.tsx renders a div.banner ("Session expires soon") and, after the user clicks "Sign in again", an in-place re-authenticate modal (role="dialog", position: fixed, inset 0, inline zIndex: 10 at ~line 67). That is lower than the ops overlays (.ops-rules-detail 20, .ops-horizon-pop 30, .ops-horizon-scrim 40) and the login modal (100), so the re-auth modal can render underneath them and be hidden or unclickable. The .banner CSS was not checked.
+- The last tool call was a search for "z-index" in ops.css, which only reconfirmed the ops.css values listed above.
+
+Next step: match this against the ticket. The likely fix is to raise the SessionExpiryGuard modal zIndex above the ops overlays, probably above 100 and below platform .dm-overlay (200), for example 150. Also check the .banner CSS rule, then grep for other overlays that should sit under the re-auth modal.

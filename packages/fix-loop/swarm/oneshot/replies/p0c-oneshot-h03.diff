@@ -1,0 +1,17 @@
+diff --git a/apps/canvas/src/ops/radar.css b/apps/canvas/src/ops/radar.css
+--- a/apps/canvas/src/ops/radar.css
++++ b/apps/canvas/src/ops/radar.css
+@@ -52,3 +52,3 @@
+-.radar-head { display: flex; align-items: center; gap: 20px; padding: 12px 32px; border-bottom: 1px solid var(--radar-line); background: var(--radar-head-bg); white-space: nowrap; }
++.radar-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; padding: 12px 32px; border-bottom: 1px solid var(--radar-line); background: var(--radar-head-bg); white-space: nowrap; }
+ .radar-head > * { flex-shrink: 0; }
+ .radar-head > .radar-head-gap { flex-shrink: 1; min-width: 0; }
+diff --git a/apps/canvas/src/styles/landing.css b/apps/canvas/src/styles/landing.css
+--- a/apps/canvas/src/styles/landing.css
++++ b/apps/canvas/src/styles/landing.css
+@@ -369,3 +369,4 @@
+   inset: 0;
+-  overflow: visible;
++  overflow-x: hidden;
++  overflow-y: auto;
+   color: #fff;
