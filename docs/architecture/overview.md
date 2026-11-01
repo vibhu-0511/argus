@@ -85,6 +85,13 @@ flowchart LR
     ENQ["enqueue interface<br/>DbosEnqueuer, one workflow per ticket id"]:::p6
     WF["DBOS ticket workflow<br/>five idempotent steps, stored results"]:::p6
     CFG["flow config<br/>listen_notify off, pinned version and executor"]:::p6
+    ACTIONS["Actions runner<br/>dispatch, find before start, artifact"]:::p6
+    AJOB["agent-job.yml<br/>workflow_dispatch, never run on GitHub"]:::p6
+    GREAD["GitHub reader<br/>read-only: issue, branch, PR, run"]:::p6
+    RECON["reconciliation poller<br/>derive_state, poll_once"]:::p6
+    QA["QA signal wait<br/>approve, reject, timeout, idempotency key"]:::p6
+    RCOM["review-comment parser<br/>the QA path that ships"]:::p6
+    QMCP["MRTR elicitation tool<br/>input_required, inputResponses"]:::p6
   end
 
   BUGSMITH --> FILTER
@@ -171,6 +178,18 @@ flowchart LR
   WF -- "moves only via next_state" --> STATES
   WF --> FPG
   CFG --> WF
+  WF --> ACTIONS
+  ACTIONS -- "workflow_dispatch" --> AJOB
+  AJOB -. "entry point flow.agent_job not written" .-> FIX
+  ACTIONS --> GITHUB
+  GREAD --> GITHUB
+  RECON --> GREAD
+  RECON --> ENQ
+  RECON -. "derive_state" .-> STATES
+  WF --> QA
+  RCOM --> QA
+  WEBHOOK --> RCOM
+  QMCP --> QA
 
   classDef p0 fill:#dbeafe,stroke:#1d4ed8,stroke-width:1.5px,color:#111827
   style S0 fill:none,stroke:#1d4ed8,stroke-width:1.5px
@@ -187,7 +206,7 @@ flowchart LR
   classDef p6 fill:#ede9fe,stroke:#6d28d9,stroke-width:4px,color:#111827
   style S6 fill:none,stroke:#6d28d9,stroke-width:4px
   classDef ext fill:#ffffff,stroke:#6b7280,color:#111827,stroke-dasharray: 4 3
-  linkStyle 73,74,75,76,77,78,79,80,81,82,83 stroke-width:3px
+  linkStyle 73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95 stroke-width:3px
 ```
 
 ## How to read it
@@ -207,6 +226,9 @@ Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink, P6 violet.
 - `packages/flow`: the ticket workflow state machine (`flow.states`): ten states, 12 legal transitions, any other pair raises, and stable idempotency keys for each side effect. Pure Python, no DBOS yet.
 - A FastAPI webhook endpoint that checks GitHub's HMAC-SHA256 signature (secret from `GITHUB_WEBHOOK_SECRET`, fail closed) and a handler that treats the webhook as a hint: it enqueues a reconcile and returns 202 with no GitHub read. A repeated delivery id is a no-op. The enqueue is an interface; `DbosEnqueuer` starts the workflow under the ticket id.
 - `flow.workflow` (T03): the ticket workflow as a DBOS workflow with five idempotent steps (repro, fix, verify, open PR, hand-off), step results stored in Postgres, find-or-create PR on one stable draft branch. `flow.config` fixes `use_listen_notify` off, a pinned application version and executor id, and no conductor key. The repro, fix and verify runners and the GitHub client are injected fakes; nothing dispatches to Actions yet (T04) and the QA wait is a stub (T08).
+- `flow.actions` (T04): an Actions runner that dispatches a step as a `workflow_dispatch` run, finds an existing run by its run key before starting one, and reads the patch and trajectory artifact. `agent-job.yml` is written but has never run on GitHub, and its entry point `flow.agent_job` does not exist yet, so T04 is unticked.
+- `flow.reconcile` and `flow.github_read` (T07): a read-only GitHub reader and a poller that maps issue, branch, PR and run onto the workflow states and enqueues under the same workflow id as the webhook. Tested on 11 recorded GitHub JSON fixtures.
+- QA wait (T08, T10, T09, T18): the workflow waits in `awaiting-qa` for an approve or reject signal with a timeout. A review comment (`/argus approve` or `/argus reject`) from an allowed reviewer ships as the QA path (ADR-023); the MRTR elicitation tool is built and tested in memory, with no real MCP client run.
 - Version re-check and DBOS and MRTR notes (`docs/notes/p6-t00-versions.md`, `p6-t01-dbos-mrtr.md`). Per-task detail: `docs/architecture/p6.md`.
 - P6 was started before P5.5 and before P5 finished, by the owner's choice (`docs/notes/p6-waves.md`).
 
