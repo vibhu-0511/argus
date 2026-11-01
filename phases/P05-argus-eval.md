@@ -77,8 +77,10 @@ Measure the whole pipeline at trajectory level with traces and a CI regression g
 
 | Variant | Resolve rate (95% CI) | Tokens/bug (in, out, cached) | $-equivalent/bug | Quota share/bug | p50 latency | p95 latency |
 |---|---|---|---|---|---|---|
-| A | — | — | — | — | — | — |
-| B | — | — | — | — | — | — |
+| A | 70.4% (19/27) [51.5%, 84.1%] | 38,205 / 552 / 0 | $0.0819 | — | 819 s | 1,801 s |
+| B | 71.4% (20/28) [52.9%, 84.7%] | 34,471 / 468 / 0 | $0.0694 | — | 1,617 s | 5,098 s |
+
+*Claude-session run, 2026-11-01: sonnet is the strong tier, haiku the cheap tier, one run per task and variant on the same 29 seeded tasks. Excluded (scorer exit 2): A on seed-h06 and seed-h09, B on seed-h09. Tokens are chars/4 estimates. Quota share is a dash: the only cap is self-imposed. The repro stage found a repro in 0 of 29 (A) and 1 of 29 (B) runs, so routing moved little. Latency is not comparable between rows. Details and caveats: `docs/notes/p5-t14-results.md`.*
 
 **Phase report (against previous phase):**
 
