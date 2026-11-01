@@ -15,6 +15,7 @@ Neither is a real Neon suspend; they are the closest local stand-in. See docs/no
 
 from __future__ import annotations
 
+import concurrent.futures
 import contextlib
 import logging
 import os
@@ -52,7 +53,7 @@ class Container:
         subprocess.run(["docker", *args, self.name], check=True, capture_output=True, timeout=60)
 
     def stop(self) -> None:
-        self._docker("stop")
+        self._docker("stop", "-t", "3")  # Postgres stops on SIGINT (fast shutdown); 3 s before Docker kills it
         self.stopped_at = time.monotonic()
 
     def start(self) -> None:
@@ -64,6 +65,17 @@ class Container:
     def down_seconds(self) -> float:
         return self.started_at - self.stopped_at
 
+    def wait_ready(self, url: str, seconds: float = 60.0) -> float:
+        """Poll until a plain connection works (every 0.25 s, 2 s connect timeout) and return how long it took."""
+        started = time.monotonic()
+        while True:
+            try:
+                psycopg.connect(url, connect_timeout=2).close()
+                return time.monotonic() - started
+            except psycopg.OperationalError:
+                assert time.monotonic() - started < seconds, f"the database was not ready {seconds:.0f} s after it started"
+                time.sleep(0.25)
+
     def start_later(self, seconds: float) -> threading.Thread:
         """Start the server again after `seconds`, from another thread, and return that thread."""
 
@@ -74,6 +86,17 @@ class Container:
         thread = threading.Thread(target=later, name="restart-container", daemon=True)
         thread.start()
         return thread
+
+
+def within(seconds: float, func, *args):
+    """Run `func(*args)` in a thread and fail the test after `seconds` instead of hanging in DBOS's retry."""
+    pool = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+    try:
+        return pool.submit(func, *args).result(timeout=seconds)
+    except concurrent.futures.TimeoutError:
+        pytest.fail(f"no result within {seconds:.0f} s")
+    finally:
+        pool.shutdown(wait=False)
 
 
 def container() -> Container:

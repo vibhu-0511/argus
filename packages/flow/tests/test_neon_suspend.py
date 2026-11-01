@@ -16,12 +16,13 @@ import pytest
 from psycopg.conninfo import conninfo_to_dict
 
 from flow import db_wake
-from flow.config import DATABASE_URL_ENV, TLS_MODES, FlowSettings
+from flow import dbos_runtime
+from flow.config import DATABASE_URL_ENV, TLS_MODES, FlowSettings, dbos_config
 from flow.dbos_runtime import launch, shutdown
 from flow.db_wake import DatabaseUnavailable, wait_for_database
 from flow.qa import send_qa_signal
 from flow.workflow import Deps
-from suspend_support import World, container, dbos_log_messages, needs_container, terminate_connections
+from suspend_support import World, container, dbos_log_messages, needs_container, terminate_connections, within
 
 pytestmark = [
     pytest.mark.postgres,
@@ -29,9 +30,26 @@ pytestmark = [
 ]
 
 
+def small_pool_config(settings: FlowSettings):
+    """The production config with a pool of 4 and a 3 s connect timeout, for these tests only.
+
+    After every session is killed each DBOS thread opens a new TLS connection at once; with the default
+    pool of 20 and a 10 s timeout, a loaded machine (Docker jobs next to it) turns that into timeouts and
+    long backoffs. A small pool keeps the reconnect to a handful of handshakes. The pre-ping and
+    `db_retry` under test are not changed. `connect_args` replaces DBOS's, so its application name is kept.
+    """
+    return {
+        **dbos_config(settings),
+        "sys_db_pool_size": 4,
+        "db_engine_kwargs": {"connect_args": {"application_name": "dbos_transact", "connect_timeout": 3}},
+    }
+
+
 @pytest.fixture(scope="module")
 def enqueuer():
-    enq = launch(FlowSettings.from_env(), Deps(None, None, None, None))
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setattr(dbos_runtime, "dbos_config", small_pool_config)
+        enq = launch(FlowSettings.from_env(), Deps(None, None, None, None))
     yield enq
     shutdown()
 
@@ -71,12 +89,12 @@ def test_dbos_talks_to_the_database_over_tls(enqueuer):
 
 
 def test_the_next_operation_after_every_connection_was_killed_reconnects(enqueuer, world, ticket):
-    assert finish(enqueuer, f"{ticket}-warm")["state"] == "done"  # the pool now holds open connections
+    assert within(60, finish, enqueuer, f"{ticket}-warm")["state"] == "done"  # the pool now holds open connections
     killed = terminate_connections(os.environ[DATABASE_URL_ENV])
     assert killed >= 1
     started = time.monotonic()
     with dbos_log_messages() as log:
-        out = finish(enqueuer, ticket)
+        out = within(60, finish, enqueuer, ticket)  # fails after 60 s instead of waiting in DBOS's retry
     took = time.monotonic() - started
     print(f"\nkilled {killed} sessions; enqueue and a full run afterwards took {took:.1f} s")
     assert out["state"] == "done"
@@ -87,6 +105,7 @@ def test_the_next_operation_after_every_connection_was_killed_reconnects(enqueue
 @needs_container
 def test_a_stopped_server_fails_bounded_and_a_started_one_is_reached_again(enqueuer, world, ticket, monkeypatch):
     monkeypatch.setattr(db_wake, "ATTEMPTS", 2)
+    monkeypatch.setattr(db_wake, "CONNECT_TIMEOUT_SECONDS", 2)
     server = container()
     server.stop()
     try:
@@ -96,13 +115,15 @@ def test_a_stopped_server_fails_bounded_and_a_started_one_is_reached_again(enque
         print(f"\nenqueue against a stopped server gave up after {time.monotonic() - started:.1f} s")
         assert world.repro.calls == []  # nothing ran
         monkeypatch.undo()
-        restart = server.start_later(3)
-        attempt = wait_for_database(os.environ[DATABASE_URL_ENV], attempts=10, first_delay=1.0, connect_timeout=2)
+        restart = server.start_later(1)
+        # the probe's own backoff, but with short waits so the test ends soon after the server is back
+        attempt = wait_for_database(os.environ[DATABASE_URL_ENV], attempts=60, first_delay=0.25, max_delay=1.0, connect_timeout=2)
         restart.join()
         print(f"database answered on attempt {attempt}")
         assert attempt > 1
     finally:
         server.start()  # a no-op when it is already running
-    out = finish(enqueuer, ticket)  # the pool's connections died with the server; DBOS replaces them
+    print(f"server accepts plain connections {server.wait_ready(os.environ[DATABASE_URL_ENV]):.1f} s after the probe saw it")
+    out = within(90, finish, enqueuer, ticket)  # the pool's connections died with the server; DBOS replaces them
     assert out["state"] == "done"
     world.assert_each_effect_happened_once(ticket)
