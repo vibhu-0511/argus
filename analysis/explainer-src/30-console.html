@@ -1,0 +1,798 @@
+<section class="sub" id="sub-console" data-pane="plan" hidden>
+<style>
+/* ---------- outside the frame: shell variables only ---------- */
+#sub-console .cn-h{font-family:var(--serif);font-size:clamp(26px,4.4vw,40px);letter-spacing:-.02em;line-height:1.1;margin:0 0 var(--s3)}
+#sub-console .cn-h small{display:block;font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:var(--s2);font-weight:600}
+#sub-console .cn-lede{max-width:70ch;color:var(--ink-2);margin:0 0 var(--s4)}
+#sub-console .cn-proj{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:var(--s3);margin:0 0 var(--s4)}
+#sub-console .cn-proj>div{border:1px solid var(--line);border-radius:var(--r2);padding:var(--s3);background:var(--surface)}
+#sub-console .cn-proj b{font-family:var(--mono);font-size:13px;display:block}
+#sub-console .cn-proj span.n{font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+#sub-console .cn-proj ul{margin:var(--s2) 0 0;padding-left:1.1em;font-size:13px;color:var(--ink-2)}
+#sub-console .cn-honest{border-left:3px solid var(--warn);background:var(--surface-2);padding:var(--s2) var(--s3);margin:0 0 var(--s4);font-size:13px;color:var(--ink-2);border-radius:0 var(--r1) var(--r1) 0}
+#sub-console .cn-honest{overflow-wrap:anywhere}
+#sub-console .cn-honest b{color:var(--ink)}
+#sub-console .cn-ctl{display:flex;flex-wrap:wrap;gap:var(--s3) var(--s4);align-items:flex-end;margin:0 0 var(--s3)}
+#sub-console .cn-ctl>div>label,#sub-console .cn-ctl>div>.cn-lab{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin-bottom:var(--s1)}
+#sub-console .cn-seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--line-2);border-radius:var(--r2);overflow:hidden;background:var(--surface)}
+#sub-console .cn-seg button{font:inherit;font-size:13px;min-height:40px;padding:0 var(--s3);border:0;border-right:1px solid var(--line);background:transparent;color:var(--ink-2);cursor:pointer}
+#sub-console .cn-seg button:last-child{border-right:0}
+#sub-console .cn-seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+#sub-console button:focus-visible,#sub-console input:focus-visible,#sub-console select:focus-visible,#sub-console summary:focus-visible{outline:2px solid var(--focus,var(--accent));outline-offset:2px}
+#sub-console .cn-cap{font-size:13px;color:var(--ink-2);margin:0 0 var(--s3);max-width:80ch}
+#sub-console .cn-cap b{font-family:var(--mono);font-size:12px;color:var(--ink)}
+#sub-console .cn-info{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:var(--s3);margin-top:var(--s4)}
+#sub-console .cn-card{border:1px solid var(--line);border-radius:var(--r2);padding:var(--s3) var(--s4);background:var(--surface);min-width:0}
+#sub-console .cn-card h3{font-family:var(--serif);font-size:18px;margin:0 0 var(--s2);letter-spacing:-.01em}
+#sub-console .cn-card ul,#sub-console .cn-card ol{margin:0;padding-left:1.15em;font-size:13.5px;color:var(--ink-2)}
+#sub-console .cn-card li{margin:0 0 var(--s2)}
+#sub-console .cn-card dl{margin:0;font-size:13px}
+#sub-console .cn-card dt{font-family:var(--mono);font-size:12px;color:var(--ink);margin-top:var(--s2);word-break:break-word}
+#sub-console .cn-card dd{margin:2px 0 0;color:var(--ink-2)}
+#sub-console .cn-card li.cur,#sub-console .cn-card dt.cur{outline:1px solid var(--accent);outline-offset:3px;border-radius:2px}
+#sub-console .cn-wide{grid-column:1/-1}
+#sub-console .cn-chip{display:inline-block;font-family:var(--mono);font-size:11px;padding:1px 6px;border:1px solid var(--line-2);border-radius:99px;color:var(--ink-2);background:var(--surface-2);vertical-align:baseline;white-space:nowrap}
+#sub-console .cn-chip.prop{border-style:dashed;color:var(--warn)}
+#sub-console .cn-src{font:inherit;font-family:var(--mono);font-size:11px;padding:2px 8px;min-height:28px;border:1px solid var(--line-2);border-radius:var(--r1);background:var(--surface-2);color:var(--ink-2);cursor:copy;text-align:left;max-width:100%;overflow-wrap:anywhere}
+#sub-console .cn-src:hover{border-color:var(--accent);color:var(--ink)}
+#sub-console .cn-borrow{list-style:none;padding:0!important}
+#sub-console .cn-borrow li{margin:0 0 var(--s3)}
+#sub-console .cn-borrow .pn{display:block;font-size:13px;color:var(--ink)}
+#sub-console .cn-borrow .pj{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-right:6px}
+#sub-console .cn-sw{display:flex;flex-wrap:wrap;gap:6px}
+#sub-console .cn-sw i{display:inline-flex;align-items:center;gap:6px;font-style:normal;font-family:var(--mono);font-size:11px;border:1px solid var(--line);border-radius:var(--r1);padding:3px 6px;background:var(--surface)}
+#sub-console .cn-sw i s{display:inline-block;width:14px;height:14px;border-radius:3px;border:1px solid var(--line-2)}
+#sub-console details.cn-card summary{cursor:pointer;font-family:var(--serif);font-size:18px;min-height:40px;display:flex;align-items:center}
+
+/* ---------- the dark console frame: ONLY place with console colours; vars set from ARGUS.console.designTokens.extracted.dark ---------- */
+#sub-console .cn-frame{position:relative;border:1px solid var(--border-secondary,#2a3a58);border-radius:12px;overflow:hidden;background:var(--bg-primary);color:var(--text-primary);font-family:var(--cn-sans,system-ui,sans-serif);font-size:14px;line-height:1.45;isolation:isolate;box-shadow:0 0 0 6px var(--bg-secondary),0 0 0 7px var(--border-primary)}
+#sub-console .cn-frame *{box-sizing:border-box}
+#sub-console .cn-fh{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:10px 14px;background:var(--bg-secondary);border-bottom:1px solid var(--border-primary)}
+#sub-console .cn-brand{font-weight:600;letter-spacing:.02em;display:flex;align-items:center;gap:8px}
+#sub-console .cn-brand svg{flex:none}
+#sub-console .cn-fh .sp{flex:1}
+#sub-console .cn-illtag{font-family:var(--cn-mono,monospace);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-warning);border:1px dashed var(--accent-warning);border-radius:6px;padding:2px 6px;background:repeating-linear-gradient(135deg,transparent 0 5px,color-mix(in srgb,var(--accent-warning) 14%,transparent) 5px 10px)}
+#sub-console .cn-fb{position:relative;min-height:560px}
+#sub-console .cn-content{padding:14px}
+#sub-console .cn-content[data-st="error"] .cn-dim{opacity:.55}
+#sub-console .cn-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-tertiary);font-weight:600}
+#sub-console .cn-mono{font-family:var(--cn-mono,monospace);font-variant-numeric:tabular-nums}
+#sub-console .cn-sec{margin:0 0 16px}
+#sub-console .cn-sec>h4{margin:0 0 8px;font-size:12px;font-weight:600;color:var(--text-secondary);display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+#sub-console .cn-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:10px;margin:0 0 16px}
+#sub-console .cn-kpi{background:var(--surface-card);border:1px solid var(--border-primary);border-radius:8px;padding:10px 12px;min-width:0}
+#sub-console .cn-kpi.act{border-color:var(--accent-warning);background:color-mix(in srgb,var(--accent-warning) 10%,var(--surface-card))}
+#sub-console .cn-kpi.red{border-color:var(--accent-error);background:color-mix(in srgb,var(--accent-error) 10%,var(--surface-card))}
+#sub-console .cn-kpi .v{font-family:var(--cn-mono,monospace);font-size:26px;line-height:1.15;font-variant-numeric:tabular-nums;margin:2px 0}
+#sub-console .cn-kpi .s{font-size:11.5px;color:var(--text-secondary);overflow-wrap:anywhere}
+#sub-console .cn-sk{display:inline-block;width:5ch;height:.9em;border-radius:4px;background:linear-gradient(90deg,var(--bg-tertiary),var(--border-secondary),var(--bg-tertiary));background-size:200% 100%;animation:cn-sh 1.2s linear infinite;vertical-align:middle}
+@keyframes cn-sh{to{background-position:-200% 0}}
+@media (prefers-reduced-motion:reduce){#sub-console .cn-sk{animation:none}#sub-console .cn-drawer{transition:none!important}}
+#sub-console .cn-tw{overflow-x:auto;border:1px solid var(--border-primary);border-radius:8px;background:var(--surface-card);max-width:100%}
+#sub-console .cn-tw table{border-collapse:collapse;width:100%;font-size:12.5px}
+#sub-console .cn-tw th{position:sticky;top:0;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-tertiary);font-weight:600;padding:7px 10px;border-bottom:1px solid var(--border-primary);background:var(--bg-secondary);white-space:nowrap}
+#sub-console .cn-tw td{padding:0 10px;height:34px;border-bottom:1px solid var(--border-primary);white-space:nowrap;vertical-align:middle}
+#sub-console .cn-tw tbody tr:last-child td{border-bottom:0}
+#sub-console .cn-tw tbody tr{cursor:pointer}
+#sub-console .cn-tw tbody tr:hover{background:var(--surface-hover)}
+#sub-console .cn-tw tbody tr.sel{background:color-mix(in srgb,var(--surface-selected) 45%,transparent)}
+#sub-console .cn-tw tr.ill{background-image:repeating-linear-gradient(135deg,transparent 0 7px,color-mix(in srgb,var(--text-tertiary) 9%,transparent) 7px 8px)}
+#sub-console .cn-tw tr.hot td:first-child{box-shadow:inset 3px 0 0 var(--state-stuck)}
+#sub-console .cn-tw tr.hl{outline:2px dashed var(--accent-fuchsia);outline-offset:-2px}
+#sub-console .cn-tw td.num{text-align:right;font-family:var(--cn-mono,monospace);font-variant-numeric:tabular-nums}
+#sub-console .cn-rb{font:inherit;font-family:var(--cn-mono,monospace);font-size:12px;color:var(--accent-info);background:none;border:0;padding:0;min-height:30px;cursor:pointer;text-align:left}
+#sub-console .cn-rb:hover{text-decoration:underline}
+#sub-console .cn-btn{font:inherit;font-size:12.5px;min-height:40px;padding:0 14px;border-radius:6px;border:1px solid var(--border-secondary);background:var(--bg-tertiary);color:var(--text-primary);cursor:pointer}
+#sub-console .cn-btn.pri{background:var(--accent-primary);border-color:var(--accent-primary);color:#fff}
+#sub-console .cn-btn.pri:hover:not(:disabled){background:var(--accent-primary-hover)}
+#sub-console .cn-btn.dng{border-color:var(--accent-error);color:var(--accent-error)}
+#sub-console .cn-btn:disabled{opacity:.45;cursor:not-allowed}
+#sub-console .cn-btn.sm{min-height:30px;padding:0 8px;font-size:11.5px}
+#sub-console .cn-acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 12px}
+#sub-console .cn-frame select,#sub-console .cn-frame input[type=text]{font:inherit;font-size:12.5px;min-height:40px;background:var(--bg-primary);color:var(--text-primary);border:1px solid var(--border-secondary);border-radius:6px;padding:0 8px;max-width:100%}
+#sub-console .cn-pill{display:inline-block;font-family:var(--cn-mono,monospace);font-size:10px;line-height:1;padding:3px 7px;border-radius:99px;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;color:var(--c,var(--text-secondary));background:color-mix(in srgb,var(--c,var(--text-secondary)) 20%,transparent);border:1px solid color-mix(in srgb,var(--c,var(--text-secondary)) 40%,transparent)}
+#sub-console .cn-pill.replay{--c:var(--accent-warning)}
+#sub-console .cn-pill.live{--c:var(--accent-success)}
+#sub-console .cn-pill.bad{--c:var(--accent-error)}
+#sub-console .cn-pill.info{--c:var(--accent-info)}
+#sub-console .cn-pill.hatch{background-image:repeating-linear-gradient(135deg,transparent 0 4px,color-mix(in srgb,var(--text-tertiary) 25%,transparent) 4px 5px)}
+#sub-console .cn-banner{display:flex;gap:8px;align-items:flex-start;border:1px solid var(--bc,var(--border-secondary));background:color-mix(in srgb,var(--bc,var(--text-tertiary)) 12%,transparent);border-radius:8px;padding:8px 12px;margin:0 0 14px;font-size:12.5px}
+#sub-console .cn-banner b{font-family:var(--cn-mono,monospace);font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--bc,var(--text-secondary));white-space:nowrap}
+#sub-console .cn-banner[data-k=warn]{--bc:var(--accent-warning)}
+#sub-console .cn-banner[data-k=bad]{--bc:var(--accent-error)}
+#sub-console .cn-banner[data-k=info]{--bc:var(--accent-info)}
+#sub-console .cn-banner[data-k=stuck]{--bc:var(--accent-fuchsia)}
+#sub-console .cn-meter{margin:0 0 10px}
+#sub-console .cn-meter .t{display:flex;flex-wrap:wrap;justify-content:space-between;gap:2px 10px;font-size:12px;margin-bottom:4px}
+#sub-console .cn-bar{height:10px;border-radius:5px;background:var(--bg-tertiary);overflow:hidden;border:1px solid var(--border-primary)}
+#sub-console .cn-bar i{display:block;height:100%;min-width:2px;background:var(--accent-info)}
+#sub-console .cn-bar.red i{background:var(--accent-error)}
+#sub-console .cn-bar.none i{display:none}
+#sub-console .cn-prov{border-bottom:1px dotted var(--text-secondary);cursor:help}
+#sub-console .cn-mx{border-collapse:collapse;font-size:12px}
+#sub-console .cn-mx th,#sub-console .cn-mx td{padding:4px 10px;border:1px solid var(--border-primary);text-align:center}
+#sub-console .cn-mx th{color:var(--text-tertiary);font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.05em}
+#sub-console .cn-mx td.z{color:var(--text-tertiary)}
+#sub-console .cn-two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px}
+#sub-console .cn-drawer{position:absolute;top:0;right:0;bottom:0;width:min(100%,390px);background:var(--bg-secondary);border-left:1px solid var(--border-secondary);overflow:auto;z-index:5;padding:14px;box-shadow:-10px 0 24px rgba(0,0,0,.35);animation:cn-in .16s ease-out}
+@keyframes cn-in{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){#sub-console .cn-drawer{animation:none}}
+#sub-console .cn-drawer[hidden]{display:none}
+#sub-console .cn-drawer .dh{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
+#sub-console .cn-drawer .dh b{font-family:var(--cn-mono,monospace);font-size:13px;overflow-wrap:anywhere}
+#sub-console .cn-drawer dl{margin:0}
+#sub-console .cn-drawer dt{font-family:var(--cn-mono,monospace);font-size:11px;color:var(--text-tertiary);margin-top:10px;overflow-wrap:anywhere}
+#sub-console .cn-drawer dd{margin:2px 0 0;font-family:var(--cn-mono,monospace);font-size:12.5px;overflow-wrap:anywhere}
+#sub-console .cn-drawer dd small{display:block;color:var(--text-tertiary);font-family:var(--cn-sans,sans-serif);font-size:11px;margin-top:2px}
+#sub-console .cn-drawer .gap{color:var(--text-tertiary)}
+#sub-console .cn-strip{display:flex;gap:6px;overflow-x:auto;padding:4px 2px 8px}
+#sub-console .cn-stp{flex:0 0 auto;min-width:88px;min-height:60px;border:1px solid var(--border-secondary);border-radius:6px;background:var(--surface-card);color:var(--text-primary);cursor:pointer;font:inherit;font-size:11px;padding:6px 8px;text-align:left}
+#sub-console .cn-stp .bar{display:block;height:6px;border-radius:3px;background:var(--text-tertiary);opacity:.5;margin:5px 0}
+#sub-console .cn-stp[aria-pressed=true]{border-color:var(--accent-info);background:color-mix(in srgb,var(--surface-selected) 50%,transparent)}
+#sub-console .cn-stp.err{border-color:var(--accent-error)}
+#sub-console .cn-stp.hl{outline:2px dashed var(--accent-fuchsia);outline-offset:1px}
+#sub-console .cn-stp.ghost{opacity:.45;border-style:dashed;cursor:default}
+#sub-console .cn-ba{position:relative;width:100%;max-width:560px;aspect-ratio:8/5;border:1px solid var(--border-secondary);border-radius:8px;overflow:hidden;background:var(--bg-primary);user-select:none}
+#sub-console .cn-ba>*{position:absolute;inset:0;width:100%;height:100%}
+#sub-console .cn-ba svg{display:block}
+#sub-console .cn-ba .after{clip-path:inset(0 0 0 var(--pos,50%))}
+#sub-console .cn-ba .div{width:2px;left:var(--pos,50%);background:var(--accent-info);inset:0 auto 0 auto;box-shadow:0 0 0 1px rgba(0,0,0,.4)}
+#sub-console .cn-ba .cl{width:auto;height:auto;inset:auto;top:6px;font-family:var(--cn-mono,monospace);font-size:10px;text-transform:uppercase;letter-spacing:.06em;background:rgba(10,15,26,.75);color:var(--text-primary);padding:2px 6px;border-radius:4px}
+#sub-console .cn-ba .cl.l{left:6px}
+#sub-console .cn-ba .cl.r{right:6px}
+#sub-console .cn-ba .miss{display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;color:var(--accent-error);border:2px dashed var(--accent-error);background:var(--bg-primary);padding:10px}
+#sub-console .cn-ba .ph{background:linear-gradient(90deg,var(--bg-tertiary),var(--border-secondary),var(--bg-tertiary));background-size:200% 100%;animation:cn-sh 1.2s linear infinite}
+@media (prefers-reduced-motion:reduce){#sub-console .cn-ba .ph{animation:none}}
+#sub-console input[type=range]{width:100%;max-width:560px;min-height:40px;accent-color:var(--accent-info)}
+#sub-console .cn-chk{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin:0 0 12px}
+#sub-console .cn-chk>div{border:1px solid var(--border-primary);border-radius:8px;padding:8px 10px;background:var(--surface-card)}
+#sub-console .cn-chk .lb{display:block;font-family:var(--cn-mono,monospace);font-size:11px;color:var(--text-secondary);margin-bottom:5px}
+#sub-console .cn-iv{position:relative;display:inline-block;width:110px;height:8px;background:var(--bg-tertiary);border-radius:4px;vertical-align:middle;margin-right:8px}
+#sub-console .cn-iv i{position:absolute;top:0;bottom:0;background:var(--accent-info);border-radius:4px;min-width:2px}
+#sub-console .cn-spin{display:inline-block;width:10px;height:10px;border:2px solid var(--border-secondary);border-top-color:var(--accent-violet);border-radius:50%;animation:cn-rot .9s linear infinite;vertical-align:-1px;margin-right:6px}
+@keyframes cn-rot{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){#sub-console .cn-spin{animation:none}}
+#sub-console .cn-note{font-size:11.5px;color:var(--text-tertiary);margin:6px 0 0}
+#sub-console .cn-empty{border:1px dashed var(--border-secondary);border-radius:8px;padding:18px;text-align:center;color:var(--text-secondary);font-size:13px;margin:0 0 14px}
+#sub-console .cn-empty code{font-family:var(--cn-mono,monospace);color:var(--accent-info)}
+#sub-console .cn-status{min-height:20px;font-size:12px;color:var(--accent-success);margin:0 0 8px}
+@media (max-width:480px){#sub-console .cn-content{padding:10px}#sub-console .cn-kpi .v{font-size:22px}}
+</style>
+<script>
+(function () {
+  'use strict';
+  var A = window.ARGUS;
+  var root = document.getElementById('sub-console');
+  if (!A || !A.console || !root) return;
+  var C = A.console, TK = C.designTokens, DARK = TK.extracted.dark;
+
+  /* ---------- tiny DOM helpers (all data goes through textContent) ---------- */
+  function add(e, kids) {
+    for (var i = 0; i < kids.length; i++) {
+      var c = kids[i];
+      if (c == null || c === false) continue;
+      if (Array.isArray(c)) add(e, c);
+      else e.append(c.nodeType ? c : document.createTextNode(String(c)));
+    }
+  }
+  function h(tag, p) {
+    var e = document.createElement(tag);
+    if (p) for (var n in p) {
+      var v = p[n];
+      if (v == null || v === false) continue;
+      if (n === 'class') e.className = v;
+      else if (n === 'text') e.textContent = v;
+      else if (n.slice(0, 2) === 'on') e.addEventListener(n.slice(2), v);
+      else e.setAttribute(n, v === true ? '' : v);
+    }
+    add(e, Array.prototype.slice.call(arguments, 2));
+    return e;
+  }
+  function dash(v) { return v == null || v === 'ILLUSTRATIVE' ? '—' : String(v); }
+  function f3(x) { return Math.max(0, x).toFixed(3); }
+  function pc(a, b) { return Math.max(0, Math.min(100, a / b * 100)); }
+  function pill(txt, varName, cls) {
+    var e = h('span', { class: 'cn-pill ' + (cls || ''), text: txt });
+    if (varName) e.style.setProperty('--c', 'var(' + varName + ')');
+    return e;
+  }
+  function statePill(s) { return pill(s, s === 'repro verdict tally' ? '--text-secondary' : '--state-' + s); }
+  function verdictPill(v) {
+    var s = String(v == null ? 'skipped' : v).replace(/\s*\(ILLUSTRATIVE\)/, '');
+    var k = /^advisory/.test(s) ? 'advisory' : /^pass/.test(s) ? 'pass' : /^fail/.test(s) ? 'fail' : /^error/.test(s) ? 'error' : 'skipped';
+    return pill(s, '--verdict-' + k);
+  }
+  function phaseChip(p) {
+    if (!p) return '—';
+    var e = h('span', { class: 'cn-pill', text: p });
+    e.style.setProperty('--c', 'var(--phase-' + String(p).toLowerCase() + ')');
+    e.style.color = 'var(--text-primary)';
+    return e;
+  }
+  function ill() { return h('span', { class: 'cn-pill hatch', text: 'illustrative', title: 'Layout placeholder, not a result' }); }
+  function replay() { return h('span', { class: 'cn-pill replay', text: 'REPLAY', title: 'meta.host == fixture: canned replay, not live' }); }
+  function banner(kind, label, text, extra) { return h('div', { class: 'cn-banner', 'data-k': kind, role: kind === 'bad' ? 'alert' : 'status' }, h('b', { text: label }), h('span', { text: text }), extra); }
+  function copyChip(txt) {
+    var b = h('button', { class: 'cn-src', type: 'button', title: 'Click to copy', text: txt });
+    b.addEventListener('click', function () {
+      try { navigator.clipboard.writeText(txt); } catch (e) { /* clipboard unavailable */ }
+      var o = b.textContent; b.textContent = 'copied'; setTimeout(function () { b.textContent = o; }, 900);
+    });
+    return b;
+  }
+  function kpi(label, value, sub, cls, busy) {
+    return h('div', { class: 'cn-kpi ' + (cls || ''), 'aria-busy': busy ? 'true' : null },
+      h('div', { class: 'cn-lbl', text: label }),
+      h('div', { class: 'v' }, busy ? h('span', { class: 'cn-sk' }) : value),
+      h('div', { class: 's', text: sub || '' }));
+  }
+  function meter(label, used, cap, prov, opts) {
+    opts = opts || {};
+    var none = used == null;
+    var red = !!opts.red;
+    return h('div', { class: 'cn-meter' },
+      h('div', { class: 't' },
+        h('span', { class: 'cn-mono' }, label, ' '),
+        h('span', { class: 'cn-mono' }, none ? '—' : used, ' / ', cap, ' ',
+          h('span', { class: 'cn-prov', title: prov === 'published' ? 'published, not measured' : 'from response headers', text: prov }))),
+      h('div', { class: 'cn-bar ' + (red ? 'red ' : '') + (none ? 'none' : ''), role: 'img', 'aria-label': label + (none ? ': no usage in data' : ': ' + used + ' of ' + cap) },
+        h('i', { style: 'width:' + (none ? 0 : red ? 100 : pc(used, cap)) + '%' })),
+      opts.note ? h('div', { class: 'cn-note', text: opts.note }) : null);
+  }
+
+  /* ---------- state ---------- */
+  var SCREENS = C.screens, S = { screen: SCREENS[0].id, state: 'normal', sel: {}, filter: 'all', pos: 50, diff: true, decisions: {}, conflict: false, confirm: false, msg: '', toolErrOnly: false, cmpA: 0, cmpB: 1 };
+  var STATE_LABEL = { normal: 'normal', loading: 'loading', empty: 'empty', error: 'error', slow: 'slow', quotaExhausted: 'quota exhausted', stuckRun: 'stuck run' };
+  function scr() { return SCREENS.filter(function (s) { return s.id === S.screen; })[0]; }
+  function stateKeys(sc) { return ['normal'].concat(Object.keys(sc.states)); }
+
+  /* ---------- frame ---------- */
+  var frame = h('div', { class: 'cn-frame', role: 'region', 'aria-label': 'Console mockup (illustrative data)' });
+  (function applyTokens() {
+    var k;
+    for (k in DARK) frame.style.setProperty(k, DARK[k]);
+    [TK.proposed.verdict, TK.proposed.ticketState, TK.proposed.phaseChips].forEach(function (o) {
+      for (k in o) if (k.indexOf('--') === 0) frame.style.setProperty(k, o[k]);
+    });
+    frame.style.setProperty('--cn-sans', "'" + TK.extracted.fonts.sans + "', system-ui, sans-serif");
+    frame.style.setProperty('--cn-mono', "'" + TK.extracted.fonts.mono + "', ui-monospace, Consolas, monospace");
+  })();
+  var feed = h('span');
+  var content = h('div', { class: 'cn-content' });
+  var drawer = h('aside', { class: 'cn-drawer', hidden: true, 'aria-label': 'Detail drawer' });
+  var lastTrig = null;
+  frame.append(
+    h('div', { class: 'cn-fh' },
+      h('div', { class: 'cn-brand' },
+        h('span', { class: 'logo', 'aria-hidden': 'true' }), 'ARGUS console'),
+      feed, h('span', { class: 'sp' }), h('span', { class: 'cn-illtag', text: 'Illustrative data' })),
+    h('div', { class: 'cn-fb' }, content, drawer));
+  (function logo() {
+    var s = frame.querySelector('.logo');
+    s.innerHTML = '<svg width="18" height="18" viewBox="0 0 18 18"><circle cx="9" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="9" cy="9" r="2.5" fill="var(--accent-info)"/></svg>';
+  })();
+  frame.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !drawer.hidden) closeDrawer(); });
+
+  function closeDrawer(refocus) {
+    drawer.hidden = true; drawer.textContent = '';
+    if (refocus !== false && lastTrig && document.contains(lastTrig)) lastTrig.focus();
+  }
+  function openDrawer(title, pairs, trig, extra) {
+    lastTrig = trig || document.activeElement;
+    var sc = scr(), dl = h('dl');
+    pairs.forEach(function (p) {
+      var key = p[0], val = p[1], src = srcFor(sc, key);
+      dl.append(h('dt', { text: key }),
+        h('dd', null, val == null || val === 'ILLUSTRATIVE' ? h('span', { class: 'gap', text: '— (placeholder, no value in data)' }) : (val && val.nodeType ? val : String(val)),
+          src ? h('small', { text: (src.proposed && !/^PROPOSED/.test(src.source) ? 'PROPOSED · ' : '') + src.source }) : null));
+    });
+    var close = h('button', { class: 'cn-btn sm', type: 'button', text: 'Close', 'aria-label': 'Close detail drawer', onclick: function () { closeDrawer(); } });
+    drawer.textContent = '';
+    add(drawer, [h('div', { class: 'dh' }, h('b', { text: title }), close), dl, extra]);
+    drawer.hidden = false; close.focus();
+  }
+  var ALIAS = { state: 'workflow_state', ticket: 'ticket.id', tier: 'meta.tier', model: 'meta.model', host: 'meta.host', stop_reason: 'stop_reason', first_failure: 'first_failure', judge: 'judge', decision: 'qa', source: 'source', pixel: 'checks[].name', overflow: 'checks[].name', axe: 'checks[].name', console: 'checks[].name', task: 'Verdict', resolve_rate: 'resolve_rate', tool_error: 'steps[].tool_error', tool_name: 'steps[].tool_name', index: 'steps[].index', kind: 'steps[].kind', tokens_in: 'steps[].tokens_in', tokens_out: 'steps[].tokens_out', tokens_cached: 'steps[].tokens_cached', p50_s: 'latency', p95_s: 'latency', usd_equiv: '$-equivalent', wilson95: 'resolve_rate', gate: 'gate', valid: 'repro Verdict', variant: 'run_id' };
+  function srcFor(sc, key) {
+    var a = ALIAS[key] || key;
+    return sc.fields.filter(function (f) { return f.name.indexOf(a) !== -1; })[0] || null;
+  }
+  function pairsOf(r) {
+    var o = [];
+    for (var k in r) if (k !== 'illustrative' && k !== 'real') {
+      var v = r[k];
+      o.push([k, Array.isArray(v) ? '[' + v.map(function (x) { return f3(x); }).join(', ') + ']' : v]);
+    }
+    return o;
+  }
+
+  /* ---------- generic table ---------- */
+  function table(cols, rows, o) {
+    o = o || {};
+    var tb = h('tbody');
+    rows.forEach(function (r, i) {
+      var tr = h('tr', { class: (r.illustrative ? 'ill ' : '') + (o.rowCls ? o.rowCls(r, i) : '') + (o.sel === i ? ' sel' : ''), 'aria-selected': o.sel === i ? 'true' : null });
+      cols.forEach(function (c, ci) {
+        var v = c.cell(r, i), td = h('td', { class: c.num ? 'num' : '' });
+        if (ci === 0) td.append(h('button', { class: 'cn-rb', type: 'button', 'aria-label': 'Open detail for ' + (c.aria ? c.aria(r) : dash(r[c.k])) }, v));
+        else td.append(v);
+        tr.append(td);
+      });
+      tr.addEventListener('click', function () { o.onRow(r, i, tr.querySelector('.cn-rb')); });
+      tb.append(tr);
+    });
+    return h('div', { class: 'cn-tw', tabindex: '0', role: 'region', 'aria-label': o.label || 'Table (scrolls inside this box)' },
+      h('table', { style: 'min-width:' + (o.min || 640) + 'px' },
+        h('thead', null, h('tr', null, cols.map(function (c) { return h('th', { scope: 'col', text: c.label }); }))), tb));
+  }
+  function skelRows(n, cols) {
+    var tb = h('tbody');
+    for (var i = 0; i < n; i++) tb.append(h('tr', null, cols.map(function () { return h('td', null, h('span', { class: 'cn-sk' })); })));
+    return h('div', { class: 'cn-tw', 'aria-busy': 'true', role: 'region', 'aria-label': 'Loading rows' },
+      h('table', { style: 'min-width:640px' }, h('thead', null, h('tr', null, cols.map(function (c) { return h('th', { text: c.label }); }))), tb));
+  }
+
+  /* ================= SCREEN 1: RUN BOARD ================= */
+  function runBoard(sc, st) {
+    var q = sc.quotaMeterReal, u = q.usedToday, L = q.limits;
+    var real = sc.mockRows.filter(function (r) { return r.real; })[0];
+    var rows = sc.mockRows.filter(function (r) { return r.illustrative; }).map(function (r) { var c = {}; for (var k in r) c[k] = r[k]; return c; });
+    var quota = st === 'quotaExhausted', stuck = st === 'stuckRun', empty = st === 'empty', loading = st === 'loading';
+    if (quota) rows.forEach(function (r) { if (r.state !== 'done' && r.state !== 'failed') { r.was = r.state; r.state = 'quota-wait'; } });
+    if (empty) rows = [];
+    var states = {}; rows.forEach(function (r) { states[r.state] = 1; });
+    var visible = rows.filter(function (r) { return S.filter === 'all' || r.state === S.filter; });
+    var nStuck = rows.filter(function (r) { return r.state === 'stuck'; }).length;
+    var out = [];
+
+    if (st === 'error') out.push(banner('bad', 'error', 'Could not refresh the run list. Last data kept below (dimmed).'));
+    if (st === 'slow') out.push(banner('warn', 'stale', 'service waking (Render cold start). Showing the last response.'));
+    if (quota) out.push(banner('info', 'quota-wait', 'Requests per day exhausted (simulated). Tickets wait for the reset at UTC midnight. Run next is disabled.'));
+    if (stuck) out.push(banner('stuck', 'stuck', 'A non-terminal run is past timeout + grace. Reap it (confirm) to free the slot.'));
+
+    out.push(h('div', { class: 'cn-kpis' },
+      kpi('Tickets', empty ? 0 : rows.length, empty ? 'No tickets yet' : 'illustrative rows', '', loading),
+      kpi('Stuck', empty ? 0 : nStuck, 'past timeout + grace', nStuck && !empty ? 'act' : '', loading),
+      kpi('Requests today', u.requests + '/' + L.requests_per_day, 'fixture replay, not real usage', quota ? 'red' : '', loading),
+      kpi('Repro tally', empty ? '—' : real.valid + '/' + (real.valid + real['passes-on-bug'] + real.error), empty ? 'no data' : 'valid · REPLAY', '', loading)));
+
+    out.push(h('div', { class: 'cn-two cn-sec' },
+      h('div', null, h('h4', null, 'Quota meter ', h('span', { class: 'cn-mono', text: q.model }), quota ? pill('simulated at limit', '--accent-error') : null),
+        meter('requests_per_day', u.requests, L.requests_per_day, 'header', { red: quota, note: u.day + ' UTC, ' + u.source + ' (' + u.caveat + ')' }),
+        meter('tokens_per_day', u.tokens, L.tokens_per_day, 'published', { note: 'tokens_per_day is published, not measured' })),
+      h('div', null, h('h4', null, 'State × phase ', ill()),
+        matrix(rows, empty))));
+
+    var acts = h('div', { class: 'cn-acts' });
+    var runNext = h('button', { class: 'cn-btn pri', type: 'button', disabled: quota || loading || null, text: quota ? 'Run next (blocked: requests_per_day)' : 'Run next', onclick: function () { S.msg = 'Run next: illustrative, nothing started.'; renderMsg(); } });
+    var sel = h('select', { 'aria-label': 'Filter by workflow_state', onchange: function () { S.filter = this.value; render(); } },
+      ['all'].concat(Object.keys(states)).map(function (s) { return h('option', { value: s, text: s === 'all' ? 'state: all' : s, selected: S.filter === s ? true : null }); }));
+    var fail = h('button', { class: 'cn-btn dng', type: 'button', disabled: !nStuck || empty || null, text: S.confirm ? 'Confirm: mark stuck run failed' : 'Mark stuck run failed', onclick: function () {
+      if (!S.confirm) { S.confirm = true; render(); return; }
+      S.confirm = false; S.msg = 'Marked failed (illustrative). A retry would create a new run_id.'; render();
+    } });
+    add(acts, [runNext, sel, fail, S.confirm ? h('button', { class: 'cn-btn', type: 'button', text: 'Cancel', onclick: function () { S.confirm = false; render(); } }) : null]);
+    out.push(acts, h('div', { class: 'cn-status', role: 'status', id: 'cn-msg', text: S.msg }));
+
+    var cols = [
+      { k: 'ticket', label: 'ticket.id', cell: function (r) { return r.ticket; } },
+      { k: 'state', label: 'workflow_state', cell: function (r) { return h('span', null, statePill(r.state), r.state === 'quota-wait' ? h('span', { class: 'cn-mono', text: ' resets UTC 00:00' }) : null, stuck && r.state === 'stuck' ? h('span', { class: 'cn-mono', text: ' past grace' }) : null); } },
+      { k: 'phase', label: 'phase', cell: function (r) { return phaseChip(r.phase); } },
+      { k: 'tier', label: 'meta.tier', cell: function (r) { return dash(r.tier); } },
+      { k: 'model', label: 'meta.model', cell: function (r) { return dash(r.model); } },
+      { k: 'host', label: 'meta.host', cell: function (r) { return r.host === 'fixture' ? h('span', null, 'fixture ', replay()) : dash(r.host); } },
+      { k: 'age', label: 'age', cell: function (r) { return dash(r.age); } }
+    ];
+    var shown = visible.slice();
+    if (real && !empty) shown.push({ illustrative: false, real: true, ticket: real.ticket, state: real.state, phase: null, tier: null, model: null, host: real.host, age: null, _real: real });
+    if (loading) out.push(skelRows(3, cols));
+    else if (empty) {
+      out.push(h('div', { class: 'cn-empty' }, 'No tickets yet. Start the first run with ', h('code', { text: 'uv run bench' }), ' (packages/bench/README.md:15). Counts above are 0, not an em dash.'));
+    } else {
+      out.push(h('div', { class: st === 'error' ? 'cn-dim' : '' }, table(cols, shown, {
+        label: 'Run board rows. Scrolls inside this box.',
+        rowCls: function (r) { return (stuck && r.state === 'stuck' ? 'hot hl' : ''); },
+        onRow: function (r, i, trig) {
+          var pairs = r._real ? pairsOf(r._real).concat([['workflow_state', 'PROPOSED, P6-T02 owns it'], ['note', 'A repro-verdict tally, not a ticket. Not a model result.']]) : pairsOf(r);
+          var extra = null;
+          if (stuck && r.state === 'stuck') extra = h('div', { class: 'cn-acts', style: 'margin-top:14px' }, h('button', { class: 'cn-btn dng', type: 'button', text: 'Reap stuck run (confirm in list)', onclick: function () { closeDrawer(); S.confirm = true; render(); } }));
+          openDrawer(r.ticket, pairs, trig, extra);
+        }
+      })));
+      if (real) out.push(h('p', { class: 'cn-note' }, 'Last row is the only real data on this screen: ', real.source, '. Illustrative rows are hatched.'));
+    }
+    return out;
+  }
+  function matrix(rows, empty) {
+    var sts = ['awaiting-qa', 'stuck', 'quota-wait'], phs = ['P3', 'P6'];
+    var seen = {}; rows.forEach(function (r) { seen[r.state] = 1; });
+    sts = sts.concat(Object.keys(seen).filter(function (s) { return sts.indexOf(s) < 0; }));
+    return h('div', { class: 'cn-tw' }, h('table', { class: 'cn-mx', style: 'width:auto' },
+      h('thead', null, h('tr', null, h('th', { text: 'state' }), phs.map(function (p) { return h('th', { text: p }); }))),
+      h('tbody', null, sts.map(function (s) {
+        return h('tr', null, h('th', { scope: 'row', text: s }), phs.map(function (p) {
+          var n = empty ? 0 : rows.filter(function (r) { return r.state === s && r.phase === p; }).length;
+          return h('td', { class: 'cn-mono ' + (n ? '' : 'z'), text: n });
+        }));
+      }))));
+  }
+  function renderMsg() { var m = document.getElementById('cn-msg'); if (m) m.textContent = S.msg; }
+
+  /* ================= SCREEN 2: TRAJECTORY VIEWER ================= */
+  function trajectory(sc, st) {
+    var real = sc.mockRows.filter(function (r) { return r.real; })[0];
+    var steps = sc.mockRows.filter(function (r) { return r.illustrative; }).map(function (r) { var c = {}; for (var k in r) c[k] = r[k]; return c; });
+    var out = [], loading = st === 'loading', empty = st === 'empty';
+    var n = steps.length, last = steps[n - 1];
+    if (st === 'quotaExhausted') last.stop_reason = 'QuotaExceeded';
+    if (st === 'stuckRun') { last.stop_reason = 'stuck'; }
+    var shownSteps = empty ? [] : loading ? steps.slice(0, 1) : st === 'slow' ? steps.slice(0, 2) : steps;
+    if (S.toolErrOnly) shownSteps = shownSteps.filter(function (s) { return s.tool_error; });
+
+    out.push(h('div', { class: 'cn-sec' }, h('div', { class: 'cn-lbl', text: 'meta' }),
+      h('div', { class: 'cn-mono', style: 'font-size:12.5px;margin-top:4px;overflow-wrap:anywhere' },
+        'run_id — · task_id — · model — · prompt_hash — · git_commit — · seed — ', ill())));
+    if (st === 'error') out.push(banner('bad', 'schema error', 'Validation failed at packages/argus-core/schemas/trajectory.schema.json (extra=forbid). Raw file download offered.', h('button', { class: 'cn-btn sm', type: 'button', text: 'Download raw JSONL', onclick: function () { S.msg = 'Download: illustrative, no file.'; renderMsg(); } })));
+    if (st === 'slow') out.push(banner('warn', 'partial', shownSteps.length + ' of ' + n + ' steps loaded.'));
+    if (st === 'loading') out.push(banner('info', 'loading', 'Meta line first; steps stream in (1 of ' + n + ').'));
+    if (st === 'quotaExhausted') out.push(banner('bad', 'QuotaExceeded', 'model would exceed limit: used — of cap — (ledger.py:18-24). Values not in data.'));
+    if (st === 'stuckRun') out.push(banner('stuck', 'stuck', 'stop_reason stuck. The repeated tool-call pair is outlined (steps 1 and 2 here, illustrative).'));
+    if (empty) out.push(h('div', { class: 'cn-empty' }, 'Run started, no step recorded. meta is present; steps[] is empty.'));
+
+    var pick = function (r, trig) {
+      S.sel['trajectory-viewer'] = r.index;
+      openDrawer('step ' + r.index, pairsOf(r).concat([['raw_response', null], ['message', null]]), trig,
+        h('p', { class: 'cn-note', text: 'raw_response is untrusted page text: always rendered as plain text, never HTML.' }));
+      refreshStrip();
+    };
+    var strip = h('div', { class: 'cn-strip', role: 'group', 'aria-label': 'Step timeline. Left and right arrow keys move between steps.' });
+    function refreshStrip() {
+      strip.querySelectorAll('.cn-stp').forEach(function (b) { b.setAttribute('aria-pressed', String(+b.getAttribute('data-i') === S.sel['trajectory-viewer'])); });
+    }
+    if (!empty) {
+      shownSteps.forEach(function (s) {
+        var hl = st === 'stuckRun' && (s.index === 1 || s.index === 2);
+        var b = h('button', { class: 'cn-stp ' + (s.tool_error ? 'err ' : '') + (hl ? 'hl' : ''), type: 'button', 'data-i': s.index, 'aria-pressed': 'false', 'aria-label': 'Step ' + s.index + ', ' + s.tool_name + (s.tool_error ? ', tool error' : '') },
+          h('span', { class: 'cn-mono', text: '#' + s.index }), h('span', { class: 'bar', title: 'tokens_in/out are null: density unknown' }),
+          h('span', { text: s.tool_name }), s.tool_error ? h('div', { class: 'cn-lbl', text: 'tool_error' }) : null);
+        b.addEventListener('click', function () { pick(s, b); });
+        strip.append(b);
+      });
+      for (var g = shownSteps.length; g < n && !S.toolErrOnly; g++) strip.append(h('span', { class: 'cn-stp ghost', 'aria-hidden': 'true' }, h('span', { class: 'cn-mono', text: '#' + g }), h('span', { class: 'bar' }), h('span', { text: 'not loaded' })));
+      strip.addEventListener('keydown', function (e) {
+        if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+        var bs = Array.prototype.slice.call(strip.querySelectorAll('button.cn-stp')), i = bs.indexOf(document.activeElement);
+        if (i < 0) return;
+        e.preventDefault(); var t = bs[Math.max(0, Math.min(bs.length - 1, i + (e.key === 'ArrowRight' ? 1 : -1)))];
+        t.focus(); t.click();
+      });
+      out.push(h('div', { class: 'cn-sec' }, h('h4', null, 'Step timeline ', ill(), h('span', { class: 'cn-note', style: 'margin:0', text: 'bar height would show tokens; tokens_in/out are null here' })), strip));
+    }
+    out.push(h('div', { class: 'cn-acts' },
+      h('label', { style: 'display:flex;gap:6px;align-items:center;min-height:40px;font-size:12.5px' },
+        h('input', { type: 'checkbox', checked: S.toolErrOnly ? true : null, onchange: function () { S.toolErrOnly = this.checked; render(); } }), 'tool errors only'),
+      h('button', { class: 'cn-btn sm', type: 'button', text: 'Download JSONL', disabled: true, title: 'Illustrative: no file' }),
+      h('button', { class: 'cn-btn sm', type: 'button', text: 'Open Langfuse trace', disabled: true, title: 'Only if configured (P5-T07)' })));
+    out.push(h('div', { class: 'cn-status', role: 'status', id: 'cn-msg', text: S.msg }));
+
+    var cols = [
+      { k: 'index', label: 'steps[].index', cell: function (r) { return String(r.index); }, aria: function (r) { return 'step ' + r.index; } },
+      { k: 'kind', label: 'kind', cell: function () { return 'step'; } },
+      { k: 'tool_name', label: 'tool_name', cell: function (r) { return r.tool_name || '—'; } },
+      { k: 'tool_error', label: 'tool_error', cell: function (r) { return r.tool_error ? pill('tool error', '--accent-error') : '—'; } },
+      { k: 'tokens_in', label: 'tokens_in', num: true, cell: function (r) { return dash(r.tokens_in); } },
+      { k: 'tokens_out', label: 'tokens_out', num: true, cell: function (r) { return dash(r.tokens_out); } },
+      { k: 'stop_reason', label: 'stop_reason', cell: function (r) {
+        var s = r.stop_reason; if (!s) return '—';
+        return pill(s, s === 'QuotaExceeded' ? '--accent-error' : s === 'stuck' ? '--state-stuck' : s === 'submit' ? '--verdict-pass' : '--accent-warning');
+      } }
+    ];
+    if (loading) out.push(skelRows(2, cols));
+    else if (!empty) out.push(h('div', { class: st === 'error' ? 'cn-dim' : '' }, table(cols, shownSteps, {
+      label: 'Steps, illustrative. Scrolls inside this box.', min: 600, sel: shownSteps.findIndex ? shownSteps.findIndex(function (s) { return s.index === S.sel['trajectory-viewer']; }) : -1,
+      rowCls: function (r) { return st === 'stuckRun' && (r.index === 1 || r.index === 2) ? 'hl' : ''; },
+      onRow: function (r, i, trig) { pick(r, trig); }
+    })));
+    if (real) {
+      out.push(h('div', { class: 'cn-sec', style: 'margin-top:16px' }, h('h4', null, 'Real fixture trajectory ', replay(), copyChip(real.source)),
+        table(cols.slice(0, 7), [{ index: real.index, kind: real.kind, tool_name: null, tool_error: null, tokens_in: real.tokens_in, tokens_out: real.tokens_out, stop_reason: real.stop_reason, _real: real }], {
+          label: 'Real replay step', min: 600,
+          onRow: function (r, i, trig) { openDrawer('seed-e01 step 0', pairsOf(real), trig, h('p', { class: 'cn-note', text: 'REPLAY: one step with tokens_in=1, tokens_out=1. Token counts are not real usage.' })); }
+        })));
+    }
+    return out;
+  }
+
+  /* ================= SCREEN 3: VERDICT REVIEW ================= */
+  var PAGE_BASE = '<rect width="320" height="200" fill="var(--bg-secondary)"/><rect width="320" height="26" fill="var(--bg-tertiary)"/><rect x="12" y="9" width="60" height="8" rx="3" fill="var(--text-tertiary)"/><rect x="24" y="46" width="272" height="124" rx="8" fill="var(--bg-primary)" stroke="var(--border-secondary)"/><rect x="38" y="62" width="120" height="9" rx="3" fill="var(--text-secondary)"/><rect x="38" y="82" width="200" height="6" rx="3" fill="var(--text-tertiary)"/><rect x="38" y="96" width="170" height="6" rx="3" fill="var(--text-tertiary)"/>';
+  var SVG_BEFORE = '<svg viewBox="0 0 320 200" preserveAspectRatio="none" role="img" aria-label="Schematic before: button overflows its card">' + PAGE_BASE + '<rect x="188" y="126" width="124" height="26" rx="5" fill="var(--accent-primary)"/><text x="204" y="143" font-size="11" fill="#fff">Pay now</text></svg>';
+  var SVG_AFTER = '<svg viewBox="0 0 320 200" preserveAspectRatio="none" role="img" aria-label="Schematic after: button inside its card">' + PAGE_BASE + '<rect x="160" y="126" width="112" height="26" rx="5" fill="var(--accent-primary)"/><text x="178" y="143" font-size="11" fill="#fff">Pay now</text></svg>';
+  var SVG_DIFF = '<svg viewBox="0 0 320 200" preserveAspectRatio="none" aria-hidden="true"><rect x="158" y="124" width="156" height="30" fill="var(--accent-error)" opacity=".45"/><rect x="158" y="124" width="156" height="30" fill="none" stroke="var(--accent-error)" stroke-dasharray="4 3"/></svg>';
+  function layer(cls, html) { var d = h('div', { class: cls }); d.innerHTML = html; return d; /* static schematic strings only */ }
+
+  function verdict(sc, st) {
+    var rows = sc.mockRows.map(function (r) { var c = {}; for (var k in r) c[k] = r[k]; return c; });
+    var out = [], loading = st === 'loading', empty = st === 'empty';
+    rows.forEach(function (r) {
+      if (st === 'error') { r.pixel = 'error'; r.overflow = r.axe = r.console = 'skipped'; r.first_failure = 'pixel (image error)'; }
+      if (st === 'quotaExhausted') r.judge = 'error: QuotaExceeded (hosted judge)';
+      if (st === 'slow') r.judge = 'advisory, pending';
+      if (S.decisions[r.task]) r.decision = S.decisions[r.task].decision;
+    });
+    var queue = rows.filter(function (r) { return !r.decision; });
+    var idx = Math.min(S.sel['verdict-review'] || 0, rows.length - 1);
+    var cur = rows[idx], nDecided = Object.keys(S.decisions).length;
+
+    if (st === 'error') out.push(banner('bad', 'error', 'A check or image error renders as error, never as pass (P4-T28). Approve is disabled.'));
+    if (st === 'quotaExhausted') out.push(banner('warn', 'judge unavailable', 'Hosted judge returned QuotaExceeded. A local judge is unaffected. Decide on the four checks.'));
+    if (st === 'slow') out.push(banner('info', 'judge running', 'Judge shown as advisory pending. Approve needs all four checks to pass, nothing waits on the judge.'));
+    if (st === 'stuckRun') out.push(banner('stuck', 'timed-out-qa', 'Awaiting QA past the QA timeout.', h('button', { class: 'cn-btn sm', type: 'button', text: 'Re-request review', onclick: function () { S.msg = 'Re-request review: illustrative (P6-T08).'; renderMsg(); } })));
+    if (S.conflict) out.push(banner('warn', '409', 'Already decided by another reviewer. The winner and their decision replace your action (winner: —, placeholder).'));
+
+    if (empty) {
+      out.push(h('div', { class: 'cn-empty' }, 'Nothing waiting for QA. Decided this session: ' + nDecided + '.'));
+    } else {
+      var cols = [
+        { k: 'task', label: 'task', cell: function (r) { return r.task; } },
+        { k: 'pixel', label: 'pixel', cell: function (r) { return verdictPill(r.pixel); } },
+        { k: 'overflow', label: 'overflow', cell: function (r) { return verdictPill(r.overflow); } },
+        { k: 'axe', label: 'axe', cell: function (r) { return verdictPill(r.axe); } },
+        { k: 'console', label: 'console', cell: function (r) { return verdictPill(r.console); } },
+        { k: 'first_failure', label: 'first_failure', cell: function (r) { return dash(r.first_failure); } },
+        { k: 'judge', label: 'judge', cell: function (r) { return verdictPill(r.judge); } },
+        { k: 'decision', label: 'qa.decision', cell: function (r) { return r.decision ? pill(r.decision, r.decision === 'approve' ? '--verdict-pass' : '--verdict-fail') : '—'; } }
+      ];
+      out.push(h('h4', { style: 'margin:0 0 8px;font-size:12px;color:var(--text-secondary)' }, 'QA queue ', ill(), ' ', h('span', { class: 'cn-mono', text: queue.length + ' waiting' })));
+      out.push(loading ? skelRows(3, cols) : table(cols, rows, {
+        label: 'QA queue. Scrolls inside this box.', min: 760, sel: idx,
+        onRow: function (r, i, trig) {
+          S.sel['verdict-review'] = i; S.conflict = false;
+          var extra = h('div', null,
+            h('p', { class: 'cn-note', text: 'Proposed fields not yet in any schema: checks[].route, checks[].rule_ids[], short_circuited, judge{label,family,model,order_disagreement}, qa{reviewer,reason,idempotency_key,at}.' }));
+          render(); content.querySelector('tr.sel .cn-rb') && content.querySelector('tr.sel .cn-rb').focus();
+          openDrawer(r.task, pairsOf(r), content.querySelector('tr.sel .cn-rb') || trig, extra);
+        }
+      }));
+
+      var allPass = ['pixel', 'overflow', 'axe', 'console'].every(function (k) { return cur[k] === 'pass'; });
+      var missing = /missing after/.test(cur.first_failure || '') && st !== 'error';
+      var why = !allPass ? 'Approve needs all four checks to pass (proposed rule). The judge cannot override.' : cur.decision ? 'Already decided in this session.' : '';
+      var reason = h('input', { type: 'text', 'aria-label': 'Reject reason (required)', placeholder: 'Reject reason (required)', style: 'flex:1;min-width:150px' });
+      var okb = h('button', { class: 'cn-btn pri', type: 'button', disabled: !allPass || !!cur.decision || loading || null, text: 'Approve', onclick: function () { decide('approve', ''); } });
+      var nob = h('button', { class: 'cn-btn dng', type: 'button', disabled: !!cur.decision || loading || null, text: 'Reject', onclick: function () {
+        if (!reason.value.trim()) { S.msg = 'Reject needs a reason.'; renderMsg(); reason.focus(); return; }
+        decide('reject', reason.value.trim());
+      } });
+      var decide = function (d, why2) { S.decisions[cur.task] = { decision: d, reason: why2 }; S.conflict = false; S.msg = d + ' recorded for ' + cur.task + ' (session only, illustrative).'; render(); };
+
+      var ba = h('div', { class: 'cn-ba', style: '--pos:' + S.pos + '%' });
+      if (loading) { ba.append(h('div', { class: 'ph' })); }
+      else {
+        ba.append(layer('before', SVG_BEFORE));
+        ba.append(missing ? h('div', { class: 'after miss' }, 'after image missing: check error, not pass') : layer('after', SVG_AFTER));
+        if (S.diff && !missing) { var dl = layer('after', SVG_DIFF); ba.append(dl); }
+        ba.append(h('div', { class: 'div' }), h('span', { class: 'cl l', text: 'before' }), h('span', { class: 'cl r', text: 'after' }));
+      }
+      var rng = h('input', { type: 'range', min: 0, max: 100, value: S.pos, 'aria-label': 'Reveal after image. Drag or use arrow keys.', oninput: function () { S.pos = +this.value; ba.style.setProperty('--pos', S.pos + '%'); } });
+      var dif = h('label', { style: 'display:flex;gap:6px;align-items:center;min-height:40px;font-size:12.5px' },
+        h('input', { type: 'checkbox', checked: S.diff ? true : null, onchange: function () { S.diff = this.checked; render(); } }), 'diff overlay');
+
+      var chk = h('div', { class: 'cn-chk' }, ['pixel', 'overflow', 'axe', 'console'].map(function (k) {
+        return h('div', null, h('span', { class: 'lb', text: 'checks[].name = ' + k }), verdictPill(cur[k]));
+      }));
+      var judgeEl = h('div', { style: 'font-size:12.5px;margin:0 0 12px' }, h('span', { class: 'cn-lbl', text: 'judge (advisory) ' }),
+        st === 'slow' ? h('span', { class: 'cn-spin' }) : null, verdictPill(cur.judge), st === 'slow' ? h('span', { class: 'cn-mono', text: ' elapsed —' }) : null,
+        h('div', { class: 'cn-note', text: 'The judge never overrides a passed check run. Alpha below 0.80 means advisory only (ADR-013).' }));
+
+      out.push(h('div', { class: 'cn-two', style: 'margin-top:16px' },
+        h('div', null, h('h4', { style: 'margin:0 0 8px;font-size:12px;color:var(--text-secondary)' }, 'Before / after for ', h('span', { class: 'cn-mono', text: cur.task }), ' ', ill()),
+          ba, rng, dif, h('p', { class: 'cn-note', text: 'Schematic drawing, not a screenshot. Red overlay marks the changed region.' })),
+        h('div', null, h('h4', { style: 'margin:0 0 8px;font-size:12px;color:var(--text-secondary)' }, 'Checks and decision'),
+          chk, judgeEl,
+          h('div', { class: 'cn-acts' }, okb, reason, nob),
+          why ? h('p', { class: 'cn-note', text: why }) : null,
+          h('div', { class: 'cn-acts' },
+            h('button', { class: 'cn-btn sm', type: 'button', text: 'simulate 409', title: 'Another reviewer decided first', onclick: function () { S.conflict = true; render(); } }),
+            h('button', { class: 'cn-btn sm', type: 'button', text: 're-run checks', disabled: true, title: 'Illustrative' }),
+            h('button', { class: 'cn-btn sm', type: 'button', text: 'open trajectory', onclick: function () { S.screen = 'trajectory-viewer'; S.state = 'normal'; syncCtl(); render(); } })),
+          h('div', { class: 'cn-status', role: 'status', id: 'cn-msg', text: S.msg }))));
+
+      var dec = Object.keys(S.decisions);
+      if (dec.length) out.push(h('div', { class: 'cn-sec' }, h('h4', null, 'Audit (append-only, this session) ', ill()),
+        table([
+          { k: 'task', label: 'task', cell: function (r) { return r.task; } },
+          { k: 'decision', label: 'decision', cell: function (r) { return pill(r.decision, r.decision === 'approve' ? '--verdict-pass' : '--verdict-fail'); } },
+          { k: 'reason', label: 'reason', cell: function (r) { return r.reason || '—'; } },
+          { k: 'reviewer', label: 'reviewer', cell: function () { return '—'; } },
+          { k: 'key', label: 'idempotency_key', cell: function () { return '—'; } }
+        ], dec.map(function (t) { return { task: t, decision: S.decisions[t].decision, reason: S.decisions[t].reason }; }), { min: 520, label: 'Audit', onRow: function (r, i, trig) { openDrawer(r.task, pairsOf(r), trig); } })));
+    }
+    return out;
+  }
+
+  /* ================= SCREEN 4: EVAL + GATE + QUOTA ================= */
+  function evalScreen(sc, st) {
+    var rows = sc.mockRows, out = [], empty = st === 'empty', loading = st === 'loading';
+    var qs = SCREENS[0].quotaMeterReal, u = qs.usedToday, L = qs.limits;
+    var idx = Math.min(S.sel['eval-gate-quota'] || 0, rows.length - 1), cur = rows[idx];
+    var hasW = function (r) { return r.wilson95 && r.wilson95.length === 2; };
+    var X = function (v) { return empty ? '—' : dash(v); };
+
+    if (st === 'error') out.push(banner('bad', 'invalid', 'results JSON is invalid. Last good report kept (dimmed).'));
+    if (st === 'slow') out.push(banner('warn', 'stale', 'Static page: built-at commit and time are not in the data, shown as —. Stale if older than the latest results commit.'));
+    if (empty) out.push(banner('info', 'no data', 'Empty results template. No run id backs any number yet.'));
+    if (st === 'quotaExhausted') out.push(banner('bad', 'QuotaExceeded', 'QuotaExceeded at requests_per_day (simulated). Next reset UTC midnight. Partial results shown (P0 break-it 4).'));
+    if (st === 'stuckRun') out.push(banner('stuck', 'maybe hung', 'A ledger-active run has had no event past grace. It may be hung.'));
+
+    out.push(h('div', { class: 'cn-kpis' },
+      kpi('resolve_rate', empty ? '—' : (cur.resolve_rate || (cur.valid != null ? 'n/a' : '—')), empty ? '' : cur.variant, '', loading),
+      kpi('Wilson 95%', empty || !hasW(cur) ? '—' : f3(cur.wilson95[0]) + '–' + f3(cur.wilson95[1]), hasW(cur) ? 'lower clamped at 0' : 'none for this row', '', loading),
+      kpi('tokens in / out', empty || cur.tokens_in == null ? '—' : cur.tokens_in + ' / ' + cur.tokens_out, empty ? '' : 'cached ' + dash(cur.tokens_cached) + ' (separate)', '', loading),
+      kpi('p50 / p95 s', empty || cur.p50_s == null ? '—' : cur.p50_s.toFixed(2) + ' / ' + (cur.p95_s == null ? '—' : cur.p95_s.toFixed(2)), 'quota wait separate', '', loading),
+      kpi('gate', '—', 'PROPOSED (P5-T16, ADR-017): no rule in data', '', loading)));
+
+    var cols = [
+      { k: 'variant', label: 'variant', cell: function (r) { return r.variant; } },
+      { k: 'resolve_rate', label: 'resolve_rate', num: true, cell: function (r) { return X(r.resolve_rate); } },
+      { k: 'wilson95', label: 'Wilson 95%', cell: function (r) {
+        if (empty || !hasW(r)) return '—';
+        return h('span', null, h('span', { class: 'cn-iv', title: f3(r.wilson95[0]) + ' to ' + f3(r.wilson95[1]) }, h('i', { style: 'left:' + Math.max(0, r.wilson95[0]) * 100 + '%;width:' + (r.wilson95[1] - Math.max(0, r.wilson95[0])) * 100 + '%' })),
+          h('span', { class: 'cn-mono', text: '[' + f3(r.wilson95[0]) + ', ' + f3(r.wilson95[1]) + ']' }));
+      } },
+      { k: 'tokens_in', label: 'tokens in', num: true, cell: function (r) { return X(r.tokens_in); } },
+      { k: 'tokens_out', label: 'out', num: true, cell: function (r) { return X(r.tokens_out); } },
+      { k: 'tokens_cached', label: 'cached', num: true, cell: function (r) { return X(r.tokens_cached); } },
+      { k: 'usd_equiv', label: '$-equiv', num: true, cell: function (r) { return X(r.usd_equiv); } },
+      { k: 'p50_s', label: 'p50 s', num: true, cell: function (r) { return empty || r.p50_s == null ? '—' : r.p50_s.toFixed(2); } },
+      { k: 'p95_s', label: 'p95 s', num: true, cell: function (r) { return empty || r.p95_s == null ? '—' : r.p95_s.toFixed(2); } },
+      { k: 'host', label: 'host', cell: function (r) { return r.host === 'fixture' && !empty ? h('span', null, 'fixture ', replay()) : '—'; } },
+      { k: 'gate', label: 'gate', cell: function (r) { return r.gate ? pill('gate ' + r.gate, '--verdict-skipped') : '—'; } }
+    ];
+    out.push(h('h4', { style: 'margin:0 0 8px;font-size:12px;color:var(--text-secondary)' }, 'Phase over phase ', h('span', { class: 'cn-note', style: 'margin:0', text: 'never pool fixture with live; rows split by host' })));
+    out.push(loading ? skelRows(4, cols) : h('div', { class: st === 'error' ? 'cn-dim' : '' }, table(cols, rows, {
+      label: 'Eval results. Scrolls inside this box.', min: 900, sel: idx,
+      onRow: function (r, i, trig) {
+        S.sel['eval-gate-quota'] = i; render();
+        var t = content.querySelector('tr.sel .cn-rb') || trig;
+        var ex = h('div');
+        if (r.note) ex.append(h('p', { class: 'cn-note', text: r.note }));
+        if (r.source) ex.append(copyChip(r.source));
+        if (r.illustrative) ex.append(h('p', { class: 'cn-note', text: 'Placeholder row: no results exist for this phase yet.' }));
+        openDrawer(r.variant, pairsOf(r), t, ex);
+      }
+    })));
+    out.push(h('p', { class: 'cn-note', text: 'First two rows are real P0 values (phases/P00-argus-bench.md:85-86). Phase P0 baseline cell shows -0.000000 in the doc: this screen clamps the lower bound at 0 (batch.py:126).' }));
+
+    // compare two real intervals
+    var withW = rows.filter(hasW);
+    if (withW.length > 1 && !empty && !loading) {
+      var selA = h('select', { 'aria-label': 'Compare run A', onchange: function () { S.cmpA = +this.value; render(); } }, withW.map(function (r, i) { return h('option', { value: i, selected: S.cmpA === i ? true : null, text: r.variant }); }));
+      var selB = h('select', { 'aria-label': 'Compare run B', onchange: function () { S.cmpB = +this.value; render(); } }, withW.map(function (r, i) { return h('option', { value: i, selected: S.cmpB === i ? true : null, text: r.variant }); }));
+      var a = withW[S.cmpA], b = withW[S.cmpB];
+      var overlap = !(a.wilson95[1] < b.wilson95[0] || b.wilson95[1] < a.wilson95[0]);
+      out.push(h('div', { class: 'cn-sec' }, h('h4', null, 'Compare two result files'),
+        h('div', { class: 'cn-acts' }, selA, 'vs', selB),
+        a === b ? h('p', { class: 'cn-note', text: 'Pick two different runs.' }) :
+          banner(overlap ? 'warn' : 'info', overlap ? 'no difference' : 'intervals disjoint', overlap ? 'The intervals overlap (a difference smaller than the interval is not a difference, PLAN.md:286). Tiny n: 0/1 gives a wide interval.' : 'The intervals do not overlap.')));
+    }
+
+    // quota ledger
+    var big = st === 'quotaExhausted';
+    out.push(h('div', { class: 'cn-sec', style: 'margin-top:16px' },
+      h('h4', null, 'Quota ledger ', h('span', { class: 'cn-mono', text: qs.model }), ' ', empty ? null : replay(), ' ', h('span', { class: 'cn-prov', title: qs.measured, text: 'limits: partial measured' })),
+      h('div', { class: 'cn-two' },
+        h('div', null,
+          meter('requests_per_day', empty ? null : u.requests, L.requests_per_day, 'header', { red: big && !empty, note: big ? 'simulated: bar forced to limit' : null }),
+          meter('tokens_per_day', empty ? null : u.tokens, L.tokens_per_day, 'published')),
+        h('div', null,
+          meter('requests_per_minute', null, L.requests_per_minute, 'published', { note: 'window usage not in data' }),
+          meter('tokens_per_minute', null, L.tokens_per_minute, 'header', { note: 'window usage not in data' }))),
+      h('p', { class: 'cn-note', text: 'Day ' + u.day + ' UTC. Ledger rolls on the UTC date; the Groq reset header is not a calendar-day boundary (quotas.md:11), so both clocks are shown: next ledger reset UTC midnight, provider reset — (not in data). ' + u.caveat + '.' })));
+    return out;
+  }
+
+  /* ---------- render ---------- */
+  var RENDER = { 'run-board': runBoard, 'trajectory-viewer': trajectory, 'verdict-review': verdict, 'eval-gate-quota': evalScreen };
+  var ctl = { screens: null, states: null, cap: null, info: null };
+  var NICE = { 'run-board': 'Run board', 'trajectory-viewer': 'Trajectory viewer', 'verdict-review': 'Verdict review', 'eval-gate-quota': 'Eval + quota' };
+
+  function feedPill(st) {
+    feed.replaceWith(feed = st === 'error' ? pill('error', '--accent-error', 'bad') : st === 'slow' ? pill('stale', '--accent-warning') : st === 'loading' ? pill('loading', '--accent-info', 'info') : pill('illustrative feed', '--accent-warning', 'hatch'));
+  }
+  function render() {
+    var sc = scr(), st = S.state;
+    closeDrawer(false);
+    content.setAttribute('data-st', st);
+    content.textContent = '';
+    feedPill(st);
+    add(content, RENDER[sc.id](sc, st));
+    renderCtl(sc); renderInfo(sc);
+  }
+  function syncCtl() { S.state = 'normal'; }
+
+  function renderCtl(sc) {
+    ctl.cap.textContent = '';
+    var desc = S.state === 'normal' ? 'Illustrative rows exactly as in the data; nothing degraded.' : sc.states[S.state];
+    ctl.cap.append(h('b', { text: STATE_LABEL[S.state] + ' ' }), desc);
+    ctl.screens.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-id') === S.screen)); });
+    ctl.states.textContent = '';
+    stateKeys(sc).forEach(function (k) {
+      ctl.states.append(h('button', { type: 'button', 'aria-pressed': String(k === S.state), text: STATE_LABEL[k], onclick: function () { S.state = k; S.msg = ''; S.confirm = false; render(); } }));
+    });
+  }
+
+  function borrowed(sc) {
+    var kw = {
+      'run-board': ['KPI strip', 'MonitorMatrix', 'DataTable', 'Feed freshness', 'Health tiles', 'Stale run', 'Paged run list'],
+      'trajectory-viewer': ['Timeline', 'Run detail', 'Feed freshness'],
+      'verdict-review': ['ReviewQueue', 'Append-only audit', '409', 'KPI strip'],
+      'eval-gate-quota': ['KpiCard', 'DataTable', 'Usage stat', 'Feed freshness', 'MonitorMatrix']
+    }[sc.id] || [];
+    var seen = {}, out = [];
+    kw.forEach(function (k) { C.patternSources.forEach(function (p) { if (p.pattern.indexOf(k) !== -1 && !seen[p.path]) { seen[p.path] = 1; out.push(p); } }); });
+    return out;
+  }
+  function renderInfo(sc) {
+    var el = ctl.info; el.textContent = '';
+    el.append(
+      h('div', { class: 'cn-card' }, h('h3', { text: sc.title }),
+        h('p', { class: 'cn-cap', text: sc.purpose }),
+        h('p', { class: 'cn-cap' }, h('b', { text: 'phase ' }), sc.phase, h('br'), h('b', { text: 'users ' }), sc.users.join(', ')),
+        h('h3', { text: 'Actions', style: 'margin-top:12px' }), h('ul', null, sc.actions.map(function (a) { return h('li', { text: a }); }))),
+      h('div', { class: 'cn-card' }, h('h3', { text: 'Borrowed from' }),
+        h('p', { class: 'cn-cap', text: sc.borrows.join(' · ') }),
+        h('ul', { class: 'cn-borrow' }, borrowed(sc).map(function (p) {
+          return h('li', null, h('span', { class: 'pn' }, h('span', { class: 'pj', text: p.project }), p.pattern), copyChip(p.path));
+        }))),
+      h('div', { class: 'cn-card' }, h('h3', { text: 'Edge cases this screen must handle' }),
+        h('ul', null, sc.edgeCases.map(function (e) { return h('li', { text: e }); }))),
+      h('div', { class: 'cn-card' }, h('h3', { text: 'States' }),
+        h('ul', null, Object.keys(sc.states).map(function (k) {
+          return h('li', { class: S.state === k ? 'cur' : '' }, h('b', { class: 'cn-mono', style: 'font-size:12px', text: STATE_LABEL[k] + ': ' }), sc.states[k]);
+        }))),
+      h('div', { class: 'cn-card cn-wide' }, h('h3', { text: 'Fields on this screen' }),
+        h('p', { class: 'cn-cap', text: 'Names are the real schema fields. Dashed chips are PROPOSED, not yet in any schema.' }),
+        h('dl', null, sc.fields.map(function (f) {
+          return [h('dt', null, f.name, ' ', f.proposed ? h('span', { class: 'cn-chip prop', text: 'proposed' }) : null), h('dd', { text: f.source })];
+        }))));
+  }
+
+  /* ---------- static page chrome ---------- */
+  function init() {
+    var byProj = {};
+    C.patternSources.forEach(function (p) { (byProj[p.project] = byProj[p.project] || []).push(p); });
+    var proj = h('div', { class: 'cn-proj' }, Object.keys(byProj).map(function (k) {
+      return h('div', null, h('b', { text: k }), h('span', { class: 'n', text: byProj[k].length + ' pattern' + (byProj[k].length > 1 ? 's' : '') + ' borrowed' }),
+        h('ul', null, byProj[k].map(function (p) { return h('li', { text: p.pattern }); })));
+    }));
+    ctl.screens = h('div', { class: 'cn-seg', role: 'group', 'aria-label': 'Screen' }, SCREENS.map(function (s) {
+      return h('button', { type: 'button', 'data-id': s.id, 'aria-pressed': 'false', text: NICE[s.id] || s.title, onclick: function () { S.screen = s.id; S.state = 'normal'; S.msg = ''; S.confirm = false; S.conflict = false; render(); } });
+    }));
+    ctl.states = h('div', { class: 'cn-seg', role: 'group', 'aria-label': 'State' });
+    ctl.cap = h('p', { class: 'cn-cap', 'aria-live': 'polite' });
+    ctl.info = h('div', { class: 'cn-info' });
+    root.append(
+      h('h2', { class: 'cn-h' }, h('small', { text: '03 Ops console' }), 'Four screens the operator will actually use'),
+      h('p', { class: 'cn-lede', text: 'None of this exists yet. These are interactive mockups of the production console, drawn in the dark console language of the sibling dcortex products, so the same stylesheet tokens can be reused unchanged. Each pattern below is lifted from a real file in a real sibling project.' }),
+      proj,
+      h('p', { class: 'cn-honest' }, h('b', { text: 'Illustrative data. ' }), 'Every row is a layout placeholder (hatched) unless it cites a file. Results cells are — when the data has no number. Quota limits are real; usage is a fixture replay and not live. Sibling root: ', h('span', { class: 'cn-mono', text: C.meta.siblingRoot })),
+      h('div', { class: 'cn-ctl' },
+        h('div', null, h('span', { class: 'cn-lab', text: 'Screen' }), ctl.screens),
+        h('div', null, h('span', { class: 'cn-lab', text: 'State' }), ctl.states)),
+      ctl.cap, frame, ctl.info,
+      tokensCard());
+    render();
+  }
+  function tokensCard() {
+    var sw = function (o) { return h('div', { class: 'cn-sw' }, Object.keys(o).filter(function (k) { return k.indexOf('--') === 0; }).map(function (k) { var i = h('i', null, h('s'), k); i.firstChild.style.background = /^var\(/.test(o[k]) ? o[k].replace(/^var\((--[^)]+)\)$/, function (m, n) { return DARK[n] || 'transparent'; }) : o[k]; i.title = o[k]; return i; })); };
+    return h('details', { class: 'cn-card', style: 'margin-top:16px' }, h('summary', { text: 'Design tokens used inside the frame' }),
+      h('p', { class: 'cn-cap', style: 'margin-top:8px' }, 'Extracted from ', copyChip(C.meta.tokenSource), ' Fonts: ' + TK.extracted.fonts.sans + ' / ' + TK.extracted.fonts.mono + ' (named only; no font is loaded here, so system fallbacks render).'),
+      h('div', { class: 'cn-lab', text: 'dark', style: 'font-family:var(--mono);font-size:11px;color:var(--ink-3)' }), sw(DARK),
+      h('div', { class: 'cn-lab', text: 'verdict', style: 'font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-top:10px' }), sw(TK.proposed.verdict),
+      h('div', { class: 'cn-lab', text: 'ticket state (proposed, P6-T02 owns it)', style: 'font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-top:10px' }), sw(TK.proposed.ticketState),
+      h('ul', { style: 'margin-top:10px' }, TK.extracted.rules.map(function (r) { return h('li', { text: r }); }).concat([h('li', { text: TK.proposed.provenance.rule })])));
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+</script>
+</section>

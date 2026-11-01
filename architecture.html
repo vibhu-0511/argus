@@ -56,7 +56,7 @@
 </header>
 <div class="legend" id="legend"></div>
 <main id="board"><svg id="wires"></svg></main>
-<footer>Source: PLAN.md, phases/, repo-structure.md · versions checked 2026-10-01 · Hover a card to trace its links; hover a phase chip to see what that phase adds.</footer>
+<footer>Source: PLAN.md, phases/, repo-structure.md · versions checked 2026-10-30 · Hover a card to trace its links; hover a phase chip to see what that phase adds.</footer>
 
 <script>
 const PH = {
@@ -142,7 +142,7 @@ const S = [
     ['o-dbos','flow','DBOS workflow runner','FastAPI · durable steps · Render free','p6'],
     ['o-sm','list','Ticket state machine','repro → fix → verify → PR → awaiting-qa → done','p6'],
     ['o-qa','clock','QA signal wait','MRTR input_required · or review comment','p6'],
-    ['o-neon','db','Neon Postgres','workflow state · 100 CU-h/mo','p6'],
+    ['o-neon','db','Neon Postgres','workflow state · 100 CU-hours/project','p6'],
     ['o-disp','play','Actions dispatch','execution plane · free minutes','p6'],
     ['o-plan','users','Planner + subagents','kept only if it wins on success and tokens','p8'],
   ]},
@@ -199,7 +199,7 @@ const S = [
   { label:'Execution · sandbox', area:'7/1/8/7', ac:'#475569', cols:3, cards:[
     ['e-wt','branch','Git worktree per task','clean base commit · destroyed after','p3'],
     ['e-dock','box','Docker --network none','CPU / mem caps · checks read-only','p3'],
-    ['e-target','monitor','target-app','React 19.2 · Vite 8 · Tailwind 4','p0'],
+    ['e-target','monitor','target-app','binding to dcortex Canvas · not a second UI','p0'],
     ['e-gv','box','gVisor (runsc)','tier B · user-space kernel','p7'],
     ['e-fc','cpu','Firecracker microVM','tier C · Actions /dev/kvm','p7'],
     ['e-d2s','code','dom2src Vite plugin','build-time data-src attribute','p2'],

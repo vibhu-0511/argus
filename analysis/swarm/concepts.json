@@ -1,0 +1,2121 @@
+{
+  "nodes": [
+    {
+      "id": "model-client",
+      "label": "OpenAI-compatible model client",
+      "group": "loop",
+      "phase": "P0",
+      "level": 1,
+      "summary": "One thin chat client where the host is only base_url + key, so any open-weight provider swaps in.",
+      "whyItMatters": "Provider lock-in is the first architecture decision; a single wire format keeps ablations across hosts honest.",
+      "inRepo": "packages/argus-core/src/argus_core/client.py",
+      "status": "built",
+      "source": {
+        "title": "Groq: OpenAI Compatibility",
+        "url": "https://console.groq.com/docs/openai"
+      }
+    },
+    {
+      "id": "baseline-agent",
+      "label": "One-shot baseline",
+      "group": "loop",
+      "phase": "P0",
+      "level": 1,
+      "summary": "A single model call with ticket text and the named files; the floor every later agent must beat.",
+      "whyItMatters": "Without a measured floor you cannot say the loop, context manager or judge added anything.",
+      "inRepo": "packages/bench/src/argus_bench/baseline.py",
+      "status": "built",
+      "source": {
+        "title": "mini-swe-agent",
+        "url": "https://github.com/SWE-agent/mini-swe-agent"
+      }
+    },
+    {
+      "id": "tool-schema-design",
+      "label": "Tool schema design",
+      "group": "loop",
+      "phase": "P1",
+      "level": 2,
+      "summary": "Typed, closed argument schemas per tool; the model sees only what it can use correctly.",
+      "whyItMatters": "Tool descriptions and schemas are the agent-computer interface; most \"model errors\" are interface errors.",
+      "inRepo": "packages/repro-agent/src/repro_agent/tools.py",
+      "status": "built",
+      "source": {
+        "title": "Writing effective tools for AI agents (Anthropic)",
+        "url": "https://www.anthropic.com/engineering/writing-tools-for-agents"
+      }
+    },
+    {
+      "id": "tool-allowlist",
+      "label": "Tool allow-lists & unsafe tools",
+      "group": "loop",
+      "phase": "P1",
+      "level": 2,
+      "summary": "Expose six tools; keep eval/run-code tools off even when the server offers them.",
+      "whyItMatters": "An MCP server lists everything it can do; the allow-list is where least privilege starts.",
+      "inRepo": "packages/repro-agent/src/repro_agent/tools.py",
+      "status": "built",
+      "source": {
+        "title": "microsoft/playwright-mcp README",
+        "url": "https://github.com/microsoft/playwright-mcp"
+      }
+    },
+    {
+      "id": "tool-error-taxonomy",
+      "label": "Tool error taxonomy",
+      "group": "loop",
+      "phase": "P1",
+      "level": 2,
+      "summary": "Closed set of tool error codes (stale-target, not-unique, not-found, not-allowed, failed) returned as observations.",
+      "whyItMatters": "A model can only recover from an error it can tell apart; retries, metrics and dashboards all key off the code.",
+      "inRepo": "packages/repro-agent/src/repro_agent/tools.py",
+      "status": "built",
+      "source": {
+        "title": "MCP spec 2025-11-25: Tools",
+        "url": "https://modelcontextprotocol.io/specification/2025-11-25/server/tools"
+      }
+    },
+    {
+      "id": "a11y-snapshot-refs",
+      "label": "Accessibility-tree snapshots & refs",
+      "group": "loop",
+      "phase": "P1",
+      "level": 2,
+      "summary": "The page is given to the model as an a11y tree whose elements carry refs; a stale ref is an error, not a guess.",
+      "whyItMatters": "Snapshot-as-action-surface is cheaper than screenshots and gives stable targets, but blows the context window if uncapped.",
+      "inRepo": "packages/repro-agent/src/repro_agent/tools.py",
+      "status": "built",
+      "source": {
+        "title": "Playwright: Aria snapshots",
+        "url": "https://playwright.dev/docs/aria-snapshots"
+      }
+    },
+    {
+      "id": "tool-output-truncation",
+      "label": "Tool output truncation",
+      "group": "loop",
+      "phase": "P1",
+      "level": 2,
+      "summary": "Cap every tool result at a byte budget before it reaches the model.",
+      "whyItMatters": "Uncapped observations are the quickest way to burn a context window and a free-tier token quota.",
+      "inRepo": "packages/repro-agent/src/repro_agent/tools.py",
+      "status": "built",
+      "source": {
+        "title": "Effective context engineering for AI agents (Anthropic)",
+        "url": "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents"
+      }
+    },
+    {
+      "id": "stop-conditions",
+      "label": "Stop conditions & stop reasons",
+      "group": "loop",
+      "phase": "P1",
+      "level": 2,
+      "summary": "Closed enum of why a run ended: submit, step-cap, token-cap, QuotaExceeded, stuck, timeouts, retry-cap.",
+      "whyItMatters": "Every unbounded loop needs explicit exits, and a typed reason is what lets you count failure modes later.",
+      "inRepo": "packages/argus-core/src/argus_core/types.py",
+      "status": "built",
+      "source": {
+        "title": "SWE-agent: Agent-Computer Interfaces (arXiv 2405.15793)",
+        "url": "https://arxiv.org/abs/2405.15793"
+      }
+    },
+    {
+      "id": "repro-revise-loop",
+      "label": "Generate-run-revise loop",
+      "group": "loop",
+      "phase": "P1",
+      "level": 2,
+      "summary": "Ask for a script, run it on buggy and fixed trees, revise until it reproduces or the cap hits.",
+      "whyItMatters": "The smallest real agent loop: the environment, not the model, decides success.",
+      "inRepo": "packages/repro-agent/src/repro_agent/loop.py",
+      "status": "built",
+      "source": {
+        "title": "Building effective agents (Anthropic)",
+        "url": "https://www.anthropic.com/engineering/building-effective-agents"
+      }
+    },
+    {
+      "id": "agent-loop",
+      "label": "Agent loop (tool-use)",
+      "group": "loop",
+      "phase": "P3",
+      "level": 2,
+      "summary": "Model proposes a tool call, harness executes, result returns as an observation; repeat to a stop condition.",
+      "whyItMatters": "The core primitive of every agent; frameworks differ in how they hide it, not in what it is.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "Building effective agents (Anthropic)",
+        "url": "https://www.anthropic.com/engineering/building-effective-agents"
+      }
+    },
+    {
+      "id": "stuck-detection",
+      "label": "Stuck detection",
+      "group": "loop",
+      "phase": "P3",
+      "level": 3,
+      "summary": "Detect repeated actions, error loops or no-progress states, nudge once, then stop.",
+      "whyItMatters": "Stuck runs silently burn the daily quota; detection quality decides cost per resolved bug.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "OpenHands software-agent-sdk",
+        "url": "https://github.com/OpenHands/software-agent-sdk"
+      }
+    },
+    {
+      "id": "edit-formats",
+      "label": "Edit formats (diff vs whole-file)",
+      "group": "loop",
+      "phase": "P3",
+      "level": 3,
+      "summary": "How the model expresses a change: search/replace blocks, unified diff, whole file. They fail differently.",
+      "whyItMatters": "The edit contract decides how often a correct idea becomes a malformed or misapplied patch.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "Aider edit formats",
+        "url": "https://aider.chat/docs/more/edit-formats.html"
+      }
+    },
+    {
+      "id": "gate-feedback",
+      "label": "Gate feedback to the loop",
+      "group": "loop",
+      "phase": "P3",
+      "level": 3,
+      "summary": "Lint, type, test and verifier results are fed back as observations so the agent can repair itself.",
+      "whyItMatters": "Ground truth from the environment is what separates a loop that converges from one that guesses.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "Building effective agents (Anthropic)",
+        "url": "https://www.anthropic.com/engineering/building-effective-agents"
+      }
+    },
+    {
+      "id": "context-budget",
+      "label": "Context budget management",
+      "group": "context",
+      "phase": "P3",
+      "level": 3,
+      "summary": "Treat the window as a budget: decide what is kept, trimmed or dropped at each step.",
+      "whyItMatters": "Quality degrades and quota burns as context grows; the budget policy is an ADR-level decision.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "Effective context engineering for AI agents (Anthropic)",
+        "url": "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents"
+      }
+    },
+    {
+      "id": "compaction",
+      "label": "Compaction & summarization",
+      "group": "context",
+      "phase": "P3",
+      "level": 3,
+      "summary": "Replace old turns with a summary, or offload big outputs to files; a summary that does not shrink the view fails.",
+      "whyItMatters": "Long runs need it, but it can break the prompt cache and lose the one fact that mattered.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "Effective context engineering for AI agents (Anthropic)",
+        "url": "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents"
+      }
+    },
+    {
+      "id": "multimodal-context",
+      "label": "Multimodal ticket context",
+      "group": "context",
+      "phase": "P1",
+      "level": 2,
+      "summary": "Attach the ticket screenshot only in image mode and only if bytes match the declared media type.",
+      "whyItMatters": "Images cost tokens and quota; whether they raise success is an empirical question (ADR-005).",
+      "inRepo": "packages/repro-agent/src/repro_agent/prompt.py",
+      "status": "built",
+      "source": {
+        "title": "Vision (Claude Platform Docs)",
+        "url": "https://docs.anthropic.com/en/docs/build-with-claude/vision"
+      }
+    },
+    {
+      "id": "prompt-caching",
+      "label": "Prompt caching",
+      "group": "context",
+      "phase": "P5",
+      "level": 3,
+      "summary": "Reuse a stable prompt prefix across calls at a lower price and, on some hosts, without quota charge.",
+      "whyItMatters": "Ordering a prompt for cache hits is the biggest cost lever, and compaction can destroy it.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "Prompt caching (Claude Platform Docs)",
+        "url": "https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching"
+      }
+    },
+    {
+      "id": "routing",
+      "label": "Model routing",
+      "group": "context",
+      "phase": "P5",
+      "level": 3,
+      "summary": "Send each step to a cheap or strong model based on difficulty.",
+      "whyItMatters": "Routing trades resolve rate against tokens and quota; it must beat a single strong model to stay.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "RouteLLM (arXiv 2406.18665)",
+        "url": "https://arxiv.org/abs/2406.18665"
+      }
+    },
+    {
+      "id": "cost-modelling",
+      "label": "Cost modelling ($-equivalent)",
+      "group": "context",
+      "phase": "P5",
+      "level": 4,
+      "summary": "Tokens times published list prices, per bug, summed over retries, judges and samples.",
+      "whyItMatters": "Cost per resolved bug, not per call, is what decides whether an agent is viable.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "Langfuse: Token & Cost Tracking",
+        "url": "https://langfuse.com/docs/model-usage-and-cost"
+      }
+    },
+    {
+      "id": "token-accounting",
+      "label": "Token accounting (fresh vs cached)",
+      "group": "context",
+      "phase": "P0",
+      "level": 1,
+      "summary": "Input, output and cached tokens are tracked separately and never summed into one number.",
+      "whyItMatters": "Providers bill and rate-limit these differently; merging them hides the caching lever.",
+      "inRepo": "packages/argus-core/src/argus_core/ledger.py",
+      "status": "built",
+      "source": {
+        "title": "Groq: Rate Limits",
+        "url": "https://console.groq.com/docs/rate-limits"
+      }
+    },
+    {
+      "id": "rate-limits",
+      "label": "Provider rate limits",
+      "group": "limits",
+      "phase": "P0",
+      "level": 1,
+      "summary": "RPM, RPD, TPM and TPD limits per model, read from headers where possible and published tables otherwise.",
+      "whyItMatters": "Free-tier limits throttle evals by wall clock; measure them rather than trusting a marketing page.",
+      "inRepo": "docs/quotas.md",
+      "status": "built",
+      "source": {
+        "title": "MDN: 429 Too Many Requests",
+        "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/429"
+      }
+    },
+    {
+      "id": "quota-ledger",
+      "label": "Quota ledger",
+      "group": "limits",
+      "phase": "P0",
+      "level": 2,
+      "summary": "A persisted ledger checks the cap before the HTTP call and hard-stops with QuotaExceeded.",
+      "whyItMatters": "Stopping before the call keeps a partial result from looking like a model failure.",
+      "inRepo": "packages/argus-core/src/argus_core/ledger.py",
+      "status": "built",
+      "source": {
+        "title": "Groq: Rate Limits",
+        "url": "https://console.groq.com/docs/rate-limits"
+      }
+    },
+    {
+      "id": "per-tenant-budgets",
+      "label": "Per-tenant quota budgets",
+      "group": "limits",
+      "phase": "P8",
+      "level": 4,
+      "summary": "Split a provider quota into per-tenant shares so one tenant cannot starve the rest.",
+      "whyItMatters": "Multi-tenancy turns the ledger from a safety stop into a fairness and billing primitive.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "Stripe: Scaling your API with rate limiters",
+        "url": "https://stripe.com/blog/rate-limiters"
+      }
+    },
+    {
+      "id": "git-worktrees",
+      "label": "Git worktrees",
+      "group": "sandbox",
+      "phase": "P0",
+      "level": 1,
+      "summary": "Check out a clean tree per task or run, so patches never touch the main checkout.",
+      "whyItMatters": "Cheap isolation for filesystem state; the same trick lets many agents work in parallel.",
+      "inRepo": "packages/bench/src/argus_bench/golden.py",
+      "status": "built",
+      "source": {
+        "title": "git-worktree documentation",
+        "url": "https://git-scm.com/docs/git-worktree"
+      }
+    },
+    {
+      "id": "docker-sandbox",
+      "label": "Container sandbox (Docker, no network)",
+      "group": "sandbox",
+      "phase": "P1",
+      "level": 1,
+      "summary": "Run untrusted generated scripts in a container with --network none.",
+      "whyItMatters": "The baseline sandbox tier: cheap and fast, but it shares the host kernel.",
+      "inRepo": "packages/repro-agent/src/repro_agent/verify.py",
+      "status": "built",
+      "source": {
+        "title": "Docker: None network driver",
+        "url": "https://docs.docker.com/engine/network/drivers/none/"
+      }
+    },
+    {
+      "id": "gvisor",
+      "label": "gVisor (user-space kernel)",
+      "group": "sandbox",
+      "phase": "P7",
+      "level": 3,
+      "summary": "Intercepts syscalls in a user-space kernel so a container escape needs a gVisor bug, not a Linux one.",
+      "whyItMatters": "A middle tier: stronger isolation than Docker with less cold-start cost than a microVM.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "gVisor: Security Model",
+        "url": "https://gvisor.dev/docs/architecture_guide/security/"
+      }
+    },
+    {
+      "id": "firecracker",
+      "label": "Firecracker microVMs",
+      "group": "sandbox",
+      "phase": "P7",
+      "level": 4,
+      "summary": "Each sandbox is a KVM microVM with its own kernel and a minimal device model.",
+      "whyItMatters": "The strongest tier; needs KVM and costs startup time, so it must be measured, not assumed.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "Firecracker: Lightweight Virtualization (NSDI 2020)",
+        "url": "https://www.usenix.org/conference/nsdi20/presentation/agache"
+      }
+    },
+    {
+      "id": "sandbox-tiers",
+      "label": "Sandbox tier selection",
+      "group": "sandbox",
+      "phase": "P7",
+      "level": 4,
+      "summary": "Choose Docker, gVisor or Firecracker by trust level, cold start and escape-test pass rate.",
+      "whyItMatters": "The architect skill is matching isolation strength to the threat, with numbers behind the choice.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "gVisor: Security Model",
+        "url": "https://gvisor.dev/docs/architecture_guide/security/"
+      }
+    },
+    {
+      "id": "idempotency",
+      "label": "Idempotency & dedup keys",
+      "group": "durable",
+      "phase": "P6",
+      "level": 3,
+      "summary": "Make repeating an operation safe, using a key so a retry does not open a second PR or send a second message.",
+      "whyItMatters": "At-least-once delivery is the norm; idempotency is what makes retries safe.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "Stripe API: Idempotent requests",
+        "url": "https://docs.stripe.com/api/idempotent_requests"
+      }
+    },
+    {
+      "id": "durable-execution",
+      "label": "Durable execution",
+      "group": "durable",
+      "phase": "P6",
+      "level": 3,
+      "summary": "Persist each step result and explicit state so a crashed workflow resumes without redoing completed steps.",
+      "whyItMatters": "Agent runs are long and failure-prone; durability turns a crash into a pause.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "DBOS Architecture",
+        "url": "https://docs.dbos.dev/architecture"
+      }
+    },
+    {
+      "id": "dbos",
+      "label": "DBOS (Postgres-backed workflows)",
+      "group": "durable",
+      "phase": "P6",
+      "level": 3,
+      "summary": "A library that stores workflow state in Postgres and recovers in-process, with no separate server.",
+      "whyItMatters": "The $0-friendly choice: durability on a free Postgres, with recovery rules you must respect.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "dbos-transact-py",
+        "url": "https://github.com/dbos-inc/dbos-transact-py"
+      }
+    },
+    {
+      "id": "temporal",
+      "label": "Temporal (decision only)",
+      "group": "durable",
+      "phase": "P6",
+      "level": 4,
+      "summary": "Server-based durable execution with replayed deterministic workflow code.",
+      "whyItMatters": "Knowing when Temporal beats DBOS is the point of the ADR, even though Argus will not run it.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "Temporal Workflow documentation",
+        "url": "https://docs.temporal.io/workflows"
+      }
+    },
+    {
+      "id": "outbox",
+      "label": "Transactional outbox",
+      "group": "durable",
+      "phase": "P6",
+      "level": 4,
+      "summary": "Write the state change and the outgoing message in one transaction; relay the message after.",
+      "whyItMatters": "The standard fix for \"updated the DB but failed to notify\"; durable steps solve the same problem.",
+      "inRepo": null,
+      "status": "external",
+      "source": {
+        "title": "Pattern: Transactional outbox (microservices.io)",
+        "url": "https://microservices.io/patterns/data/transactional-outbox.html"
+      }
+    },
+    {
+      "id": "webhooks-as-hints",
+      "label": "Webhooks as hints",
+      "group": "durable",
+      "phase": "P6",
+      "level": 2,
+      "summary": "Treat a webhook as a nudge that something changed, not as the source of truth.",
+      "whyItMatters": "Webhooks get dropped, duplicated and delayed; with a 10 s timeout and cold starts, you cannot rely on them.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "GitHub: Best practices for using webhooks",
+        "url": "https://docs.github.com/en/webhooks/using-webhooks/best-practices-for-using-webhooks"
+      }
+    },
+    {
+      "id": "reconciliation-polling",
+      "label": "Reconciliation polling",
+      "group": "durable",
+      "phase": "P6",
+      "level": 3,
+      "summary": "A periodic loop compares the desired state in GitHub with local state and repairs differences.",
+      "whyItMatters": "Level-triggered reconciliation self-heals after any missed event; this is how Kubernetes controllers work.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "Kubernetes: Controllers",
+        "url": "https://kubernetes.io/docs/concepts/architecture/controller/"
+      }
+    },
+    {
+      "id": "human-in-the-loop-wait",
+      "label": "Human-in-the-loop wait",
+      "group": "durable",
+      "phase": "P6",
+      "level": 3,
+      "summary": "Pause a durable workflow until a QA signal arrives by message or review comment.",
+      "whyItMatters": "Real pipelines wait for people; the wait must survive restarts and time out.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "DBOS: Communicating with Workflows",
+        "url": "https://docs.dbos.dev/python/tutorials/workflow-communication"
+      }
+    },
+    {
+      "id": "mcp-basics",
+      "label": "Model Context Protocol (MCP)",
+      "group": "protocol",
+      "phase": "P1",
+      "level": 1,
+      "summary": "A client/server protocol exposing tools, resources and prompts to a model host.",
+      "whyItMatters": "The de facto way agents reach external tools; interop gaps are a real project risk.",
+      "inRepo": "packages/repro-agent/src/repro_agent/browser.py",
+      "status": "built",
+      "source": {
+        "title": "MCP specification 2025-11-25",
+        "url": "https://modelcontextprotocol.io/specification/2025-11-25"
+      }
+    },
+    {
+      "id": "mcp-version-negotiation",
+      "label": "MCP version negotiation",
+      "group": "protocol",
+      "phase": "P1",
+      "level": 3,
+      "summary": "Client and server settle on a protocol version at initialize; the pinned server spoke 2025-11-25, not 2026-07-28.",
+      "whyItMatters": "You need a spike and an ADR, not an assumption, before building on a spec revision.",
+      "inRepo": "docs/adr/0004-playwright-mcp-vs-direct-playwright.md",
+      "status": "built",
+      "source": {
+        "title": "The 2026-07-28 MCP Specification (MCP blog)",
+        "url": "https://blog.modelcontextprotocol.io/posts/2026-07-28/"
+      }
+    },
+    {
+      "id": "mcp-server-authoring",
+      "label": "Authoring an MCP server",
+      "group": "protocol",
+      "phase": "P2",
+      "level": 3,
+      "summary": "Expose locate() as an MCP tool with a typed schema.",
+      "whyItMatters": "Building the server side shows which schema and error choices hurt agents.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "Build an MCP server",
+        "url": "https://modelcontextprotocol.io/docs/develop/build-server"
+      }
+    },
+    {
+      "id": "stateless-protocols",
+      "label": "Stateless protocols",
+      "group": "protocol",
+      "phase": "P6",
+      "level": 4,
+      "summary": "Each request carries what the server needs; no session state is held between calls.",
+      "whyItMatters": "Statelessness is what lets servers scale and restart; spec 2026-07-28 moves MCP this way.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "Fielding dissertation, ch.5 REST",
+        "url": "https://ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm"
+      }
+    },
+    {
+      "id": "mrtr",
+      "label": "MRTR (multi-round-trip requests)",
+      "group": "protocol",
+      "phase": "P6",
+      "level": 4,
+      "summary": "A server returns input_required, the client answers with inputResponses, so asking a human stays stateless.",
+      "whyItMatters": "The 2026-07-28 spec replaces long-lived sessions with this; it is the MCP route for the QA signal.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "The 2026-07-28 MCP Specification (MCP blog)",
+        "url": "https://blog.modelcontextprotocol.io/posts/2026-07-28/"
+      }
+    },
+    {
+      "id": "trajectory-recording",
+      "label": "Trajectory recording (JSONL)",
+      "group": "observe",
+      "phase": "P0",
+      "level": 2,
+      "summary": "One record per step with tokens, raw response and stop reason, plus run metadata (model, host, seed, prompt hash, commit).",
+      "whyItMatters": "If a run is not recorded with its provenance, you can neither replay it nor trust a number from it.",
+      "inRepo": "packages/argus-core/src/argus_core/types.py",
+      "status": "built",
+      "source": {
+        "title": "SWE-agent: Agent-Computer Interfaces (arXiv 2405.15793)",
+        "url": "https://arxiv.org/abs/2405.15793"
+      }
+    },
+    {
+      "id": "trajectory-replay",
+      "label": "Trajectory replay",
+      "group": "observe",
+      "phase": "P1",
+      "level": 2,
+      "summary": "Re-run a stored trajectory from its recorded reply with no model call.",
+      "whyItMatters": "Replay makes CI deterministic and free; but it proves the harness, not the model.",
+      "inRepo": "packages/repro-agent/src/repro_agent/replay.py",
+      "status": "built",
+      "source": {
+        "title": "SWE-agent: Agent-Computer Interfaces (arXiv 2405.15793)",
+        "url": "https://arxiv.org/abs/2405.15793"
+      }
+    },
+    {
+      "id": "tracing-observability",
+      "label": "Distributed tracing",
+      "group": "observe",
+      "phase": "P5",
+      "level": 2,
+      "summary": "A trace is a tree of timed spans; an agent run maps to a root span with a child per step and tool call.",
+      "whyItMatters": "You cannot debug or cost an agent without seeing the call tree.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "OpenTelemetry: Traces",
+        "url": "https://opentelemetry.io/docs/concepts/signals/traces/"
+      }
+    },
+    {
+      "id": "otel-genai-semconv",
+      "label": "OpenTelemetry GenAI semantic conventions",
+      "group": "observe",
+      "phase": "P5",
+      "level": 3,
+      "summary": "Standard span and attribute names (gen_ai.*) for model calls, agents and tools; still marked development.",
+      "whyItMatters": "A vendor-neutral vocabulary lets you swap trace backends without rewriting instrumentation.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "open-telemetry/semantic-conventions-genai",
+        "url": "https://github.com/open-telemetry/semantic-conventions-genai"
+      }
+    },
+    {
+      "id": "trace-backend",
+      "label": "Trace backends (Langfuse / Phoenix)",
+      "group": "observe",
+      "phase": "P5",
+      "level": 3,
+      "summary": "Ingest OTLP spans and show prompts, tokens and cost per trace.",
+      "whyItMatters": "Free tiers cap volume, so the backend choice is a risk-register item.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "Langfuse: OpenTelemetry for LLM observability",
+        "url": "https://langfuse.com/docs/opentelemetry/get-started"
+      }
+    },
+    {
+      "id": "trace-normalizer",
+      "label": "Attribute normalizer",
+      "group": "observe",
+      "phase": "P5",
+      "level": 4,
+      "summary": "Map between attribute dialects (OTel GenAI, OpenInference, vendor) so any backend reads one shape.",
+      "whyItMatters": "Semantic conventions are in flux; a normalizer isolates you from the churn.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "Arize OpenInference",
+        "url": "https://github.com/Arize-ai/openinference"
+      }
+    },
+    {
+      "id": "trajectory-metrics",
+      "label": "Trajectory metrics",
+      "group": "observe",
+      "phase": "P5",
+      "level": 3,
+      "summary": "Steps, tool-error rate, redundant-call rate, stuck rate and recover-after-gate-failure rate.",
+      "whyItMatters": "Resolve rate says whether it worked; trajectory metrics say why and where it wastes effort.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "SWE-agent: Agent-Computer Interfaces (arXiv 2405.15793)",
+        "url": "https://arxiv.org/abs/2405.15793"
+      }
+    },
+    {
+      "id": "swe-bench",
+      "label": "SWE-bench & Multimodal",
+      "group": "evalstat",
+      "phase": "P5",
+      "level": 1,
+      "summary": "Real GitHub issues paired with fail-to-pass and pass-to-pass tests; a multimodal variant adds screenshots.",
+      "whyItMatters": "The industry yardstick for issue-resolving agents; know what it does and does not measure.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "SWE-bench (arXiv 2310.06770)",
+        "url": "https://arxiv.org/abs/2310.06770"
+      }
+    },
+    {
+      "id": "golden-fix-ci",
+      "label": "Golden-fix regression CI",
+      "group": "evalstat",
+      "phase": "P0",
+      "level": 2,
+      "summary": "Apply each known-good patch and require its checks to pass, with no model calls.",
+      "whyItMatters": "A deterministic gate that proves the benchmark itself is sound on every push.",
+      "inRepo": "packages/bench/src/argus_bench/golden.py",
+      "status": "built",
+      "source": {
+        "title": "Continuous Integration (Martin Fowler)",
+        "url": "https://martinfowler.com/articles/continuousIntegration.html"
+      }
+    },
+    {
+      "id": "tri-state-verdicts",
+      "label": "Tri-state verdicts (pass / fail / infra)",
+      "group": "evalstat",
+      "phase": "P0",
+      "level": 2,
+      "summary": "Scorer exits 0 for pass, 1 for check failure, 2 for infra or missing tree.",
+      "whyItMatters": "Treating a crash as a failure corrupts your denominator; infra is its own outcome.",
+      "inRepo": "packages/bench/src/argus_bench/score.py",
+      "status": "built",
+      "source": {
+        "title": "SWE-bench (arXiv 2310.06770)",
+        "url": "https://arxiv.org/abs/2310.06770"
+      }
+    },
+    {
+      "id": "mutation-testing",
+      "label": "Mutation testing",
+      "group": "evalstat",
+      "phase": "P0",
+      "level": 2,
+      "summary": "Inject small syntactic faults to see whether checks notice; here the mutants become the benchmark bugs.",
+      "whyItMatters": "The classic technique for judging whether tests catch real changes, reused here to manufacture bugs.",
+      "inRepo": "packages/bugsmith/src/index.ts",
+      "status": "built",
+      "source": {
+        "title": "Mutation testing (Wikipedia)",
+        "url": "https://en.wikipedia.org/wiki/Mutation_testing"
+      }
+    },
+    {
+      "id": "bug-synthesis",
+      "label": "Synthetic bug generation",
+      "group": "evalstat",
+      "phase": "P0",
+      "level": 3,
+      "summary": "Deterministic JSX/CSS operators produce bugs at scale; the same seed yields the same task set.",
+      "whyItMatters": "Hand-written bugs cannot reach statistical power; synthetic ones need validity rules to be trusted.",
+      "inRepo": "packages/bugsmith/src/index.ts",
+      "status": "built",
+      "source": {
+        "title": "SWE-smith (arXiv 2504.21798)",
+        "url": "https://arxiv.org/abs/2504.21798"
+      }
+    },
+    {
+      "id": "mutant-validity-filter",
+      "label": "Mutant validity filter",
+      "group": "evalstat",
+      "phase": "P0",
+      "level": 3,
+      "summary": "Keep a mutant only if checks fail on it and pass on the original, with a non-empty check list.",
+      "whyItMatters": "It separates real check failures from build breaks and infra errors that would pollute the set.",
+      "inRepo": "packages/bench/src/argus_bench/validity.py",
+      "status": "built",
+      "source": {
+        "title": "SWE-smith (arXiv 2504.21798)",
+        "url": "https://arxiv.org/abs/2504.21798"
+      }
+    },
+    {
+      "id": "flaky-test-quarantine",
+      "label": "Flaky-test quarantine",
+      "group": "evalstat",
+      "phase": "P0",
+      "level": 3,
+      "summary": "Score each tree five times; if outcomes disagree or any is infra, move the task out of the set.",
+      "whyItMatters": "Flaky tasks add noise that looks like model variance; quarantine before sampling.",
+      "inRepo": "packages/bench/src/argus_bench/flake.py",
+      "status": "built",
+      "source": {
+        "title": "Flaky Tests at Google and How We Mitigate Them",
+        "url": "https://testing.googleblog.com/2016/05/flaky-tests-at-google-and-how-we.html"
+      }
+    },
+    {
+      "id": "wilson-ci",
+      "label": "Wilson confidence interval",
+      "group": "evalstat",
+      "phase": "P0",
+      "level": 2,
+      "summary": "A binomial interval that stays sensible at small n and at 0 or 100 percent.",
+      "whyItMatters": "With 10 to 30 tasks, a point rate is nearly meaningless; differences inside the interval are no difference.",
+      "inRepo": "packages/repro-agent/src/repro_agent/batch.py",
+      "status": "built",
+      "source": {
+        "title": "Binomial proportion confidence interval: Wilson score (Wikipedia)",
+        "url": "https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval"
+      }
+    },
+    {
+      "id": "ablation-design",
+      "label": "Ablation design",
+      "group": "evalstat",
+      "phase": "P1",
+      "level": 3,
+      "summary": "Change one factor on a fixed task set and compare; the text-only vs text-plus-image run is the first.",
+      "whyItMatters": "Ablations are how you earn the right to keep a component.",
+      "inRepo": "docs/adr/0005-screenshot-in-ticket-context.md",
+      "status": "built",
+      "source": {
+        "title": "Ablation (artificial intelligence) (Wikipedia)",
+        "url": "https://en.wikipedia.org/wiki/Ablation_(artificial_intelligence)"
+      }
+    },
+    {
+      "id": "fixture-replay-testing",
+      "label": "Fixture replay testing",
+      "group": "evalstat",
+      "phase": "P1",
+      "level": 2,
+      "summary": "Replace the model with recorded replies so the pipeline can be tested offline and repeatably.",
+      "whyItMatters": "Great for harness regressions, but numbers from it must not be read as model quality.",
+      "inRepo": "packages/repro-agent/src/repro_agent/batch.py",
+      "status": "built",
+      "source": {
+        "title": "Test Double (Martin Fowler)",
+        "url": "https://martinfowler.com/bliki/TestDouble.html"
+      }
+    },
+    {
+      "id": "regression-gate",
+      "label": "CI regression gate",
+      "group": "evalstat",
+      "phase": "P5",
+      "level": 3,
+      "summary": "Fail the build when resolve rate, tokens or latency worsen beyond thresholds backed by an interval.",
+      "whyItMatters": "Without a gate, every prompt tweak can silently erode quality.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "Continuous Integration (Martin Fowler)",
+        "url": "https://martinfowler.com/articles/continuousIntegration.html"
+      }
+    },
+    {
+      "id": "llm-as-judge",
+      "label": "LLM-as-judge",
+      "group": "evalstat",
+      "phase": "P4",
+      "level": 3,
+      "summary": "A model grades a fix against a written rubric; also check for order (position) bias by swapping candidates.",
+      "whyItMatters": "Some properties have no deterministic check, but a judge is itself a measured instrument.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena (arXiv 2306.05685)",
+        "url": "https://arxiv.org/abs/2306.05685"
+      }
+    },
+    {
+      "id": "self-preference-bias",
+      "label": "Self-preference bias",
+      "group": "evalstat",
+      "phase": "P4",
+      "level": 4,
+      "summary": "Models tend to rate outputs from their own family higher.",
+      "whyItMatters": "It is why the intent judge comes from a different family than the fixer, and why that is ablated.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "LLM Evaluators Recognize and Favor Their Own Generations (arXiv 2404.13076)",
+        "url": "https://arxiv.org/abs/2404.13076"
+      }
+    },
+    {
+      "id": "inter-rater-agreement",
+      "label": "Inter-rater agreement (Krippendorff's alpha)",
+      "group": "evalstat",
+      "phase": "P4",
+      "level": 4,
+      "summary": "Chance-corrected agreement between raters (human and judge); percent agreement is not alpha.",
+      "whyItMatters": "Alpha is the number that says whether the judge is usable at all.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "Krippendorff's alpha (Wikipedia)",
+        "url": "https://en.wikipedia.org/wiki/Krippendorff%27s_alpha"
+      }
+    },
+    {
+      "id": "judge-calibration",
+      "label": "Judge calibration",
+      "group": "evalstat",
+      "phase": "P4",
+      "level": 4,
+      "summary": "Label about 100 pairs by hand, then iterate the rubric until judge-human agreement clears a threshold.",
+      "whyItMatters": "An uncalibrated judge gives confident noise; the plan defines what to do if the bar is unreachable.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena (arXiv 2306.05685)",
+        "url": "https://arxiv.org/abs/2306.05685"
+      }
+    },
+    {
+      "id": "best-of-k",
+      "label": "Best-of-k sampling",
+      "group": "evalstat",
+      "phase": "P4",
+      "level": 3,
+      "summary": "Sample k candidate fixes and keep the one a verifier prefers; a form of test-time compute scaling.",
+      "whyItMatters": "It raises resolve rate at k times the quota; the cost cap is part of the design.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "Large Language Monkeys (arXiv 2407.21787)",
+        "url": "https://arxiv.org/abs/2407.21787"
+      }
+    },
+    {
+      "id": "repro-validity",
+      "label": "Fail-before / pass-after validity",
+      "group": "verify",
+      "phase": "P1",
+      "level": 2,
+      "summary": "A repro script counts only if it fails on the buggy tree and passes on the fixed one.",
+      "whyItMatters": "A repro that passes on the bug (or fails on the fix) is noise; this rule is the oracle for the whole pipeline.",
+      "inRepo": "packages/repro-agent/src/repro_agent/verify.py",
+      "status": "built",
+      "source": {
+        "title": "SWE-bench (arXiv 2310.06770)",
+        "url": "https://arxiv.org/abs/2310.06770"
+      }
+    },
+    {
+      "id": "computed-style-checks",
+      "label": "Computed-style assertions",
+      "group": "verify",
+      "phase": "P0",
+      "level": 1,
+      "summary": "Assert a CSS property on an element via getComputedStyle after rendering.",
+      "whyItMatters": "The cheapest deterministic UI check; many CSS bugs show up here without pixels.",
+      "inRepo": "packages/bench/src/checks.ts",
+      "status": "built",
+      "source": {
+        "title": "MDN: Window.getComputedStyle()",
+        "url": "https://developer.mozilla.org/en-US/docs/Web/API/Window/getComputedStyle"
+      }
+    },
+    {
+      "id": "pixel-diff",
+      "label": "Pixel diff",
+      "group": "verify",
+      "phase": "P0",
+      "level": 2,
+      "summary": "Compare two screenshots pixel by pixel with a per-pixel colour threshold.",
+      "whyItMatters": "Catches visual regressions that selectors miss, but is brittle without masks and AA handling.",
+      "inRepo": "packages/bench/src/checks.ts",
+      "status": "built",
+      "source": {
+        "title": "mapbox/pixelmatch",
+        "url": "https://github.com/mapbox/pixelmatch"
+      }
+    },
+    {
+      "id": "visual-masks",
+      "label": "Masks for dynamic regions",
+      "group": "verify",
+      "phase": "P4",
+      "level": 3,
+      "summary": "Hide timestamps, avatars and animations before diffing, without reflowing the page.",
+      "whyItMatters": "Unmasked dynamic content makes visual tests flaky and trains people to ignore them.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "Playwright: Visual comparisons",
+        "url": "https://playwright.dev/docs/test-snapshots"
+      }
+    },
+    {
+      "id": "antialiasing-thresholds",
+      "label": "Anti-aliasing & thresholds",
+      "group": "verify",
+      "phase": "P4",
+      "level": 3,
+      "summary": "Tune colour threshold, AA detection and allowed pixel count so a 4 px real shift still fails.",
+      "whyItMatters": "Too loose hides real regressions; too strict flags font rendering noise.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "mapbox/pixelmatch",
+        "url": "https://github.com/mapbox/pixelmatch"
+      }
+    },
+    {
+      "id": "axe-a11y",
+      "label": "Accessibility checks (axe)",
+      "group": "verify",
+      "phase": "P4",
+      "level": 2,
+      "summary": "Run axe-core rules for WCAG violations such as contrast and missing labels on the rendered page.",
+      "whyItMatters": "A fix can pass visually and still break accessibility; axe makes that a gate.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "dequelabs/axe-core",
+        "url": "https://github.com/dequelabs/axe-core"
+      }
+    },
+    {
+      "id": "verifier-pipeline",
+      "label": "Verifier pipeline & gate ordering",
+      "group": "verify",
+      "phase": "P4",
+      "level": 3,
+      "summary": "Run cheap gates (overflow, console, axe) first, short-circuit before the judge, publish as a check run.",
+      "whyItMatters": "Ordering is a cost decision; the judge must not override a failed deterministic check.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "Building effective agents (Anthropic)",
+        "url": "https://www.anthropic.com/engineering/building-effective-agents"
+      }
+    },
+    {
+      "id": "source-mapping-data-src",
+      "label": "DOM-to-source mapping (data-src)",
+      "group": "locate",
+      "phase": "P2",
+      "level": 2,
+      "summary": "A Vite plugin stamps each JSX element with file:line:col so a DOM node maps to code at build time.",
+      "whyItMatters": "This is the shortcut that makes UI bugs cheap to locate; React 19 removed the old debug source field.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "Babel: transform-react-jsx-development",
+        "url": "https://babeljs.io/docs/babel-plugin-transform-react-jsx-development"
+      }
+    },
+    {
+      "id": "source-maps",
+      "label": "Source maps",
+      "group": "locate",
+      "phase": "P2",
+      "level": 2,
+      "summary": "A file mapping generated code positions back to the original source.",
+      "whyItMatters": "The classic alternative to data-src; knowing why Argus does not use it is part of ADR-006.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "ECMA-426 Source map format",
+        "url": "https://tc39.es/ecma426/"
+      }
+    },
+    {
+      "id": "repo-map",
+      "label": "Repo map",
+      "group": "locate",
+      "phase": "P2",
+      "level": 3,
+      "summary": "A ranked summary of files and symbols in a small token budget; LSP definitions/references are the precise alternative.",
+      "whyItMatters": "Gives the agent structural orientation without reading whole files.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "Aider repo map",
+        "url": "https://aider.chat/docs/repomap.html"
+      }
+    },
+    {
+      "id": "embeddings-pgvector",
+      "label": "Embeddings retrieval (pgvector)",
+      "group": "locate",
+      "phase": "P2",
+      "level": 3,
+      "summary": "Embed code chunks, store vectors in Postgres, retrieve by similarity; evaluate by top-1 file accuracy.",
+      "whyItMatters": "Semantic search is the common default; the ablation tests whether it beats the repo map.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "pgvector",
+        "url": "https://github.com/pgvector/pgvector"
+      }
+    },
+    {
+      "id": "prompt-injection",
+      "label": "Prompt injection",
+      "group": "security",
+      "phase": "P7",
+      "level": 2,
+      "summary": "Untrusted text (issues, pages, tool output) steers the agent; never interpolate it into CI shell steps.",
+      "whyItMatters": "Ticket text is attacker-controlled input to a system that can run code and push commits.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "The lethal trifecta (Simon Willison)",
+        "url": "https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/"
+      }
+    },
+    {
+      "id": "threat-modelling",
+      "label": "Threat modelling",
+      "group": "security",
+      "phase": "P7",
+      "level": 3,
+      "summary": "List assets, trust boundaries and attacker goals, then map each threat to a control.",
+      "whyItMatters": "Sandbox tiers, token scopes and audit logs only make sense against a stated threat model.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "OWASP: Threat Modeling",
+        "url": "https://owasp.org/www-community/Threat_Modeling"
+      }
+    },
+    {
+      "id": "owasp-agentic",
+      "label": "OWASP agentic threats (ASI01-10)",
+      "group": "security",
+      "phase": "P7",
+      "level": 3,
+      "summary": "A catalogue of risks specific to agents: goal hijack, tool misuse, privilege abuse, memory poisoning.",
+      "whyItMatters": "It gives a shared vocabulary and checklist for the P7 threat model.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "OWASP Top 10 for Agentic Applications for 2026",
+        "url": "https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/"
+      }
+    },
+    {
+      "id": "least-privilege-tokens",
+      "label": "Least-privilege tokens",
+      "group": "security",
+      "phase": "P7",
+      "level": 3,
+      "summary": "Give the agent a short-lived, repo-scoped token with only the permissions the step needs.",
+      "whyItMatters": "Handing the agent contents:write on a long-lived token is the most common avoidable blast radius.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "GitHub: Generating an installation access token",
+        "url": "https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-an-installation-access-token-for-a-github-app"
+      }
+    },
+    {
+      "id": "red-teaming",
+      "label": "Automated red-teaming (promptfoo)",
+      "group": "security",
+      "phase": "P7",
+      "level": 3,
+      "summary": "Run generated adversarial cases against the agent and grade deterministically.",
+      "whyItMatters": "Defences you have not attacked are assumptions, not controls.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "promptfoo: LLM red teaming guide",
+        "url": "https://www.promptfoo.dev/docs/red-team/"
+      }
+    },
+    {
+      "id": "skill-trust",
+      "label": "Skill trust & poisoned skills",
+      "group": "security",
+      "phase": "P5.5",
+      "level": 4,
+      "summary": "A distilled skill is executable influence; review it, scope it and test it against poisoning.",
+      "whyItMatters": "A skill learned from trajectories is a persistence channel for bad instructions.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "Agent Skills specification",
+        "url": "https://agentskills.io/specification"
+      }
+    },
+    {
+      "id": "github-apps",
+      "label": "GitHub Apps",
+      "group": "delivery",
+      "phase": "P8",
+      "level": 3,
+      "summary": "An installable identity with per-repo permissions, webhooks and short-lived installation tokens.",
+      "whyItMatters": "The correct integration model for a bot used across repos, replacing personal access tokens.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "GitHub Apps overview",
+        "url": "https://docs.github.com/en/apps/overview"
+      }
+    },
+    {
+      "id": "reusable-workflow-tenancy",
+      "label": "Tenancy via reusable workflows",
+      "group": "delivery",
+      "phase": "P8",
+      "level": 4,
+      "summary": "Tenants run a shared workflow in their own repo, so code and secrets stay on their side.",
+      "whyItMatters": "It sidesteps hosting untrusted code for others, at the cost of per-tenant configuration.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "GitHub: Reuse workflows",
+        "url": "https://docs.github.com/en/actions/using-workflows/reusing-workflows"
+      }
+    },
+    {
+      "id": "backporting",
+      "label": "Backporting",
+      "group": "delivery",
+      "phase": "P8",
+      "level": 3,
+      "summary": "Cherry-pick a merged fix onto release branches and open PRs, with a defined conflict policy.",
+      "whyItMatters": "Real maintenance work is mostly this; conflict handling decides whether it is safe to automate.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "korthout/backport-action",
+        "url": "https://github.com/korthout/backport-action"
+      }
+    },
+    {
+      "id": "planner-subagents",
+      "label": "Planner & subagent pattern",
+      "group": "delivery",
+      "phase": "P8",
+      "level": 4,
+      "summary": "A planner decomposes work and delegates to subagents with isolated contexts.",
+      "whyItMatters": "It adds cost and failure modes; keep it only if it wins on both success and tokens.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "How we built our multi-agent research system (Anthropic)",
+        "url": "https://www.anthropic.com/engineering/multi-agent-research-system"
+      }
+    },
+    {
+      "id": "agent-skills",
+      "label": "Agent skills (agentskills.io)",
+      "group": "delivery",
+      "phase": "P5.5",
+      "level": 3,
+      "summary": "A folder with SKILL.md that an agent loads on demand (progressive disclosure).",
+      "whyItMatters": "Skills package procedural knowledge without paying for it in every prompt.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "Agent Skills specification",
+        "url": "https://agentskills.io/specification"
+      }
+    },
+    {
+      "id": "skill-distillation",
+      "label": "Skill distillation from trajectories",
+      "group": "delivery",
+      "phase": "P5.5",
+      "level": 4,
+      "summary": "Turn successful runs into reviewed skills, then test on held-out bugs.",
+      "whyItMatters": "It is the lightweight path to learning from experience; the held-out split keeps it honest.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "Voyager: skill library (arXiv 2305.16291)",
+        "url": "https://arxiv.org/abs/2305.16291"
+      }
+    },
+    {
+      "id": "backend-lane",
+      "label": "Backend lane (Sentry event to test)",
+      "group": "delivery",
+      "phase": "P9",
+      "level": 3,
+      "summary": "Turn a production error event into a failing pytest, then reuse the fix loop.",
+      "whyItMatters": "It tests whether the loop, verifier and flow generalize beyond UI bugs.",
+      "inRepo": null,
+      "status": "planned",
+      "source": {
+        "title": "Sentry: Event Payloads",
+        "url": "https://develop.sentry.dev/sdk/data-model/event-payloads/"
+      }
+    },
+    {
+      "id": "adr",
+      "label": "Architecture decision records",
+      "group": "delivery",
+      "phase": "all",
+      "level": 1,
+      "summary": "Short documents recording context, decision, alternatives and consequences.",
+      "whyItMatters": "At architect level the reasoning outlives the code, and ADRs are how you show it.",
+      "inRepo": "docs/adr/0001-task-and-trajectory-schema.md",
+      "status": "built",
+      "source": {
+        "title": "Documenting Architecture Decisions (Nygard)",
+        "url": "https://www.cognitect.com/blog/2011/11/15/documenting-architecture-decisions"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "model-client",
+      "to": "baseline-agent",
+      "type": "prereq"
+    },
+    {
+      "from": "model-client",
+      "to": "repro-revise-loop",
+      "type": "prereq"
+    },
+    {
+      "from": "model-client",
+      "to": "token-accounting",
+      "type": "prereq"
+    },
+    {
+      "from": "model-client",
+      "to": "multimodal-context",
+      "type": "prereq"
+    },
+    {
+      "from": "baseline-agent",
+      "to": "agent-loop",
+      "type": "prereq"
+    },
+    {
+      "from": "tool-schema-design",
+      "to": "tool-allowlist",
+      "type": "prereq"
+    },
+    {
+      "from": "tool-schema-design",
+      "to": "tool-error-taxonomy",
+      "type": "prereq"
+    },
+    {
+      "from": "tool-schema-design",
+      "to": "tool-output-truncation",
+      "type": "prereq"
+    },
+    {
+      "from": "tool-schema-design",
+      "to": "repro-revise-loop",
+      "type": "prereq"
+    },
+    {
+      "from": "mcp-basics",
+      "to": "tool-schema-design",
+      "type": "prereq"
+    },
+    {
+      "from": "mcp-basics",
+      "to": "a11y-snapshot-refs",
+      "type": "prereq"
+    },
+    {
+      "from": "a11y-snapshot-refs",
+      "to": "tool-error-taxonomy",
+      "type": "related"
+    },
+    {
+      "from": "tool-allowlist",
+      "to": "prompt-injection",
+      "type": "related"
+    },
+    {
+      "from": "repro-revise-loop",
+      "to": "stop-conditions",
+      "type": "prereq"
+    },
+    {
+      "from": "repro-revise-loop",
+      "to": "agent-loop",
+      "type": "prereq"
+    },
+    {
+      "from": "stop-conditions",
+      "to": "agent-loop",
+      "type": "prereq"
+    },
+    {
+      "from": "stop-conditions",
+      "to": "stuck-detection",
+      "type": "prereq"
+    },
+    {
+      "from": "agent-loop",
+      "to": "stuck-detection",
+      "type": "related"
+    },
+    {
+      "from": "tool-error-taxonomy",
+      "to": "agent-loop",
+      "type": "prereq"
+    },
+    {
+      "from": "agent-loop",
+      "to": "edit-formats",
+      "type": "prereq"
+    },
+    {
+      "from": "agent-loop",
+      "to": "gate-feedback",
+      "type": "prereq"
+    },
+    {
+      "from": "verifier-pipeline",
+      "to": "gate-feedback",
+      "type": "enables"
+    },
+    {
+      "from": "tool-output-truncation",
+      "to": "context-budget",
+      "type": "prereq"
+    },
+    {
+      "from": "agent-loop",
+      "to": "context-budget",
+      "type": "prereq"
+    },
+    {
+      "from": "context-budget",
+      "to": "compaction",
+      "type": "prereq"
+    },
+    {
+      "from": "compaction",
+      "to": "prompt-caching",
+      "type": "related"
+    },
+    {
+      "from": "context-budget",
+      "to": "prompt-caching",
+      "type": "prereq"
+    },
+    {
+      "from": "token-accounting",
+      "to": "prompt-caching",
+      "type": "prereq"
+    },
+    {
+      "from": "token-accounting",
+      "to": "quota-ledger",
+      "type": "prereq"
+    },
+    {
+      "from": "prompt-caching",
+      "to": "cost-modelling",
+      "type": "prereq"
+    },
+    {
+      "from": "routing",
+      "to": "cost-modelling",
+      "type": "prereq"
+    },
+    {
+      "from": "token-accounting",
+      "to": "cost-modelling",
+      "type": "prereq"
+    },
+    {
+      "from": "quota-ledger",
+      "to": "routing",
+      "type": "related"
+    },
+    {
+      "from": "agent-loop",
+      "to": "routing",
+      "type": "prereq"
+    },
+    {
+      "from": "multimodal-context",
+      "to": "ablation-design",
+      "type": "related"
+    },
+    {
+      "from": "rate-limits",
+      "to": "quota-ledger",
+      "type": "prereq"
+    },
+    {
+      "from": "quota-ledger",
+      "to": "per-tenant-budgets",
+      "type": "prereq"
+    },
+    {
+      "from": "github-apps",
+      "to": "per-tenant-budgets",
+      "type": "related"
+    },
+    {
+      "from": "git-worktrees",
+      "to": "docker-sandbox",
+      "type": "related"
+    },
+    {
+      "from": "docker-sandbox",
+      "to": "gvisor",
+      "type": "prereq"
+    },
+    {
+      "from": "gvisor",
+      "to": "firecracker",
+      "type": "prereq"
+    },
+    {
+      "from": "docker-sandbox",
+      "to": "sandbox-tiers",
+      "type": "prereq"
+    },
+    {
+      "from": "gvisor",
+      "to": "sandbox-tiers",
+      "type": "prereq"
+    },
+    {
+      "from": "firecracker",
+      "to": "sandbox-tiers",
+      "type": "prereq"
+    },
+    {
+      "from": "threat-modelling",
+      "to": "sandbox-tiers",
+      "type": "enables"
+    },
+    {
+      "from": "git-worktrees",
+      "to": "agent-loop",
+      "type": "enables"
+    },
+    {
+      "from": "docker-sandbox",
+      "to": "agent-loop",
+      "type": "enables"
+    },
+    {
+      "from": "git-worktrees",
+      "to": "golden-fix-ci",
+      "type": "enables"
+    },
+    {
+      "from": "docker-sandbox",
+      "to": "repro-validity",
+      "type": "enables"
+    },
+    {
+      "from": "adr",
+      "to": "sandbox-tiers",
+      "type": "related"
+    },
+    {
+      "from": "idempotency",
+      "to": "durable-execution",
+      "type": "prereq"
+    },
+    {
+      "from": "durable-execution",
+      "to": "dbos",
+      "type": "prereq"
+    },
+    {
+      "from": "durable-execution",
+      "to": "temporal",
+      "type": "prereq"
+    },
+    {
+      "from": "dbos",
+      "to": "temporal",
+      "type": "related"
+    },
+    {
+      "from": "dbos",
+      "to": "human-in-the-loop-wait",
+      "type": "prereq"
+    },
+    {
+      "from": "idempotency",
+      "to": "outbox",
+      "type": "prereq"
+    },
+    {
+      "from": "durable-execution",
+      "to": "outbox",
+      "type": "related"
+    },
+    {
+      "from": "webhooks-as-hints",
+      "to": "reconciliation-polling",
+      "type": "prereq"
+    },
+    {
+      "from": "reconciliation-polling",
+      "to": "durable-execution",
+      "type": "related"
+    },
+    {
+      "from": "webhooks-as-hints",
+      "to": "idempotency",
+      "type": "related"
+    },
+    {
+      "from": "mrtr",
+      "to": "human-in-the-loop-wait",
+      "type": "enables"
+    },
+    {
+      "from": "github-apps",
+      "to": "webhooks-as-hints",
+      "type": "related"
+    },
+    {
+      "from": "adr",
+      "to": "temporal",
+      "type": "related"
+    },
+    {
+      "from": "mcp-basics",
+      "to": "mcp-version-negotiation",
+      "type": "prereq"
+    },
+    {
+      "from": "mcp-basics",
+      "to": "mcp-server-authoring",
+      "type": "prereq"
+    },
+    {
+      "from": "mcp-version-negotiation",
+      "to": "mrtr",
+      "type": "prereq"
+    },
+    {
+      "from": "stateless-protocols",
+      "to": "mrtr",
+      "type": "prereq"
+    },
+    {
+      "from": "mcp-basics",
+      "to": "mrtr",
+      "type": "prereq"
+    },
+    {
+      "from": "stateless-protocols",
+      "to": "webhooks-as-hints",
+      "type": "related"
+    },
+    {
+      "from": "source-mapping-data-src",
+      "to": "mcp-server-authoring",
+      "type": "enables"
+    },
+    {
+      "from": "mcp-server-authoring",
+      "to": "agent-loop",
+      "type": "enables"
+    },
+    {
+      "from": "trajectory-recording",
+      "to": "trajectory-replay",
+      "type": "prereq"
+    },
+    {
+      "from": "trajectory-recording",
+      "to": "trajectory-metrics",
+      "type": "prereq"
+    },
+    {
+      "from": "trajectory-recording",
+      "to": "tracing-observability",
+      "type": "related"
+    },
+    {
+      "from": "tracing-observability",
+      "to": "otel-genai-semconv",
+      "type": "prereq"
+    },
+    {
+      "from": "tracing-observability",
+      "to": "trace-backend",
+      "type": "prereq"
+    },
+    {
+      "from": "otel-genai-semconv",
+      "to": "trace-normalizer",
+      "type": "prereq"
+    },
+    {
+      "from": "trace-backend",
+      "to": "trace-normalizer",
+      "type": "prereq"
+    },
+    {
+      "from": "trajectory-metrics",
+      "to": "regression-gate",
+      "type": "prereq"
+    },
+    {
+      "from": "trajectory-replay",
+      "to": "fixture-replay-testing",
+      "type": "prereq"
+    },
+    {
+      "from": "stop-conditions",
+      "to": "trajectory-recording",
+      "type": "related"
+    },
+    {
+      "from": "trajectory-recording",
+      "to": "skill-distillation",
+      "type": "prereq"
+    },
+    {
+      "from": "trace-backend",
+      "to": "cost-modelling",
+      "type": "related"
+    },
+    {
+      "from": "swe-bench",
+      "to": "golden-fix-ci",
+      "type": "prereq"
+    },
+    {
+      "from": "golden-fix-ci",
+      "to": "tri-state-verdicts",
+      "type": "related"
+    },
+    {
+      "from": "tri-state-verdicts",
+      "to": "flaky-test-quarantine",
+      "type": "prereq"
+    },
+    {
+      "from": "mutation-testing",
+      "to": "bug-synthesis",
+      "type": "prereq"
+    },
+    {
+      "from": "bug-synthesis",
+      "to": "mutant-validity-filter",
+      "type": "prereq"
+    },
+    {
+      "from": "tri-state-verdicts",
+      "to": "mutant-validity-filter",
+      "type": "prereq"
+    },
+    {
+      "from": "flaky-test-quarantine",
+      "to": "mutant-validity-filter",
+      "type": "related"
+    },
+    {
+      "from": "golden-fix-ci",
+      "to": "bug-synthesis",
+      "type": "enables"
+    },
+    {
+      "from": "wilson-ci",
+      "to": "ablation-design",
+      "type": "prereq"
+    },
+    {
+      "from": "wilson-ci",
+      "to": "regression-gate",
+      "type": "prereq"
+    },
+    {
+      "from": "golden-fix-ci",
+      "to": "regression-gate",
+      "type": "prereq"
+    },
+    {
+      "from": "fixture-replay-testing",
+      "to": "ablation-design",
+      "type": "related"
+    },
+    {
+      "from": "flaky-test-quarantine",
+      "to": "ablation-design",
+      "type": "prereq"
+    },
+    {
+      "from": "baseline-agent",
+      "to": "ablation-design",
+      "type": "related"
+    },
+    {
+      "from": "llm-as-judge",
+      "to": "self-preference-bias",
+      "type": "prereq"
+    },
+    {
+      "from": "llm-as-judge",
+      "to": "judge-calibration",
+      "type": "prereq"
+    },
+    {
+      "from": "inter-rater-agreement",
+      "to": "judge-calibration",
+      "type": "prereq"
+    },
+    {
+      "from": "judge-calibration",
+      "to": "verifier-pipeline",
+      "type": "enables"
+    },
+    {
+      "from": "self-preference-bias",
+      "to": "ablation-design",
+      "type": "related"
+    },
+    {
+      "from": "llm-as-judge",
+      "to": "best-of-k",
+      "type": "prereq"
+    },
+    {
+      "from": "verifier-pipeline",
+      "to": "best-of-k",
+      "type": "prereq"
+    },
+    {
+      "from": "best-of-k",
+      "to": "cost-modelling",
+      "type": "related"
+    },
+    {
+      "from": "swe-bench",
+      "to": "ablation-design",
+      "type": "related"
+    },
+    {
+      "from": "repro-revise-loop",
+      "to": "repro-validity",
+      "type": "prereq"
+    },
+    {
+      "from": "golden-fix-ci",
+      "to": "repro-validity",
+      "type": "related"
+    },
+    {
+      "from": "swe-bench",
+      "to": "repro-validity",
+      "type": "related"
+    },
+    {
+      "from": "computed-style-checks",
+      "to": "pixel-diff",
+      "type": "related"
+    },
+    {
+      "from": "computed-style-checks",
+      "to": "verifier-pipeline",
+      "type": "prereq"
+    },
+    {
+      "from": "pixel-diff",
+      "to": "visual-masks",
+      "type": "prereq"
+    },
+    {
+      "from": "visual-masks",
+      "to": "antialiasing-thresholds",
+      "type": "prereq"
+    },
+    {
+      "from": "pixel-diff",
+      "to": "verifier-pipeline",
+      "type": "prereq"
+    },
+    {
+      "from": "visual-masks",
+      "to": "verifier-pipeline",
+      "type": "prereq"
+    },
+    {
+      "from": "antialiasing-thresholds",
+      "to": "verifier-pipeline",
+      "type": "prereq"
+    },
+    {
+      "from": "axe-a11y",
+      "to": "verifier-pipeline",
+      "type": "prereq"
+    },
+    {
+      "from": "flaky-test-quarantine",
+      "to": "visual-masks",
+      "type": "related"
+    },
+    {
+      "from": "source-maps",
+      "to": "source-mapping-data-src",
+      "type": "related"
+    },
+    {
+      "from": "source-mapping-data-src",
+      "to": "agent-loop",
+      "type": "enables"
+    },
+    {
+      "from": "repo-map",
+      "to": "embeddings-pgvector",
+      "type": "related"
+    },
+    {
+      "from": "embeddings-pgvector",
+      "to": "ablation-design",
+      "type": "related"
+    },
+    {
+      "from": "repo-map",
+      "to": "context-budget",
+      "type": "related"
+    },
+    {
+      "from": "a11y-snapshot-refs",
+      "to": "source-mapping-data-src",
+      "type": "related"
+    },
+    {
+      "from": "prompt-injection",
+      "to": "threat-modelling",
+      "type": "prereq"
+    },
+    {
+      "from": "threat-modelling",
+      "to": "owasp-agentic",
+      "type": "prereq"
+    },
+    {
+      "from": "owasp-agentic",
+      "to": "red-teaming",
+      "type": "prereq"
+    },
+    {
+      "from": "threat-modelling",
+      "to": "least-privilege-tokens",
+      "type": "prereq"
+    },
+    {
+      "from": "github-apps",
+      "to": "least-privilege-tokens",
+      "type": "prereq"
+    },
+    {
+      "from": "prompt-injection",
+      "to": "skill-trust",
+      "type": "prereq"
+    },
+    {
+      "from": "agent-skills",
+      "to": "skill-trust",
+      "type": "prereq"
+    },
+    {
+      "from": "red-teaming",
+      "to": "skill-trust",
+      "type": "related"
+    },
+    {
+      "from": "adr",
+      "to": "threat-modelling",
+      "type": "related"
+    },
+    {
+      "from": "threat-modelling",
+      "to": "github-apps",
+      "type": "related"
+    },
+    {
+      "from": "github-apps",
+      "to": "reusable-workflow-tenancy",
+      "type": "prereq"
+    },
+    {
+      "from": "github-apps",
+      "to": "backporting",
+      "type": "prereq"
+    },
+    {
+      "from": "agent-loop",
+      "to": "planner-subagents",
+      "type": "prereq"
+    },
+    {
+      "from": "context-budget",
+      "to": "planner-subagents",
+      "type": "prereq"
+    },
+    {
+      "from": "ablation-design",
+      "to": "planner-subagents",
+      "type": "related"
+    },
+    {
+      "from": "context-budget",
+      "to": "agent-skills",
+      "type": "prereq"
+    },
+    {
+      "from": "agent-skills",
+      "to": "skill-distillation",
+      "type": "prereq"
+    },
+    {
+      "from": "agent-loop",
+      "to": "backend-lane",
+      "type": "prereq"
+    },
+    {
+      "from": "durable-execution",
+      "to": "backend-lane",
+      "type": "related"
+    },
+    {
+      "from": "idempotency",
+      "to": "backporting",
+      "type": "related"
+    },
+    {
+      "from": "reusable-workflow-tenancy",
+      "to": "per-tenant-budgets",
+      "type": "related"
+    },
+    {
+      "from": "ablation-design",
+      "to": "adr",
+      "type": "related"
+    }
+  ],
+  "groups": [
+    {
+      "id": "loop",
+      "label": "Agent loop & tools"
+    },
+    {
+      "id": "context",
+      "label": "Context, caching & cost"
+    },
+    {
+      "id": "limits",
+      "label": "Quotas & rate limits"
+    },
+    {
+      "id": "sandbox",
+      "label": "Sandboxing & isolation"
+    },
+    {
+      "id": "durable",
+      "label": "Durable execution & delivery"
+    },
+    {
+      "id": "protocol",
+      "label": "Protocols (MCP)"
+    },
+    {
+      "id": "observe",
+      "label": "Observability"
+    },
+    {
+      "id": "evalstat",
+      "label": "Evaluation & statistics"
+    },
+    {
+      "id": "verify",
+      "label": "UI verification"
+    },
+    {
+      "id": "locate",
+      "label": "Code localization"
+    },
+    {
+      "id": "security",
+      "label": "Security"
+    },
+    {
+      "id": "delivery",
+      "label": "GitHub delivery & scale-out"
+    }
+  ]
+}

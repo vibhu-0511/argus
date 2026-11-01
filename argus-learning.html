@@ -192,7 +192,7 @@ details.how{margin-top:22px;color:var(--dim);font-size:13px}
   <div class="brand"><div class="mark" aria-hidden="true"></div><div><b>Argus</b><small>Learning</small></div></div>
   <ol class="chapters" id="chapters" role="tablist"></ol>
   <div class="railfoot">
-    <div class="chip">commit <b>none</b></div>
+    <div class="chip">commit <b>bc52e16</b></div>
     <button class="themebtn" id="theme" type="button">Theme</button>
   </div>
 </aside>
@@ -211,7 +211,7 @@ const CHAPTERS = [
   ["07","Graph","Learning graph"],
   ["08","Tracker","Build tracker"]
 ];
-const SRC = "PROJECT.md, phases/, production.html. Versions checked 2026-10-28. This folder is not a git repository, so there is no commit hash. No application code is written here. Results cells stay — until a run id exists.";
+const SRC = "PROJECT.md, phases/, production.html. Versions checked 2026-10-28. This checkout is a git repository (commit bc52e16). P0 and P1 code and runs exist and P2 to P9 are README stubs. P1 results are fixture replay. Results cells stay — until a run id exists.";
 const PHASES = {
   p0:["P0 bench + bugsmith",76,32,"Quota ledger; deterministic JSX/CSS mutations toward 300+ tasks"],
   p1:["P1 repro-agent",32,17,"Playwright MCP, or direct Playwright if the spike is no-go"],
@@ -485,7 +485,7 @@ function panels(){
       <tr><td>Langfuse Hobby</td><td>50k units/month</td><td>PROJECT.md</td></tr>
       <tr><td>Versions</td><td>React 19.3.1, Vite 8.3.5, Playwright 1.64.1, MCP SDK 2.3.0</td><td>PROJECT.md, 2026-10-28</td></tr>
     </tbody></table></div>
-    <p class="meta">architecture.html still says React 19.2, versions checked 2026-10-01, and “100 CU-h/mo”. Those three are older than PROJECT.md. This page follows PROJECT.md.</p>
+    <p class="meta">architecture.html used to say React 19.2, versions checked 2026-10-01, and “100 CU-h/mo”. Those three were older than PROJECT.md and were aligned on 2026-10-30. This page follows PROJECT.md.</p>
   </section>
   <section class="panel" id="p1" role="tabpanel">${head("02","Flow","One ticket, hop by hop")}
     <p class="lede">The same boxes as chapter 01. A lit edge means both ends are in this hop. The only named HTTP route in production.html is the webhook.</p>

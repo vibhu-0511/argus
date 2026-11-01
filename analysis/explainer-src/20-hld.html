@@ -1,0 +1,582 @@
+<section class="sub" id="sub-hld" data-pane="plan" hidden>
+<style>
+.hl-head { max-width: 70ch; margin-bottom: var(--s4); }
+.hl-head h2 { font-family: var(--serif); letter-spacing: -0.02em; margin: 0 0 var(--s1); }
+.hl-head p { margin: 0; color: var(--ink-2); }
+.hl-bar { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s3); align-items: center; margin-bottom: var(--s3); }
+.hl-bar .hl-grp { display: flex; flex-wrap: wrap; gap: var(--s1); align-items: center; }
+.hl-bar .hl-lbl { font: 600 0.72rem var(--mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); }
+.hl-tog { display: inline-flex; align-items: center; gap: var(--s1); min-height: 40px; padding: 0 var(--s3); border: 1px solid var(--line-2); border-radius: var(--r1); background: var(--surface); cursor: pointer; font-size: 0.88rem; }
+.hl-tog input { width: 16px; height: 16px; accent-color: var(--accent); }
+.hl-tog:has(input:checked) { border-color: var(--ink); background: var(--surface-2); }
+.hl-tog:has(input:focus-visible) { outline: 2px solid var(--focus); outline-offset: 2px; }
+.hl-legend { display: flex; flex-wrap: wrap; gap: var(--s1); margin-bottom: var(--s3); }
+.hl-legend button { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 var(--s2); border: 1px solid var(--line-2); border-radius: 999px; background: var(--surface); color: var(--ink); font: 0.78rem var(--sans); cursor: pointer; }
+.hl-legend button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.hl-legend i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; background: var(--hl-c, var(--accent)); }
+.hl-main { display: grid; gap: var(--s4); grid-template-columns: minmax(0, 1fr); align-items: start; }
+@media (min-width: 1000px) { .hl-main { grid-template-columns: minmax(0, 1fr) 360px; } .hl-aside { position: sticky; top: var(--s3); max-height: calc(100vh - 2 * var(--s3)); overflow: auto; } }
+.hl-scroll { overflow: auto; border: 1px solid var(--line); border-radius: var(--r2); background: var(--surface); max-width: 100%; max-height: 80vh; }
+.hl-scroll svg { display: block; max-width: none; height: auto; font-family: var(--sans); }
+.hl-scroll.fit svg { width: 100%; }
+.hl-aside { display: grid; gap: var(--s3); min-width: 0; }
+.hl-aside h3 { font: 600 0.72rem var(--mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); margin: 0 0 var(--s2); }
+.hl-aside h4 { font-family: var(--serif); font-size: 1.15rem; margin: 0 0 var(--s1); letter-spacing: -0.01em; }
+.hl-flows { display: grid; gap: var(--s1); }
+.hl-flows button { text-align: left; display: grid; gap: 2px; padding: var(--s2) var(--s3); min-height: 40px; border: 1px solid var(--line-2); border-radius: var(--r1); background: var(--surface); color: var(--ink); cursor: pointer; font: 0.85rem/1.3 var(--sans); }
+.hl-flows button[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); background: var(--surface-2); }
+.hl-flows .hl-fid { font: 700 0.75rem var(--mono); color: var(--accent); }
+.hl-flows .hl-fst { color: var(--ink-3); font-size: 0.76rem; }
+.hl-steps { list-style: none; margin: var(--s2) 0 0; padding: 0; display: grid; gap: 2px; counter-reset: s; }
+.hl-steps button { width: 100%; text-align: left; display: grid; grid-template-columns: 28px 1fr; gap: var(--s1); align-items: start; padding: 6px var(--s2); min-height: 40px; border: 0; border-left: 3px solid var(--line-2); background: transparent; color: var(--ink-2); cursor: pointer; font: 0.8rem/1.3 var(--sans); }
+.hl-steps button[aria-current="step"] { border-left-color: var(--accent); background: var(--surface-2); color: var(--ink); }
+.hl-steps .hl-n { font: 700 0.78rem var(--mono); }
+.hl-ctl { display: flex; flex-wrap: wrap; gap: var(--s1); align-items: center; margin: var(--s2) 0; }
+.hl-kv { display: grid; grid-template-columns: auto 1fr; gap: 2px var(--s3); margin: var(--s2) 0; font-size: 0.85rem; }
+.hl-kv dt { font: 600 0.7rem var(--mono); text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-3); padding-top: 2px; }
+.hl-kv dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.hl-chips { display: flex; flex-wrap: wrap; gap: var(--s1); }
+.hl-ul { margin: 0; padding-left: 1.1em; }
+.hl-note { font-size: 0.82rem; color: var(--ink-2); border-left: 3px solid var(--warn); padding-left: var(--s2); margin: var(--s2) 0; }
+.hl-list { display: none; }
+.hl-list.on { display: block; }
+.hl-list details { border: 1px solid var(--line); border-radius: var(--r2); background: var(--surface); margin-bottom: var(--s2); }
+.hl-list summary { cursor: pointer; padding: var(--s2) var(--s3); min-height: 40px; font-weight: 600; display: flex; align-items: center; gap: var(--s2); }
+.hl-list .hl-li { display: grid; gap: var(--s1); padding: 0 var(--s2) var(--s2); }
+.hl-list .hl-li button { text-align: left; min-height: 44px; display: flex; flex-wrap: wrap; gap: var(--s1) var(--s2); align-items: center; padding: var(--s2); border: 1px solid var(--line-2); border-radius: var(--r1); background: var(--bg); color: var(--ink); cursor: pointer; font: 0.88rem var(--sans); }
+.hl-list .hl-li button[aria-pressed="true"] { border-color: var(--accent); }
+.hl-list .hl-li button.planned { border-style: dashed; }
+.hl-ref { margin-top: var(--s5); display: grid; gap: var(--s3); grid-template-columns: minmax(0, 1fr); }
+.hl-ref details { min-width: 0; }
+.hl-ref details { border: 1px solid var(--line); border-radius: var(--r2); background: var(--surface); }
+.hl-ref summary { cursor: pointer; padding: var(--s2) var(--s3); min-height: 40px; display: flex; align-items: center; font: 600 0.95rem var(--sans); }
+.hl-ref .tbl-wrap { border: 0; border-top: 1px solid var(--line); border-radius: 0; }
+.hl-ref button.hl-link { background: none; border: 0; padding: 0; color: var(--ink); text-decoration: underline dotted; cursor: pointer; font: inherit; text-align: left; }
+.hl-ref td, .hl-ref th { min-width: 90px; }
+/* svg */
+.hl-lane-bg { fill: var(--bg); stroke: var(--line); }
+.hl-lane-bg.alt { fill: var(--surface-2); }
+.hl-lane-lbl { fill: var(--ink); font: 700 12px var(--sans); }
+.hl-lane-sub { fill: var(--ink-3); font: 10px var(--sans); }
+.hl-trust .hl-lane-bg { stroke: var(--accent); stroke-width: 1.5; stroke-dasharray: 7 4; }
+.hl-nd rect.hl-box { fill: var(--surface); stroke: var(--ink); stroke-width: 1.6; }
+.hl-nd.planned rect.hl-box { fill: var(--surface-2); stroke: var(--ink-2); stroke-dasharray: 5 3; stroke-width: 1.3; }
+.hl-nd.actor rect.hl-box { stroke-dasharray: 2 3; fill: var(--bg); }
+.hl-nd text { pointer-events: none; fill: var(--ink); font-size: 11.5px; font-weight: 600; }
+.hl-nd text.hl-sub { fill: var(--ink-3); font: 10px var(--mono); font-weight: 400; }
+.hl-nd.planned text { fill: var(--ink-2); }
+.hl-nd { cursor: pointer; outline: none; transition: opacity 160ms; }
+.hl-nd:focus-visible rect.hl-box, .hl-nd.sel rect.hl-box { stroke: var(--accent); stroke-width: 3; }
+.hl-nd:focus-visible rect.hl-box { stroke: var(--focus); }
+.hl-nd.dim, .hl-st.dim { opacity: 0.22; }
+.hl-nd.onpath rect.hl-box { stroke: var(--accent); stroke-width: 2.4; }
+.hl-fd rect { fill: var(--hl-c, var(--accent)); }
+.hl-fd text { fill: var(--bg) !important; font: 700 9px var(--mono) !important; }
+.hl-st { cursor: pointer; outline: none; }
+.hl-st path.hl-cyl { fill: var(--surface); stroke: var(--info); stroke-width: 1.5; }
+.hl-st.planned path.hl-cyl { fill: var(--surface-2); stroke-dasharray: 4 3; }
+.hl-st text { fill: var(--ink); font-size: 10.5px; pointer-events: none; }
+.hl-st text.hl-sub { fill: var(--ink-3); font: 9.5px var(--mono); }
+.hl-st:focus-visible path.hl-cyl, .hl-st.sel path.hl-cyl { stroke: var(--accent); stroke-width: 3; }
+.hl-stlink { stroke: var(--info); stroke-width: 1.3; fill: none; stroke-dasharray: 2 3; }
+.hl-stdot { fill: var(--info); }
+.hl-stdot-t { fill: var(--bg) !important; font: 700 8px var(--mono) !important; }
+.hl-e { fill: none; stroke: var(--line-2); stroke-width: 1.2; }
+.hl-e.hot { stroke: var(--ink-3); stroke-width: 1.8; }
+.hl-e.act { stroke: var(--accent); stroke-width: 2.4; }
+.hl-e.act.planned { stroke-dasharray: 7 5; }
+.hl-e.act.cur { stroke-width: 3.4; stroke-dasharray: 9 6; animation: hl-dash 700ms linear infinite; }
+.hl-e.act.built.cur { stroke-dasharray: 9 6; }
+.hl-e.future { opacity: 0.45; }
+@keyframes hl-dash { to { stroke-dashoffset: -30; } }
+@media (prefers-reduced-motion: reduce) { .hl-e.act.cur { animation: none; } }
+.hl-mk-f { fill: var(--line-2); } .hl-mk-h { fill: var(--ink-3); } .hl-mk-a { fill: var(--accent); }
+.hl-badge circle { fill: var(--bg); stroke: var(--accent); stroke-width: 1.6; }
+.hl-badge.cur circle { fill: var(--accent); }
+.hl-badge text { fill: var(--ink); font: 700 10px var(--mono); text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+.hl-badge.cur text { fill: var(--bg); }
+.hl-badge { cursor: pointer; }
+.hl-lock rect { fill: var(--bg); stroke: var(--accent); stroke-width: 1.2; }
+.hl-lock text { fill: var(--accent); font: 700 8px var(--mono); text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+.hl-band { fill: var(--ink-2); font: 700 12px var(--sans); }
+@media print { .hl-scroll { max-height: none; overflow: visible; } }
+</style>
+
+<header class="hl-head">
+  <h2>High-level design</h2>
+  <p id="hl-intro"></p>
+</header>
+
+<div class="hl-bar" role="toolbar" aria-label="Diagram controls">
+  <div class="hl-grp"><span class="hl-lbl">Layers</span>
+    <label class="hl-tog"><input type="checkbox" data-hl-layer="trust"> Trust boundaries</label>
+    <label class="hl-tog"><input type="checkbox" data-hl-layer="fd"> Failure domains</label>
+    <label class="hl-tog"><input type="checkbox" data-hl-layer="stores"> State stores</label>
+  </div>
+  <div class="hl-grp"><span class="hl-lbl">View</span>
+    <div class="seg" role="group" aria-label="View mode">
+      <button type="button" data-hl-view="diagram">Diagram</button>
+      <button type="button" data-hl-view="list">List</button>
+    </div>
+    <span class="hl-grp" id="hl-zoom">
+      <button type="button" class="btn ghost" id="hl-fit">Fit width</button>
+      <button type="button" class="btn ghost" id="hl-100">Actual size</button>
+    </span>
+  </div>
+</div>
+<div class="hl-legend" id="hl-fdlegend" hidden aria-label="Failure domains. Press one to isolate its members."></div>
+
+<div class="hl-main">
+  <div>
+    <div class="hl-scroll fit" id="hl-scroll" tabindex="-1"></div>
+    <div class="hl-list" id="hl-list"></div>
+  </div>
+  <aside class="hl-aside" aria-label="Flows and details">
+    <div class="card"><h3>Data flows (select one)</h3><div class="hl-flows" id="hl-flows"></div></div>
+    <div class="card" id="hl-stepcard" hidden></div>
+    <div class="card" id="hl-detail" aria-live="polite"></div>
+  </aside>
+</div>
+
+<div class="hl-ref" id="hl-ref"></div>
+
+<script>
+(function () {
+  'use strict';
+  var A, root, dataOk = false;
+  var SVGNS = 'http://www.w3.org/2000/svg';
+  var NW = 150, NH = 58, GX = 14, GY = 24, LW = 122, PADY = 16, COLS = 5, LGAP = 10;
+  var ZONE_ORDER = ['Z4', 'Z1', 'Z2', 'Z3', 'Z0', 'Z5'];
+  var S = { flow: null, step: 0, sel: null, layers: { trust: false, fd: false, stores: false }, fdSel: null, view: 'diagram', fit: true, timer: null };
+  var L; // layout
+
+  function h(tag, attrs) {
+    var e = document.createElement(tag), i, k, c;
+    if (attrs) for (k in attrs) { if (k === 'class') e.className = attrs[k]; else if (k === 'text') e.textContent = attrs[k]; else if (attrs[k] !== false && attrs[k] != null) e.setAttribute(k, attrs[k]); }
+    var add = function (c) { if (c == null || c === false) return; if (Array.isArray(c)) return c.forEach(add); e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); };
+    for (i = 2; i < arguments.length; i++) add(arguments[i]);
+    return e;
+  }
+  function s(tag, attrs) {
+    var e = document.createElementNS(SVGNS, tag), i, k, c;
+    if (attrs) for (k in attrs) { if (k === 'text') e.textContent = attrs[k]; else if (attrs[k] != null && attrs[k] !== false) e.setAttribute(k, attrs[k]); }
+    for (i = 2; i < arguments.length; i++) { c = arguments[i]; if (c) e.appendChild(c); }
+    return e;
+  }
+  function $(id) { return document.getElementById(id); }
+  function clear(e) { while (e.firstChild) e.removeChild(e.firstChild); }
+
+  function copy(text, btn) {
+    var done = function () { var o = btn.getAttribute('data-t'); btn.textContent = 'copied'; setTimeout(function () { btn.textContent = o; }, 1100); };
+    try { navigator.clipboard.writeText(text).then(done, fb); } catch (e) { fb(); }
+    function fb() {
+      var t = h('textarea', { 'aria-hidden': 'true' }); t.value = text; t.style.cssText = 'position:fixed;opacity:0';
+      document.body.appendChild(t); t.select(); try { document.execCommand('copy'); done(); } catch (e) {} document.body.removeChild(t);
+    }
+  }
+  function chipSrc(src) { var b = h('button', { type: 'button', class: 'chip mono', 'data-t': src, title: 'Copy ' + src, text: src }); b.addEventListener('click', function () { copy(src, b); }); return b; }
+  function splitSrc(x) { return Array.isArray(x) ? x : String(x || '').split(/,\s*/).filter(Boolean); }
+  function srcRow(list) { var w = h('div', { class: 'hl-chips' }); splitSrc(list).forEach(function (x) { w.appendChild(chipSrc(x)); }); return w; }
+  function statusChip(st) { return h('span', { class: 'chip ' + (st === 'built' ? 'ok' : 'info'), text: st }); }
+  function files(src) { return splitSrc(src).map(function (x) { return x.replace(/:[\d\-,]+$/, ''); }).filter(function (x) { return /^packages\//.test(x); }); }
+
+  /* ---------- model + layout ---------- */
+  function build() {
+    var comps = {}, order = {}, nOrd = 0, actors = {}, fdIdx = {}, zoneName = {};
+    A.components.forEach(function (c) { comps[c.id] = c; });
+    A.failureDomains.forEach(function (f, i) { fdIdx[f.id] = i; });
+    A.trustZones.forEach(function (z) { zoneName[z.id] = z; });
+    function seen(id) { if (!(id in order)) order[id] = nOrd++; }
+    A.flows[0].steps.forEach(function (st) { seen(st.from); seen(st.to); });
+    A.flows.forEach(function (f) { f.steps.forEach(function (st) { [st.from, st.to].forEach(function (id) { if (!comps[id]) actors[id] = true; }); }); });
+    var phaseN = function (p) { return p === 'ext' ? -1 : parseFloat(String(p).replace('P', '')) || 0; };
+    var lanes = [];
+    var zids = ZONE_ORDER.filter(function (z) { return zoneName[z]; });
+    A.trustZones.forEach(function (z) { if (zids.indexOf(z.id) < 0) zids.push(z.id); });
+    if (Object.keys(actors).length) lanes.push({ id: 'actor', label: 'Actors', sub: 'outside Argus', nodes: [] });
+    zids.forEach(function (z) { lanes.push({ id: z, label: z + ' ' + zoneName[z].label, sub: zoneName[z].holds, rule: zoneName[z].rule, nodes: [] }); });
+    var laneBy = {}; lanes.forEach(function (l) { laneBy[l.id] = l; });
+    var nodes = {};
+    Object.keys(actors).forEach(function (id) {
+      var n = { id: id, label: id === 'human' ? 'Human (ticket author, QA)' : id, status: 'external', phase: 'ext', actor: true, zone: 'actor', c: null };
+      laneBy.actor.nodes.push(n); nodes[id] = n;
+    });
+    A.components.forEach(function (c) {
+      var n = { id: c.id, label: c.label, status: c.status, phase: c.phase, zone: c.trustZone, fd: c.failureDomain, c: c };
+      (laneBy[c.trustZone] || (laneBy[c.trustZone] = lanes[lanes.push({ id: c.trustZone, label: c.trustZone, sub: '', nodes: [] }) - 1])).nodes.push(n); nodes[c.id] = n;
+    });
+    lanes = lanes.filter(function (l) { return l.nodes.length; });
+    var W = LW + GX + COLS * (NW + GX), y = 8;
+    lanes.forEach(function (l, li) {
+      l.nodes.sort(function (a, b) {
+        var ra = a.id in order ? order[a.id] : 1000 + phaseN(a.phase), rb = b.id in order ? order[b.id] : 1000 + phaseN(b.phase);
+        return ra - rb;
+      });
+      var rows = Math.ceil(l.nodes.length / COLS);
+      l.y = y; l.h = PADY * 2 + rows * NH + (rows - 1) * GY + (l.id === 'actor' ? 0 : 0); l.alt = li % 2;
+      l.nodes.forEach(function (n, i) { n.x = LW + GX + (i % COLS) * (NW + GX); n.y = y + PADY + Math.floor(i / COLS) * (NH + GY); n.lane = l; });
+      y += l.h + LGAP;
+    });
+    // stores band
+    var band = { y: y + 10 }, sw = 150, sh = 46, sg = 14;
+    A.stores.forEach(function (st, i) { st.x = LW + GX + (i % COLS) * (NW + GX); st.y = band.y + 28 + Math.floor(i / COLS) * (sh + 16); st.w = sw; st.h = sh; });
+    band.h = 28 + Math.ceil(A.stores.length / COLS) * (sh + 16) + 8;
+    // store <-> component links: shared packages/ source file, or store.where naming the component label
+    var sl = {}, cl = {};
+    A.stores.forEach(function (st) {
+      var sf = files(st.source), where = (st.where || '').toLowerCase();
+      A.components.forEach(function (c) {
+        var hit = c.sources.some(function (x) { return files(x).some(function (f) { return sf.indexOf(f) >= 0; }); }) ||
+          (c.status === 'planned' && where && where.indexOf(c.label.toLowerCase()) >= 0);
+        if (hit) { (sl[st.id] = sl[st.id] || []).push(c.id); (cl[c.id] = cl[c.id] || []).push(st.id); }
+      });
+    });
+    // idempotency per component (flow-step keys + operations sharing a source file)
+    var idem = {};
+    A.flows.forEach(function (f) { f.steps.forEach(function (st) {
+      if (!st.idempotencyKey || /^n\/a/.test(st.idempotencyKey)) return;
+      [st.to, st.from].forEach(function (id) { (idem[id] = idem[id] || []).push({ k: st.idempotencyKey, where: f.id + ' step ' + st.n, src: st.source }); });
+    }); });
+    A.idempotency.forEach(function (o) {
+      var of = files(o.source);
+      A.components.forEach(function (c) {
+        if (c.sources.some(function (x) { return files(x).some(function (f) { return of.indexOf(f) >= 0; }); })) (idem[c.id] = idem[c.id] || []).push({ k: o.key, where: o.operation, src: o.source });
+      });
+    });
+    var w = (A.stores.length ? band.y + band.h : y) + 6;
+    L = { comps: comps, nodes: nodes, lanes: lanes, W: W, H: w, band: band, fdIdx: fdIdx, zone: zoneName, sl: sl, cl: cl, idem: idem, laneBy: laneBy };
+  }
+
+  /* ---------- geometry ---------- */
+  function geom(a, b, off) {
+    var d, mx, my, p1, p2, dy;
+    if (a === b) {
+      p1 = { x: a.x + NW - 34, y: a.y }; p2 = { x: a.x + NW - 8, y: a.y };
+      return { d: 'M' + p1.x + ',' + p1.y + ' C' + (p1.x - 6) + ',' + (p1.y - 30) + ' ' + (p2.x + 6) + ',' + (p2.y - 30) + ' ' + p2.x + ',' + p2.y, mx: (p1.x + p2.x) / 2, my: p1.y - 23 };
+    }
+    if (b.y > a.y + 1) { p1 = { x: a.x + NW / 2 + off, y: a.y + NH }; p2 = { x: b.x + NW / 2 + off, y: b.y }; dy = (p2.y - p1.y) / 2; d = 'M' + p1.x + ',' + p1.y + ' C' + p1.x + ',' + (p1.y + dy) + ' ' + p2.x + ',' + (p2.y - dy) + ' ' + p2.x + ',' + p2.y; }
+    else if (b.y < a.y - 1) { p1 = { x: a.x + NW / 2 + off, y: a.y }; p2 = { x: b.x + NW / 2 + off, y: b.y + NH }; dy = (p1.y - p2.y) / 2; d = 'M' + p1.x + ',' + p1.y + ' C' + p1.x + ',' + (p1.y - dy) + ' ' + p2.x + ',' + (p2.y + dy) + ' ' + p2.x + ',' + p2.y; }
+    else if (Math.abs(b.x - a.x) <= NW + GX + 1) {
+      var r = b.x > a.x; p1 = { x: a.x + (r ? NW : 0), y: a.y + NH / 2 + off }; p2 = { x: b.x + (r ? 0 : NW), y: b.y + NH / 2 + off }; d = 'M' + p1.x + ',' + p1.y + ' L' + p2.x + ',' + p2.y;
+    } else { p1 = { x: a.x + NW / 2 + off, y: a.y }; p2 = { x: b.x + NW / 2 + off, y: b.y }; d = 'M' + p1.x + ',' + p1.y + ' C' + p1.x + ',' + (p1.y - 40) + ' ' + p2.x + ',' + (p2.y - 40) + ' ' + p2.x + ',' + p2.y; }
+    mx = (p1.x + p2.x) / 2; my = (p1.y + p2.y) / 2;
+    if (d.indexOf('C') > 0 && Math.abs(p1.y - p2.y) < 2) my = p1.y - 30;
+    return { d: d, mx: mx, my: my };
+  }
+
+  /* ---------- render svg ---------- */
+  function relevant(id) {
+    var n = L.nodes[id];
+    if (S.fdSel && !(n && n.fd === S.fdSel)) return false;
+    return true;
+  }
+  function onPath(id) {
+    if (S.flow == null) return false;
+    return A.flows[S.flow].steps.some(function (st) { return st.from === id || st.to === id; });
+  }
+  function wrap(t, n) {
+    var words = String(t).split(' '), lines = [], cur = '';
+    words.forEach(function (w) { if ((cur + ' ' + w).trim().length > n && cur) { lines.push(cur); cur = w; } else cur = (cur + ' ' + w).trim(); });
+    if (cur) lines.push(cur);
+    if (lines.length > 2) { lines = lines.slice(0, 2); lines[1] = lines[1].slice(0, n - 1) + '…'; }
+    return lines;
+  }
+  function render() {
+    var svg = s('svg', { viewBox: '0 0 ' + L.W + ' ' + L.H, width: L.W, height: L.H, role: 'group', 'aria-label': 'High-level design diagram: components grouped into trust-zone lanes' });
+    var defs = s('defs');
+    [['f', 'hl-mk-f'], ['h', 'hl-mk-h'], ['a', 'hl-mk-a']].forEach(function (m) {
+      defs.appendChild(s('marker', { id: 'hl-ar-' + m[0], viewBox: '0 0 10 10', refX: '9', refY: '5', markerWidth: '7', markerHeight: '7', orient: 'auto' }, s('path', { d: 'M0,0 L10,5 L0,10 z', class: m[1] })));
+    });
+    svg.appendChild(defs);
+    var gl = s('g', { class: S.layers.trust ? 'hl-trust' : '' });
+    L.lanes.forEach(function (l) {
+      gl.appendChild(s('rect', { class: 'hl-lane-bg' + (l.alt ? ' alt' : ''), x: 2, y: l.y, width: L.W - 4, height: l.h, rx: 6 }));
+      var t = s('text', { class: 'hl-lane-lbl', x: 12, y: l.y + 22 }); var ln = wrap(l.label, 15); ln.forEach(function (x, i) { t.appendChild(s('tspan', { x: 12, dy: i ? 14 : 0, text: x })); }); gl.appendChild(t);
+      if (S.layers.trust && l.rule) {
+        var r = wrap(l.rule, 22).slice(0, 2); var tt = s('text', { class: 'hl-lane-sub', x: 12, y: l.y + 22 + ln.length * 14 + 6 });
+        r.forEach(function (x, i) { tt.appendChild(s('tspan', { x: 12, dy: i ? 12 : 0, text: x })); }); gl.appendChild(tt);
+      }
+    });
+    svg.appendChild(gl);
+
+    // edges
+    var eg = s('g'), ag = s('g'), bg = s('g'), cnt = {};
+    var pairs = {}, list = [];
+    A.flows.forEach(function (f, fi) { f.steps.forEach(function (st, si) {
+      var k = st.from + '>' + st.to; if (!pairs[k] && st.from !== st.to) { pairs[k] = true; list.push({ st: st, fi: fi, si: si }); }
+    }); });
+    function offFor(a, b) { var k = [a, b].sort().join('|'); cnt[k] = (cnt[k] || 0) + 1; return (cnt[k] - 1) * 12 - 0; }
+    var activeSteps = S.flow != null ? A.flows[S.flow].steps : null;
+    var sel = S.sel && S.sel.t === 'node' ? S.sel.id : null;
+    list.forEach(function (e) {
+      var a = L.nodes[e.st.from], b = L.nodes[e.st.to]; if (!a || !b) return;
+      var hot = sel && (e.st.from === sel || e.st.to === sel);
+      var g = geom(a, b, 0);
+      var dimmed = activeSteps || S.fdSel ? ' future' : '';
+      eg.appendChild(s('path', { d: g.d, class: 'hl-e' + (hot ? ' hot' : '') + dimmed, 'marker-end': 'url(#hl-ar-' + (hot ? 'h' : 'f') + ')' }));
+      if (S.layers.trust && !activeSteps && a.zone !== b.zone) bg.appendChild(lock(g.mx, g.my, a.zone, b.zone));
+    });
+    svg.appendChild(eg);
+
+    // nodes
+    var ng = s('g');
+    L.lanes.forEach(function (l) { l.nodes.forEach(function (n) { ng.appendChild(node(n)); }); });
+    svg.appendChild(ng);
+
+    // stores layer
+    if (S.layers.stores && A.stores.length) {
+      var sg = s('g');
+      sg.appendChild(s('text', { class: 'hl-band', x: 12, y: L.band.y + 18, text: 'State stores (durability): solid = built, dashed = planned' }));
+      var selSt = S.sel && S.sel.t === 'store' ? S.sel.id : null;
+      var linkIds = selSt ? (L.sl[selSt] || []) : sel ? (L.cl[sel] || []) : [];
+      if (selSt) linkIds.forEach(function (cid) { var nn = L.nodes[cid], st = A.stores.filter(function (x) { return x.id === selSt; })[0]; if (nn && st) sg.appendChild(s('path', { class: 'hl-stlink', d: 'M' + (st.x + st.w / 2) + ',' + st.y + ' L' + (nn.x + NW / 2) + ',' + (nn.y + NH) })); });
+      if (sel) (L.cl[sel] || []).forEach(function (sid) { var st = A.stores.filter(function (x) { return x.id === sid; })[0], nn = L.nodes[sel]; if (st) sg.appendChild(s('path', { class: 'hl-stlink', d: 'M' + (st.x + st.w / 2) + ',' + st.y + ' L' + (nn.x + NW / 2) + ',' + (nn.y + NH) })); });
+      A.stores.forEach(function (st) { sg.appendChild(storeNode(st, linkIds.indexOf(st.id) >= 0 || selSt === st.id)); });
+      svg.appendChild(sg);
+    }
+
+    // active flow edges on top
+    if (activeSteps) {
+      var seenK = {};
+      activeSteps.forEach(function (st, i) {
+        var a = L.nodes[st.from], b = L.nodes[st.to]; if (!a || !b) return;
+        var k = [st.from, st.to].sort().join('|'); seenK[k] = (seenK[k] || 0) + 1;
+        var off = a === b ? 0 : (seenK[k] - 1) * 14;
+        var g = geom(a, b, off), cur = i === S.step;
+        var cls = 'hl-e act ' + (st.built ? 'built' : 'planned') + (cur ? ' cur' : '') + (i > S.step ? ' future' : '');
+        ag.appendChild(s('path', { d: g.d, class: cls, 'marker-end': 'url(#hl-ar-a)' }));
+        var bd = s('g', { class: 'hl-badge' + (cur ? ' cur' : ''), transform: 'translate(' + g.mx + ',' + g.my + ')', 'data-step': i }, s('circle', { r: 10 }), s('text', { text: String(st.n) }));
+        bd.appendChild(s('title', { text: 'Step ' + st.n + ': ' + st.data }));
+        bd.addEventListener('click', function () { S.step = i; update(); });
+        ag.appendChild(bd);
+        if (S.layers.trust && a.zone !== b.zone) bg.appendChild(lock(g.mx + 28, g.my, a.zone, b.zone));
+      });
+      svg.appendChild(ag);
+    }
+    svg.appendChild(bg);
+    var sc = $('hl-scroll'); clear(sc); sc.appendChild(svg);
+  }
+  function lock(x, y, za, zb) {
+    var g = s('g', { class: 'hl-lock', transform: 'translate(' + x + ',' + y + ')' }, s('rect', { x: -14, y: -7, width: 28, height: 14, rx: 7 }), s('text', { text: za + '|' + zb }));
+    g.appendChild(s('title', { text: 'Crosses trust boundary ' + za + ' to ' + zb })); return g;
+  }
+  function node(n) {
+    var c = n.c, cls = 'hl-nd ' + (n.actor ? 'actor planned' : n.status);
+    if (S.sel && S.sel.t === 'node' && S.sel.id === n.id) cls += ' sel';
+    var dim = (S.fdSel && n.fd !== S.fdSel) || (S.flow != null && !onPath(n.id));
+    if (dim) cls += ' dim'; else if (S.flow != null) cls += ' onpath';
+    var g = s('g', { class: cls, tabindex: 0, role: 'button', 'data-id': n.id, 'aria-label': n.label + ', ' + n.status + (n.phase ? ', phase ' + n.phase : '') + (n.zone ? ', zone ' + n.zone : '') });
+    g.appendChild(s('rect', { class: 'hl-box', x: n.x, y: n.y, width: NW, height: NH, rx: 6 }));
+    var ln = wrap(n.label, 22), ty = ln.length === 1 ? n.y + 22 : n.y + 18;
+    var t = s('text', { x: n.x + 8, y: ty }); ln.forEach(function (x, i) { t.appendChild(s('tspan', { x: n.x + 8, dy: i ? 14 : 0, text: x })); }); g.appendChild(t);
+    g.appendChild(s('text', { class: 'hl-sub', x: n.x + 8, y: n.y + NH - 8, text: n.status + (n.actor ? '' : ' · ' + n.phase) }));
+    if (S.layers.fd && n.fd) {
+      var lab = n.fd.replace(/^FD-/, ''), w = lab.length * 5.6 + 10, i = L.fdIdx[n.fd];
+      g.appendChild(s('g', { class: 'hl-fd', style: '--hl-c:var(--p' + (i % 10) + ')' }, s('rect', { x: n.x + NW - w - 4, y: n.y - 7, width: w, height: 14, rx: 7 }), s('text', { x: n.x + NW - w / 2 - 4, y: n.y + 3, 'text-anchor': 'middle', text: lab })));
+    }
+    if (S.layers.stores && L.cl[n.id]) {
+      g.appendChild(s('g', {}, s('circle', { class: 'hl-stdot', cx: n.x + 11, cy: n.y + NH, r: 8 }), s('text', { class: 'hl-stdot-t', x: n.x + 11, y: n.y + NH + 0.5, 'text-anchor': 'middle', 'dominant-baseline': 'central', text: String(L.cl[n.id].length) })));
+    }
+    g.addEventListener('click', function () { select({ t: 'node', id: n.id }); });
+    g.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select({ t: 'node', id: n.id }); } });
+    return g;
+  }
+  function storeNode(st, hl) {
+    var cls = 'hl-st ' + st.status + (S.sel && S.sel.t === 'store' && S.sel.id === st.id ? ' sel' : '') + (S.flow != null || S.fdSel ? ' dim' : '');
+    if (hl) cls = cls.replace(' dim', '');
+    var g = s('g', { class: cls, tabindex: 0, role: 'button', 'aria-label': 'Store ' + st.id + ' ' + st.name + ', ' + st.status });
+    var x = st.x, y = st.y, w = st.w, hh = st.h, e = 6;
+    g.appendChild(s('path', { class: 'hl-cyl', d: 'M' + x + ',' + (y + e) + ' a' + w / 2 + ',' + e + ' 0 0 1 ' + w + ',0 v' + (hh - 2 * e) + ' a' + w / 2 + ',' + e + ' 0 0 1 ' + (-w) + ',0 z M' + x + ',' + (y + e) + ' a' + w / 2 + ',' + e + ' 0 0 0 ' + w + ',0' }));
+    var ln = wrap(st.id + ' ' + st.name, 24);
+    var t = s('text', { x: x + 8, y: y + 21 }); ln.forEach(function (q, i) { t.appendChild(s('tspan', { x: x + 8, dy: i ? 11 : 0, text: q })); }); g.appendChild(t);
+    g.appendChild(s('text', { class: 'hl-sub', x: x + 8, y: y + hh - 4, text: st.status }));
+    g.addEventListener('click', function () { select({ t: 'store', id: st.id }); });
+    g.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select({ t: 'store', id: st.id }); } });
+    return g;
+  }
+
+  /* ---------- aside: flows, stepper, detail ---------- */
+  function renderFlows() {
+    var w = $('hl-flows'); clear(w);
+    var all = h('button', { type: 'button', 'aria-pressed': S.flow == null ? 'true' : 'false' }, h('span', { class: 'hl-fid', text: 'None' }), h('span', { text: 'Show structure only' }));
+    all.addEventListener('click', function () { setFlow(null); }); w.appendChild(all);
+    A.flows.forEach(function (f, i) {
+      var b = h('button', { type: 'button', 'aria-pressed': S.flow === i ? 'true' : 'false' },
+        h('span', { class: 'hl-fid', text: f.id + ' · ' + f.steps.length + ' steps' }), h('span', { text: f.title }), h('span', { class: 'hl-fst', text: f.status }));
+      b.addEventListener('click', function () { setFlow(i); }); w.appendChild(b);
+    });
+  }
+  function nm(id) { var n = L.nodes[id]; return n ? n.label : id; }
+  function renderStep() {
+    var card = $('hl-stepcard'); clear(card);
+    if (S.flow == null) { card.hidden = true; return; }
+    card.hidden = false;
+    var f = A.flows[S.flow], st = f.steps[S.step];
+    card.appendChild(h('h3', { text: f.id + ' stepper' }));
+    if (f.note) card.appendChild(h('p', { class: 'muted', style: 'font-size:.82rem;margin:0 0 8px', text: f.note }));
+    var prev = h('button', { type: 'button', class: 'btn ghost', text: 'Prev' }), next = h('button', { type: 'button', class: 'btn ghost', text: 'Next' }), play = h('button', { type: 'button', class: 'btn ghost', 'aria-pressed': S.timer ? 'true' : 'false', text: S.timer ? 'Pause' : 'Play' });
+    prev.disabled = S.step === 0; next.disabled = S.step === f.steps.length - 1;
+    prev.addEventListener('click', function () { stop(); S.step--; update(); });
+    next.addEventListener('click', function () { stop(); S.step++; update(); });
+    play.addEventListener('click', function () { if (S.timer) { stop(); update(); return; } if (S.step >= f.steps.length - 1) S.step = 0; S.timer = setInterval(function () { if (S.step >= f.steps.length - 1) { stop(); update(); return; } S.step++; update(); }, 1600); update(); });
+    card.appendChild(h('div', { class: 'hl-ctl' }, prev, next, play, h('span', { class: 'muted mono', text: 'step ' + st.n + ' / ' + f.steps.length })));
+    card.appendChild(h('h4', { text: nm(st.from) + ' → ' + nm(st.to) }));
+    var kv = h('dl', { class: 'hl-kv' });
+    function row(k, v) { kv.appendChild(h('dt', { text: k })); kv.appendChild(h('dd', {}, v)); }
+    row('data', st.data);
+    row('built', h('span', { class: 'chip ' + (st.built ? 'ok' : 'info'), text: st.built ? 'built' : 'planned' }));
+    row('durable in', st.durable);
+    row('idempotency', st.idempotencyKey);
+    row('on failure', st.onFailure);
+    if (st.source) row('source', srcRow(st.source));
+    card.appendChild(kv);
+    var ol = h('ol', { class: 'hl-steps' });
+    f.steps.forEach(function (x, i) {
+      var b = h('button', { type: 'button', 'aria-current': i === S.step ? 'step' : false }, h('span', { class: 'hl-n', text: String(x.n) }), h('span', { text: nm(x.from) + ' → ' + nm(x.to) + (x.built ? '' : '  (planned)') }));
+      b.addEventListener('click', function () { stop(); S.step = i; update(); }); ol.appendChild(h('li', {}, b));
+    });
+    card.appendChild(ol);
+  }
+  function stop() { if (S.timer) { clearInterval(S.timer); S.timer = null; } }
+  function field(dl, k, v) { if (v == null || v === '' || (Array.isArray(v) && !v.length)) return; dl.appendChild(h('dt', { text: k })); dl.appendChild(h('dd', {}, typeof v === 'string' ? document.createTextNode(v) : v)); }
+  function linkBtn(label, sel) { var b = h('button', { type: 'button', class: 'chip', text: label }); if (sel) b.addEventListener('click', function () { select(sel); }); return b; }
+  function renderDetail() {
+    var d = $('hl-detail'); clear(d);
+    if (!S.sel) { d.appendChild(h('h3', { text: 'Detail' })); d.appendChild(h('p', { class: 'muted', text: 'Select a component (Enter on a focused node) or a state store to see its responsibility, I/O, failure domain, trust zone, idempotency and sources.' })); return; }
+    var kv = h('dl', { class: 'hl-kv' });
+    if (S.sel.t === 'node') {
+      var n = L.nodes[S.sel.id], c = n.c;
+      d.appendChild(h('h3', { text: 'Component · ' + n.id }));
+      d.appendChild(h('h4', { text: n.label }));
+      d.appendChild(h('div', { class: 'hl-chips' }, statusChip(n.status === 'external' ? 'planned' : n.status), h('span', { class: 'chip', text: 'phase ' + n.phase })));
+      if (!c) { d.appendChild(h('p', { class: 'muted', text: 'External actor named in the flows; not a component in the plan.' })); }
+      else {
+        if (c.note) d.appendChild(h('p', { class: 'hl-note', text: c.note }));
+        if (c.caveat) d.appendChild(h('p', { class: 'hl-note', text: c.caveat }));
+        field(kv, 'does', c.responsibility);
+        var ul = function (a) { var u = h('ul', { class: 'hl-ul' }); a.forEach(function (x) { u.appendChild(h('li', { text: x })); }); return u; };
+        field(kv, 'inputs', ul(c.inputs || [])); field(kv, 'outputs', ul(c.outputs || []));
+        field(kv, 'tech', c.tech);
+        var z = L.zone[c.trustZone], fd = A.failureDomains.filter(function (x) { return x.id === c.failureDomain; })[0];
+        field(kv, 'trust zone', z ? c.trustZone + ' ' + z.label + ' — ' + z.rule : c.trustZone);
+        field(kv, 'failure domain', fd ? fd.label + ' (' + fd.id + '). Blast radius: ' + fd.blastRadius : c.failureDomain);
+        var ik = L.idem[c.id];
+        if (ik) { var u2 = h('ul', { class: 'hl-ul' }); var seen = {}; ik.forEach(function (x) { var key = x.k + x.where; if (seen[key]) return; seen[key] = 1; u2.appendChild(h('li', { text: x.k + '  (' + x.where + ')' })); }); field(kv, 'idempotency', u2); }
+        else field(kv, 'idempotency', 'No key recorded for this component.');
+        var fl = A.flows.filter(function (f) { return f.steps.some(function (st) { return st.from === c.id || st.to === c.id; }); });
+        if (fl.length) { var w = h('div', { class: 'hl-chips' }); fl.forEach(function (f) { w.appendChild(linkBtn(f.id, null)); w.lastChild.addEventListener('click', function () { setFlow(A.flows.indexOf(f)); }); }); field(kv, 'in flows', w); }
+        var ss = L.cl[c.id]; if (ss) { var w2 = h('div', { class: 'hl-chips' }); ss.forEach(function (id) { w2.appendChild(linkBtn(id, { t: 'store', id: id })); }); field(kv, 'state stores', w2); }
+        field(kv, 'sources', srcRow(c.sources));
+      }
+    } else {
+      var st = A.stores.filter(function (x) { return x.id === S.sel.id; })[0];
+      d.appendChild(h('h3', { text: 'State store · ' + st.id })); d.appendChild(h('h4', { text: st.name }));
+      d.appendChild(h('div', { class: 'hl-chips' }, statusChip(st.status)));
+      field(kv, 'where', st.where); field(kv, 'writer', st.writer); field(kv, 'durability', st.durability); field(kv, 'idempotent', st.idempotent); field(kv, 'on crash', st.crashBehaviour);
+      var cs = L.sl[st.id]; if (cs) { var w3 = h('div', { class: 'hl-chips' }); cs.forEach(function (id) { w3.appendChild(linkBtn(nm(id), { t: 'node', id: id })); }); field(kv, 'components (shared source file)', w3); }
+      field(kv, 'sources', srcRow(st.source));
+    }
+    d.appendChild(kv);
+  }
+
+  /* ---------- list view + reference ---------- */
+  function renderList() {
+    var w = $('hl-list'); clear(w);
+    L.lanes.forEach(function (l) {
+      var det = h('details', { open: 'open' }, h('summary', {}, l.label, h('span', { class: 'chip', text: String(l.nodes.length) })));
+      var box = h('div', { class: 'hl-li' });
+      if (l.rule) box.appendChild(h('p', { class: 'muted', style: 'font-size:.82rem;margin:0', text: l.rule }));
+      l.nodes.forEach(function (n) {
+        var on = S.flow != null && onPath(n.id);
+        var b = h('button', { type: 'button', class: n.status === 'built' ? 'built' : 'planned', 'aria-pressed': S.sel && S.sel.t === 'node' && S.sel.id === n.id ? 'true' : 'false' },
+          h('strong', { text: n.label }), statusChip(n.status === 'external' ? 'planned' : n.status), h('span', { class: 'muted mono', text: n.phase }), n.fd ? h('span', { class: 'muted mono', text: n.fd }) : null, on ? h('span', { class: 'chip warn', text: 'on flow path' }) : null);
+        b.addEventListener('click', function () { select({ t: 'node', id: n.id }); }); box.appendChild(b);
+      });
+      det.appendChild(box); w.appendChild(det);
+    });
+    var sd = h('details', {}, h('summary', {}, 'State stores', h('span', { class: 'chip', text: String(A.stores.length) })));
+    var sb = h('div', { class: 'hl-li' });
+    A.stores.forEach(function (st) { var b = h('button', { type: 'button', class: st.status, 'aria-pressed': S.sel && S.sel.t === 'store' && S.sel.id === st.id ? 'true' : 'false' }, h('strong', { text: st.id + ' ' + st.name }), statusChip(st.status)); b.addEventListener('click', function () { select({ t: 'store', id: st.id }); }); sb.appendChild(b); });
+    sd.appendChild(sb); w.appendChild(sd);
+  }
+  function table(heads, rows) {
+    var t = h('table', { class: 'tbl' }, h('thead', {}, h('tr', {}, heads.map(function (x) { return h('th', { text: x }); }))));
+    var tb = h('tbody'); rows.forEach(function (r) { tb.appendChild(h('tr', {}, r.map(function (c) { return h('td', {}, c == null ? '' : (typeof c === 'string' ? document.createTextNode(c) : c)); }))); });
+    t.appendChild(tb); return h('div', { class: 'tbl-wrap' }, t);
+  }
+  function renderRef() {
+    var r = $('hl-ref'); clear(r);
+    function sec(title, count, body, open) { r.appendChild(h('details', open ? { open: 'open' } : {}, h('summary', {}, title + ' ', h('span', { class: 'chip', style: 'margin-left:8px', text: String(count) })), body)); }
+    sec('Trust boundaries (what crosses, and the control)', A.boundaries.length, table(['id', 'from → to', 'crosses', 'control', 'status', 'source'], A.boundaries.map(function (b) {
+      return [b.id, b.from + ' → ' + b.to, b.crosses, b.control, h('span', {}, statusChip(b.status), ' ' + (b.phase || '')), srcRow(b.source)];
+    })), true);
+    sec('Trust zones', A.trustZones.length, table(['zone', 'holds', 'rule', 'components'], A.trustZones.map(function (z) {
+      return [z.id + ' ' + z.label, z.holds, z.rule, String(A.components.filter(function (c) { return c.trustZone === z.id; }).length)];
+    })));
+    sec('Failure domains (blast radius)', A.failureDomains.length, table(['id', 'domain', 'blast radius', 'members', 'source'], A.failureDomains.map(function (f) {
+      var m = A.components.filter(function (c) { return c.failureDomain === f.id; });
+      return [f.id, f.label, f.blastRadius, m.length + ': ' + m.map(function (c) { return c.id; }).join(', '), f.source ? srcRow(f.source) : ''];
+    })));
+    sec('State stores (durability)', A.stores.length, table(['id', 'store', 'where', 'writer', 'durability', 'idempotent', 'on crash', 'status', 'source'], A.stores.map(function (st) {
+      var b = h('button', { type: 'button', class: 'hl-link', text: st.name }); b.addEventListener('click', function () { setLayer('stores', true); select({ t: 'store', id: st.id }); });
+      return [st.id, b, st.where, st.writer, st.durability, st.idempotent, st.crashBehaviour, statusChip(st.status), srcRow(st.source)];
+    })));
+    sec('Idempotency (operation → key)', A.idempotency.length, table(['operation', 'key', 'effect', 'status', 'note', 'source'], A.idempotency.map(function (o) {
+      return [o.operation, o.key, o.effect, statusChip(o.status), o.note, srcRow(o.source)];
+    })));
+  }
+
+  /* ---------- state ---------- */
+  function select(sel) {
+    S.sel = sel;
+    if (sel.t === 'store' && !S.layers.stores) setLayer('stores', true, true);
+    update();
+    if (window.matchMedia('(max-width: 999px)').matches) $('hl-detail').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+  function setFlow(i) { stop(); S.flow = i; S.step = 0; update(); }
+  function setLayer(k, v, quiet) {
+    S.layers[k] = v; var cb = root.querySelector('[data-hl-layer="' + k + '"]'); if (cb) cb.checked = v;
+    if (k === 'fd') { $('hl-fdlegend').hidden = !v; if (!v) S.fdSel = null; }
+    if (!quiet) update();
+  }
+  function setView(v) {
+    S.view = v;
+    [].forEach.call(root.querySelectorAll('[data-hl-view]'), function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-hl-view') === v ? 'true' : 'false'); });
+    $('hl-scroll').hidden = v !== 'diagram'; $('hl-list').classList.toggle('on', v === 'list'); $('hl-zoom').hidden = v !== 'diagram';
+  }
+  function setFit(f) { S.fit = f; $('hl-scroll').classList.toggle('fit', f); }
+  function renderLegend() {
+    var w = $('hl-fdlegend'); clear(w);
+    A.failureDomains.forEach(function (f, i) {
+      var n = A.components.filter(function (c) { return c.failureDomain === f.id; }).length;
+      var b = h('button', { type: 'button', style: '--hl-c:var(--p' + (i % 10) + ')', title: f.blastRadius, 'aria-pressed': S.fdSel === f.id ? 'true' : 'false' }, h('i'), f.id.replace(/^FD-/, '') + ' · ' + f.label + ' (' + n + ')');
+      b.addEventListener('click', function () { S.fdSel = S.fdSel === f.id ? null : f.id; update(); }); w.appendChild(b);
+    });
+  }
+  function update() {
+    if (!dataOk) return;
+    var sc = $('hl-scroll'), x = sc.scrollLeft, y = sc.scrollTop;
+    render(); sc.scrollLeft = x; sc.scrollTop = y;
+    renderFlows(); renderStep(); renderDetail(); renderLegend(); renderList();
+  }
+
+  function init() {
+    root = $('sub-hld'); A = window.ARGUS;
+    if (!A || !A.components) { root.appendChild(h('p', { class: 'chip bad', text: 'ARGUS data missing' })); return; }
+    dataOk = true;
+    var built = A.components.filter(function (c) { return c.status === 'built'; }).length;
+    $('hl-intro').textContent = A.components.length + ' components (' + built + ' built, ' + (A.components.length - built) + ' planned) in ' + A.trustZones.length + ' trust zones and ' + A.failureDomains.length + ' failure domains, ' + A.flows.length + ' data flows, ' + A.boundaries.length + ' boundaries, ' + A.stores.length + ' state stores. Solid boxes exist in code today; dashed boxes are planned. Pick a flow to walk its steps.';
+    build(); renderRef();
+    [].forEach.call(root.querySelectorAll('[data-hl-layer]'), function (cb) { cb.addEventListener('change', function () { setLayer(cb.getAttribute('data-hl-layer'), cb.checked); }); });
+    [].forEach.call(root.querySelectorAll('[data-hl-view]'), function (b) { b.addEventListener('click', function () { setView(b.getAttribute('data-hl-view')); }); });
+    $('hl-fit').addEventListener('click', function () { setFit(true); });
+    $('hl-100').addEventListener('click', function () { setFit(false); });
+    var narrow = window.matchMedia('(max-width: 719px)').matches;
+    setFit(!narrow); setView(narrow ? 'list' : 'diagram');
+    update();
+  }
+  document.addEventListener('DOMContentLoaded', init);
+  window.__hl = { get state() { return S; } };
+})();
+</script>
+</section>

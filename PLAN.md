@@ -12,7 +12,7 @@ This file is the master plan. The detail lives in:
 - **20 hours a week.**
 - **Free sandboxes.** The machine is a 13th-gen i7 (i7-13620H), 16 GB RAM, no discrete GPU, Docker 29.5 and WSL2 Ubuntu.
 - **Free-tier prompts may be used for training.** Only synthetic or public code goes through them. The P8 install target must be one of your own public repos.
-- **No application code is written in the planning step.** This folder holds documents only. Every results table ships empty; no numbers are invented.
+- **The plan came first; code follows phase by phase.** P0 and P1 code and runs now exist (TASKS.md), and P2 to P9 are README stubs. Results cells stay `—` until a run id backs them; no numbers are invented. The P1 results are fixture replay, not a live model (`phases/P01-repro-agent.md`).
 
 ## Learning rules
 - **[ME] owns:** the agent loop, tool schemas, context manager, verifier, judge rubric and calibration, eval scorer, workflow state machine, threat model and all ADRs.
@@ -349,9 +349,9 @@ Cut in this order when time or quota runs out:
 |---|---|---|
 | [001](docs/adr/0001-task-and-trajectory-schema.md) | P0 | Task and Trajectory schema |
 | [002](docs/adr/0002-quota-ledger-semantics.md) | P0 | Quota ledger semantics |
-| 003 | P0 | Mutation validity and flake policy |
-| 004 | P1 | Playwright MCP vs direct Playwright as tool |
-| 005 | P1 | Screenshot in ticket context |
+| [003](docs/adr/0003-mutation-validity-and-flake-policy.md) | P0 | Mutation validity and flake policy |
+| [004](docs/adr/0004-playwright-mcp-vs-direct-playwright.md) | P1 | Playwright MCP vs direct Playwright as tool |
+| [005](docs/adr/0005-screenshot-in-ticket-context.md) | P1 | Screenshot in ticket context |
 | 006 | P2 | `data-src` attribute vs source maps |
 | 007 | P2 | Retrieval strategy |
 | 008 | P3 | Loop control, stop conditions and tool-call format |

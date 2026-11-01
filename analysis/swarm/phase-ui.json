@@ -1,0 +1,1874 @@
+{
+ "meta": {
+  "lane": "ui-growth",
+  "generated": "2026-10-30",
+  "sources": [
+   "phases/*.md",
+   "PLAN.md",
+   "TASKS.md",
+   "analysis/swarm/tracker.json",
+   "analysis/swarm/verify-p0p1.md",
+   "analysis/swarm/evidence.json",
+   "analysis/swarm/ops-console.json",
+   "analysis/swarm/hld-edges.json",
+   "docs/quotas.md",
+   "docs/architecture/p1.md",
+   "packages/bench/**",
+   "packages/repro-agent/runs/**"
+  ],
+  "honesty": "builtToday=true surfaces carry verbatim text from real files or a captured command. P1 runs are fixture replay (host \"fixture\"), not a live model. P0 golden CI is red. Planned surfaces are illustrative: placeholders in angle brackets, results as a dash, no invented numbers. The only real image is bug-17 radar-card.png; no real \"after\" image exists.",
+  "surfaceFields": "id, kind (cli|file|web|github), title, builtToday, artifactPath, sampleOutput (real text, null for planned), screenId (renderer), note, view (renderer data; blocks/files with real:true are verbatim)",
+  "totalHours": 596,
+  "order": [
+   "P0",
+   "P1",
+   "P2",
+   "P3",
+   "P4",
+   "P5",
+   "P5.5",
+   "P6",
+   "P7",
+   "P8",
+   "P9",
+   "final"
+  ]
+ },
+ "phases": [
+  {
+   "id": "P0",
+   "name": "argus-bench + bugsmith",
+   "delta": "Everything. The first rung is a command line and some files: a task directory format, a bench CLI, a quota ledger and a CI badge. There is no web UI yet.",
+   "ownerCan": [
+    "Run bench validate / score / golden / flake / baseline / mutate from the repo root.",
+    "Open a task directory (ticket.json, bug.patch, golden.patch, checks.json, meta.json) and read the ticket the way an agent would.",
+    "Read docs/quotas.md to see how many model calls the free tier allows before a run is refused.",
+    "Read the 0/10 baseline: how a single model call from ticket + file text fares (and why that number mostly measures harness limits)."
+   ],
+   "moment": {
+    "surfaceId": "p0-files-task",
+    "caption": "The BUG-17 task directory: the ticket text beside its one real screenshot (radar-card.png) and the check that decides pass or fail."
+   },
+   "dependsOn": [],
+   "navLabel": "Bench",
+   "evidence": [
+    "REAL_RECORDED",
+    "REFUTED (CI golden is red 5/5)"
+   ],
+   "surfaces": [
+    {
+     "id": "p0-cli-validate",
+     "kind": "cli",
+     "title": "bench validate <task dir>",
+     "builtToday": true,
+     "artifactPath": "packages/bench/src/argus_bench/cli.py:57-65",
+     "sampleOutput": "valid packages\\bench\\tasks\\seeded\\bug-17",
+     "screenId": "term",
+     "note": "Captured today by this lane: uv run bench validate packages/bench/tasks/seeded/bug-17, exit 0.",
+     "view": {
+      "type": "term",
+      "cmd": "uv run bench validate packages/bench/tasks/seeded/bug-17",
+      "blocks": [
+       {
+        "caption": "captured output, exit 0",
+        "text": "valid packages\\bench\\tasks\\seeded\\bug-17",
+        "real": true
+       },
+       {
+        "caption": "other subcommands (cli.py:20-37)",
+        "text": "bench score <task> --tree <path>   exit 0 pass / 1 check failed / 2 crash\nbench golden --all                prints \"pass|fail <task>\" then \"<passed>/<total>\"\nbench flake --all                 quarantines tasks with mixed results\nbench baseline <task> --tree <path>   one model call from ticket + file text\nbench mutate --seed <int>         writes validated CSS mutants",
+        "real": false
+       }
+      ]
+     }
+    },
+    {
+     "id": "p0-cli-mutate",
+     "kind": "cli",
+     "title": "bench mutate --seed 1",
+     "builtToday": true,
+     "artifactPath": "docs/notes/p0-t26.md",
+     "sampleOutput": "kept 300\nhash 6547a4dcab4fd9bf892d7ca46828ff0da4ef70ac8a5e4fa171809e88b5a6e023\ndropped empty-checks 396\ndropped no-observable-change 2\ndropped not-fail-then-pass 119",
+     "screenId": "term",
+     "note": "Recorded by the author in docs/notes/p0-t26.md (kept/hash/dropped values), laid out in the print format of mutate.py:110-113. Not re-run here (needs the external dcortex repo).",
+     "view": {
+      "type": "term",
+      "cmd": "uv run bench mutate --seed 1",
+      "blocks": [
+       {
+        "caption": "recorded values, mutate.py print format",
+        "text": "kept 300\nhash 6547a4dcab4fd9bf892d7ca46828ff0da4ef70ac8a5e4fa171809e88b5a6e023\ndropped empty-checks 396\ndropped no-observable-change 2\ndropped not-fail-then-pass 119",
+        "real": true
+       }
+      ]
+     },
+     "tag": "recorded, not re-run"
+    },
+    {
+     "id": "p0-files-task",
+     "kind": "file",
+     "title": "tasks/seeded/bug-17/",
+     "builtToday": true,
+     "artifactPath": "packages/bench/tasks/seeded/bug-17",
+     "sampleOutput": "{\n  \"id\": \"BUG-17\",\n  \"text\": \"Text smaller than 12 px in many places (Radar, Horizon, Flights, Control Tower, admin tags).\\n\\nOn a phone at arm's length, 10 to 11 px text is hard to read. Counted per screen: Radar about 20 elements (labels such as INBOUND · LAST 24 H at 11 px, the CANCELLED tag at 10 px, scale labels at 10 px). Radar detail cards show CRITICAL, GROUND TIME, MINIMUM and DEPARTURE DELAY at 10 px. Horizon has Act now and Keep an eye at 11.5 px. The Flights list uses 11 px for crew position and status. Control Tower rules cells are 11 px. Admin tags (Read-only, Active, Intact, Failed, shadow) are 11.5 px.\\n\\nFont sizes are set per component, with no minimum. Set a floor of 12 px for any text. No visible text under 12 px on any screen. Admin tags are 12 px or more.\\n\\nThe patches in this task cover apps/canvas/src/ops/radar.css only. Horizon, Flights, Control Tower and the admin tags are the same bug and are not in these diffs yet.\",\n  \"screenshot\": {\n    \"media_type\": \"image/png\",\n    \"path\": \"shots/radar-card.png\"\n  }\n}",
+     "screenId": "files",
+     "note": "Real task directory. radar-card.png is the only real screenshot in the repo; the patches touch apps/canvas/src/ops/radar.css only.",
+     "view": {
+      "type": "files",
+      "files": [
+       {
+        "path": "ticket.json",
+        "text": "{\n  \"id\": \"BUG-17\",\n  \"text\": \"Text smaller than 12 px in many places (Radar, Horizon, Flights, Control Tower, admin tags).\\n\\nOn a phone at arm's length, 10 to 11 px text is hard to read. Counted per screen: Radar about 20 elements (labels such as INBOUND · LAST 24 H at 11 px, the CANCELLED tag at 10 px, scale labels at 10 px). Radar detail cards show CRITICAL, GROUND TIME, MINIMUM and DEPARTURE DELAY at 10 px. Horizon has Act now and Keep an eye at 11.5 px. The Flights list uses 11 px for crew position and status. Control Tower rules cells are 11 px. Admin tags (Read-only, Active, Intact, Failed, shadow) are 11.5 px.\\n\\nFont sizes are set per component, with no minimum. Set a floor of 12 px for any text. No visible text under 12 px on any screen. Admin tags are 12 px or more.\\n\\nThe patches in this task cover apps/canvas/src/ops/radar.css only. Horizon, Flights, Control Tower and the admin tags are the same bug and are not in these diffs yet.\",\n  \"screenshot\": {\n    \"media_type\": \"image/png\",\n    \"path\": \"shots/radar-card.png\"\n  }\n}",
+        "real": true
+       },
+       {
+        "path": "checks.json",
+        "text": "[\n  {\n    \"type\": \"computed_style\",\n    \"params\": {\n      \"flow\": \"/ops/radar\",\n      \"property\": \"font-size\",\n      \"min_px\": 12\n    }\n  }\n]",
+        "real": true
+       },
+       {
+        "path": "meta.json",
+        "text": "{\n  \"source\": \"seeded\",\n  \"archetype\": \"font-size\",\n  \"tier\": \"medium\",\n  \"seed\": null\n}",
+        "real": true
+       },
+       {
+        "path": "shots/radar-card.png",
+        "text": null,
+        "image": "radar",
+        "real": true
+       },
+       {
+        "path": "bug.patch",
+        "text": "(9.5 KB unified diff, apps/canvas/src/ops/radar.css; not reproduced here)",
+        "real": true
+       },
+       {
+        "path": "golden.patch",
+        "text": "(9.5 KB unified diff, the reverse of bug.patch; not reproduced here)",
+        "real": true
+       }
+      ]
+     }
+    },
+    {
+     "id": "p0-files-quotas",
+     "kind": "file",
+     "title": "docs/quotas.md (machine-readable limits)",
+     "builtToday": true,
+     "artifactPath": "docs/quotas.md",
+     "sampleOutput": "measured: partial\nchecked: 2026-10-29\nmethod: groq-response-headers-plus-published-table\nmodels:\n  openai/gpt-oss-20b:\n    requests_per_day: 1000\n    tokens_per_day: 200000\n    requests_per_minute: 30\n    tokens_per_minute: 8000\n    cached_counts: false\n  openai/gpt-oss-120b:\n    requests_per_day: 1000\n    tokens_per_day: 200000\n    requests_per_minute: 30\n    tokens_per_minute: 8000\n    cached_counts: false\n  qwen/qwen3.8-27b:\n    requests_per_day: 1000\n    tokens_per_day: 200000\n    requests_per_minute: 30\n    tokens_per_minute: 8000\n    cached_counts: false",
+     "screenId": "files",
+     "note": "Real. measured: partial. Mistral is not measured (Free plan, key creation disabled); the ledger refuses an unmeasured model.",
+     "view": {
+      "type": "files",
+      "files": [
+       {
+        "path": "docs/quotas.md  (yaml block)",
+        "text": "measured: partial\nchecked: 2026-10-29\nmethod: groq-response-headers-plus-published-table\nmodels:\n  openai/gpt-oss-20b:\n    requests_per_day: 1000\n    tokens_per_day: 200000\n    requests_per_minute: 30\n    tokens_per_minute: 8000\n    cached_counts: false\n  openai/gpt-oss-120b:\n    requests_per_day: 1000\n    tokens_per_day: 200000\n    requests_per_minute: 30\n    tokens_per_minute: 8000\n    cached_counts: false\n  qwen/qwen3.8-27b:\n    requests_per_day: 1000\n    tokens_per_day: 200000\n    requests_per_minute: 30\n    tokens_per_minute: 8000\n    cached_counts: false",
+        "real": true
+       }
+      ]
+     }
+    },
+    {
+     "id": "p0-files-ablation",
+     "kind": "file",
+     "title": "docs/notes/p0-t29.md (one-shot baseline)",
+     "builtToday": true,
+     "artifactPath": "docs/notes/p0-t29.md",
+     "sampleOutput": "Model id: `openai/gpt-oss-20b`.\nHost: `api.groq.com`.\nSample seed: 1.\nVariant A: k=0 n=10\nVariant A Wilson: 0/10 [-2.7755575615628914e-17, 0.2775401687666166]\nVariant A rate cell: 0/10 [-0.000000, 0.277540]\nVariant A token means (in, out, cached): 4585.0, 1044.0, 0.0\nVariant B: k=0 n=1\nVariant B Wilson: 0/1 [0.0, 0.7934567085261071]\nVariant B rate cell: 0/1 [0.000000, 0.793457]\nVariant B token means (in, out, cached): 3516.0, 713.0, 0.0\nThe intervals overlap: A is inside [0, 0.277540] and B is inside [0, 0.793457]. No difference.",
+     "screenId": "files",
+     "note": "Real live Groq run, recorded. All 10 attempted tasks ended not_applied and 20 of 30 were never attempted (prompt over the 8K tokens/min cap): it measures harness limits, not model skill (evidence C2).",
+     "view": {
+      "type": "files",
+      "files": [
+       {
+        "path": "docs/notes/p0-t29.md  (summary lines)",
+        "text": "Model id: `openai/gpt-oss-20b`.\nHost: `api.groq.com`.\nSample seed: 1.\nVariant A: k=0 n=10\nVariant A Wilson: 0/10 [-2.7755575615628914e-17, 0.2775401687666166]\nVariant A rate cell: 0/10 [-0.000000, 0.277540]\nVariant A token means (in, out, cached): 4585.0, 1044.0, 0.0\nVariant B: k=0 n=1\nVariant B Wilson: 0/1 [0.0, 0.7934567085261071]\nVariant B rate cell: 0/1 [0.000000, 0.793457]\nVariant B token means (in, out, cached): 3516.0, 713.0, 0.0\nThe intervals overlap: A is inside [0, 0.277540] and B is inside [0, 0.793457]. No difference.",
+        "real": true
+       }
+      ]
+     },
+     "tag": "recorded, not re-run"
+    },
+    {
+     "id": "p0-gh-ci",
+     "kind": "github",
+     "title": "GitHub Actions: golden + repro",
+     "builtToday": true,
+     "artifactPath": ".github/workflows/golden.yml",
+     "sampleOutput": "fatal: cannot change to 'C:\\Users\\vibha\\Downloads\\data\\dcortex\\dcortex_claude\\dcortex-platform': No such file or directory\nexit code 2",
+     "screenId": "table",
+     "note": "Real, read-only gh run query by the verify-p0p1 lane (analysis/swarm/verify-p0p1.md section C): 0 green runs. TASKS.md still has the CI boxes checked.",
+     "view": {
+      "type": "table",
+      "cols": [
+       "workflow",
+       "recorded runs",
+       "result",
+       "why (from the run log)"
+      ],
+      "rows": [
+       [
+        "golden",
+        "5",
+        "fail x5",
+        "exit 2: cannot change to the Windows dcortex path in config/platform.md"
+       ],
+       [
+        "repro",
+        "2",
+        "fail x2",
+        "ModuleNotFoundError: repro_agent (plain uv run never installs repro-agent)"
+       ]
+      ],
+      "real": true,
+      "log": "fatal: cannot change to 'C:\\Users\\vibha\\Downloads\\data\\dcortex\\dcortex_claude\\dcortex-platform': No such file or directory\nexit code 2"
+     },
+     "tag": "CI red"
+    }
+   ],
+   "hours": 76,
+   "weeks": "W1–4",
+   "status": "done",
+   "built": true,
+   "cumulativeHours": 76,
+   "taskCount": 32,
+   "doneCount": 32,
+   "sources": [
+    "phases/P00-argus-bench.md",
+    "analysis/swarm/tracker.json"
+   ]
+  },
+  {
+   "id": "P1",
+   "name": "repro-agent",
+   "delta": "A second command (the repro batch) and a runs/ tree: one verdict.json and one trajectory.jsonl per task, a quota ledger file, and a wave board for how the phase was built. Still no web UI.",
+   "ownerCan": [
+    "Run the repro batch and read one verdict per task (valid / passes-on-bug / error with a stop reason).",
+    "Open a run directory: the saved script, the verdict and the trajectory.",
+    "Check the quota ledger after a run: how many requests and tokens were charged today.",
+    "Read the P1 wave board to see which tasks could run in parallel."
+   ],
+   "moment": {
+    "surfaceId": "p1-files-run",
+    "caption": "runs/text-only/bug-17: a Sign-in script saved against a font-size ticket. The same script is saved for every ticket, because the replies are fixtures."
+   },
+   "dependsOn": [
+    {
+     "phase": "P0",
+     "why": "builds on argus-core types, the quota ledger and the bench task dirs (phases/P01-repro-agent.md:3)"
+    }
+   ],
+   "navLabel": "Repro",
+   "evidence": [
+    "FIXTURE_ONLY (28/30 valid is by construction)",
+    "REFUTED (repro CI is red 2/2)"
+   ],
+   "surfaces": [
+    {
+     "id": "p1-cli-batch",
+     "kind": "cli",
+     "title": "repro_agent.batch text-only",
+     "builtToday": true,
+     "artifactPath": "packages/repro-agent/runs/text-only",
+     "sampleOutput": "28 x valid/submit\n 1 x error/tool-unavailable\n 1 x passes-on-bug/retry-cap",
+     "screenId": "term",
+     "note": "The command itself prints only the output directory (batch.py:140-146). The tally is this lane counting verdict.json files; text-plus-image is identical. host is \"fixture\" in every trajectory: replay, not a live model.",
+     "view": {
+      "type": "term",
+      "cmd": "uv run --package repro-agent python -m repro_agent.batch text-only",
+      "blocks": [
+       {
+        "caption": "printed by the command (batch.py:146)",
+        "text": "<repo>\\packages\\repro-agent\\runs\\text-only",
+        "real": true
+       },
+       {
+        "caption": "tally of runs/text-only/*/verdict.json (counted, verdict/stop_reason)",
+        "text": "28 x valid/submit\n 1 x error/tool-unavailable\n 1 x passes-on-bug/retry-cap",
+        "real": true
+       }
+      ]
+     },
+     "tag": "fixture replay"
+    },
+    {
+     "id": "p1-files-run",
+     "kind": "file",
+     "title": "runs/text-only/bug-17/",
+     "builtToday": true,
+     "artifactPath": "packages/repro-agent/runs/text-only/bug-17",
+     "sampleOutput": "await page.getByRole(\"button\", { name: \"Sign in\" }).click();\nawait expect(page.getByRole(\"heading\", { name: \"Welcome\" })).toBeVisible();\n{\"task_id\": \"BUG-17\", \"verdict\": \"valid\", \"stop_reason\": \"submit\"}\n{\"git_commit\": \"text-only\", \"host\": \"fixture\", \"kind\": \"meta\", \"model\": \"openai/gpt-oss-20b\", \"prompt_hash\": \"e93b5e434d93f87ec62e6d1d4a278d1235fa32de382ac605c2ba566040fd5ffe\", \"run_id\": \"bug-17\", \"seed\": null, \"task_id\": \"BUG-17\"}\n{\"index\":0,\"kind\":\"step\",\"tokens_in\":1,\"tokens_out\":1,\"tokens_cached\":0,\"stop_reason\":\"submit\",\"raw_response\":\"await page.getByRole(\\\"button\\\", { name: \\\"Sign in\\\" }).click();\\nawait expect(page.getByRole(\\\"heading\\\", { name: \\\"Welcome\\\" })).toBeVisible();\",\"message\":null,\"tool_name\":null,\"tool_error\":null}",
+     "screenId": "files",
+     "note": "Real files. The saved script is a Sign-in click and a Welcome heading, saved for a font-size ticket: nothing in the 30 runs depends on the task (verify-p0p1 section A).",
+     "view": {
+      "type": "files",
+      "files": [
+       {
+        "path": "bug-17/repro.spec.ts",
+        "text": "await page.getByRole(\"button\", { name: \"Sign in\" }).click();\nawait expect(page.getByRole(\"heading\", { name: \"Welcome\" })).toBeVisible();",
+        "real": true
+       },
+       {
+        "path": "bug-17/verdict.json",
+        "text": "{\"task_id\": \"BUG-17\", \"verdict\": \"valid\", \"stop_reason\": \"submit\"}",
+        "real": true
+       },
+       {
+        "path": "bug-17/trajectory.jsonl",
+        "text": "{\"git_commit\": \"text-only\", \"host\": \"fixture\", \"kind\": \"meta\", \"model\": \"openai/gpt-oss-20b\", \"prompt_hash\": \"e93b5e434d93f87ec62e6d1d4a278d1235fa32de382ac605c2ba566040fd5ffe\", \"run_id\": \"bug-17\", \"seed\": null, \"task_id\": \"BUG-17\"}\n{\"index\":0,\"kind\":\"step\",\"tokens_in\":1,\"tokens_out\":1,\"tokens_cached\":0,\"stop_reason\":\"submit\",\"raw_response\":\"await page.getByRole(\\\"button\\\", { name: \\\"Sign in\\\" }).click();\\nawait expect(page.getByRole(\\\"heading\\\", { name: \\\"Welcome\\\" })).toBeVisible();\",\"message\":null,\"tool_name\":null,\"tool_error\":null}",
+        "real": true
+       },
+       {
+        "path": "seed-h01/verdict.json",
+        "text": "{\"task_id\": \"seed-h01\", \"verdict\": \"passes-on-bug\", \"stop_reason\": \"retry-cap\"}",
+        "real": true
+       },
+       {
+        "path": "seed-e01/verdict.json",
+        "text": "{\"task_id\": \"seed-e01\", \"verdict\": \"error\", \"stop_reason\": \"tool-unavailable\"}",
+        "real": true
+       }
+      ]
+     },
+     "tag": "fixture replay"
+    },
+    {
+     "id": "p1-files-ledger",
+     "kind": "file",
+     "title": "runs/text-only/ledger.json",
+     "builtToday": true,
+     "artifactPath": "packages/repro-agent/runs/text-only/ledger.json",
+     "sampleOutput": "{\"day\": \"2026-10-30\", \"models\": {\"openai/gpt-oss-20b\": {\"requests\": 30, \"tokens\": 60, \"cached\": 0, \"events\": [{\"t\": \"2026-10-30T07:32:49.302381+00:00\", \"tokens\": 2}, {\"t\": \"2026-10-30T07:32:49.374831+00:00\", \"tokens …",
+     "screenId": "files",
+     "note": "Real, first 215 characters of 1792 (the rest is one event per request). The ledger is the quota meter: 30 requests, 60 tokens, 0 cached on 2026-10-30.",
+     "view": {
+      "type": "files",
+      "files": [
+       {
+        "path": "ledger.json  (first 215 chars)",
+        "text": "{\"day\": \"2026-10-30\", \"models\": {\"openai/gpt-oss-20b\": {\"requests\": 30, \"tokens\": 60, \"cached\": 0, \"events\": [{\"t\": \"2026-10-30T07:32:49.302381+00:00\", \"tokens\": 2}, {\"t\": \"2026-10-30T07:32:49.374831+00:00\", \"tokens …",
+        "real": true
+       }
+      ]
+     },
+     "tag": "fixture replay"
+    },
+    {
+     "id": "p1-doc-waves",
+     "kind": "file",
+     "title": "docs/architecture/p1.md (wave board)",
+     "builtToday": true,
+     "artifactPath": "docs/architecture/p1.md",
+     "sampleOutput": "Wave 1: T00.\nWave 2: T01 and T03.\nWave 3: T02.\nWave 4: T04.\nWave 5: T05 and T06.\nWave 6: T07.\nWave 7: T08 and T15. Done.\nWave 8: T09, T10, T13, and T14. Done. T15 does not block these.\nWave 9: T11. Done.\nWave 10: T12. Done.\nWave 11: T16. Done. P1 is complete.",
+     "screenId": "waves",
+     "note": "Real. A wave is a set of tasks that do not depend on each other, so they can run at the same time.",
+     "view": {
+      "type": "waves",
+      "waves": [
+       {
+        "n": 1,
+        "text": "T00.",
+        "done": true
+       },
+       {
+        "n": 2,
+        "text": "T01 and T03.",
+        "done": true
+       },
+       {
+        "n": 3,
+        "text": "T02.",
+        "done": true
+       },
+       {
+        "n": 4,
+        "text": "T04.",
+        "done": true
+       },
+       {
+        "n": 5,
+        "text": "T05 and T06.",
+        "done": true
+       },
+       {
+        "n": 6,
+        "text": "T07.",
+        "done": true
+       },
+       {
+        "n": 7,
+        "text": "T08 and T15. Done.",
+        "done": true
+       },
+       {
+        "n": 8,
+        "text": "T09, T10, T13, and T14. Done. T15 does not block these.",
+        "done": true
+       },
+       {
+        "n": 9,
+        "text": "T11. Done.",
+        "done": true
+       },
+       {
+        "n": 10,
+        "text": "T12. Done.",
+        "done": true
+       },
+       {
+        "n": 11,
+        "text": "T16. Done. P1 is complete.",
+        "done": true
+       }
+      ]
+     }
+    },
+    {
+     "id": "p1-gh-ci",
+     "kind": "github",
+     "title": "GitHub Actions: repro (fixture replay)",
+     "builtToday": true,
+     "artifactPath": ".github/workflows/repro.yml",
+     "sampleOutput": "ModuleNotFoundError: No module named 'repro_agent'",
+     "screenId": "table",
+     "note": "Real: red on every recorded run (2/2), same read-only gh query (verify-p0p1 section C). The tests pass with uv run --package repro-agent (24 passed); the workflow command is wrong.",
+     "view": {
+      "type": "table",
+      "cols": [
+       "workflow",
+       "trigger",
+       "secrets",
+       "result"
+      ],
+      "rows": [
+       [
+        "repro",
+        "push",
+        "none",
+        "fail x2 (collection errors)"
+       ]
+      ],
+      "real": true
+     },
+     "tag": "CI red"
+    }
+   ],
+   "hours": 32,
+   "weeks": "W5–6",
+   "status": "done",
+   "built": true,
+   "cumulativeHours": 108,
+   "taskCount": 17,
+   "doneCount": 17,
+   "sources": [
+    "phases/P01-repro-agent.md",
+    "analysis/swarm/tracker.json"
+   ]
+  },
+  {
+   "id": "P2",
+   "name": "dom2src",
+   "delta": "The first web-visible thing: every DOM element in a test build carries a data-src attribute, and a locate() tool turns a selector into file:line:col (or a typed \"ambiguous\" with candidates).",
+   "ownerCan": [
+    "Inspect any element of the Canvas test build and read its source file and line off data-src.",
+    "Call locate(selector) from an MCP client and get a file and line, or the candidate list when a wrapper component is involved.",
+    "Read the three-way retrieval ablation (repo-map + LSP, pgvector, data-src) once the 30-task run is filled."
+   ],
+   "moment": {
+    "surfaceId": "p2-files-dom",
+    "caption": "A DOM inspector with data-src on a host element, next to the locate() answer for the same selector."
+   },
+   "dependsOn": [
+    {
+     "phase": "P0",
+     "why": "target-app binding to the dcortex Canvas (phases/P02-dom2src.md:3)"
+    }
+   ],
+   "navLabel": "Locate",
+   "evidence": [
+    "PLANNED"
+   ],
+   "surfaces": [
+    {
+     "id": "p2-files-dom",
+     "kind": "web",
+     "title": "Canvas test build, inspector view",
+     "builtToday": false,
+     "artifactPath": null,
+     "sampleOutput": null,
+     "screenId": "files",
+     "note": "Illustrative. Placeholders stand in for any real file, line or column. The attribute format file:line:col comes from phases/P02-dom2src.md:8.",
+     "view": {
+      "type": "files",
+      "files": [
+       {
+        "path": "DOM (test/dev build only)",
+        "text": "<span class=\"tag\"\n      data-src=\"<repo-relative file>:<line>:<col>\">\n  CANCELLED\n</span>\n\n<!-- absent from production builds (asserted by a test) -->",
+        "real": false
+       }
+      ]
+     }
+    },
+    {
+     "id": "p2-cli-locate",
+     "kind": "cli",
+     "title": "locate() over MCP",
+     "builtToday": false,
+     "artifactPath": null,
+     "sampleOutput": null,
+     "screenId": "term",
+     "note": "Illustrative shape. phases/P02-dom2src.md: returns file and line for a selector; a typed \"ambiguous\" result with candidates when a wrapper component is involved.",
+     "view": {
+      "type": "term",
+      "cmd": "locate({ selector: \".radar-card .tag\" })",
+      "blocks": [
+       {
+        "caption": "ok (illustrative)",
+        "text": "{ \"status\": \"ok\", \"file\": \"<file>\", \"line\": <n>, \"col\": <n> }",
+        "real": false
+       },
+       {
+        "caption": "wrapper component (illustrative)",
+        "text": "{ \"status\": \"ambiguous\",\n  \"candidates\": [ { \"file\": \"<file>\", \"line\": <n> }, … ] }",
+        "real": false
+       }
+      ]
+     }
+    },
+    {
+     "id": "p2-table-ablation",
+     "kind": "file",
+     "title": "Retrieval ablation table",
+     "builtToday": false,
+     "artifactPath": null,
+     "sampleOutput": null,
+     "screenId": "table",
+     "note": "Cells stay a dash until P2-T12 runs the 30-task stratified subset.",
+     "view": {
+      "type": "table",
+      "cols": [
+       "variant",
+       "top-1 file",
+       "top-3 file"
+      ],
+      "rows": [
+       [
+        "repo-map + LSP",
+        "—",
+        "—"
+       ],
+       [
+        "pgvector (local embeddings)",
+        "—",
+        "—"
+       ],
+       [
+        "data-src locate()",
+        "—",
+        "—"
+       ]
+      ]
+     }
+    }
+   ],
+   "hours": 44,
+   "weeks": "W6–8",
+   "status": "open",
+   "built": false,
+   "cumulativeHours": 152,
+   "taskCount": 20,
+   "doneCount": 0,
+   "sources": [
+    "phases/P02-dom2src.md",
+    "analysis/swarm/tracker.json"
+   ]
+  },
+  {
+   "id": "P3",
+   "name": "fix-loop",
+   "delta": "The agent itself: a fix-loop that turns ticket + repro + locate hint into a patch inside a sandbox, with a trajectory file per run and a replay command that needs no model.",
+   "ownerCan": [
+    "Run the loop on one task and watch each tool call stream (read_file, edit, run_cmd, submit).",
+    "Read the stop reason and decide whether to retry, raise the cap or take over by hand.",
+    "Replay a stored trajectory deterministically, with no LLM call.",
+    "Compare the four context strategies and the mini-swe-agent baseline in the ablation table."
+   ],
+   "moment": {
+    "surfaceId": "p3-cli-run",
+    "caption": "A terminal streaming one fix run to a recorded stop reason, with the patch it produced."
+   },
+   "dependsOn": [
+    {
+     "phase": "P0",
+     "why": "bench checks and quota ledger"
+    },
+    {
+     "phase": "P1",
+     "why": "repro script feeds the task prompt (P3-T16)"
+    },
+    {
+     "phase": "P2",
+     "why": "locate() hint feeds the task prompt (P3-T16)"
+    }
+   ],
+   "navLabel": "Fix",
+   "evidence": [
+    "PLANNED"
+   ],
+   "surfaces": [
+    {
+     "id": "p3-cli-run",
+     "kind": "cli",
+     "title": "fix-loop run <task>",
+     "builtToday": false,
+     "artifactPath": null,
+     "sampleOutput": null,
+     "screenId": "term",
+     "note": "Illustrative. The six tool names come from P3-T02; the command name is not fixed by the plan.",
+     "view": {
+      "type": "term",
+      "cmd": "fix-loop run <task-id>   # command name illustrative",
+      "blocks": [
+       {
+        "caption": "illustrative stream",
+        "text": "step 0  list_dir   <path>\nstep 1  read_file  <path>\nstep 2  edit       <path>\nstep 3  run_cmd    <gate: build | typecheck | lint | tests | bench checks>\nstep 4  submit\nstop_reason: submit",
+        "real": false
+       },
+       {
+        "caption": "replay, no model call (P3-T27)",
+        "text": "fix-loop replay <trajectory.jsonl>",
+        "real": false
+       }
+      ]
+     }
+    },
+    {
+     "id": "p3-files-traj",
+     "kind": "file",
+     "title": "trajectory.jsonl + patch",
+     "builtToday": false,
+     "artifactPath": null,
+     "sampleOutput": null,
+     "screenId": "files",
+     "note": "Field names are the real TrajectoryStep schema (argus_core/types.py:97-107, already used by P1). Values are placeholders.",
+     "view": {
+      "type": "files",
+      "files": [
+       {
+        "path": "trajectory.jsonl",
+        "text": "{\"index\":0,\"kind\":\"step\",\"tokens_in\":<n>,\"tokens_out\":<n>,\"tokens_cached\":<n>,\n \"stop_reason\":null,\"raw_response\":\"…\",\"message\":{…},\n \"tool_name\":\"read_file\",\"tool_error\":null}",
+        "real": false
+       },
+       {
+        "path": "patch.diff",
+        "text": "--- a/<file>\n+++ b/<file>\n@@ … @@   (the model's proposed fix)",
+        "real": false
+       }
+      ]
+     }
+    },
+    {
+     "id": "p3-table-stop",
+     "kind": "cli",
+     "title": "Stop reasons (what the owner acts on)",
+     "builtToday": false,
+     "artifactPath": "packages/argus-core/src/argus_core/types.py:74-82",
+     "sampleOutput": null,
+     "screenId": "table",
+     "note": "The eight stop-reason names are real (StopReason enum, used by P1 today). What each one asks of the owner is this lane's reading, not a spec.",
+     "view": {
+      "type": "table",
+      "cols": [
+       "stop_reason",
+       "owner reads it as"
+      ],
+      "rows": [
+       [
+        "submit",
+        "candidate patch; goes to the gates"
+       ],
+       [
+        "step-cap / token-cap",
+        "budget hit; raise the cap or split the task"
+       ],
+       [
+        "QuotaExceeded",
+        "ledger refused the call; no request was sent"
+       ],
+       [
+        "stuck / consecutive-timeout",
+        "loop detection fired; look at the trajectory"
+       ],
+       [
+        "retry-cap",
+        "gave up after N tries"
+       ],
+       [
+        "tool-unavailable",
+        "a tool server died and one restart did not help"
+       ]
+      ]
+     }
+    }
+   ],
+   "hours": 84,
+   "weeks": "W8–12",
+   "status": "open",
+   "built": false,
+   "cumulativeHours": 236,
+   "taskCount": 34,
+   "doneCount": 0,
+   "sources": [
+    "phases/P03-fix-loop.md",
+    "analysis/swarm/tracker.json"
+   ]
+  },
+  {
+   "id": "P4",
+   "name": "verify",
+   "delta": "A verdict view: four deterministic checks in a fixed order, then an advisory judge, on a before / after pair, plus the calibration and best-of-k tables.",
+   "ownerCan": [
+    "Open a verdict and see which check failed first (pixel diff, overflow, axe, console).",
+    "Compare before and after screenshots for one candidate fix.",
+    "Read the judge calibration (alpha against 100 hand labels) before deciding to trust the judge.",
+    "Choose k for best-of-k from the cost curve."
+   ],
+   "moment": {
+    "surfaceId": "p4-web-review",
+    "caption": "The before / after review: the ticket screenshot on the left, the candidate fix on the right, the check ladder beside them."
+   },
+   "dependsOn": [
+    {
+     "phase": "P3",
+     "why": "verifier is the final gate of fix-loop (P4-T22)"
+    },
+    {
+     "phase": "P0",
+     "why": "bench scorer and screenshots"
+    }
+   ],
+   "navLabel": "Verify",
+   "evidence": [
+    "PLANNED"
+   ],
+   "surfaces": [
+    {
+     "id": "p4-web-review",
+     "kind": "web",
+     "title": "Verdict review: before / after",
+     "builtToday": false,
+     "artifactPath": null,
+     "sampleOutput": null,
+     "screenId": "pair",
+     "note": "The Before image is the real BUG-17 screenshot. There is NO real After image anywhere in the repo, so the After pane is a placeholder.",
+     "view": {
+      "type": "pair",
+      "before": "radar",
+      "beforeCaption": "before: real packages/bench/tasks/seeded/bug-17/shots/radar-card.png",
+      "afterCaption": "after: placeholder, no real image exists"
+     }
+    },
+    {
+     "id": "p4-ladder-checks",
+     "kind": "cli",
+     "title": "Verifier pipeline",
+     "builtToday": false,
+     "artifactPath": null,
+     "sampleOutput": null,
+     "screenId": "ladder",
+     "note": "Order and short-circuit rule from phases/P04-verify.md:8-10. States shown are illustrative, not a run.",
+     "view": {
+      "type": "ladder",
+      "steps": [
+       {
+        "label": "pixel diff",
+        "state": "pass",
+        "note": "against golden screenshot, region masks"
+       },
+       {
+        "label": "overflow",
+        "state": "pass",
+        "note": "scroll width, off-viewport elements"
+       },
+       {
+        "label": "axe (new violations only)",
+        "state": "fail",
+        "note": "short-circuits here"
+       },
+       {
+        "label": "console (new errors)",
+        "state": "skip",
+        "note": "not run after a hard failure"
+       },
+       {
+        "label": "judge (cross-family)",
+        "state": "skip",
+        "note": "advisory; never overrides passed checks"
+       }
+      ]
+     }
+    },
+    {
+     "id": "p4-table-calib",
+     "kind": "file",
+     "title": "Judge calibration and best-of-k",
+     "builtToday": false,
+     "artifactPath": null,
+     "sampleOutput": null,
+     "screenId": "table",
+     "note": "Targets are from the phase file; achieved values stay a dash until P4-T14 and P4-T20.",
+     "view": {
+      "type": "table",
+      "cols": [
+       "measure",
+       "target",
+       "achieved"
+      ],
+      "rows": [
+       [
+        "Krippendorff alpha vs 100 hand labels",
+        "≥ 0.80",
+        "—"
+       ],
+       [
+        "order-disagreement rate",
+        "reported beside alpha",
+        "—"
+       ],
+       [
+        "best-of-k, k = 1",
+        "—",
+        "—"
+       ],
+       [
+        "best-of-k, k = 3",
+        "—",
+        "—"
+       ],
+       [
+        "best-of-k, k = 5",
+        "—",
+        "—"
+       ]
+      ]
+     }
+    }
+   ],
+   "hours": 72,
+   "weeks": "W12–16",
+   "status": "open",
+   "built": false,
+   "cumulativeHours": 308,
+   "taskCount": 30,
+   "doneCount": 0,
+   "sources": [
+    "phases/P04-verify.md",
+    "analysis/swarm/tracker.json"
+   ]
+  },
+  {
+   "id": "P5",
+   "name": "argus-eval",
+   "delta": "The first deployed web page: a static dashboard on GitHub Pages with resolve rate and intervals, tokens per bug, latency and trajectory metrics, plus a trace link and a CI regression gate.",
+   "ownerCan": [
+    "Open the dashboard and read the phase-over-phase report (resolve rate with Wilson intervals).",
+    "Click through to a full-run trace in Langfuse.",
+    "See a PR blocked by the regression gate when a stored run is deliberately worse.",
+    "Read the routing ablation: cheap tier for repro and localize, strong tier for fix."
+   ],
+   "moment": {
+    "surfaceId": "p5-web-dash",
+    "caption": "The dashboard cards: resolve rate with interval, tokens per bug, latency, and the quota share."
+   },
+   "dependsOn": [
+    {
+     "phase": "P3",
+     "why": "stored trajectories feed the metrics"
+    },
+    {
+     "phase": "P4",
+     "why": "verdicts feed resolve rate"
+    },
+    {
+     "phase": "P0",
+     "why": "ledger and quotas feed the quota cell"
+    }
+   ],
+   "navLabel": "Dashboard",
+   "evidence": [
+    "PLANNED"
+   ],
+   "surfaces": [
+    {
+     "id": "p5-web-dash",
+     "kind": "web",
+     "title": "Dashboard (GitHub Pages)",
+     "builtToday": false,
+     "artifactPath": null,
+     "sampleOutput": null,
+     "screenId": "cards",
+     "note": "Layout only. Every value is a dash: no phase-over-phase result exists yet. The $-equivalent cell stays a dash until P5-T11.",
+     "view": {
+      "type": "cards",
+      "cards": [
+       {
+        "k": "resolve rate",
+        "v": "—",
+        "sub": "Wilson interval",
+        "tone": "info"
+       },
+       {
+        "k": "tokens / bug",
+        "v": "—",
+        "sub": "cached counted separately",
+        "tone": "info"
+       },
+       {
+        "k": "latency p50 / p95",
+        "v": "—",
+        "sub": "wall clock",
+        "tone": "info"
+       },
+       {
+        "k": "stuck rate",
+        "v": "—",
+        "sub": "trajectory metric",
+        "tone": "info"
+       },
+       {
+        "k": "$-equivalent / bug",
+        "v": "—",
+        "sub": "until P5-T11",
+        "tone": "warn"
+       },
+       {
+        "k": "quota share",
+        "v": "—",
+        "sub": "of the free-tier day",
+        "tone": "info"
+       }
+      ]
+     }
+    },
+    {
+     "id": "p5-ladder-trace",
+     "kind": "web",
+     "title": "Trace of one run (Langfuse)",
+     "builtToday": false,
+     "artifactPath": null,
+     "sampleOutput": null,
+     "screenId": "ladder",
+     "note": "Illustrative span tree. Langfuse Cloud Hobby is the default viewer, Phoenix the scheduled swap (PLAN.md:316).",
+     "view": {
+      "type": "ladder",
+      "steps": [
+       {
+        "label": "run",
+        "state": "info",
+        "note": "root span"
+       },
+       {
+        "label": "repro",
+        "state": "info",
+        "note": "cheap tier"
+       },
+       {
+        "label": "locate",
+        "state": "info",
+        "note": "cheap tier"
+       },
+       {
+        "label": "fix",
+        "state": "info",
+        "note": "strong tier"
+       },
+       {
+        "label": "verify",
+        "state": "info",
+        "note": "checks then judge"
+       }
+      ]
+     }
+    },
+    {
+     "id": "p5-gh-gate",
+     "kind": "github",
+     "title": "CI regression gate",
+     "builtToday": false,
+     "artifactPath": null,
+     "sampleOutput": null,
+     "screenId": "table",
+     "note": "Illustrative. The gate compares a results file to the stored baseline with intervals, with no LLM calls (P5-T16, T17).",
+     "view": {
+      "type": "table",
+      "cols": [
+       "check",
+       "compares",
+       "on a worse stored run",
+       "on the baseline run"
+      ],
+      "rows": [
+       [
+        "regression-gate",
+        "results.json vs baseline, intervals",
+        "fail",
+        "pass"
+       ]
+      ]
+     }
+    }
+   ],
+   "hours": 64,
+   "weeks": "W16–19",
+   "status": "open",
+   "built": false,
+   "cumulativeHours": 372,
+   "taskCount": 29,
+   "doneCount": 0,
+   "sources": [
+    "phases/P05-argus-eval.md",
+    "analysis/swarm/tracker.json"
+   ]
+  },
+  {
+   "id": "P5.5",
+   "name": "argus-skills",
+   "delta": "Skill files and one more dashboard row. Skill descriptions load up front; bodies load on demand; a lint job guards the files.",
+   "ownerCan": [
+    "Read the skill list (name + description only) the way the agent sees it.",
+    "Open one reviewed skill and edit it.",
+    "Read the with-vs-without-skills row on the held-out set.",
+    "See the poisoned-skill break-it outcomes."
+   ],
+   "moment": {
+    "surfaceId": "p55-files-skill",
+    "caption": "A SKILL.md with its short front matter on top and the body that loads only when selected."
+   },
+   "dependsOn": [
+    {
+     "phase": "P3",
+     "why": "skill loader lives inside fix-loop"
+    },
+    {
+     "phase": "P5",
+     "why": "ablation row lands on the dashboard"
+    }
+   ],
+   "navLabel": "Skills",
+   "evidence": [
+    "PLANNED"
+   ],
+   "surfaces": [
+    {
+     "id": "p55-files-skill",
+     "kind": "file",
+     "title": "skills/<name>/SKILL.md",
+     "builtToday": false,
+     "artifactPath": null,
+     "sampleOutput": null,
+     "screenId": "files",
+     "note": "Illustrative skill. Format: agentskills.io (phases/P05.5-argus-skills.md:8). Hash pin and tool allowlist are P5.5-T10.",
+     "view": {
+      "type": "files",
+      "files": [
+       {
+        "path": "skills/<name>/SKILL.md",
+        "text": "---\nname: <skill name>\ndescription: <one line, always in context>\n---\n<body: loaded only when the skill is selected>",
+        "real": false
+       }
+      ]
+     }
+    },
+    {
+     "id": "p55-web-row",
+     "kind": "web",
+     "title": "Dashboard: with vs without skills",
+     "builtToday": false,
+     "artifactPath": null,
+     "sampleOutput": null,
+     "screenId": "table",
+     "note": "Cells stay a dash until P5.5-T08 runs the held-out set.",
+     "view": {
+      "type": "table",
+      "cols": [
+       "variant",
+       "resolve rate",
+       "tokens / bug"
+      ],
+      "rows": [
+       [
+        "without skills",
+        "—",
+        "—"
+       ],
+       [
+        "with skills",
+        "—",
+        "—"
+       ]
+      ]
+     }
+    }
+   ],
+   "hours": 28,
+   "weeks": "W19–20",
+   "status": "open",
+   "built": false,
+   "cumulativeHours": 400,
+   "taskCount": 18,
+   "doneCount": 0,
+   "sources": [
+    "phases/P05.5-argus-skills.md",
+    "analysis/swarm/tracker.json"
+   ]
+  },
+  {
+   "id": "P6",
+   "name": "argus-flow",
+   "delta": "A control plane: a deployed run board (Render + Neon) listing runs by workflow state, a QA wait that pauses a run for the owner, and a quota meter. Runs now happen without a terminal.",
+   "ownerCan": [
+    "Open the run board and see every ticket by state, including stuck and quota-wait.",
+    "Approve or reject a run waiting for QA (review comment, or MRTR if ADR-023 ships it).",
+    "Kill the worker mid-run and watch the run resume without a duplicate PR.",
+    "See the quota meter before starting another run."
+   ],
+   "moment": {
+    "surfaceId": "p6-web-board",
+    "caption": "The run board with the QA-wait row highlighted and the quota meter."
+   },
+   "dependsOn": [
+    {
+     "phase": "P3",
+     "why": "fix-loop runs as the execution plane"
+    },
+    {
+     "phase": "P4",
+     "why": "verifier verdict is what QA reviews"
+    },
+    {
+     "phase": "P1",
+     "why": "repro-agent is a workflow step"
+    },
+    {
+     "phase": "P5",
+     "why": "dashboard keeps running beside it"
+    }
+   ],
+   "navLabel": "Runs",
+   "evidence": [
+    "PLANNED"
+   ],
+   "surfaces": [
+    {
+     "id": "p6-web-board",
+     "kind": "web",
+     "title": "Run board (control plane)",
+     "builtToday": false,
+     "artifactPath": null,
+     "sampleOutput": null,
+     "screenId": "table",
+     "note": "Illustrative. Workflow state names are PROPOSED (ops-console.json); P6-T02 owns the real list. The quota meter reads the real P1 ledger and quotas.md values.",
+     "view": {
+      "type": "table",
+      "cols": [
+       "run",
+       "state",
+       "last step"
+      ],
+      "rows": [
+       [
+        "run-<id>",
+        "running",
+        "fix"
+       ],
+       [
+        "run-<id>",
+        "awaiting-qa",
+        "verify passed"
+       ],
+       [
+        "run-<id>",
+        "quota-wait",
+        "refused by ledger"
+       ],
+       [
+        "run-<id>",
+        "stuck",
+        "no progress"
+       ],
+       [
+        "run-<id>",
+        "done",
+        "PR opened"
+       ]
+      ],
+      "meter": {
+       "label": "quota today, from the real P1 ledger and quotas.md",
+       "used": 30,
+       "cap": 1000,
+       "unit": "requests",
+       "model": "openai/gpt-oss-20b"
+      }
+     }
+    },
+    {
+     "id": "p6-ladder-flow",
+     "kind": "web",
+     "title": "Workflow state machine",
+     "builtToday": false,
+     "artifactPath": null,
+     "sampleOutput": null,
+     "screenId": "ladder",
+     "note": "Step order follows flow F1 in hld-edges.json. Webhooks are hints; the reconciler rebuilds state from GitHub.",
+     "view": {
+      "type": "ladder",
+      "steps": [
+       {
+        "label": "webhook (hint)",
+        "state": "info",
+        "note": "HMAC checked, returns 202"
+       },
+       {
+        "label": "reconcile",
+        "state": "info",
+        "note": "poller reads GitHub"
+       },
+       {
+        "label": "dispatch",
+        "state": "info",
+        "note": "GitHub Actions is the execution plane"
+       },
+       {
+        "label": "agent job",
+        "state": "info",
+        "note": "repro, locate, fix, verify"
+       },
+       {
+        "label": "QA wait",
+        "state": "wait",
+        "note": "timeout; owner signal"
+       },
+       {
+        "label": "PR",
+        "state": "info",
+        "note": "idempotent open"
+       }
+      ]
+     }
+    },
+    {
+     "id": "p6-gh-qa",
+     "kind": "github",
+     "title": "QA signal as a review comment",
+     "builtToday": false,
+     "artifactPath": null,
+     "sampleOutput": null,
+     "screenId": "pr",
+     "note": "Fallback path P6-T10 (plain GitHub review comment). MRTR (input_required) is the alternative if ADR-023 ships it.",
+     "view": {
+      "type": "pr",
+      "kind": "pr",
+      "title": "Fix <ticket> (draft)",
+      "meta": "argus-bot wants your review before this leaves draft",
+      "body": [
+       "Verdict: <valid | …>   Trajectory: <link>",
+       "Reply with an approving or a change-requesting review."
+      ],
+      "checks": [
+       {
+        "n": "verify",
+        "s": "pass"
+       },
+       {
+        "n": "qa-signal",
+        "s": "wait"
+       }
+      ],
+      "images": false
+     }
+    }
+   ],
+   "hours": 52,
+   "weeks": "W22–24",
+   "status": "open",
+   "built": false,
+   "cumulativeHours": 452,
+   "taskCount": 26,
+   "doneCount": 0,
+   "sources": [
+    "phases/P06-argus-flow.md",
+    "analysis/swarm/tracker.json"
+   ]
+  },
+  {
+   "id": "P7",
+   "name": "argus-guard",
+   "delta": "Safety surfaces: a public threat model (ASI01 to ASI10), a tamper-evident audit log with a verify command, red-team results and a sandbox-tier comparison.",
+   "ownerCan": [
+    "Run the audit-verify command and see it detect an edited line.",
+    "Read the threat model row by row: threat, control, residual risk.",
+    "Read red-team outcomes for injection through the ticket, a repo file and a skill.",
+    "Compare Docker, gVisor and Firecracker on cold start and escape-test pass rate."
+   ],
+   "moment": {
+    "surfaceId": "p7-cli-audit",
+    "caption": "The audit verify command catching a tampered line."
+   },
+   "dependsOn": [
+    {
+     "phase": "P6",
+     "why": "hardening across flow (phases/P07-argus-guard.md:3)"
+    },
+    {
+     "phase": "P3",
+     "why": "hardening across fix-loop and its sandbox"
+    },
+    {
+     "phase": "P5.5",
+     "why": "skill injection path (P7-T07; conditional on the P5.5 cut)"
+    }
+   ],
+   "navLabel": "Audit",
+   "evidence": [
+    "PLANNED"
+   ],
+   "surfaces": [
+    {
+     "id": "p7-cli-audit",
+     "kind": "cli",
+     "title": "audit log verify",
+     "builtToday": false,
+     "artifactPath": null,
+     "sampleOutput": null,
+     "screenId": "term",
+     "note": "Illustrative. The hash-chained, append-only log and a verify command are P7-T06; the command name is not fixed.",
+     "view": {
+      "type": "term",
+      "cmd": "argus audit verify   # name illustrative",
+      "blocks": [
+       {
+        "caption": "untouched log (illustrative)",
+        "text": "chain ok: <n> entries",
+        "real": false
+       },
+       {
+        "caption": "after editing one line (illustrative)",
+        "text": "chain broken at entry <n>",
+        "real": false
+       }
+      ]
+     }
+    },
+    {
+     "id": "p7-table-threat",
+     "kind": "file",
+     "title": "Threat model, ASI01 to ASI10",
+     "builtToday": false,
+     "artifactPath": null,
+     "sampleOutput": null,
+     "screenId": "table",
+     "note": "One row per OWASP agentic risk (P7-T02). Content is written in P7; nothing is invented here.",
+     "view": {
+      "type": "table",
+      "cols": [
+       "risk",
+       "threat",
+       "control",
+       "residual"
+      ],
+      "rows": [
+       [
+        "ASI01",
+        "—",
+        "—",
+        "—"
+       ],
+       [
+        "ASI02",
+        "—",
+        "—",
+        "—"
+       ],
+       [
+        "ASI03",
+        "—",
+        "—",
+        "—"
+       ],
+       [
+        "ASI04",
+        "—",
+        "—",
+        "—"
+       ],
+       [
+        "ASI05",
+        "—",
+        "—",
+        "—"
+       ],
+       [
+        "ASI06",
+        "—",
+        "—",
+        "—"
+       ],
+       [
+        "ASI07",
+        "—",
+        "—",
+        "—"
+       ],
+       [
+        "ASI08",
+        "—",
+        "—",
+        "—"
+       ],
+       [
+        "ASI09",
+        "—",
+        "—",
+        "—"
+       ],
+       [
+        "ASI10",
+        "—",
+        "—",
+        "—"
+       ]
+      ]
+     }
+    },
+    {
+     "id": "p7-table-tiers",
+     "kind": "file",
+     "title": "Sandbox tiers",
+     "builtToday": false,
+     "artifactPath": null,
+     "sampleOutput": null,
+     "screenId": "table",
+     "note": "Cells stay a dash until P7-T13. If Firecracker is cut, row C stays empty and ADR-025 says why.",
+     "view": {
+      "type": "table",
+      "cols": [
+       "tier",
+       "cold start",
+       "escape tests passed"
+      ],
+      "rows": [
+       [
+        "A  Docker",
+        "—",
+        "—"
+       ],
+       [
+        "B  gVisor",
+        "—",
+        "—"
+       ],
+       [
+        "C  Firecracker",
+        "—",
+        "—"
+       ]
+      ]
+     }
+    }
+   ],
+   "hours": 44,
+   "weeks": "W23–25",
+   "status": "open",
+   "built": false,
+   "cumulativeHours": 496,
+   "taskCount": 23,
+   "doneCount": 0,
+   "sources": [
+    "phases/P07-argus-guard.md",
+    "analysis/swarm/tracker.json"
+   ]
+  },
+  {
+   "id": "P8",
+   "name": "argus-app",
+   "delta": "The GitHub-native product: install the App on a repo, label an issue, receive a pull request with verdict, trajectory link and before / after screenshots, and a backport bot.",
+   "ownerCan": [
+    "Install the App on one of your own public repos with the least-privilege permissions.",
+    "Label an issue and watch a PR appear with its evidence.",
+    "Review the PR and merge, or leave a comment for the agent.",
+    "See the backport bot comment instead of forcing a conflicted cherry-pick.",
+    "Check one tenant's quota without touching another's."
+   ],
+   "moment": {
+    "surfaceId": "p8-gh-pr",
+    "caption": "The pull request the App opens for a labelled issue: verdict, trajectory link and the before / after pair."
+   },
+   "dependsOn": [
+    {
+     "phase": "P6",
+     "why": "flow service dispatches the job and holds state"
+    },
+    {
+     "phase": "P7",
+     "why": "least-privilege token, audit log (P8-T02)"
+    },
+    {
+     "phase": "P5",
+     "why": "eval and quota ledger feed tenant budgets"
+    }
+   ],
+   "navLabel": "GitHub",
+   "evidence": [
+    "PLANNED"
+   ],
+   "surfaces": [
+    {
+     "id": "p8-gh-install",
+     "kind": "github",
+     "title": "GitHub App install",
+     "builtToday": false,
+     "artifactPath": null,
+     "sampleOutput": null,
+     "screenId": "install",
+     "note": "Illustrative. Permission list is a placeholder until P8-T02 writes the manifest from the P7 least-privilege rules.",
+     "view": {
+      "type": "install",
+      "app": "Argus",
+      "repo": "<one of your own public repos>",
+      "perms": [
+       {
+        "n": "issues",
+        "v": "read"
+       },
+       {
+        "n": "pull requests",
+        "v": "write"
+       },
+       {
+        "n": "contents",
+        "v": "write (non-default branches only)"
+       }
+      ],
+      "note": "The agent job runs in the tenant repo via a reusable workflow (ADR-027)."
+     }
+    },
+    {
+     "id": "p8-gh-pr",
+     "kind": "github",
+     "title": "Labelled issue to PR",
+     "builtToday": false,
+     "artifactPath": null,
+     "sampleOutput": null,
+     "screenId": "pr",
+     "note": "Illustrative. PR creation with verdict, trajectory link and before / after screenshots is P8-T09. Differs from the owner's flow: the plan opens the PR as draft before approval (PLAN.md; phases/P08-argus-app.md:8).",
+     "view": {
+      "type": "pr",
+      "kind": "pr",
+      "title": "Fix <issue title> (draft)",
+      "meta": "opened by argus-bot from issue <#n> labelled \"argus\"",
+      "body": [
+       "Verdict: <valid | …>",
+       "Trajectory: <link>   Trace: <link>",
+       "Before / after screenshots: attached"
+      ],
+      "checks": [
+       {
+        "n": "verify",
+        "s": "pass"
+       },
+       {
+        "n": "regression-gate",
+        "s": "pass"
+       }
+      ],
+      "images": true
+     }
+    },
+    {
+     "id": "p8-gh-backport",
+     "kind": "github",
+     "title": "Backport bot",
+     "builtToday": false,
+     "artifactPath": null,
+     "sampleOutput": null,
+     "screenId": "pr",
+     "note": "Illustrative. It opens a backport PR for a merged fix and comments instead of forcing when the cherry-pick conflicts (P8-T10).",
+     "view": {
+      "type": "pr",
+      "kind": "comment",
+      "title": "Backport to <release branch>",
+      "meta": "argus-bot commented",
+      "body": [
+       "Cherry-pick of <sha> conflicts in <file>.",
+       "Not forced. Resolve by hand or close."
+      ],
+      "checks": [],
+      "images": false
+     }
+    },
+    {
+     "id": "p8-table-tenant",
+     "kind": "web",
+     "title": "Per-tenant quota",
+     "builtToday": false,
+     "artifactPath": null,
+     "sampleOutput": null,
+     "screenId": "table",
+     "note": "Illustrative layout. The ledger gains a tenant dimension (P8-T07); the multi-tenancy cut removes this row.",
+     "view": {
+      "type": "table",
+      "cols": [
+       "tenant",
+       "budget used",
+       "state"
+      ],
+      "rows": [
+       [
+        "<tenant a>",
+        "—",
+        "running"
+       ],
+       [
+        "<tenant b>",
+        "—",
+        "exhausted; others unaffected"
+       ]
+      ]
+     }
+    }
+   ],
+   "hours": 60,
+   "weeks": "W25–28",
+   "status": "open",
+   "built": false,
+   "cumulativeHours": 556,
+   "taskCount": 26,
+   "doneCount": 0,
+   "sources": [
+    "phases/P08-argus-app.md",
+    "analysis/swarm/tracker.json"
+   ]
+  },
+  {
+   "id": "P9",
+   "name": "backend lane (optional)",
+   "delta": "A second lane, optional and first on the cut list: a Sentry-style error event becomes a failing pytest, then a verified fix, on a small FastAPI target backend.",
+   "ownerCan": [
+    "Feed an exported Sentry event JSON and get a Ticket.",
+    "Watch the lane produce a failing pytest, a fix and a verifier verdict.",
+    "Read the reuse ratio by module and by lines."
+   ],
+   "moment": {
+    "surfaceId": "p9-cli-lane",
+    "caption": "One backend run end to end: event, failing pytest, fix, verdict."
+   },
+   "dependsOn": [
+    {
+     "phase": "P8",
+     "why": "reuses loop, verifier, eval and flow (phases/P09-backend-lane.md:3)"
+    },
+    {
+     "phase": "P3",
+     "why": "fixer reused with a pytest gate"
+    },
+    {
+     "phase": "P4",
+     "why": "verifier interface reused"
+    }
+   ],
+   "navLabel": "Backend",
+   "evidence": [
+    "PLANNED (optional; first on the cut list, PLAN.md:320)"
+   ],
+   "surfaces": [
+    {
+     "id": "p9-cli-lane",
+     "kind": "cli",
+     "title": "Backend lane run",
+     "builtToday": false,
+     "artifactPath": null,
+     "sampleOutput": null,
+     "screenId": "term",
+     "note": "Illustrative flow from phases/P09-backend-lane.md:8-12. Command name not fixed.",
+     "view": {
+      "type": "term",
+      "cmd": "argus backend run <event.json>   # name illustrative",
+      "blocks": [
+       {
+        "caption": "illustrative",
+        "text": "event      parsed into a Ticket (PII redacted first)\ntest       failing pytest generated\nfix        patch from the reused fixer\nverdict    new test fails before, passes after;\n           old tests pass; no new exception types",
+        "real": false
+       }
+      ]
+     }
+    },
+    {
+     "id": "p9-table-reuse",
+     "kind": "file",
+     "title": "Reuse ratio report",
+     "builtToday": false,
+     "artifactPath": null,
+     "sampleOutput": null,
+     "screenId": "table",
+     "note": "Measured by a script in P9-T11, by module and by lines. Dash until then.",
+     "view": {
+      "type": "table",
+      "cols": [
+       "measure",
+       "value"
+      ],
+      "rows": [
+       [
+        "modules reused unchanged",
+        "—"
+       ],
+       [
+        "modules needing an interface change",
+        "—"
+       ],
+       [
+        "lines reused",
+        "—"
+       ]
+      ]
+     }
+    }
+   ],
+   "hours": 40,
+   "weeks": "W30–32",
+   "status": "open",
+   "built": false,
+   "cumulativeHours": 596,
+   "taskCount": 17,
+   "doneCount": 0,
+   "sources": [
+    "phases/P09-backend-lane.md",
+    "analysis/swarm/tracker.json"
+   ]
+  },
+  {
+   "id": "final",
+   "name": "Final product",
+   "hours": null,
+   "status": "planned",
+   "built": false,
+   "navLabel": "Report",
+   "evidence": [
+    "PLANNED (end state)"
+   ],
+   "weeks": null,
+   "cumulativeHours": 596,
+   "taskCount": null,
+   "doneCount": null,
+   "sources": [
+    "analysis/explainer-src/DESIGN-product.md"
+   ],
+   "delta": "The owner's flow closes: type an issue (text or screenshot), receive an HTML report with before and after on the production UI, verify it, and only then have the agent raise the PR.",
+   "ownerCan": [
+    "Type an issue, with or without a screenshot.",
+    "Open the generated before / after report and verify it.",
+    "Approve, and have the PR raised."
+   ],
+   "moment": {
+    "surfaceId": "final-flow",
+    "caption": "The whole path on one screen: issue in, report out, PR after approval."
+   },
+   "dependsOn": [
+    {
+     "phase": "P8",
+     "why": "GitHub issue and PR plumbing"
+    },
+    {
+     "phase": "P6",
+     "why": "durable workflow and QA wait"
+    },
+    {
+     "phase": "P4",
+     "why": "verdict behind the report"
+    },
+    {
+     "phase": "P3",
+     "why": "the fix"
+    },
+    {
+     "phase": "P1",
+     "why": "the repro"
+    }
+   ],
+   "surfaces": [
+    {
+     "id": "final-flow",
+     "kind": "web",
+     "title": "The owner's flow, source phase per step",
+     "builtToday": false,
+     "artifactPath": null,
+     "sampleOutput": null,
+     "screenId": "ladder",
+     "note": "Where it differs from PLAN.md: the plan triggers from a labelled GitHub issue (P8-T08) and opens the PR as a draft; the owner wants a typed issue, a report first, and the PR only after approval.",
+     "view": {
+      "type": "ladder",
+      "steps": [
+       {
+        "label": "type an issue (text or screenshot)",
+        "state": "wait",
+        "note": "plan: labelled GitHub issue, P8"
+       },
+       {
+        "label": "repro on the buggy tree",
+        "state": "info",
+        "note": "P1 (built, fixture-replayed)"
+       },
+       {
+        "label": "locate + fix",
+        "state": "info",
+        "note": "P2, P3"
+       },
+       {
+        "label": "verify + before / after report",
+        "state": "info",
+        "note": "P4; the report page is the fix-report lane"
+       },
+       {
+        "label": "owner verifies the report",
+        "state": "wait",
+        "note": "plan: QA signal, P6"
+       },
+       {
+        "label": "agent raises the PR",
+        "state": "info",
+        "note": "plan: draft PR, P8-T09"
+       }
+      ]
+     }
+    },
+    {
+     "id": "final-links",
+     "kind": "web",
+     "title": "Open the finished screens",
+     "builtToday": false,
+     "artifactPath": null,
+     "sampleOutput": null,
+     "screenId": "links",
+     "note": "These two views are mock-ups written by sibling lanes.",
+     "view": {
+      "type": "links",
+      "links": [
+       {
+        "href": "#plan/product",
+        "label": "Final product",
+        "sub": "the end-state UI, step by step"
+       },
+       {
+        "href": "#plan/report",
+        "label": "Fix report",
+        "sub": "the shareable before / after page"
+       }
+      ]
+     }
+    }
+   ]
+  }
+ ]
+}

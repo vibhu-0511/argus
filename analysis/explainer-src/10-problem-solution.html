@@ -1,0 +1,662 @@
+<section class="sub" id="sub-problem" data-pane="plan" hidden aria-label="Problem, solution and where the project stands">
+<style>
+#sub-problem .pr-layout{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--s5)}
+@media (min-width:1100px){#sub-problem .pr-layout{grid-template-columns:200px minmax(0,1fr)}}
+#sub-problem .pr-outline{display:none}
+@media (min-width:1100px){
+  #sub-problem .pr-outline{display:block;position:sticky;top:88px;align-self:start;font-family:var(--sans);font-size:13px;border-left:1px solid var(--line)}
+}
+#sub-problem .pr-outline .pr-ol-h{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);padding:0 var(--s3) var(--s2)}
+#sub-problem .pr-outline button{display:flex;gap:var(--s2);align-items:baseline;width:100%;text-align:left;background:none;border:0;border-left:2px solid transparent;margin-left:-1px;padding:8px var(--s3);min-height:36px;color:var(--ink-2);font:inherit;cursor:pointer}
+#sub-problem .pr-outline button:hover{color:var(--ink)}
+#sub-problem .pr-outline button[aria-current="true"]{color:var(--ink);border-left-color:var(--accent);font-weight:600}
+#sub-problem .pr-outline .pr-n{font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+#sub-problem button:focus-visible,#sub-problem summary:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+
+#sub-problem .pr-flow{min-width:0;max-width:880px}
+#sub-problem .pr-sec{padding:var(--s5) 0 var(--s4);border-top:1px solid var(--line-2);scroll-margin-top:84px}
+#sub-problem .pr-sec:first-child{border-top:0;padding-top:0}
+#sub-problem .pr-mark{display:flex;align-items:baseline;gap:var(--s3);margin:0 0 var(--s3)}
+#sub-problem .pr-mark .pr-num{font-family:var(--mono);font-size:13px;color:var(--accent);letter-spacing:.04em}
+#sub-problem .pr-mark h2{font-family:var(--serif);font-weight:600;font-size:clamp(24px,4.2vw,34px);letter-spacing:-.02em;line-height:1.15;margin:0;color:var(--ink)}
+#sub-problem h3{font-family:var(--serif);font-size:19px;letter-spacing:-.01em;margin:var(--s5) 0 var(--s2);color:var(--ink)}
+#sub-problem h3 .pr-sub{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);font-weight:400;margin-left:var(--s2)}
+#sub-problem p{font-family:var(--sans);color:var(--ink-2);line-height:1.6;margin:0 0 var(--s3)}
+#sub-problem .pr-lede{font-family:var(--serif);font-size:clamp(18px,2.6vw,22px);line-height:1.5;color:var(--ink);margin:0 0 var(--s4)}
+#sub-problem .pr-note{font-size:13px;color:var(--ink-3);border-left:2px solid var(--accent);padding:2px 0 2px var(--s3);margin:var(--s3) 0}
+
+#sub-problem .pr-cards{display:grid;gap:var(--s3);grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+#sub-problem .pr-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r2);padding:var(--s4);min-width:0}
+#sub-problem .pr-card b{display:block;font-family:var(--serif);font-size:16px;color:var(--ink);margin-bottom:var(--s1);font-weight:600}
+#sub-problem .pr-card p{font-size:14px;margin-bottom:var(--s2)}
+
+#sub-problem ol.pr-list,#sub-problem ul.pr-list{list-style:none;margin:0;padding:0;display:grid;gap:0}
+#sub-problem .pr-list>li{display:grid;grid-template-columns:28px minmax(0,1fr);gap:var(--s2);padding:var(--s3) 0;border-bottom:1px solid var(--line);font-family:var(--sans);color:var(--ink-2);line-height:1.5;font-size:15px}
+#sub-problem .pr-list>li:last-child{border-bottom:0}
+#sub-problem .pr-list .pr-i{font-family:var(--mono);font-size:12px;color:var(--ink-3);padding-top:2px}
+#sub-problem .pr-list .pr-body{min-width:0}
+
+/* chips (own, so the fragment never depends on shell chip variants) */
+#sub-problem .pr-chip{display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:11px;line-height:1;letter-spacing:.03em;padding:4px 7px;border-radius:99px;border:1px solid var(--line);color:var(--ink-2);background:var(--surface-2);white-space:normal;line-height:1.3;max-width:100%}
+#sub-problem .pr-stage header .pr-chip,#sub-problem .pr-m .pr-chip{white-space:normal;line-height:1.3}
+#sub-problem .pr-chip.ok{color:var(--ok);border-color:var(--ok)}
+#sub-problem .pr-chip.warn{color:var(--warn);border-color:var(--warn)}
+#sub-problem .pr-chip.bad{color:var(--bad);border-color:var(--bad)}
+#sub-problem .pr-chip.info{color:var(--info);border-color:var(--info)}
+#sub-problem .pr-chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:var(--s2)}
+#sub-problem .pr-src{font-family:var(--mono);font-size:11px;padding:3px 7px;border-radius:var(--r1);border:1px solid var(--line);background:var(--surface-2);color:var(--ink-3);cursor:copy;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-height:26px}
+#sub-problem .pr-src:hover{color:var(--ink);border-color:var(--ink-3)}
+#sub-problem .pr-src.pr-copied{color:var(--ok);border-color:var(--ok)}
+
+/* measured callouts */
+#sub-problem .pr-meas{display:grid;gap:var(--s3);grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin-top:var(--s3)}
+#sub-problem .pr-m{background:var(--surface);border:1px solid var(--line);border-radius:var(--r2);padding:var(--s4);min-width:0}
+#sub-problem .pr-m.pr-fix{border-color:var(--warn)}
+#sub-problem .pr-m .pr-lbl{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+#sub-problem .pr-m .pr-val{font-family:var(--mono);font-size:clamp(20px,3vw,26px);color:var(--ink);margin:var(--s1) 0 var(--s2);word-break:break-word}
+#sub-problem .pr-m .pr-real{font-size:14px;color:var(--ink);background:var(--surface-2);border-radius:var(--r1);padding:var(--s2) var(--s3);margin:var(--s2) 0}
+#sub-problem .pr-m .pr-real b{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--warn);display:block;margin-bottom:2px}
+#sub-problem .pr-m p{font-size:14px}
+
+/* principles */
+#sub-problem .pr-prin{display:grid;gap:var(--s2);grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+#sub-problem .pr-prin>div{border:1px solid var(--line);border-radius:var(--r2);padding:var(--s3);background:var(--surface);font-size:14px;color:var(--ink-2);line-height:1.5}
+#sub-problem .pr-prin b{font-family:var(--mono);font-size:11px;color:var(--accent);margin-right:6px}
+
+/* pipeline strip */
+#sub-problem .pr-strip{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;margin:var(--s3) 0 var(--s4);border:1px solid var(--line);border-radius:var(--r2);overflow:hidden;background:var(--surface)}
+#sub-problem .pr-strip button{background:none;border:0;border-right:1px solid var(--line);padding:var(--s3) var(--s2);text-align:left;font:inherit;color:var(--ink);cursor:pointer;min-height:64px;min-width:0;position:relative}
+#sub-problem .pr-strip button:last-child{border-right:0}
+#sub-problem .pr-strip button:hover{background:var(--surface-2)}
+#sub-problem .pr-strip .pr-sn{font-family:var(--mono);font-size:11px;color:var(--ink-3);display:block}
+#sub-problem .pr-strip .pr-nm{font-family:var(--serif);font-size:15px;font-weight:600;display:block;overflow-wrap:anywhere}
+#sub-problem .pr-strip .pr-bar{position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--line)}
+#sub-problem .pr-strip .pr-bar.built{background:var(--ok)}
+#sub-problem .pr-strip .pr-bar.part{background:var(--warn)}
+@media (max-width:640px){#sub-problem .pr-strip{grid-template-columns:1fr}#sub-problem .pr-strip button{border-right:0;border-bottom:1px solid var(--line);min-height:48px;display:flex;gap:var(--s3);align-items:baseline}#sub-problem .pr-strip button:last-child{border-bottom:0}}
+#sub-problem .pr-legend{font-size:12px;color:var(--ink-3);font-family:var(--mono);margin:calc(-1 * var(--s2)) 0 var(--s4)}
+
+/* stage cards */
+#sub-problem .pr-stage{border:1px solid var(--line);border-radius:var(--r2);background:var(--surface);margin:0 0 var(--s4);scroll-margin-top:84px}
+#sub-problem .pr-stage>header{display:flex;flex-wrap:wrap;gap:var(--s2) var(--s3);align-items:baseline;padding:var(--s3) var(--s4);border-bottom:1px solid var(--line)}
+#sub-problem .pr-stage .pr-sid{font-family:var(--mono);font-size:12px;color:var(--accent)}
+#sub-problem .pr-stage h4{font-family:var(--serif);font-size:22px;letter-spacing:-.015em;margin:0;font-weight:600;color:var(--ink)}
+#sub-problem .pr-stage header .pr-sp{flex:1}
+#sub-problem .pr-stage .pr-bd{padding:var(--s4);display:grid;gap:var(--s3)}
+#sub-problem .pr-io{display:grid;grid-template-columns:minmax(0,1fr) 24px minmax(0,1fr);gap:var(--s2);align-items:stretch;font-size:13px;color:var(--ink-2)}
+#sub-problem .pr-io>div:not(.pr-arrow){border:1px dashed var(--line);border-radius:var(--r1);padding:var(--s2) var(--s3);min-width:0;overflow-wrap:anywhere}
+#sub-problem .pr-io .pr-arrow{display:flex;align-items:center;justify-content:center;color:var(--ink-3)}
+#sub-problem .pr-io small{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin-bottom:2px}
+@media (max-width:560px){#sub-problem .pr-io{grid-template-columns:1fr}#sub-problem .pr-io .pr-arrow{transform:rotate(90deg);height:20px}}
+#sub-problem .pr-inv{background:color-mix(in srgb,var(--accent) 7%,var(--surface));border-left:3px solid var(--accent);padding:var(--s3) var(--s4);border-radius:0 var(--r1) var(--r1) 0;color:var(--ink);font-size:15px;line-height:1.55;font-family:var(--sans)}
+#sub-problem .pr-inv small,#sub-problem .pr-k{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin-bottom:4px}
+#sub-problem .pr-k{margin:0 0 2px}
+#sub-problem .pr-own{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+#sub-problem .pr-pkg{font-family:var(--mono);font-size:12px;border:1px solid var(--line);border-radius:var(--r1);padding:4px 8px;background:var(--surface-2);color:var(--ink)}
+#sub-problem .pr-pkg.pr-planned{border-style:dashed;color:var(--ink-2);background:transparent}
+#sub-problem .pr-cmp{font-family:var(--mono);font-size:11px;padding:3px 7px;border-radius:99px;border:1px solid var(--line);color:var(--ink-2)}
+#sub-problem .pr-cmp.built{border-color:var(--ok);color:var(--ok)}
+#sub-problem .pr-cmp.planned{border-style:dashed;color:var(--ink-3)}
+#sub-problem details.pr-cav{border:1px solid color-mix(in srgb,var(--warn) 60%,var(--line));border-radius:var(--r1);padding:0 var(--s3);background:color-mix(in srgb,var(--warn) 6%,var(--surface))}
+#sub-problem details.pr-cav summary{cursor:pointer;padding:var(--s2) 0;min-height:40px;display:flex;align-items:center;font-size:14px;color:var(--ink);font-weight:600;font-family:var(--sans)}
+#sub-problem details.pr-cav p{font-size:14px}
+#sub-problem details.pr-oq{margin-top:var(--s2);border:1px solid var(--line);border-radius:var(--r1);background:var(--surface);padding:0 var(--s3)}
+#sub-problem details.pr-oq summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-family:var(--sans);font-size:14px;color:var(--ink)}
+#sub-problem details.pr-oq p{font-size:14px}
+
+/* standing */
+#sub-problem .pr-head{background:var(--surface);border:1px solid var(--warn);border-radius:var(--r2);padding:var(--s4);font-family:var(--serif);font-size:clamp(17px,2.4vw,20px);line-height:1.5;color:var(--ink);margin-bottom:var(--s4)}
+#sub-problem .pr-head small{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin-bottom:var(--s2)}
+#sub-problem .pr-ph{display:grid;gap:var(--s3);grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+#sub-problem .pr-ph .pr-card{display:grid;gap:var(--s2);align-content:start}
+#sub-problem .pr-ph .pr-big{font-family:var(--mono);font-size:26px;color:var(--ink)}
+#sub-problem .pr-ph .pr-big span{font-size:13px;color:var(--ink-3);margin-left:6px}
+#sub-problem .pr-prog{height:6px;border-radius:99px;background:var(--line);overflow:hidden}
+#sub-problem .pr-prog i{display:block;height:100%;background:var(--ok)}
+#sub-problem .pr-lg{display:grid;gap:6px;margin:var(--s3) 0;font-size:13px;color:var(--ink-2)}
+#sub-problem .pr-lg div{display:flex;gap:var(--s2);align-items:baseline;flex-wrap:wrap}
+#sub-problem .pr-lg .pr-chip{min-width:112px;justify-content:center}
+#sub-problem .pr-bar-row{display:flex;flex-wrap:wrap;gap:var(--s2);align-items:center;margin:var(--s3) 0 var(--s2)}
+#sub-problem .pr-seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--line);border-radius:var(--r2);overflow:hidden}
+#sub-problem .pr-seg button{background:var(--surface);color:var(--ink-2);border:0;border-right:1px solid var(--line);padding:0 var(--s3);min-height:40px;font:inherit;font-size:13px;cursor:pointer}
+#sub-problem .pr-seg button:last-child{border-right:0}
+#sub-problem .pr-seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+#sub-problem .pr-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r2);background:var(--surface)}
+#sub-problem table.pr-tbl{border-collapse:collapse;width:100%;font-family:var(--sans);font-size:14px}
+#sub-problem .pr-tbl th{text-align:left;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);font-weight:400;padding:var(--s2) var(--s3);border-bottom:1px solid var(--line);white-space:nowrap}
+#sub-problem .pr-tbl td{padding:var(--s3);border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2);line-height:1.5}
+#sub-problem .pr-tbl tr:last-child td{border-bottom:0}
+#sub-problem .pr-tbl td.pr-c1{color:var(--ink);min-width:200px}
+#sub-problem .pr-tbl .pr-id{font-family:var(--mono);font-size:12px;color:var(--ink-3);display:block}
+#sub-problem .pr-tbl .pr-mono{font-family:var(--mono);font-size:12px;color:var(--ink);overflow-wrap:anywhere}
+#sub-problem .pr-tbl td .pr-chips{margin-top:var(--s2)}
+#sub-problem table.pr-claims{min-width:720px}
+#sub-problem .pr-tbl .pr-src{white-space:normal;overflow-wrap:anywhere;text-align:left;display:block;max-width:100%;width:100%}
+#sub-problem .pr-tbl td .pr-chips{display:grid;gap:6px}
+#sub-problem .pr-tbl td:last-child{width:26%}
+@media (max-width:640px){
+  #sub-problem .pr-scroll.pr-stack{border:0;background:none;overflow:visible}
+  #sub-problem .pr-stack table.pr-claims{min-width:0}
+  #sub-problem .pr-stack thead{display:none}
+  #sub-problem .pr-stack tr,#sub-problem .pr-stack td,#sub-problem .pr-stack tbody{display:block}
+  #sub-problem .pr-stack tr{border:1px solid var(--line);border-radius:var(--r2);background:var(--surface);margin-bottom:var(--s3);padding:var(--s2) 0}
+  #sub-problem .pr-stack td{border:0;padding:6px var(--s3)}
+  #sub-problem .pr-stack td[data-l]::before{content:attr(data-l);display:block;font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+}
+#sub-problem .pr-fix-list{list-style:none;margin:0;padding:0;display:grid;gap:var(--s2)}
+#sub-problem .pr-fix-list li{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:var(--s3);align-items:start;border:1px solid var(--line);border-radius:var(--r2);padding:var(--s3);background:var(--surface);font-size:14px;color:var(--ink);line-height:1.45}
+#sub-problem .pr-fix-list li.pr-qw{border-color:var(--ok)}
+#sub-problem .pr-fix-list .pr-gid{font-family:var(--mono);font-size:12px;color:var(--accent);padding-top:2px}
+#sub-problem .pr-fix-list .pr-ie{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+@media (max-width:520px){#sub-problem .pr-fix-list li{grid-template-columns:44px minmax(0,1fr)}#sub-problem .pr-fix-list .pr-ie{grid-column:2;justify-content:flex-start}}
+#sub-problem .pr-two{display:grid;gap:var(--s3);grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+#sub-problem .pr-two ul{margin:0;padding-left:var(--s4);font-size:14px;color:var(--ink-2);line-height:1.55}
+#sub-problem .pr-two li{margin-bottom:6px}
+#sub-problem .pr-empty{color:var(--ink-3);font-size:14px}
+@media (prefers-reduced-motion:no-preference){#sub-problem .pr-flow{animation:pr-in .18s ease-out}@keyframes pr-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}}
+</style>
+
+<div class="pr-layout">
+  <nav class="pr-outline" aria-label="On this page" id="pr-outline"></nav>
+  <div class="pr-flow" id="pr-flow"></div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var A = window.ARGUS || {};
+  var root = document.getElementById('pr-flow');
+  var outline = document.getElementById('pr-outline');
+  if (!root) return;
+
+  /* ---------- tiny DOM helpers (all text goes through textContent) ---------- */
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function add(parent) {
+    for (var i = 1; i < arguments.length; i++) {
+      var c = arguments[i];
+      if (c == null || c === false) continue;
+      parent.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+    }
+    return parent;
+  }
+  function chip(text, kind) { return el('span', 'pr-chip' + (kind ? ' ' + kind : ''), text); }
+
+  /* source chips: "file:line" copies to clipboard on click */
+  function copyText(t, done) {
+    function fallback() {
+      try {
+        var ta = document.createElement('textarea');
+        ta.value = t; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+        done(true);
+      } catch (e) { done(false); }
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(t).then(function () { done(true); }, fallback);
+    } else fallback();
+  }
+  function src(s) {
+    var b = el('button', 'pr-src', s);
+    b.type = 'button';
+    b.title = 'Copy ' + s;
+    b.setAttribute('aria-label', 'Copy source reference ' + s);
+    b.addEventListener('click', function () {
+      copyText(s, function (ok) {
+        b.textContent = ok ? 'copied' : 'copy failed';
+        b.classList.add('pr-copied');
+        setTimeout(function () { b.textContent = s; b.classList.remove('pr-copied'); }, 1200);
+      });
+    });
+    return b;
+  }
+  function srcs(v) {
+    var list = Array.isArray(v) ? v : String(v || '').split(/,\s+/);
+    list = list.map(function (x) { return x.trim(); }).filter(Boolean);
+    if (!list.length) return null;
+    var w = el('div', 'pr-chips');
+    list.forEach(function (s) { w.appendChild(src(s)); });
+    return w;
+  }
+
+  var VERDICT = {
+    REAL: { cls: 'ok', mark: '✓ ' },
+    REAL_RECORDED: { cls: 'info', mark: '○ ' },
+    FIXTURE_ONLY: { cls: 'warn', mark: '△ ' },
+    UNVERIFIED: { cls: 'warn', mark: '? ' },
+    REFUTED: { cls: 'bad', mark: '✕ ' }
+  };
+  function vchip(v) {
+    var m = VERDICT[v] || { cls: '', mark: '' };
+    return chip(m.mark + v, m.cls);
+  }
+
+  /* section scaffold */
+  var secs = [];
+  function section(id, num, title) {
+    var s = el('section', 'pr-sec');
+    s.id = 'pr-' + id;
+    s.setAttribute('aria-labelledby', 'pr-h-' + id);
+    var h = el('div', 'pr-mark');
+    var hh = el('h2', null, title); hh.id = 'pr-h-' + id;
+    add(h, el('span', 'pr-num', num), hh);
+    s.appendChild(h);
+    root.appendChild(s);
+    secs.push({ id: id, num: num, title: title, node: s });
+    return s;
+  }
+  function h3(text, sub) {
+    var h = el('h3', null, text);
+    if (sub) h.appendChild(el('span', 'pr-sub', sub));
+    return h;
+  }
+
+  /* ---------- 01 Problem ---------- */
+  function renderProblem() {
+    var P = A.problem; if (!P) return;
+    var s = section('problem', '01', 'The problem');
+    add(s, el('p', 'pr-lede', P.statement));
+
+    s.appendChild(h3('Who hurts'));
+    var cards = el('div', 'pr-cards');
+    (P.whoHurts || []).forEach(function (w) {
+      var c = el('div', 'pr-card');
+      add(c, el('b', null, w.who), el('p', null, w.pain), srcs(w.source));
+      cards.appendChild(c);
+    });
+    s.appendChild(cards);
+
+    s.appendChild(h3('Why it costs so much', 'per ticket'));
+    var ol = el('ol', 'pr-list');
+    (P.whyCostly || []).forEach(function (w, i) {
+      var li = el('li');
+      add(li, el('span', 'pr-i', String(i + 1).padStart(2, '0')),
+        add(el('div', 'pr-body'), el('span', null, w.point), srcs(w.source)));
+      ol.appendChild(li);
+    });
+    s.appendChild(ol);
+  }
+
+  /* ---------- 02 Why naive fixing fails ---------- */
+  function claim(id) {
+    var cl = (A.evidence && A.evidence.claims) || [];
+    for (var i = 0; i < cl.length; i++) if (cl[i].id === id) return cl[i];
+    return null;
+  }
+  var KIND_CLS = { measured: 'info', reasoned: '', fixture: 'warn' };
+  function kindChip(k) {
+    var key = /^measured/.test(k) ? 'measured' : /fixture/.test(k) ? 'fixture' : 'reasoned';
+    return chip(k, KIND_CLS[key]);
+  }
+  function renderNaive() {
+    var P = A.problem; if (!P) return;
+    var s = section('naive', '02', 'Why naive LLM fixing fails');
+    add(s, el('p', null, 'The obvious design is one prompt: ticket plus files in, patch out. The evidence for and against that is below, with each item labelled by how it is known: measured, reasoned, or fixture-only.'));
+    var ol = el('ol', 'pr-list');
+    (P.whyNaiveFails || []).forEach(function (w, i) {
+      var li = el('li');
+      var b = el('div', 'pr-body');
+      add(b, el('strong', null, w.claim), el('p', null, w.evidence), add(el('div', 'pr-chips'), kindChip(w.kind)));
+      var sc = srcs(w.source); if (sc) { sc.style.marginTop = '6px'; b.appendChild(sc); }
+      add(li, el('span', 'pr-i', String(i + 1).padStart(2, '0')), b);
+      ol.appendChild(li);
+    });
+    s.appendChild(ol);
+
+    s.appendChild(h3('Two headline numbers, read correctly', 'do not quote either as model skill'));
+    var map = [
+      { claimId: 'C2', real: 'Harness and quota limits, not model skill. Half the sample never reached the model.' },
+      { claimId: 'C1', real: 'Plumbing proof only. Every reply is the same canned script, so the result is true by construction.' }
+    ];
+    var grid = el('div', 'pr-meas');
+    (P.measured || []).forEach(function (m, i) {
+      var cl = claim((map[i] || {}).claimId);
+      var card = el('div', 'pr-m' + (/NOT/.test(m.kind) ? ' pr-fix' : ''));
+      add(card, el('div', 'pr-lbl', m.label), el('div', 'pr-val', m.value),
+        add(el('div', 'pr-chips'), kindChip(m.kind), cl ? vchip(cl.verdict) : null));
+      var real = el('div', 'pr-real');
+      add(real, el('b', null, 'What it really is'), (map[i] ? map[i].real : '') + (cl ? ' ' + cl.why : ''));
+      card.appendChild(real);
+      add(card, el('p', null, m.detail), srcs(m.source));
+      grid.appendChild(card);
+    });
+    s.appendChild(grid);
+    s.appendChild(el('p', 'pr-note', 'Repo rule: a result cell stays “—” until a run id backs it. These two numbers are shown because they exist, with their limits attached.'));
+  }
+
+  /* ---------- 03 Solution ---------- */
+  // Package ownership is not in the research JSON; source: repo-structure.md "Packages" table.
+  var OWNER = {
+    S1: [{ pkg: 'packages/repro-agent', lang: 'py' }],
+    S2: [{ pkg: 'packages/dom2src-plugin', lang: 'ts' }, { pkg: 'packages/dom2src-mcp', lang: 'py' }],
+    S3: [{ pkg: 'packages/fix-loop', lang: 'py' }],
+    S4: [{ pkg: 'packages/verify', lang: 'py + ts' }],
+    S5: [{ pkg: 'packages/flow', lang: 'py' }, { pkg: 'packages/app', lang: 'py' }]
+  };
+  function stageTone(st) {
+    if (/^built/.test(st.status)) return /not wired/.test(st.status) ? 'part' : 'built';
+    return 'planned';
+  }
+  function stageChip(st) {
+    var t = stageTone(st);
+    return chip(st.status, t === 'built' ? 'ok' : t === 'part' ? 'warn' : '');
+  }
+  function stagePhases(st) {
+    return String(st.phase).split(/\s*\+\s*/);
+  }
+  function renderSolution() {
+    var S = A.solution; if (!S) return;
+    var s = section('solution', '03', 'The solution: five stages');
+    add(s, el('p', 'pr-lede', S.summary));
+
+    s.appendChild(h3('Principles', 'what every stage obeys'));
+    var pr = el('div', 'pr-prin');
+    (S.principles || []).forEach(function (p) {
+      var d = el('div');
+      add(d, add(el('p', null), el('b', null, p.id), p.text), srcs(p.source));
+      d.firstChild.style.margin = '0 0 6px';
+      pr.appendChild(d);
+    });
+    s.appendChild(pr);
+
+    s.appendChild(h3('The pipeline', 'ticket in, verified PR out'));
+    var strip = el('div', 'pr-strip');
+    var stages = S.stages || [];
+    stages.forEach(function (st) {
+      var b = el('button');
+      b.type = 'button';
+      b.setAttribute('aria-label', st.id + ' ' + st.name + ', ' + st.status + '. Jump to detail');
+      add(b, el('span', 'pr-sn', st.id + ' · ' + st.phase), el('span', 'pr-nm', st.name),
+        el('span', 'pr-bar ' + stageTone(st)));
+      b.addEventListener('click', function () {
+        var t = document.getElementById('pr-stage-' + st.id);
+        if (t) { t.scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth', block: 'start' }); t.querySelector('h4').focus && t.querySelector('h4').focus(); }
+      });
+      strip.appendChild(b);
+    });
+    s.appendChild(strip);
+    s.appendChild(el('div', 'pr-legend', 'bar: green = built, amber = built but the live path is not wired, grey = planned'));
+
+    var comps = A.components || [];
+    stages.forEach(function (st) {
+      var card = el('article', 'pr-stage');
+      card.id = 'pr-stage-' + st.id;
+      var hd = el('header');
+      var h4 = el('h4', null, st.name); h4.tabIndex = -1;
+      add(hd, el('span', 'pr-sid', st.id), h4, chip(st.phase), el('span', 'pr-sp'), stageChip(st));
+      card.appendChild(hd);
+
+      var bd = el('div', 'pr-bd');
+      var io = el('div', 'pr-io');
+      var i1 = el('div'); add(i1, el('small', null, 'Input'), st.input);
+      var i2 = el('div'); add(i2, el('small', null, 'Output'), st.output);
+      var ar = el('div', 'pr-arrow'); ar.setAttribute('aria-hidden', 'true'); ar.textContent = '→';
+      add(io, i1, ar, i2);
+      bd.appendChild(io);
+
+      var inv = el('div', 'pr-inv');
+      add(inv, el('small', null, 'Invariant (checked by code, not by a model)'), st.invariant);
+      bd.appendChild(inv);
+
+      var enf = el('div');
+      add(enf, el('span', 'pr-k', 'Enforced by'), el('span', null, st.enforcedBy));
+      enf.lastChild.style.cssText = 'font-family:var(--mono);font-size:12px;color:var(--ink-2);overflow-wrap:anywhere';
+      bd.appendChild(enf);
+
+      if (st.checksBeforeJudge && st.checksBeforeJudge !== 'n/a' && st.checksBeforeJudge.indexOf('n/a') !== 0) {
+        var cb = el('div'); add(cb, el('span', 'pr-k', 'Checks before the judge'), st.checksBeforeJudge);
+        cb.style.cssText = 'font-size:14px;color:var(--ink-2)';
+        bd.appendChild(cb);
+      }
+
+      var stops = el('div');
+      var sw = el('div', 'pr-chips'); sw.style.marginTop = '0';
+      (st.stops || []).forEach(function (x) { sw.appendChild(chip(x)); });
+      add(stops, el('span', 'pr-k', 'Stops with'), sw);
+      bd.appendChild(stops);
+
+      var own = el('div');
+      var ow = el('div', 'pr-own');
+      var planned = stageTone(st) === 'planned';
+      (OWNER[st.id] || []).forEach(function (o) {
+        var pk = el('span', 'pr-pkg' + (planned ? ' pr-planned' : ''), o.pkg + ' (' + o.lang + ')');
+        ow.appendChild(pk);
+      });
+      ow.appendChild(src('repo-structure.md:19'));
+      add(own, el('span', 'pr-k', 'Owning package (' + (planned ? 'planned: directory is a placeholder' : 'built') + ')'), ow);
+      var ph = stagePhases(st);
+      var mine = comps.filter(function (c) { return ph.indexOf(c.phase) >= 0; });
+      if (mine.length) {
+        var cw = el('div', 'pr-chips');
+        mine.forEach(function (c) { var x = el('span', 'pr-cmp ' + c.status, c.label + ' · ' + c.status); cw.appendChild(x); });
+        add(own, el('span', 'pr-k', 'Components in the HLD'), cw);
+        cw.previousSibling.style.marginTop = '10px';
+      }
+      bd.appendChild(own);
+
+      if (st.caveat) {
+        var d = el('details', 'pr-cav');
+        add(d, el('summary', null, 'Caveat: where this stage is thinner than it looks'), el('p', null, st.caveat));
+        bd.appendChild(d);
+      }
+      var sc = srcs(st.source); if (sc) bd.appendChild(sc);
+      card.appendChild(bd);
+      s.appendChild(card);
+    });
+
+    s.appendChild(h3('Cross-cutting', 'built in P0/P1, used by every stage'));
+    var cc = el('div', 'pr-cards');
+    (S.crossCutting || []).forEach(function (c) {
+      var k = el('div', 'pr-card');
+      add(k, el('b', null, c.name), el('p', null, c.rule), add(el('div', 'pr-chips'), chip(c.status, /^built/.test(c.status) ? 'ok' : '')), srcs(c.source));
+      cc.appendChild(k);
+    });
+    s.appendChild(cc);
+
+    s.appendChild(h3('Open design questions', 'decide before the stage they block'));
+    (S.openQuestions || []).forEach(function (q) {
+      var d = el('details', 'pr-oq');
+      add(d, el('summary', null, q.id + '  ' + q.q.split(/[?.]/)[0] + '…'), el('p', null, q.q), srcs(q.source));
+      s.appendChild(d);
+    });
+  }
+
+  /* ---------- 04 Constraints ---------- */
+  function renderConstraints() {
+    var S = A.problem; if (!S || !S.constraints) return;
+    var s = section('constraints', '04', 'Constraints that shape the design');
+    add(s, el('p', null, 'These are fixed. They explain why quota is a hard stop, why only synthetic or public code goes through free tiers, and why the plan has a cut line.'));
+    var ul = el('ul', 'pr-list');
+    S.constraints.forEach(function (c) {
+      var li = el('li');
+      add(li, el('span', 'pr-i', c.id), add(el('div', 'pr-body'), el('span', null, c.text), srcs(c.source)));
+      ul.appendChild(li);
+    });
+    s.appendChild(ul);
+  }
+
+  /* ---------- 05 Where the project really stands ---------- */
+  function renderStanding() {
+    var E = A.evidence; if (!E) return;
+    var s = section('standing', '05', 'Where the project really stands');
+    var hd = el('div', 'pr-head');
+    add(hd, el('small', null, 'As of ' + (E.asOf || '')), E.headline);
+    s.appendChild(hd);
+
+    // P0 / P1 status
+    var T = (A.tracker && A.tracker.phases) || [];
+    var claims = E.claims || [];
+    var ph = el('div', 'pr-ph');
+    ['P0', 'P1'].forEach(function (pid) {
+      var p = null; T.forEach(function (x) { if (x.id === pid) p = x; });
+      if (!p) return;
+      var c = el('div', 'pr-card');
+      var big = el('div', 'pr-big', p.doneCount + ' / ' + p.taskCount);
+      big.appendChild(el('span', null, 'tasks checked done in TASKS.md'));
+      var bar = el('div', 'pr-prog'); var fill = el('i'); fill.style.width = Math.round(100 * p.doneCount / p.taskCount) + '%'; bar.appendChild(fill);
+      bar.setAttribute('role', 'img'); bar.setAttribute('aria-label', p.doneCount + ' of ' + p.taskCount + ' tasks checked');
+      var tally = {}; claims.forEach(function (cl) { if (cl.phase === pid) tally[cl.verdict] = (tally[cl.verdict] || 0) + 1; });
+      var tw = el('div', 'pr-chips');
+      Object.keys(tally).forEach(function (v) { var x = vchip(v); x.appendChild(document.createTextNode(' ×' + tally[v])); tw.appendChild(x); });
+      add(c, add(el('b', null, pid + ' · ' + p.name), chip('checked done', 'ok')),
+        big, bar,
+        el('p', null, p.hours + ' h budgeted. Evidence on this phase’s claims:'), tw);
+      c.firstChild.style.cssText = 'display:flex;gap:8px;align-items:center;flex-wrap:wrap';
+      ph.appendChild(c);
+    });
+    s.appendChild(ph);
+    s.appendChild(el('p', 'pr-note', 'Checked done means the TASKS.md box is ticked. The verdict chips say how much of that the evidence supports.'));
+
+    // claims table
+    s.appendChild(h3('Claims ledger', 'nine claims, each re-checked'));
+    var lg = el('div', 'pr-lg');
+    Object.keys(E.labels || {}).forEach(function (k) {
+      add(lg, add(el('div'), vchip(k), el('span', null, E.labels[k])));
+    });
+    s.appendChild(lg);
+
+    var seg = el('div', 'pr-seg'); seg.setAttribute('role', 'group'); seg.setAttribute('aria-label', 'Filter claims by verdict');
+    var barRow = add(el('div', 'pr-bar-row'), seg);
+    s.appendChild(barRow);
+    var wrap = el('div', 'pr-scroll pr-stack'); wrap.tabIndex = 0; wrap.setAttribute('aria-label', 'Claims ledger table, scrolls sideways on narrow screens');
+    var tbl = el('table', 'pr-tbl pr-claims');
+    var thead = el('thead'), trh = el('tr');
+    ['Claim', 'Phase', 'Verdict', 'Why', 'Sources'].forEach(function (h) { trh.appendChild(el('th', null, h)); });
+    thead.appendChild(trh); tbl.appendChild(thead);
+    var tb = el('tbody'); tbl.appendChild(tb); wrap.appendChild(tbl); s.appendChild(wrap);
+    var live = el('div', 'pr-sr'); live.className = 'sr-only'; live.setAttribute('aria-live', 'polite'); s.appendChild(live);
+
+    var verdicts = []; claims.forEach(function (c) { if (verdicts.indexOf(c.verdict) < 0) verdicts.push(c.verdict); });
+    var cur = 'ALL';
+    function drawClaims() {
+      tb.textContent = '';
+      var n = 0;
+      claims.forEach(function (c) {
+        if (cur !== 'ALL' && c.verdict !== cur) return;
+        n++;
+        var tr = el('tr');
+        var t1 = el('td', 'pr-c1'); t1.setAttribute('data-l', 'Claim'); add(t1, el('span', 'pr-id', c.id), c.claim);
+        var t2 = el('td'); t2.setAttribute('data-l', 'Phase'); t2.appendChild(el('span', 'pr-mono', c.phase));
+        var t3 = el('td'); t3.setAttribute('data-l', 'Verdict'); t3.appendChild(vchip(c.verdict));
+        var t4 = el('td'); t4.setAttribute('data-l', 'Why'); t4.textContent = c.why;
+        var t5 = el('td'); t5.setAttribute('data-l', 'Sources'); var sc = srcs(c.cite); if (sc) { sc.style.marginTop = '0'; t5.appendChild(sc); }
+        add(tr, t1, t2, t3, t4, t5); tb.appendChild(tr);
+      });
+      live.textContent = n + ' claim' + (n === 1 ? '' : 's') + ' shown';
+    }
+    function drawSeg() {
+      seg.textContent = '';
+      ['ALL'].concat(verdicts).forEach(function (v) {
+        var cnt = v === 'ALL' ? claims.length : claims.filter(function (c) { return c.verdict === v; }).length;
+        var b = el('button', null, (v === 'ALL' ? 'All' : v) + ' ' + cnt); b.type = 'button';
+        b.setAttribute('aria-pressed', String(v === cur));
+        b.addEventListener('click', function () { cur = v; drawSeg(); drawClaims(); });
+        seg.appendChild(b);
+      });
+    }
+    drawSeg(); drawClaims();
+
+    // test runs
+    s.appendChild(h3('Test runs on 2026-10-30', 'commands re-run for this review'));
+    var w2 = el('div', 'pr-scroll'); w2.tabIndex = 0; w2.setAttribute('aria-label', 'Test run results');
+    var t2 = el('table', 'pr-tbl');
+    var th2 = el('thead'), r2 = el('tr'); ['Command', 'Result'].forEach(function (h) { r2.appendChild(el('th', null, h)); });
+    th2.appendChild(r2); t2.appendChild(th2);
+    var b2 = el('tbody');
+    (E.testRuns || []).forEach(function (t) {
+      var bad = /fail|error/i.test(t.result);
+      var tr = el('tr');
+      var a = el('td'); a.appendChild(el('span', 'pr-mono', t.cmd));
+      var b = el('td'); add(b, chip(bad ? '✕ not clean' : '✓ pass', bad ? 'warn' : 'ok'), el('div', null, t.result));
+      b.lastChild.style.marginTop = '6px';
+      add(tr, a, b); b2.appendChild(tr);
+    });
+    t2.appendChild(b2); w2.appendChild(t2); s.appendChild(w2);
+
+    // fix before P2
+    s.appendChild(h3('Fix before P2', 'impact / effort'));
+    var fx = E.fixBeforeP2 || [];
+    var order = 'plan';
+    var seg2 = el('div', 'pr-seg'); seg2.setAttribute('role', 'group'); seg2.setAttribute('aria-label', 'Order of the fix list');
+    s.appendChild(add(el('div', 'pr-bar-row'), seg2,
+      el('span', 'pr-empty', fx.filter(isQW).length + ' of ' + fx.length + ' are high impact and small effort')));
+    var ul = el('ul', 'pr-fix-list'); s.appendChild(ul);
+    function isQW(g) { return g.impact === 'H' && g.effort === 'S'; }
+    var EFF = { S: 0, M: 1, L: 2 };
+    function drawFix() {
+      ul.textContent = '';
+      var arr = fx.slice();
+      if (order === 'quick') arr.sort(function (a, b) {
+        var ia = a.impact === 'H' ? 0 : 1, ib = b.impact === 'H' ? 0 : 1;
+        return ia - ib || EFF[a.effort] - EFF[b.effort];
+      });
+      arr.forEach(function (g) {
+        var li = el('li', isQW(g) ? 'pr-qw' : '');
+        var ie = el('div', 'pr-ie');
+        add(ie, chip('impact ' + g.impact, g.impact === 'H' ? 'bad' : 'warn'),
+          chip('effort ' + ({ S: 'small', M: 'medium', L: 'large' }[g.effort] || g.effort)), isQW(g) ? chip('quick win', 'ok') : null);
+        add(li, el('span', 'pr-gid', g.id), el('span', null, g.title), ie);
+        ul.appendChild(li);
+      });
+    }
+    function drawSeg2() {
+      seg2.textContent = '';
+      [['plan', 'Plan order'], ['quick', 'Quick wins first']].forEach(function (o) {
+        var b = el('button', null, o[1]); b.type = 'button'; b.setAttribute('aria-pressed', String(order === o[0]));
+        b.addEventListener('click', function () { order = o[0]; drawSeg2(); drawFix(); });
+        seg2.appendChild(b);
+      });
+    }
+    drawSeg2(); drawFix();
+
+    var two = el('div', 'pr-two');
+    two.style.marginTop = 'var(--s4)';
+    function listCard(title, arr) {
+      var c = el('div', 'pr-card'); c.appendChild(el('b', null, title));
+      var ul = el('ul');
+      (arr || []).forEach(function (x) { ul.appendChild(el('li', null, x)); });
+      c.appendChild(ul); return c;
+    }
+    two.appendChild(listCard('Fix with its own phase', E.withItsPhase));
+    two.appendChild(listCard('Deferred', E.deferred));
+    s.appendChild(two);
+    if (E.costLevers) s.appendChild(el('p', 'pr-note', E.costLevers));
+    var so = srcs(E.source); if (so) { so.style.marginTop = 'var(--s3)'; s.appendChild(so); }
+  }
+
+  /* ---------- outline (sticky, wide screens) ---------- */
+  function reduced() { return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
+  function renderOutline() {
+    if (!outline) return;
+    outline.textContent = '';
+    outline.appendChild(el('div', 'pr-ol-h', 'On this page'));
+    var btns = {};
+    secs.forEach(function (x) {
+      var b = el('button'); b.type = 'button';
+      add(b, el('span', 'pr-n', x.num), el('span', null, x.title.replace(/^The /, '').replace(/^./, function (c) { return c.toUpperCase(); })));
+      b.addEventListener('click', function () { x.node.scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth', block: 'start' }); });
+      outline.appendChild(b); btns[x.id] = b;
+    });
+    function mark(id) { Object.keys(btns).forEach(function (k) { if (k === id) btns[k].setAttribute('aria-current', 'true'); else btns[k].removeAttribute('aria-current'); }); }
+    if (secs.length) mark(secs[0].id);
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (es) {
+        es.forEach(function (e) { if (e.isIntersecting) mark(e.target.id.replace(/^pr-/, '')); });
+      }, { rootMargin: '-90px 0px -65% 0px', threshold: 0 });
+      secs.forEach(function (x) { io.observe(x.node); });
+    }
+  }
+
+  function init() {
+    root.textContent = '';
+    renderProblem(); renderNaive(); renderSolution(); renderConstraints(); renderStanding();
+    renderOutline();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+</script>
+</section>

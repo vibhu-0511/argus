@@ -1,0 +1,301 @@
+{
+  "meta": {
+    "lane": "ops-console",
+    "note": "Rows with illustrative=true are layout placeholders, not results. Rows with real=true cite a file. Results cells stay null (render as an em dash).",
+    "siblingRoot": "C:\\Users\\vibha\\Downloads\\data\\dcortex\\dcortex_claude",
+    "tokenSource": "dcortex-platform/apps/canvas/src/styles/tokens.css:13-76 (dark), :79-128 (light)"
+  },
+  "designTokens": {
+    "extracted": {
+      "fonts": {
+        "sans": "IBM Plex Sans",
+        "mono": "IBM Plex Mono",
+        "source": "tokens.css:58-59; console-radar-theme.md:20-22"
+      },
+      "dark": {
+        "--bg-primary": "#0a0f1a",
+        "--bg-secondary": "#101828",
+        "--bg-tertiary": "#16233a",
+        "--text-primary": "#e6edf7",
+        "--text-secondary": "#8494ac",
+        "--text-tertiary": "#5a6a85",
+        "--border-primary": "#1e2a40",
+        "--border-secondary": "#2a3a58",
+        "--accent-primary": "#2563eb",
+        "--accent-primary-hover": "#1d4ed8",
+        "--accent-primary-light": "#1e3a8a",
+        "--accent-success": "#34d399",
+        "--accent-warning": "#ffb547",
+        "--accent-error": "#f87171",
+        "--accent-info": "#60a5fa",
+        "--accent-teal": "#2dd4bf",
+        "--accent-fuchsia": "#e879f9",
+        "--accent-sky": "#38bdf8",
+        "--accent-violet": "#a78bfa",
+        "--surface-card": "#101828",
+        "--surface-hover": "#16233a",
+        "--surface-selected": "#1e3a8a"
+      },
+      "light": {
+        "--bg-primary": "#f8f9fa",
+        "--bg-secondary": "#ffffff",
+        "--text-primary": "#1a1d29",
+        "--text-secondary": "#4a5568",
+        "--border-primary": "#e2e8f0",
+        "--accent-success": "#059669",
+        "--accent-warning": "#b45309",
+        "--accent-error": "#b91c1c",
+        "--accent-info": "#2563eb"
+      },
+      "scale": {
+        "bodyPx": 14,
+        "tablePx": 12.5,
+        "labelPx": "10 uppercase +0.05em",
+        "pillPx": 10,
+        "kpiValuePx": "26-32 mono",
+        "rowHeightPx": 30,
+        "radiusPx": [6, 8, 12],
+        "source": "tokens.css:130-136,166-186,238-251; radar.css:116,160"
+      },
+      "rules": [
+        "tokens only, never hardcode colour (tokens.css:11-12)",
+        "status is colour AND text (StatusPill.tsx:3-6)",
+        "numbers, times, codes in mono with tabular-nums (tokens.css:138-141)",
+        "pill tint = color-mix(accent, transparent 80%) (tokens.css:153-160)"
+      ]
+    },
+    "proposed": {
+      "reuse": "Use every extracted token name unchanged so one stylesheet serves Argus.",
+      "verdict": {
+        "--verdict-pass": "var(--accent-success)",
+        "--verdict-fail": "var(--accent-error)",
+        "--verdict-error": "var(--accent-warning)",
+        "--verdict-advisory": "var(--accent-violet)",
+        "--verdict-skipped": "var(--text-tertiary)"
+      },
+      "ticketState": {
+        "--state-queued": "var(--text-tertiary)",
+        "--state-running": "var(--accent-info)",
+        "--state-awaiting-qa": "var(--accent-warning)",
+        "--state-done": "var(--accent-success)",
+        "--state-failed": "var(--accent-error)",
+        "--state-stuck": "var(--accent-fuchsia)",
+        "--state-quota-wait": "var(--accent-sky)",
+        "note": "State names are proposed; P6-T02 owns the real list. Only awaiting-qa and done are named in phases/P06-argus-flow.md:39,44."
+      },
+      "phaseChips": {
+        "source": "PLAN.md:134-145 classDef fills, use as 18% tints behind the P-label",
+        "--phase-p0": "#1d4ed8",
+        "--phase-p1": "#0e7490",
+        "--phase-p2": "#15803d",
+        "--phase-p3": "#a16207",
+        "--phase-p4": "#c2410c",
+        "--phase-p5": "#be185d",
+        "--phase-p55": "#7e22ce",
+        "--phase-p6": "#4338ca",
+        "--phase-p7": "#b91c1c",
+        "--phase-p8": "#047857",
+        "--phase-p9": "#4b5563"
+      },
+      "provenance": {
+        "--badge-replay": "var(--accent-warning)",
+        "--badge-illustrative": "diagonal hatch overlay + corner label ILLUSTRATIVE",
+        "--badge-published": "dotted underline + tooltip 'published, not measured'",
+        "rule": "Any run with meta.host == 'fixture' gets REPLAY. Any placeholder cell gets the hatch. Any quota number not from response headers gets 'published'."
+      }
+    }
+  },
+  "patternSources": [
+    {"pattern": "Shell (header, rail, sidebar, toolbar)", "project": "dcortex-platform", "path": "platform/canvas-ui/src/Shell.tsx:20-39"},
+    {"pattern": "KPI strip with action-tinted tile", "project": "dcortex-platform", "path": "apps/canvas/src/ops/radar.css:111-122; Radar.tsx:912-925"},
+    {"pattern": "KpiCard / KpiGrid", "project": "dcortex-platform", "path": "platform/canvas-ui/src/KpiCard.tsx"},
+    {"pattern": "ReviewQueue / ReviewSidebar (grouped rcards, tabs with counts)", "project": "dcortex-platform", "path": "platform/canvas-ui/src/ReviewQueue.tsx; ReviewSidebar.tsx"},
+    {"pattern": "DataTable (sort, page, CSV, row-expand)", "project": "dcortex-platform", "path": "platform/canvas-ui/src/DataTable.tsx:22-56"},
+    {"pattern": "MonitorMatrix (severity chips per cell)", "project": "dcortex-platform", "path": "platform/canvas-ui/src/MonitorMatrix.tsx:1-50; styles.css:380-398"},
+    {"pattern": "Timeline with slider handles and density bars", "project": "dcortex-platform", "path": "apps/canvas/src/ops/Timeline.tsx:130-143,184-205; ops.css:36-54"},
+    {"pattern": "Feed freshness pill: live / stale / replay + stale banner", "project": "dcortex-platform", "path": "apps/canvas/src/ops/Radar.tsx:874-883,1041; radar.css:66-68,86,152"},
+    {"pattern": "Append-only audit table with chain-verified pill, denied vs error states", "project": "dcortex-platform", "path": "apps/canvas/src/screens/AuditLog.tsx:9-12,70-85"},
+    {"pattern": "409 already-decided race handling", "project": "dcortex-platform", "path": "apps/canvas/src/desk/DeskCasePane.tsx:187-200"},
+    {"pattern": "Run detail: status colour, input/output pre blocks, log lines, View trace", "project": "dcortex-agent-builder", "path": "src/app/runs/[id]/page.tsx:85,101-102,162,176"},
+    {"pattern": "Health tiles, 30 s poll, orphan stop with confirm", "project": "dcortex-agent-dock", "path": "portal-ui/src/AdminHealth.tsx:17,40,47-60,100-118"},
+    {"pattern": "Usage stat tiles, UTC quota clock, per-day bar table", "project": "dcortex-agent-dock", "path": "portal-ui/src/MyUsage.tsx:116,135-176"},
+    {"pattern": "Stale run recovery with grace period", "project": "job-scheduler-service", "path": "src/scheduler/recoverStaleJobRuns.ts:3-4,17-45"},
+    {"pattern": "Paged run list API {total,limit,offset,runs}", "project": "job-scheduler-service", "path": "src/routes/runs.ts:7-27"}
+  ],
+  "screens": [
+    {
+      "id": "run-board",
+      "title": "Run board",
+      "phase": "P6 (flow), lists P0/P1 runs earlier",
+      "purpose": "Tickets by workflow state with wave/phase status and quota meter, so the owner sees what is stuck and whether quota allows another run.",
+      "users": ["owner/operator", "QA", "P8 tenant admin"],
+      "borrows": ["radar-kpi strip", "MonitorMatrix (rows=state, cols=phase)", "DataTable", "radar-feed-pill", "AdminHealth confirm-before-destructive"],
+      "fields": [
+        {"name": "ticket.id", "source": "packages/argus-core/schemas/ticket.schema.json"},
+        {"name": "ticket.text", "source": "ticket.schema.json"},
+        {"name": "ticket.screenshot", "source": "ticket.schema.json (nullable)"},
+        {"name": "meta.tier", "source": "task.schema.json TaskMeta (easy|medium|hard)"},
+        {"name": "meta.archetype", "source": "task.schema.json TaskMeta"},
+        {"name": "meta.source", "source": "task.schema.json TaskMeta (seeded|mutated)"},
+        {"name": "meta.run_id", "source": "trajectory.schema.json TrajectoryMeta"},
+        {"name": "meta.model", "source": "trajectory.schema.json TrajectoryMeta"},
+        {"name": "meta.host", "source": "trajectory.schema.json TrajectoryMeta (fixture means replay)"},
+        {"name": "stop_reason", "source": "trajectory.schema.json StopReason, last step"},
+        {"name": "workflow_state", "source": "PROPOSED, P6-T02 owns it", "proposed": true},
+        {"name": "ledger.models[model].requests|tokens|cached", "source": "packages/argus-core/src/argus_core/ledger.py:112-115"},
+        {"name": "quota.requests_per_day|tokens_per_day|requests_per_minute|tokens_per_minute|cached_counts", "source": "docs/quotas.md:37-60"}
+      ],
+      "actions": ["open run", "filter state/tier/archetype/host", "Run next (disabled with the refusing limit named)", "Retry (new run_id)", "Mark stuck run failed (confirm)", "export CSV"],
+      "states": {
+        "loading": "skeleton rows; KPI values aria-busy",
+        "empty": "No tickets yet; show the bench command; counts are 0 not an em dash",
+        "error": "red pill with message; keep last data",
+        "slow": "amber stale pill + banner; Render cold start shown as 'service waking'",
+        "quotaExhausted": "meter red; rows in quota-wait with reset time (UTC midnight); Run next disabled",
+        "stuckRun": "non-terminal past timeout + grace shows stuck chip with age and a reaper action"
+      },
+      "edgeCases": [
+        "fixture-host runs carry a permanent REPLAY badge and are excluded from live aggregates by default",
+        "UTC day roll mid-run (ledger.py:117-120)",
+        "duplicate webhook collapses to one row (P6-T06 SetWorkflowID(ticket_id))",
+        "model with no quota row is refused, shown as 'no quota row', not 0% (ledger.py:83, quotas.md:25)"
+      ],
+      "mockRows": [
+        {"illustrative": false, "real": true, "source": "packages/repro-agent/runs/text-only/*/verdict.json (counted)", "ticket": "30 seeded repro tasks", "state": "repro verdict tally", "host": "fixture", "badge": "REPLAY", "valid": 28, "passes-on-bug": 1, "error": 1},
+        {"illustrative": true, "ticket": "ILLUSTRATIVE-001", "state": "awaiting-qa", "phase": "P6", "tier": "medium", "model": "ILLUSTRATIVE", "host": "ILLUSTRATIVE", "age": "ILLUSTRATIVE"},
+        {"illustrative": true, "ticket": "ILLUSTRATIVE-002", "state": "stuck", "phase": "P3", "tier": "hard", "model": "ILLUSTRATIVE", "host": "ILLUSTRATIVE", "age": "ILLUSTRATIVE"},
+        {"illustrative": true, "ticket": "ILLUSTRATIVE-003", "state": "quota-wait", "phase": "P3", "tier": "easy", "model": "ILLUSTRATIVE", "host": "ILLUSTRATIVE", "age": "ILLUSTRATIVE"}
+      ],
+      "quotaMeterReal": {
+        "model": "openai/gpt-oss-20b",
+        "limits": {"requests_per_day": 1000, "tokens_per_day": 200000, "requests_per_minute": 30, "tokens_per_minute": 8000},
+        "limitsSource": "docs/quotas.md:42-47",
+        "measured": "partial: rpd and tpm from response headers, tpd and rpm published only (quotas.md:35)",
+        "usedToday": {"day": "2026-10-30", "requests": 30, "tokens": 60, "cached": 0, "source": "packages/repro-agent/runs/text-only/ledger.json", "caveat": "fixture replay, 2 tokens per call, not real usage"}
+      }
+    },
+    {
+      "id": "trajectory-viewer",
+      "title": "Trajectory viewer",
+      "phase": "P1/P3/P5",
+      "purpose": "Replay how the agent reached its answer: step timeline, tool calls, tokens, stop reason.",
+      "users": ["owner debugging a run", "failure-taxonomy author (P3)"],
+      "borrows": ["Timeline density bars + slider keys", "agent-builder run detail pre blocks and log lines", "radar-stale banner"],
+      "fields": [
+        {"name": "meta.run_id|task_id|model|host|prompt_hash|git_commit|seed", "source": "trajectory.schema.json TrajectoryMeta"},
+        {"name": "steps[].index", "source": "TrajectoryStep"},
+        {"name": "steps[].kind", "source": "TrajectoryStep (const 'step')"},
+        {"name": "steps[].tool_name", "source": "TrajectoryStep"},
+        {"name": "steps[].tool_error", "source": "TrajectoryStep"},
+        {"name": "steps[].tokens_in|tokens_out|tokens_cached", "source": "TrajectoryStep (cached defaults 0)"},
+        {"name": "steps[].stop_reason", "source": "StopReason enum: submit, step-cap, token-cap, QuotaExceeded, stuck, consecutive-timeout, retry-cap, tool-unavailable"},
+        {"name": "steps[].raw_response", "source": "TrajectoryStep (keeps a rejected call visible)"},
+        {"name": "steps[].message", "source": "TrajectoryStep (object|null)"},
+        {"name": "derived: steps, tool-error rate, redundant-call rate, stuck rate, recover-after-gate-failure rate", "source": "PLAN.md:287; formulas pending P5-T02", "proposed": true}
+      ],
+      "actions": ["scrub/step with arrow keys", "filter tool errors", "copy raw_response", "open verdict for run_id", "open Langfuse trace if configured (P5-T07)", "download JSONL"],
+      "states": {
+        "loading": "meta line first, steps stream in",
+        "empty": "meta present, zero steps: Run started, no step recorded",
+        "error": "schema validation path shown (extra=forbid), raw file download offered",
+        "slow": "N of M steps loaded",
+        "quotaExhausted": "last stop_reason QuotaExceeded; banner 'model would exceed limit: used of cap' (ledger.py:18-24)",
+        "stuckRun": "stop_reason stuck or consecutive-timeout; highlight the repeated tool-call pair"
+      },
+      "edgeCases": [
+        "fixture trajectories have one step with tokens_in=1, tokens_out=1: label REPLAY, token counts not real (runs/text-only/seed-e01/trajectory.jsonl)",
+        "tool_error set while stop_reason null",
+        "last step stop_reason null means live or crashed: check freshness",
+        "raw_response is untrusted page text: render as text only"
+      ],
+      "mockRows": [
+        {"illustrative": false, "real": true, "source": "packages/repro-agent/runs/text-only/seed-e01/trajectory.jsonl", "index": 0, "kind": "step", "tokens_in": 1, "tokens_out": 1, "tokens_cached": 0, "stop_reason": "tool-unavailable", "host": "fixture", "badge": "REPLAY"},
+        {"illustrative": true, "index": 0, "tool_name": "navigate", "tokens_in": null, "tokens_out": null, "stop_reason": null},
+        {"illustrative": true, "index": 1, "tool_name": "click", "tokens_in": null, "tokens_out": null, "stop_reason": null, "tool_error": "ILLUSTRATIVE"},
+        {"illustrative": true, "index": 2, "tool_name": "assert-visible", "tokens_in": null, "tokens_out": null, "stop_reason": "submit"}
+      ]
+    },
+    {
+      "id": "verdict-review",
+      "title": "Verifier verdict review",
+      "phase": "P4 checks, P6 QA signal",
+      "purpose": "Human QA gate: before/after, four deterministic checks, judge label, approve or reject. Judge never overrides a passed check run (P04 goal line 6).",
+      "users": ["QA/owner", "P8 tenant reviewers"],
+      "borrows": ["ReviewSidebar queue", "radar-locked card + radar-primary/secondary buttons", "AuditLog table for decisions", "DeskCasePane 409 race"],
+      "fields": [
+        {"name": "ticket.text, ticket.screenshot{media_type,path}", "source": "ticket.schema.json"},
+        {"name": "Verdict{task_id, ok, checks[{type,ok,reason}], log}", "source": "packages/bench/src/argus_bench/verdict.py:13-24; CheckType pixel_diff|bounding_box|computed_style"},
+        {"name": "scorer exit code 0 pass / 1 fail / 2 infra error", "source": "packages/bench/src/argus_bench/score.py:63-117"},
+        {"name": "repro Verdict valid|passes-on-bug|fails-on-golden|error", "source": "packages/repro-agent/src/repro_agent/verify.py:16-20"},
+        {"name": "checks[].name pixel|overflow|axe|console", "source": "PROPOSED from P4-T02..T05", "proposed": true},
+        {"name": "checks[].route, checks[].rule_ids[], first_failure, short_circuited", "source": "PROPOSED from P4-T04, T06, T25", "proposed": true},
+        {"name": "judge{label, family, model, order_disagreement}, judge_advisory", "source": "PROPOSED from P4 Done-when (phases/P04-verify.md:12)", "proposed": true},
+        {"name": "qa{decision approve|reject, reviewer, reason, idempotency_key, at}", "source": "P6-T08 (idempotency key); fields PROPOSED", "proposed": true}
+      ],
+      "actions": ["approve", "reject (reason required)", "view all routes", "re-run checks", "open trajectory", "re-request review after QA timeout"],
+      "states": {
+        "loading": "image placeholders with fixed aspect ratio",
+        "empty": "Nothing waiting for QA; count of Decided",
+        "error": "a check or image error renders as error, never pass (P4-T28)",
+        "slow": "judge spinner with elapsed; approve enabled only when all four checks pass, judge shown as advisory pending (proposed rule)",
+        "quotaExhausted": "hosted judge error (QuotaExceeded); local Ollama unaffected; decide on checks",
+        "stuckRun": "awaiting-qa past QA timeout: timed-out-qa banner, Re-request review (P6-T08)"
+      },
+      "edgeCases": [
+        "judge disagrees with passed checks: show label, verdict unchanged",
+        "alpha below 0.80: judge card says advisory only (ADR-013)",
+        "font-loading flake: re-run once, count reruns (P4-T26)",
+        "prompt injection in ticket text rendered as plain text (P4-T27)",
+        "409 already decided by another reviewer: show winner and decision",
+        "free-tier prompts may train: public/synthetic code banner on personal profile (PLAN.md:14)",
+        "missing before or after image: check error, not pass"
+      ],
+      "mockRows": [
+        {"illustrative": true, "task": "ILLUSTRATIVE-001", "pixel": "pass", "overflow": "pass", "axe": "fail", "console": "skipped", "first_failure": "axe", "judge": "advisory, pending", "decision": null},
+        {"illustrative": true, "task": "ILLUSTRATIVE-002", "pixel": "pass", "overflow": "pass", "axe": "pass", "console": "pass", "first_failure": null, "judge": "pass (ILLUSTRATIVE)", "decision": null},
+        {"illustrative": true, "task": "ILLUSTRATIVE-003", "pixel": "error", "overflow": "skipped", "axe": "skipped", "console": "skipped", "first_failure": "pixel (missing after image)", "judge": "n/a", "decision": null}
+      ]
+    },
+    {
+      "id": "eval-gate-quota",
+      "title": "Eval, regression gate and quota ledger",
+      "phase": "P5 (uses P0 ledger and docs/quotas.md)",
+      "purpose": "Show phase-over-phase resolve rate with intervals, tokens/bug, latency, the CI gate verdict, and the free-quota burn.",
+      "users": ["owner at phase end", "CI reading the same JSON"],
+      "borrows": ["KpiGrid/KpiCard", "DataTable + CSV", "MyUsage stat tiles and UTC quota clock", "radar-feed-pill stale/replay"],
+      "fields": [
+        {"name": "resolve_rate (resolved/attempted) + Wilson 95% low/high", "source": "packages/repro-agent/src/repro_agent/batch.py:118-126 (z=1.96); PLAN.md:278"},
+        {"name": "tokens/bug in, out, cached (separate)", "source": "PLAN.md:279"},
+        {"name": "$-equivalent", "source": "PLAN.md:280; blank until P5-T11"},
+        {"name": "latency p50/p95, quota wait reported separately", "source": "PLAN.md:281"},
+        {"name": "run_id, model, host, prompt_hash, git_commit, seed", "source": "trajectory.schema.json TrajectoryMeta; PLAN.md:285"},
+        {"name": "gate{status, rule, observed_lower, baseline_lower}", "source": "PROPOSED from P5-T16; thresholds in ADR-017", "proposed": true},
+        {"name": "ledger per model requests, tokens, cached vs requests_per_day, tokens_per_day, requests_per_minute, tokens_per_minute, cached_counts", "source": "ledger.py:112-115; docs/quotas.md:37-60"},
+        {"name": "limit provenance: header | published", "source": "docs/quotas.md:9-11,35"}
+      ],
+      "actions": ["pick baseline run", "compare two result files", "toggle intervals", "export markdown report (P5-T05)", "open gate config", "open Langfuse trace"],
+      "states": {
+        "loading": "tile skeletons, table header kept",
+        "empty": "empty results template, all cells em dash, banner: no run id backs any number yet",
+        "error": "results JSON invalid: red pill, last good report kept",
+        "slow": "static page: built-at commit and time, stale pill if older than latest results commit",
+        "quotaExhausted": "model bar red 'QuotaExceeded at requests_per_day', next reset, partial results shown (P0 break-it 4)",
+        "stuckRun": "ledger-active run with no event past grace: may be hung"
+      },
+      "edgeCases": [
+        "P0 baseline cell shows -0.000000: clamp the lower bound at 0 (batch.py:126 clamps; phases/P00-argus-bench.md:85 does not)",
+        "tiny n (0/1 gives [0.000, 0.793]): difference smaller than interval is 'no difference' (PLAN.md:286)",
+        "mixed hosts in one table: split by host, never pool fixture with live",
+        "cached tokens not charged when cached_counts is false but still shown in cached column",
+        "Groq reset header is not a calendar-day boundary (quotas.md:11) while the ledger rolls on UTC date (ledger.py:117-120): show both",
+        "tokens_per_day and requests_per_minute are published, not measured: tag 'published'"
+      ],
+      "mockRows": [
+        {"illustrative": false, "real": true, "source": "phases/P00-argus-bench.md:85", "variant": "P0 baseline A", "resolve_rate": "0/10", "wilson95": [0.0, 0.277540], "tokens_in": 4585, "tokens_out": 1044, "tokens_cached": 0, "usd_equiv": null, "p50_s": 3.652305, "p95_s": 4.842286},
+        {"illustrative": false, "real": true, "source": "phases/P00-argus-bench.md:86", "variant": "P0 mutated B", "resolve_rate": "0/1", "wilson95": [0.0, 0.793457], "tokens_in": 3516, "tokens_out": 713, "tokens_cached": 0, "usd_equiv": null, "p50_s": null, "p95_s": null},
+        {"illustrative": false, "real": true, "source": "packages/repro-agent/runs/*/*/verdict.json (counted)", "variant": "P1 repro verdicts, text-only and text-plus-image", "resolve_rate": null, "valid": 28, "of": 30, "host": "fixture", "badge": "REPLAY", "note": "canned scripts, not a model resolve rate"},
+        {"illustrative": true, "variant": "P3 ILLUSTRATIVE", "resolve_rate": null, "wilson95": null, "tokens_in": null, "tokens_out": null, "tokens_cached": null, "usd_equiv": null, "p50_s": null, "p95_s": null, "gate": "n/a"}
+      ]
+    }
+  ]
+}
