@@ -1,0 +1,25 @@
+{
+  "$id": "https://argus.local/schemas/repro/assert-visible.schema.json",
+  "additionalProperties": false,
+  "description": "Succeed when exactly one node has this role and accessible name.",
+  "properties": {
+    "name": {
+      "description": "Accessible name.",
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+    },
+    "role": {
+      "description": "Accessibility role.",
+      "minLength": 1,
+      "title": "Role",
+      "type": "string"
+    }
+  },
+  "required": [
+    "role",
+    "name"
+  ],
+  "title": "AssertVisibleArgs",
+  "type": "object"
+}

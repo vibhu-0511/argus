@@ -1,0 +1,45 @@
+{
+  "$id": "https://argus.local/schemas/repro/type.schema.json",
+  "additionalProperties": false,
+  "description": "Type text into the node with this role and accessible name.",
+  "properties": {
+    "name": {
+      "description": "Accessible name.",
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+    },
+    "ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Snapshot ref. A missing ref is stale-target.",
+      "title": "Ref"
+    },
+    "role": {
+      "description": "Accessibility role, such as textbox.",
+      "minLength": 1,
+      "title": "Role",
+      "type": "string"
+    },
+    "text": {
+      "description": "Text to type.",
+      "minLength": 1,
+      "title": "Text",
+      "type": "string"
+    }
+  },
+  "required": [
+    "role",
+    "name",
+    "text"
+  ],
+  "title": "TypeArgs",
+  "type": "object"
+}
