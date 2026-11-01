@@ -1,0 +1,11 @@
+# Variant A of the P5-T14 run with Claude sessions as the model: every stage on the strong tier.
+# The "models" are subagent tiers (the Agent tool's model parameter: sonnet for strong, haiku for cheap), labelled with
+# the ids the Claude API documents for those families; nothing here calls a provider. Host name: claude-session.
+stages:
+  repro: strong
+  localize: strong
+  fix: strong
+tiers:
+  strong:
+    primary: {host: claude-session, model: claude-sonnet-5-5}
+fallback_on: [quota_exceeded, http_429]

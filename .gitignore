@@ -12,3 +12,5 @@ node_modules/
 .local/
 test-results/
 playwright-report/
+packages/eval/runs/
+packages/eval/swarm/replies/*.txt
