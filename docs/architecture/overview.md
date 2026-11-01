@@ -1,6 +1,6 @@
-# Architecture overview (P0 to P4)
+# Architecture overview (P0 to P5)
 
-As-built view of Argus after phase P4. Later phases are not drawn. This file grows by one phase in each stacked pull request; the diagram source is the same text the PR description shows.
+As-built view of Argus after phase P5 (so far). Later phases are not drawn. This file grows by one phase in each stacked pull request; the diagram source is the same text the PR description shows.
 
 ```mermaid
 flowchart LR
@@ -49,12 +49,18 @@ flowchart LR
     TRAJ["trajectory JSONL<br/>and replay"]:::p3
   end
 
-  subgraph S4 ["P4 verify (NEW IN THIS PR)"]
+  subgraph S4 ["P4 verify"]
     CHECKS["checks in order<br/>pixel, overflow, axe, console"]:::p4
     JUDGE["vision judge<br/>advisory only"]:::p4
     BOK["best-of-k<br/>default k 1, cap 5"]:::p4
     CAL["100 calibration pairs<br/>and alpha code"]:::p4
     VCI["verify.yml<br/>stored-pair gate"]:::p4
+  end
+
+  subgraph S5 ["P5 eval (NEW IN THIS PR)"]
+    METRICS["trajectory metrics<br/>five formulas, docs/metrics.md"]:::p5
+    RUNNER["eval runner<br/>Wilson 95% interval, results JSON"]:::p5
+    PRICES["price table<br/>dated list prices, dollar equivalent"]:::p5
   end
 
   BUGSMITH --> FILTER
@@ -103,6 +109,11 @@ flowchart LR
   BOK --> FIX
   CAL --> JUDGE
   VCI --> CHECKS
+  TRAJ --> METRICS
+  SEEDED --> RUNNER
+  RUNNER --> METRICS
+  RUNNER -. "agent under test" .-> FIX
+  PRICES -. "wired in wave 2" .-> RUNNER
 
   classDef p0 fill:#dbeafe,stroke:#1d4ed8,stroke-width:1.5px,color:#111827
   style S0 fill:none,stroke:#1d4ed8,stroke-width:1.5px
@@ -112,10 +123,12 @@ flowchart LR
   style S2 fill:none,stroke:#15803d,stroke-width:1.5px
   classDef p3 fill:#fef9c3,stroke:#a16207,stroke-width:1.5px,color:#111827
   style S3 fill:none,stroke:#a16207,stroke-width:1.5px
-  classDef p4 fill:#ffedd5,stroke:#c2410c,stroke-width:4px,color:#111827
-  style S4 fill:none,stroke:#c2410c,stroke-width:4px
+  classDef p4 fill:#ffedd5,stroke:#c2410c,stroke-width:1.5px,color:#111827
+  style S4 fill:none,stroke:#c2410c,stroke-width:1.5px
+  classDef p5 fill:#fce7f3,stroke:#be185d,stroke-width:4px,color:#111827
+  style S5 fill:none,stroke:#be185d,stroke-width:4px
   classDef ext fill:#ffffff,stroke:#6b7280,color:#111827,stroke-dasharray: 4 3
-  linkStyle 39,40,41,42,43,44,45 stroke-width:3px
+  linkStyle 46,47,48,49,50 stroke-width:3px
 ```
 
 ## How to read it
@@ -128,9 +141,15 @@ flowchart LR
 | Dotted arrow | a stored input (`fixture`), a test-only link or an advisory link, not a live call |
 | Thick arrow | a link added in this phase |
 
-Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange.
+Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink.
 
-## What P4 adds
+## What P5 adds (so far)
+
+- `packages/eval`: the five trajectory metrics (steps, tool-error rate, redundant-call rate, stuck rate, recover-after-gate-failure rate) over stored trajectory files, and a runner that writes one results JSON with a Wilson 95% interval. The results JSON is the file the report, gate and dashboard read.
+- `packages/argus-core/prices.json`: dated list prices per model and the dollar-equivalent function. Not wired into results yet.
+- Per-task detail: `docs/architecture/p5.md`.
+
+## What P4 added
 
 - `packages/verify`: four fixed checks in a fixed order (pixel, overflow, axe, console); a hard failure returns one verdict and stops.
 - A vision judge that is advisory only and never overrides a passing check run.
