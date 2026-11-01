@@ -1,0 +1,708 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Argus · learning explainer</title>
+<link rel="icon" href="data:,">
+<script>try{var t=localStorage.getItem("argus-learn-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}window.__errs=[];addEventListener("error",function(e){window.__errs.push(String(e.message));});</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07090d;--card:#10151d;--line:#202a38;--text:#e8edf4;--dim:#93a1b6;--amber:#ffb000;--cyan:#3de0ff;--red:#ff5d6c;--green:#4be3a0;--glow:rgba(255,176,0,.07);--glow2:rgba(61,224,255,.06);--gridc:rgba(147,161,182,.05);--ease:cubic-bezier(.2,.8,.2,1);--head:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;--body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace}
+:root[data-theme=light]{--bg:#f3efe6;--card:#fffdf8;--line:#ddd3bf;--text:#1f1a10;--dim:#6b6250;--amber:#b36a00;--cyan:#08718c;--red:#c2263a;--green:#0a7d52;--glow:rgba(179,106,0,.07);--glow2:rgba(8,113,140,.05);--gridc:rgba(60,45,10,.06)}
+*{box-sizing:border-box}
+html,body{overflow-x:hidden}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.55 var(--body)}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(900px 500px at 12% -5%,var(--glow),transparent 60%),radial-gradient(800px 500px at 100% 100%,var(--glow2),transparent 60%),linear-gradient(var(--gridc) 1px,transparent 1px) 0 0/46px 46px,linear-gradient(90deg,var(--gridc) 1px,transparent 1px) 0 0/46px 46px}
+button,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+code{font-family:var(--mono);font-size:.86em;color:var(--cyan);background:color-mix(in srgb,var(--cyan) 12%,transparent);padding:1px 6px;border-radius:5px}
+.rail{position:fixed;inset:0 auto 0 0;width:224px;background:color-mix(in srgb,var(--card) 88%,transparent);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:16px 14px;z-index:30;backdrop-filter:blur(10px)}
+.brand{display:flex;gap:10px;align-items:center;margin-bottom:18px}
+.mark{position:relative;width:28px;height:28px;border-radius:50%;border:2px solid var(--amber);display:grid;place-items:center}
+.mark::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--amber)}
+.mark::after{content:"";position:absolute;inset:-3px;border-radius:50%;border:2px solid var(--amber);animation:ping 2.6s var(--ease) infinite}
+.brand b{font:800 15px/1.1 var(--head);letter-spacing:-.03em}
+.brand small{display:block;font:500 9px var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.chapters{position:relative;list-style:none;margin:0;padding:0;--idx:0}
+.chapters::before{content:"";position:absolute;left:15px;top:16px;bottom:16px;width:1px;background:var(--line)}
+.chapters::after{content:"";position:absolute;left:0;top:calc(var(--idx)*44px);width:3px;height:28px;margin-top:8px;background:var(--amber);border-radius:2px;box-shadow:0 0 12px var(--amber);transition:top .45s var(--ease)}
+.chapters li{height:44px;display:flex;align-items:center}
+.chap{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;padding:4px 0;cursor:pointer;text-align:left;color:var(--dim)}
+.chap i{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font:600 10px var(--mono);font-style:normal;background:var(--bg);border:1px solid var(--line);position:relative;z-index:1}
+.chap span{font-size:12.5px;line-height:1.2}
+.chap[aria-selected=true]{color:var(--text)}
+.chap[aria-selected=true] i{border-color:var(--amber);color:var(--amber);box-shadow:0 0 0 3px color-mix(in srgb,var(--amber) 18%,transparent)}
+.railfoot{margin-top:auto;display:grid;gap:8px}
+.chip{font:500 10px var(--mono);padding:4px 8px;border:1px solid var(--line);border-radius:999px;color:var(--dim);background:var(--card)}
+.chip b{color:var(--amber)}
+.themebtn{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:7px 10px;cursor:pointer;font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.main{margin-left:224px;min-width:0}
+.top{position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;gap:12px;padding:11px 28px;background:color-mix(in srgb,var(--bg) 78%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.top b{color:var(--text);letter-spacing:0;text-transform:none;font-weight:600}
+.colon{animation:blink 1.1s steps(2) infinite}
+.wrap{padding:28px 28px 80px;max-width:1280px}
+.panel{display:none}
+.panel.on{display:block;animation:rise .5s var(--ease)}
+.hero{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;margin-bottom:28px}
+.hero h1{margin:0;font:800 clamp(36px,6vw,78px)/.95 var(--head);letter-spacing:-.045em;background:linear-gradient(100deg,var(--text) 10%,var(--amber) 55%,var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{margin:12px 0;color:var(--dim);max-width:62ch}
+.stats{display:flex;flex-wrap:wrap;gap:10px}
+.stat{padding:10px 14px;border:1px solid var(--line);background:var(--card);border-radius:12px;min-width:108px}
+.stat b{font:800 28px/1 var(--head);letter-spacing:-.03em}
+.stat u{text-decoration:none;font-size:14px;color:var(--amber);margin-left:3px}
+.stat small{display:block;margin-top:5px;font:500 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--dim)}
+.meta{margin-top:12px;font:500 11px var(--mono);color:var(--dim)}
+.radar{position:relative;width:150px;height:150px;border-radius:50%;border:1px solid var(--line);background:repeating-radial-gradient(circle,transparent 0 18px,color-mix(in srgb,var(--cyan) 22%,transparent) 19px 20px);overflow:hidden}
+.radar::before{content:"";position:absolute;inset:0;background:conic-gradient(from 0deg,color-mix(in srgb,var(--amber) 55%,transparent),transparent 28%);animation:spin 5s linear infinite}
+.radar i{position:absolute;width:7px;height:7px;border-radius:50%;background:var(--green);animation:blip 2.8s ease-out infinite}
+.numeral{font:800 clamp(64px,10vw,120px)/.8 var(--head);letter-spacing:-.05em;color:transparent;-webkit-text-stroke:1.5px color-mix(in srgb,var(--amber) 45%,transparent);margin:0}
+.kicker{font:600 11px var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--amber)}
+h2{margin:4px 0 8px;font:800 clamp(26px,3.5vw,40px)/1.05 var(--head);letter-spacing:-.03em}
+h3.sec{display:flex;align-items:center;gap:12px;margin:32px 0 12px;font:600 12px var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--amber)}
+h3.sec::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--amber),transparent)}
+.lede{color:var(--dim);max-width:72ch}
+.card{position:relative;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.card::before{content:"";position:absolute;top:-1px;left:-1px;width:14px;height:14px;border-top:2px solid var(--amber);border-left:2px solid var(--amber);border-top-left-radius:14px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px}
+.callout{border-left:3px solid var(--amber);background:linear-gradient(90deg,color-mix(in srgb,var(--amber) 12%,transparent),transparent);padding:12px 14px;border-radius:0 10px 10px 0;margin:14px 0}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+table.t{width:100%;border-collapse:collapse;font-size:13.5px}
+.t th{text-align:left;padding:9px 12px;font:600 10px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--dim);background:color-mix(in srgb,var(--text) 4%,transparent);border-bottom:1px solid var(--line)}
+.t td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+.t tr:last-child td{border-bottom:0}
+.t tbody tr:hover td{background:color-mix(in srgb,var(--amber) 6%,transparent)}
+ol.lld{list-style:none;margin:0;padding:0;display:grid;gap:8px;counter-reset:n}
+ol.lld li{counter-increment:n;position:relative;padding:10px 12px 10px 48px;background:var(--card);border:1px solid var(--line);border-radius:12px}
+ol.lld li::before{content:counter(n);position:absolute;left:12px;top:10px;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:600 12px var(--mono);border:1px solid var(--amber);color:var(--amber)}
+.btn{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:7px 12px;cursor:pointer;font:500 12px var(--mono);color:var(--text)}
+.btn.pri{background:var(--amber);color:#1a1200;border-color:var(--amber);font-weight:700}
+.btn:disabled{opacity:.4;cursor:default}
+.pick{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+.pick button{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 12px;cursor:pointer;color:var(--dim);font-size:13px}
+.pick button[aria-pressed=true]{border-color:var(--amber);color:var(--text);background:color-mix(in srgb,var(--amber) 12%,var(--card))}
+.pick.fail button[aria-pressed=true]{border-color:var(--red);background:color-mix(in srgb,var(--red) 12%,var(--card))}
+.stage{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px;align-items:start}
+.side{position:sticky;top:58px;display:grid;gap:10px;max-height:calc(100vh - 74px);overflow:auto}
+.player{display:grid;gap:8px}
+.ctrls{display:flex;align-items:center;gap:6px}
+.cnt{margin-left:auto;font:500 11px var(--mono);color:var(--dim)}
+.bar{height:3px;background:var(--line);border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--amber)}
+.bar.run i{animation:fill 3.4s linear}
+.tl{list-style:none;margin:0;padding:0;max-height:240px;overflow:auto}
+.tl button{display:flex;gap:8px;width:100%;text-align:left;background:none;border:0;padding:6px;border-radius:8px;cursor:pointer;color:var(--dim);font-size:12.5px}
+.tl button[aria-current=true]{color:var(--text);background:color-mix(in srgb,var(--amber) 10%,transparent)}
+.tl i{flex:none;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font:600 10px var(--mono);font-style:normal;border:1px solid var(--line)}
+.tl button[aria-current=true] i{border-color:var(--amber);color:var(--amber);transform:scale(1.08)}
+.tl .done i{background:var(--amber);color:#1a1200;border-color:var(--amber)}
+.insp .tag{font:600 10px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--amber)}
+.log{display:grid;gap:6px;margin-top:8px}
+.log .row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;animation:rise .35s var(--ease) both}
+.pill{font:600 10px var(--mono);padding:2px 6px;border-radius:5px;border:1px solid var(--line)}
+.m-get,.m-post{color:var(--cyan);border-color:color-mix(in srgb,var(--cyan) 40%,transparent)}
+.path{font:12px var(--mono);color:var(--cyan)}
+.st2{color:var(--green);border-color:color-mix(in srgb,var(--green) 45%,transparent)}
+.st4{color:var(--red);border-color:color-mix(in srgb,var(--red) 45%,transparent)}
+.none{border:1px dashed var(--line);color:var(--dim);padding:6px 8px;border-radius:8px;font:11px var(--mono)}
+svg.dia{width:100%;height:auto;min-height:280px;display:block;aspect-ratio:1020/420}
+.band{font:10px var(--mono);fill:var(--dim);letter-spacing:.12em}
+.lane{font:11px var(--mono);fill:var(--dim);letter-spacing:.14em}
+.nd rect{fill:var(--card);stroke:var(--line);stroke-width:1.2}
+.nd text{fill:var(--text);font-family:var(--head);font-size:13px;font-weight:700}
+.nd .sub{fill:var(--dim);font-family:var(--mono);font-size:9px;font-weight:500}
+.nd.on rect{stroke:var(--amber);fill:color-mix(in srgb,var(--amber) 16%,var(--card))}
+.nd.fail rect{stroke:var(--red);fill:color-mix(in srgb,var(--red) 16%,var(--card))}
+.nd.on .ring{fill:none;stroke:var(--amber);animation:ring 1.6s var(--ease) infinite}
+.nd.fail .ring{stroke:var(--red)}
+.ed{fill:none;stroke:var(--line);stroke-width:1.4}
+.ed.lit{stroke:var(--amber);stroke-width:2.4;stroke-dasharray:7 6;animation:flow .9s linear infinite}
+.ed.fail{stroke:var(--red)}
+svg.dim .nd:not(.on){opacity:.55}
+svg.dim .ed:not(.lit){opacity:.35}
+.nodecard{margin-top:10px}
+.device{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#0c1016}
+.chrome{display:flex;align-items:center;gap:6px;padding:8px 10px;background:#161b22}
+.chrome i{width:8px;height:8px;border-radius:50%;background:#ff5d6c}
+.chrome i:nth-child(2){background:#ffb000}
+.chrome i:nth-child(3){background:#4be3a0}
+.url{margin-left:8px;font:11px var(--mono);color:#93a1b6;background:#0c1016;border-radius:999px;padding:3px 10px}
+.screen{--ink:#1f2937;--mute:#6b7280;--bg:#f6f8fb;--card:#fff;--line:#e5e7eb;--accent:#1d4ed8;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:var(--bg);color:var(--ink);font:13px/1.45 var(--body);padding:12px;container-type:inline-size}
+.screen h4{margin:0 0 4px;font-size:13px}
+.screen p{margin:0;color:#374151;font-size:12.5px}
+.s-shape{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.s-shape article,.issue{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 10px}
+.k{font:600 9px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:#4338ca}
+.s-rail{display:flex;gap:0;overflow-x:auto;margin:10px 0}
+.s-rail button{border:0;background:transparent;padding:0;display:flex;align-items:center}
+.s-node{display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:11px;font-weight:650;color:var(--mute);white-space:nowrap}
+.s-node em{font-style:normal;font:600 9px var(--mono);width:16px;height:16px;border-radius:50%;display:grid;place-items:center;background:#f3f4f6}
+.s-rail button.on .s-node,.s-rail button.past .s-node{color:var(--ink);border-color:#bfdbfe;background:#eff6ff}
+.s-rail button.on .s-node{box-shadow:0 0 0 3px #dbeafe}
+.s-rail button.on .s-node em,.s-rail button.past .s-node em{background:#1d4ed8;color:#fff}
+.arr{width:14px;height:1px;background:#cbd5e1}
+.s-ctrl{display:flex;gap:6px;margin-top:8px}
+.s-ctrl button{font:600 12px inherit;padding:6px 10px;border-radius:8px;border:1px solid #cbd5e1;background:#fff;color:var(--ink);cursor:pointer}
+.s-ctrl .pri{background:var(--accent);color:#fff;border-color:var(--accent)}
+.hl{outline:2px solid #b36a00;outline-offset:2px}
+.hidden-ctl{display:none}
+.g-cols{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;position:relative}
+.g-cols h5{margin:0 0 6px;font:600 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.g-n{display:block;width:100%;text-align:left;margin:0 0 6px;padding:6px 7px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--text);cursor:pointer;font-size:12px}
+.g-n.on{border-color:var(--amber)}
+.g-n.ok{background:color-mix(in srgb,var(--green) 12%,var(--card))}
+.g-path{display:grid;gap:6px}
+.g-path button{text-align:left;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px;cursor:pointer;color:var(--text)}
+.trk{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px}
+.trk button{flex:none;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 8px;cursor:pointer;font:11px var(--mono);color:var(--dim)}
+.trk button[aria-current=true]{border-color:var(--amber);color:var(--text)}
+details.how{margin-top:22px;color:var(--dim);font-size:13px}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes blink{50%{opacity:0}}
+@keyframes ping{0%{opacity:.7;transform:scale(1)}100%{opacity:0;transform:scale(1.5)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes blip{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--green) 70%,transparent)}100%{box-shadow:0 0 0 12px transparent}}
+@keyframes flow{to{stroke-dashoffset:-26}}
+@keyframes ring{from{opacity:.7}to{opacity:0;transform:scale(1.25)}}
+@keyframes fill{from{width:0}to{width:100%}}
+@media(max-width:1180px){.stage{grid-template-columns:1fr}.side{position:static;max-height:none}}
+@media(max-width:900px){
+.rail{inset:auto 0 0 0;width:auto;height:56px;flex-direction:row;padding:6px;border-right:0;border-top:1px solid var(--line)}
+.brand,.railfoot,.chap span{display:none}
+.chapters{display:flex;width:100%;--idx:0}
+.chapters::before,.chapters::after{display:none}
+.chapters li{height:auto;flex:1;justify-content:center}
+.main{margin:0 0 64px}
+.hero{grid-template-columns:1fr}
+.radar{display:none}
+.g-cols{grid-template-columns:1fr 1fr}
+.s-shape{grid-template-columns:1fr 1fr}
+}
+@container (max-width:520px){.s-shape{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){
+*{animation:none!important;transition:none!important}
+.pkt{display:none}
+.log .row{animation:none}
+}
+</style>
+</head>
+<body>
+<aside class="rail">
+  <div class="brand"><div class="mark" aria-hidden="true"></div><div><b>Argus</b><small>Learning</small></div></div>
+  <ol class="chapters" id="chapters" role="tablist"></ol>
+  <div class="railfoot">
+    <div class="chip">commit <b>none</b></div>
+    <button class="themebtn" id="theme" type="button">Theme</button>
+  </div>
+</aside>
+<div class="main">
+  <div class="top"><div class="crumb">Argus / <b id="crumb">Problem</b></div><div>SNAPSHOT <b id="clk">00<span class="colon">:</span>00</b></div></div>
+  <div class="wrap" id="root"></div>
+</div>
+<script>
+const CHAPTERS = [
+  ["01","Problem","Problem and architecture"],
+  ["02","Flow","Data flow"],
+  ["03","Walk","Click walkthrough"],
+  ["04","Production","Production UI"],
+  ["05","Changes","Change tracker"],
+  ["06","Edges","Edge cases"],
+  ["07","Graph","Learning graph"],
+  ["08","Tracker","Build tracker"]
+];
+const SRC = "PROJECT.md, phases/, production.html. Versions checked 2026-10-28. This folder is not a git repository, so there is no commit hash. No application code is written here. Results cells stay — until a run id exists.";
+const PHASES = {
+  p0:["P0 bench + bugsmith",76,32,"Quota ledger; deterministic JSX/CSS mutations toward 300+ tasks"],
+  p1:["P1 repro-agent",32,17,"Playwright MCP, or direct Playwright if the spike is no-go"],
+  p2:["P2 dom2src",44,20,"Vite data-src plugin and locate()"],
+  p3:["P3 fix-loop",84,34,"Loop from scratch, worktree, Docker --network none"],
+  p4:["P4 verify",72,30,"Pixel, overflow, axe, console, Gemma judge, best-of-k"],
+  p5:["P5 eval",64,29,"Trajectory metrics, OTel, router, CI gate, dashboard"],
+  p55:["P5.5 skills",28,18,"Skills from trajectories; poisoned-skill red team"],
+  p6:["P6 flow",52,26,"DBOS on Neon, QA wait, webhook hint, reconcile"],
+  p7:["P7 guard",44,23,"Threat model, audit log, promptfoo, sandbox tiers"],
+  p8:["P8 app",60,26,"GitHub App, reusable workflow, backport bot"],
+  p9:["P9 backend lane",40,17,"Optional. Sentry-style event to pytest. Cut first"]
+};
+const NW=156,NH=52,CX=[24,268,512,756],RY=[46,124,202],BY=[330];
+const GEO={
+  issue:[0,0],pr:[0,2],hook:[1,0],dbos:[1,1],neon:[1,2],
+  repro:[2,0],fix:[2,1],verify:[2,2],ledger:[3,0],judge:[3,2],
+  poll:[0,6],qa:[2,6]
+};
+const NODES={
+  issue:["GitHub issue","label argus · source of truth","p6"],
+  pr:["Pull request","P6-T21 opens it","p6"],
+  hook:["Webhook hint","HMAC, then 202","p6"],
+  dbos:["DBOS workflow","FastAPI · Render free","p6"],
+  neon:["Neon Postgres","100 CU-hours/project","p6"],
+  repro:["Repro agent","fail on bug, pass on gold","p1"],
+  fix:["Fix loop","locate() then edit","p3"],
+  verify:["Verifier","checks, then judge","p4"],
+  ledger:["Quota ledger","hard stop before cap","p0"],
+  judge:["Gemma judge","does not override checks","p4"],
+  poll:["Reconcile poller","reads GitHub after a click","p6"],
+  qa:["Awaiting QA","MRTR or review comment","p6"]
+};
+const NODE_TEXT={
+  issue:"A labelled issue is the ticket. GitHub is the source of truth. The worked example in production.html is you/shop-ui #142.",
+  pr:"P6-T21 opens the pull request. P8-T09 is the tenant-workflow path that calls that opener. Find-or-create is keyed by ticket id.",
+  hook:"FastAPI checks the HMAC, stores the delivery id, enqueues a reconcile, and returns 202. It does not read GitHub inline. A bad signature is 401.",
+  dbos:"One workflow per ticket. Steps are idempotent. Render free can sleep. Cold start is about one minute.",
+  neon:"Workflow state. 100 CU-hours/project. PROJECT.md says “per month” is not stated. An always-on poller is a measured risk, not a booked number.",
+  repro:"The script is kept only if it fails on the buggy tree and passes on the golden tree. Skip or test.fixme() is error.",
+  fix:"locate() is a tool, not a ticket state. The loop is written from scratch. Docker runs with --network none. Stuck detection has no number in the plan.",
+  verify:"Order is pixel diff, overflow, axe-core (new violations only), then new console errors and warnings. Short-circuit on the first hard failure.",
+  ledger:"Stops a run before a request would cross a measured daily cap. Cached tokens are counted apart from fresh tokens.",
+  judge:"Local Gemma, a different family from the fixer. If Krippendorff’s alpha stays below 0.80, ADR-013 makes the judge advisory. It does not override a passed check run.",
+  poll:"The bottom band. These reads happen because a click or a timer asked. The poller rebuilds state from the issue, the pull request, and the Actions run.",
+  qa:"The human wait is awaiting-qa, after the pull request. There is no per-edit confirm. MRTR is input_required / inputResponses, or a review comment. MRTR is cut 5."
+};
+const LANES=["GitHub","Control plane","Actions job","Models"];
+const pos=id=>{const [c,r]=GEO[id];return [CX[c], r<6?RY[r]:BY[0]];};
+const midR=id=>{const p=pos(id);return [p[0]+NW,p[1]+NH/2];};
+const midL=id=>{const p=pos(id);return [p[0],p[1]+NH/2];};
+function curve(a,b){const A=midR(a),B=midL(b),mx=(A[0]+B[0])/2;return `M${A[0]},${A[1]} C${mx},${A[1]} ${mx},${B[1]} ${B[0]},${B[1]}`;}
+const EDGE_DEFS=[
+  ["issue","hook",curve("issue","hook")],
+  ["hook","dbos",curve("hook","dbos")],
+  ["dbos","neon",curve("dbos","neon")],
+  ["dbos","repro",curve("dbos","repro")],
+  ["repro","fix",curve("repro","fix")],
+  ["fix","verify",curve("fix","verify")],
+  ["verify","judge",curve("verify","judge")],
+  ["repro","ledger",curve("repro","ledger")],
+  ["fix","ledger",curve("fix","ledger")],
+  ["verify","pr",curve("verify","pr")],
+  ["hook","poll",curve("hook","poll")],
+  ["pr","qa",curve("pr","qa")]
+];
+const RAIL=[["queued","Queued"],["repro","Repro"],["fix","Fix"],["verify","Verify"],["pr","PR"],["qa","QA"],["done","Done"]];
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function diagram(active,o={}){
+  const lit=new Set(active||[]), fail=o.tone==="fail", any=lit.size>0;
+  const pre=String(o.prefix||"x").replace(/\W/g,"");
+  const on=(id,e)=>lit.has(id)&&(fail?" fail":" on")+(e&&lit.has(e[0])&&lit.has(e[1])?(fail?" lit fail":" lit"):"");
+  let s=`<svg class="dia${any?" dim":""}${fail?" failtone":""}" viewBox="0 0 1020 420" role="img" aria-label="Lit: ${[...lit].join(", ")||"none"}">`;
+  s+=`<defs><marker id="ah${pre}" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="${fail?"#ff5d6c":"#ffb000"}"/></marker></defs>`;
+  s+=`<rect x="8" y="300" width="1004" height="110" rx="10" fill="none" stroke="currentColor" stroke-dasharray="4 4" opacity=".35"/>`;
+  s+=`<text class="band" x="20" y="318">READS THAT ONLY HAPPEN AFTER A CLICK</text>`;
+  LANES.forEach((name,i)=>{s+=`<text class="lane" x="${CX[i]}" y="28">${name.toUpperCase()}</text>`;});
+  const litE=EDGE_DEFS.map(e=>lit.has(e[0])&&lit.has(e[1]));
+  EDGE_DEFS.forEach((e,i)=>{if(!litE[i])s+=`<path class="ed" d="${e[2]}" marker-end="url(#ah${pre})"/>`;});
+  EDGE_DEFS.forEach((e,i)=>{if(litE[i])s+=`<path class="ed lit${fail?" fail":""}" id="e${pre}${i}" d="${e[2]}" marker-end="url(#ah${pre})"/>`;});
+  if(!matchMedia("(prefers-reduced-motion: reduce)").matches){
+    EDGE_DEFS.forEach((e,i)=>{if(!litE[i])return;const id="e"+pre+i;
+      s+=`<circle class="pkt" r="3.5" fill="${fail?"#ff5d6c":"#ffb000"}"><animateMotion dur="2.4s" repeatCount="indefinite" rotate="auto"><mpath href="#${id}"/></animateMotion></circle>`;
+      s+=`<circle class="pkt" r="3.5" fill="#3de0ff"><animateMotion dur="2.4s" repeatCount="indefinite" begin="1.2s" keyPoints="1;0" keyTimes="0;1" calcMode="linear"><mpath href="#${id}"/></animateMotion></circle>`;
+    });
+  }
+  Object.keys(GEO).forEach(id=>{
+    const [x,y]=pos(id), n=NODES[id], cls=lit.has(id)?("on"+(fail?" fail":"")):"";
+    const tab=o.interactive?` tabindex="0" role="button" data-node="${id}"`:" ";
+    s+=`<g class="nd ${cls}" data-node="${id}"${tab}><rect x="${x}" y="${y}" width="${NW}" height="${NH}" rx="10"/>`;
+    if(lit.has(id))s+=`<rect class="ring" x="${x-3}" y="${y-3}" width="${NW+6}" height="${NH+6}" rx="12"/>`;
+    s+=`<text x="${x+10}" y="${y+22}">${esc(n[0])}</text><text class="sub" x="${x+10}" y="${y+38}">${esc(n[1])}</text></g>`;
+  });
+  return s+"</svg>";
+}
+function callsHtml(calls){
+  if(!calls||!calls.length)return `<div class="none">no network request</div>`;
+  return `<div class="log">`+calls.map((c,i)=>{
+    const m=c.match(/^(GET|POST|PUT|PATCH|DELETE)\s+(\S+)\s+->\s+(\d+)/);
+    if(!m)return `<div class="row" style="animation-delay:${i*70}ms"><span class="pill">${esc(c)}</span></div>`;
+    const st=m[3].startsWith("2")?"st2":"st4";
+    return `<div class="row" style="animation-delay:${i*70}ms"><span class="pill m-${m[1].toLowerCase()}">${m[1]}</span><span class="path">${esc(m[2])}</span><span class="pill ${st}">${m[3]}</span></div>`;
+  }).join("")+"</div>";
+}
+function railHtml(cur){
+  const ix=RAIL.findIndex(r=>r[0]===cur);
+  return `<div class="s-rail">`+RAIL.map((r,i)=>{
+    const cls=i<ix?"past":i===ix?"on":"";
+    return `<button type="button" class="${cls}" data-act="rail" data-arg="${r[0]}"><span class="s-node"><em>${i+1}</em>${r[1]}</span></button>${i<RAIL.length-1?`<span class="arr"></span>`:""}`;
+  }).join("")+`</div>`;
+}
+function boardHtml(st){
+  const since=st.asof||"p8";
+  const show=ph=>ph==="p6"||since!=="p6";
+  const mark=id=>st.hl&&st.born&&st.born[id]?" hl":"";
+  const step=st.step||RAIL[0];
+  return `<div class="s-shape">
+    <article><span class="k">Source of truth</span><h4>Tenant GitHub repo</h4><p>Issue, pull request, and Actions run.</p></article>
+    <article class="${mark("dbos")}"><span class="k">Control plane</span><h4>FastAPI + DBOS</h4><p>Durable steps in Neon. Accepts webhooks, waits for QA.</p></article>
+    <article><span class="k">Execution</span><h4>GitHub Actions</h4><p>Repro, fix, and verify. Locate is a tool inside fix, not a state.</p></article>
+    <article><span class="k">Models</span><h4>Router + ledger</h4><p>Cheap tier for repro and locate. Strong tier for the fix. Local judge after the checks.</p></article>
+  </div>
+  <div class="issue" style="margin-top:8px">
+    <h4>Worked example · issue #142</h4>
+    <p><b>Pay button is clipped on a phone.</b> ${st.nopath?"The worked example names a phone viewport. Amounts stay blank until a real run writes them.":"On /cart at 375px the button runs off the right edge. Amounts such as tokens stay blank until a real run writes them."}</p>
+  </div>
+  ${railHtml(st.rail)}
+  <p><b>${esc(st.title||"")}</b> ${esc(st.summary||"")}</p>
+  ${show("p8")?`<p class="${mark("port")}" data-born="port">Backport: a conflict becomes a comment. The bot does not force-push. A failed push must not retry from a stale branch.</p>`:`<p class="hidden-ctl" data-born="port"></p>`}
+  <div class="s-ctrl">
+    <button type="button" data-act="prev">Back</button>
+    <button type="button" class="pri" data-act="play">Play the run</button>
+    <button type="button" data-act="next">Next</button>
+  </div>`;
+}
+const FLOW=[
+  {title:"Label on the issue",active:["issue"],body:"Someone labels the worked example #142. No model runs. GitHub holds the issue. Neon has nothing yet.",calls:[],apply(s){s.rail="queued";s.title="A label starts the run";}},
+  {title:"Webhook returns 202",active:["issue","hook","dbos"],body:"FastAPI checks the HMAC, stores the delivery id, enqueues a reconcile, and returns 202. The handler does not read GitHub and does not start the agent. A bad signature is 401.",calls:["POST /github/webhook -> 202"],apply(s){s.rail="queued";s.title="Webhook returns 202";}},
+  {title:"Checkpoint, state becomes repro",active:["dbos","neon"],body:"DBOS opens one workflow for the ticket. State becomes repro before Actions is called. A restart loads this row and does not create a second workflow.",calls:[],apply(s){s.rail="repro";s.title="The workflow checkpoints";}},
+  {title:"Repro on the cheap tier",active:["repro","ledger"],body:"The script counts only if it fails on the buggy tree and passes on the golden tree. The ledger is checked before the model call. browser_run_code_unsafe stays off.",calls:[],apply(s){s.rail="repro";s.title="Reproduce the bug";}},
+  {title:"Locate, then patch",active:["fix","ledger"],body:"locate() maps the button through data-src. It is not its own ticket state. The fix loop edits inside a worktree with Docker --network none. Gates run before submit.",calls:[],apply(s){s.rail="fix";s.title="Patch inside the sandbox";}},
+  {title:"Checks, then the judge",active:["verify","judge"],body:"Pixel, overflow, axe, console, in that order, stop at the first hard failure. The judge does not override a passed check run. Best-of-k stays inside the selector.",calls:[],apply(s){s.rail="verify";s.title="Checks first, then the judge";}},
+  {title:"One pull request",active:["pr","dbos"],body:"P6-T21 opens the PR. The idempotency key is the ticket id. A crash after GitHub has the PR and before Neon stores it finds the same PR on retry.",calls:[],apply(s){s.rail="pr";s.title="Open one pull request";}},
+  {title:"Wait, then done",active:["qa","pr","poll"],body:"The wait is awaiting-qa. Approve, reject, or timeout. The poller can read a review comment if the webhook was missed. Backport is P8, and it comments instead of force-pushing.",calls:[],apply(s){s.rail="qa";s.title="Wait for a person";}}
+];
+const WALK=[0,3,4,5,6,7].map((fi,k)=>{const s=FLOW[fi];return {...s,title:"Click "+RAIL[k][1],body:"This click moves the production rail to "+RAIL[k][1]+". "+s.body,apply(st){s.apply(st);st.rail=RAIL[k][0];}};}).concat([{title:"Click Done",active:["qa","pr","poll"],body:"This click moves the production rail to Done. The person has answered, so the ticket leaves awaiting-qa.",calls:[],apply(s){s.rail="done";s.title="Done";}}]);
+const EDGES=[
+  {id:"asleep",title:"Render is asleep",steps:[
+    {title:"Webhook missed",active:["hook","issue"],body:"Render cold start is about one minute. GitHub’s webhook window is 10 seconds. A cold start can lose the POST.",calls:["POST /github/webhook -> 401"],apply(s){s.rail="queued";}},
+    {title:"Poller starts the same key",active:["poll","issue","dbos"],body:"The poller still sees the labelled issue and starts the same workflow. It does not open a second one.",calls:[],apply(s){s.rail="repro";}}
+  ]},
+  {id:"quota",title:"Quota exceeded",steps:[
+    {title:"Ledger refuses",active:["ledger","repro"],body:"The ledger hard-stops before the HTTP request that would cross the measured daily cap. Stop reason QuotaExceeded. Groq Developer-plan org limits in the plan are RPM 30, RPD 1K, TPM 8K, TPD 200K. Cached tokens do not count. docs/quotas.md does not exist yet.",calls:[],apply(s){s.rail="repro";}}
+  ]},
+  {id:"skip",title:"A passing skip",steps:[
+    {title:"Not success",active:["repro"],body:"P1-T07 must not treat a passing script as success. Skip or test.fixme() is error on P1-T08. Success is fail on the buggy tree and pass on the golden tree.",calls:[],apply(s){s.rail="repro";}}
+  ]},
+  {id:"unsafe",title:"Unsafe browser tool",steps:[
+    {title:"Allow-list",active:["repro"],body:"A Playwright MCP go allow-lists navigate, snapshot, click, type, assert-visible, and screenshot. browser_run_code_unsafe stays off. page.evaluate is not added. The README calls that tool RCE-equivalent.",calls:[],apply(s){s.rail="repro";}}
+  ]},
+  {id:"conflict",title:"Backport conflict",steps:[
+    {title:"Comment, leave the branch",active:["pr","qa"],body:"The bot comments and leaves branches untouched. The test fails on a force-push of the bot branch and on a failed push that still retries pull-request creation from a stale branch. The opened lines do not show a theirs strategy or committing conflict markers.",calls:[],apply(s){s.rail="done";}}
+  ]},
+  {id:"label",title:"Label without write access",steps:[
+    {title:"Ignored",active:["issue"],body:"Intake starts on a label and ignores it when the actor lacks write access. The ignore is logged. No workflow starts.",calls:[],apply(s){s.rail="queued";}}
+  ]},
+  {id:"judge",title:"Judge versus checks",steps:[
+    {title:"Checks already passed",active:["verify","judge"],body:"The judge does not override a passed check run. A failed check never calls the judge. One fix retry, then fail closed, and no pull request.",calls:[],apply(s){s.rail="verify";}}
+  ]},
+  {id:"exit2",title:"Exit 2 is not attempted",steps:[
+    {title:"Quarantine",active:["ledger"],body:"ADR-003 excludes exit 2 and tasks in bench/quarantine/ from attempted. A mutant is kept only on exit 1 then exit 0 with a non-empty check list. The $-equivalent cell stays — until P5-T11.",calls:[],apply(s){s.rail="queued";}}
+  ]}
+];
+const CL=["Constraints","Bench","Repro","Fix","Verify","Flow","Ship"];
+const CONCEPTS=[
+["zero",0,"$0 and open weights",[],"p0","PROJECT.md constraints","Free and open-source tools only. Every model is open-weight, on a free hosted tier or local CPU.","What may a hosted model cost?","Nothing. The budget is $0."],
+["week",0,"20 hours a week",["zero"],"p0","PROJECT.md","The core is 556 hours, 255 tasks, 28 work weeks plus 2 buffer weeks, so 30 weeks, at 20 hours a week.","What is the weekly budget?","20 hours. A week can run up to 3 hours over because a task stays in the week it starts."],
+["nome",0,"No framework before P3",["zero"],"p0","ADR-011","The fix loop is written from scratch. Adopting a framework later needs ADR-011 and a mini-swe-agent comparison.","When may an agent framework be added?","After the P3 baseline, and only with the ADR."],
+["noin",0,"No invented numbers",["zero"],"p0","PROJECT.md metrics","A results cell stays — until a run id backs it. Stuck detection has no count.","What fills a results cell?","A real run id. Otherwise the cell is —."],
+["types",1,"Ticket, Task, Trajectory",["noin"],"p0","ADR-001","Ticket is the report. Task is the bench item. Trajectory is one record per step, including tokens in, out, and cached.","Which package owns the types?","argus-core."],
+["ledger",1,"Quota ledger",["zero","types"],"p0","ADR-002","Hard-stops before a request would cross a measured daily cap. Cached tokens are apart from fresh tokens. From P8 the key includes a tenant id.","When does the ledger stop a run?","Before the HTTP request, not after a 429."],
+["bench",1,"Scorer exits",["types"],"p0","P0-T15","bench score returns 0 on pass, 1 on fail, 2 on infra error, and keeps the unsliced log.","What does exit 2 mean?","Infrastructure error. ADR-003 drops it from attempted."],
+["smith",1,"bugsmith",["bench"],"p0","P0","Deterministic JSX and CSS mutations. No LLM. Target 300 or more tasks. Same seed, same task-set hash. Never cut.","Does bugsmith call a model?","No."],
+["spike",2,"MCP spike",["ledger"],"p1","P1-T01","A go allow-lists six repro tools, leaves browser_run_code_unsafe off, and records the initialize protocol version. A no-go is ADR-004, not an unscheduled build.","What is a no-go?","ADR-004. Direct Playwright is the written fallback, not a new task."],
+["repro",2,"Repro success",["spike"],"p1","P1-T07","Success is a script that fails on the buggy tree and passes on the golden tree. The saved script uses the logged role and name.","Is a green Playwright run enough?","No. It must fail on the bug and pass on the golden tree."],
+["unsafe",2,"Unsafe tool stays off",["spike"],"p1","RISK-001","browser_run_code_unsafe is called RCE-equivalent in that server’s README. page.evaluate is not added in P1.","Is egress control enough?","No. The tool allow-list is separate from container egress."],
+["loc",2,"locate()",["repro"],"p2","ADR-006","Build-time data-src as file:line:col. locate() is a Python tool. It is not a ticket state. React 19.3.1 still needs that re-check of the jsxDEV removal.","Is locate a workflow state?","No. States are repro, fix, verify, PR, awaiting-qa, done."],
+["tools",3,"edit is unique",["loc"],"p3","ADR-008","read_file, list_dir, search, edit, run_cmd, submit. edit is an exact unique match and the error names the lines. A path outside the worktree is a typed error.","What if old_str matches twice?","A typed error that names the line numbers. No fuzzy match."],
+["loop",3,"Stop conditions",["tools"],"p3","P3-T06","submit, step cap, token cap, QuotaExceeded, stuck detection, and a consecutive-timeout stop distinct from stuck. Stuck has no number.","How many identical calls are stuck?","The plan does not say. N is still unnamed."],
+["sand",3,"Sandbox",["loop"],"p3","ADR-010","Git worktree per task, Docker --network none, bench checks read-only. gVisor and Firecracker are P7. Firecracker is cut 4.","Can the model edit a check?","No. Checks are mounted read-only."],
+["mini",3,"Variant E",["sand"],"p3","P3-T17","mini-swe-agent sets cost_limit 0, cost_tracking=ignore_errors, and --network none. The scored artifact is stdout after COMPLETE_TASK_AND_SUBMIT_FINAL_OUTPUT.","Is variant E the same run as Argus?","No. ADR-011 has to say the scored artifact and the stop reasons differ."],
+["checks",4,"Checks first",["sand"],"p4","ADR-012","Pixel diff, overflow, axe new violations, console errors and warnings. First hard failure stops the rest.","Does a failed overflow call the judge?","No."],
+["judge",4,"Judge calibration",["checks"],"p4","ADR-013","You label 100 pairs before seeing judge output. Target alpha is at least 0.80. Below that, the judge is advisory. Never cut.","Can the judge reject a clean check run?","No. It does not override a passed check run."],
+["bok",4,"Best-of-k",["judge"],"p4","ADR-014","k is 1, 3, and 5, inside the selector. k=5 multiplies fixer calls by five per bug. Never cut.","Where does best-of-k sit?","Inside the P4 selector, not in front of the checks."],
+["metrics",4,"Four metrics",["bench"],"p5","PLAN-021","Resolve rate, tokens/bug, $-equivalent, and p50/p95 latency. Quota share is not a required fifth. $-equivalent stays — until P5-T11.","How many numbers does every phase report?","Four."],
+["hint",5,"Webhook is a hint",["loop"],"p6","ADR-021","HMAC, store delivery id, enqueue reconcile, return 202. One workflow id is the ticket id.","Does the handler read GitHub?","No. It returns 202 without waiting."],
+["sm",5,"Ticket states",["hint"],"p6","P6-T04","repro, fix, verify, PR, awaiting-qa, done. Locate is not a state.","What comes after verify?","PR, then awaiting-qa, then done."],
+["qa",5,"Human wait",["sm"],"p6","ADR-023","The wait is awaiting-qa. MRTR or a review comment. A per-edit confirm is not in the plan. MRTR can be cut.","Where does a person approve?","After the pull request, in awaiting-qa."],
+["guard",5,"Threat model",["sand"],"p7","ADR-024","OWASP ASI01–ASI10, each with a threat, a control, and a residual, or a reason it does not apply. Three static injection cases. No LLM rubric.","How many promptfoo cases?","Three: ticket, repo file, skill file."],
+["app",6,"GitHub App",["qa"],"p8","ADR-027","The agent job runs as a reusable workflow in the tenant repo. The agent step has no GITHUB_TOKEN.","Where does the job run?","In the tenant repository, from P8."],
+["back",6,"Backport",["app"],"p8","P8-T23","Comment on conflict. No force-push of the bot branch. A failed push must not open a PR from a stale branch.","What does a conflict do?","A comment. The branch is left alone."],
+["cut",6,"Cut order",["week"],"p6","PROJECT.md cut list","P9, then P8 multi-tenancy, P5.5, Firecracker, MRTR, SWE-bench Multimodal. The listed hours stay unbooked.","What is cut first?","The whole P9 backend lane."],
+["hard",6,"Hard cut after P6",["sm"],"p6","PROJECT.md","P6 is the deployed core. P7 is 44 hours and 23 tasks. P8 is 60 hours and 26 tasks. Both stay after P6 until a cut is taken.","What is the portfolio if time runs out at P6?","A deployed, free-tier, crash-recoverable workflow."],
+["lane",6,"Backend lane",["cut"],"p9","P9 deploy checkpoint","Optional. An exported Sentry event becomes a pytest. No live Sentry. The phase file says the golden-fix joins existing Actions jobs and names no new host.","Is live Sentry required?","No."],
+["owner",0,"Who writes the loop",["nome"],"p0","PROJECT.md owners","[ME] keeps the loop, schemas, context manager, verifier, judge, scorer, state machine, threat model, and every ADR.","Can a library replace the loop?","No. Borrow the idea. The work stays [ME]."]
+];
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+let chapter = 0, learned = new Set();
+try { learned = new Set(JSON.parse(localStorage.getItem("argus-learned") || "[]")); } catch (e) {}
+function saveLearned(){ try { localStorage.setItem("argus-learned", JSON.stringify([...learned])); } catch (e) {} }
+function clock(){
+  const d = new Date(), p = n => String(n).padStart(2,"0");
+  $("#clk").innerHTML = p(d.getHours()) + '<span class="colon">:</span>' + p(d.getMinutes());
+}
+function show(i){
+  chapter = i;
+  $$(".chap").forEach((b,k)=>{ b.setAttribute("aria-selected", k===i); b.tabIndex = k===i?0:-1; });
+  $("#chapters").style.setProperty("--idx", i);
+  $("#crumb").textContent = CHAPTERS[i][2];
+  $$(".panel").forEach((p,k)=>p.classList.toggle("on", k===i));
+  if (i===1 || i===2 || i===5) document.dispatchEvent(new CustomEvent("step-show"));
+}
+function hero(){
+  return `<div class="hero"><div><h1>Argus</h1><p class="sub">A UI bug ticket becomes a verified pull request. The plan is the product. Nothing on this page is a measured run.</p>
+    <div class="stats">${[["556","h","core"],["255","tasks","P0–P8"],["30","weeks","plus 2 buffer"],["0","$","open weights"]].map(([n,u,c])=>`<div class="stat"><b data-n="${n}">0</b><u>${u}</u><small>${c}</small></div>`).join("")}</div>
+    <p class="meta">${esc(SRC)}</p></div><div class="radar" aria-hidden="true"><i style="left:70%;top:30%"></i><i style="left:40%;top:62%;animation-delay:.8s"></i></div></div>`;
+}
+function head(n,k,t){return `<div class="numeral">${n}</div><div class="kicker">${k}</div><h2>${t}</h2>`;}
+function panels(){
+  $("#root").innerHTML = `
+  <section class="panel on" id="p0" role="tabpanel">${hero()}
+    ${head("01","Problem","A ticket should not become a patch on trust")}
+    <p class="lede">Argus reproduces the bug, finds the source, edits inside a sandbox, checks the fix, and opens one pull request. The point is to learn the agentic layer. [ME] writes the loop. The stack stays at $0.</p>
+    <div class="callout">GitHub is the record. A webhook is only a hint, because Render free can sleep for about one minute and GitHub’s webhook window is 10 seconds.</div>
+    <h3 class="sec">Architecture</h3>
+    <div id="d0"></div>
+    <p><button class="btn pri" id="trace" type="button">Trace one load</button></p>
+    <div class="card nodecard" id="nodeCard">Click a box. The text is from the plan, not from a running service.</div>
+    <h3 class="sec">Box, job, if it is down</h3>
+    <div class="tw"><table class="t"><thead><tr><th>Box</th><th>Job</th><th>If it is down</th></tr></thead><tbody>
+      <tr><td>GitHub</td><td>Issue in, pull request out</td><td>Nothing else is the source of truth. The poller cannot invent state.</td></tr>
+      <tr><td>Render + DBOS</td><td>Durable steps, return 202</td><td>Cold start is about one minute. The poller retries the same ticket key.</td></tr>
+      <tr><td>Neon</td><td>Workflow rows</td><td>100 CU-hours/project. “per month” is not stated. A sleeping compute wakes on the next query.</td></tr>
+      <tr><td>Actions</td><td>Repro, fix, verify</td><td>The only execution plane named in the risk register. Public-repo minutes.</td></tr>
+      <tr><td>Quota ledger</td><td>Stop before the cap</td><td>The run ends QuotaExceeded. Other tenants keep their own keys from P8.</td></tr>
+      <tr><td>Local Gemma</td><td>Judge after checks</td><td>One laptop CPU, i7-13620H, 16 GB, no discrete GPU. If alpha stays under 0.80 the judge is advisory.</td></tr>
+    </tbody></table></div>
+    <h3 class="sec">Low-level design</h3>
+    <ol class="lld">
+      <li>Label starts intake. An actor without write access is ignored.</li>
+      <li>Webhook: HMAC, store delivery id, enqueue reconcile, 202. Same delivery id is a no-op.</li>
+      <li>State machine: repro → fix → verify → PR → awaiting-qa → done.</li>
+      <li>Actions runs the specialists. They return a result and stop. They do not message each other.</li>
+      <li>Repro script must fail on the bug and pass on the golden tree.</li>
+      <li>locate() returns file:line:col candidates. The production build strips data-src.</li>
+      <li>Fix loop in a worktree, Docker with no network, gates before submit.</li>
+      <li>Checks short-circuit. Judge writes a note. One pull request, find-or-create.</li>
+      <li>A person answers in awaiting-qa. Backport comments on conflict.</li>
+    </ol>
+    <h3 class="sec">Rules and thresholds</h3>
+    <div class="tw"><table class="t"><thead><tr><th>Rule</th><th>Value in the plan</th><th>Source</th></tr></thead><tbody>
+      <tr><td>Core size</td><td>556 h, 255 tasks, 30 weeks</td><td>PROJECT.md</td></tr>
+      <tr><td>P9</td><td>40 h, 17 tasks, optional</td><td>PROJECT.md</td></tr>
+      <tr><td>Groq org limits</td><td>RPM 30, RPD 1K, TPM 8K, TPD 200K</td><td>PROJECT.md, checked 2026-10-28</td></tr>
+      <tr><td>Context strategy</td><td>called at 80% of the window</td><td>PROJECT.md</td></tr>
+      <tr><td>Judge alpha</td><td>at least 0.80, else advisory</td><td>P4, ADR-013</td></tr>
+      <tr><td>Best-of-k</td><td>k = 1, 3, 5</td><td>P4</td></tr>
+      <tr><td>Eval subset</td><td>30 tasks, P8 comparison uses 20</td><td>PROJECT.md</td></tr>
+      <tr><td>Stuck count</td><td>not stated</td><td>P3 break-it still says N</td></tr>
+      <tr><td>Langfuse Hobby</td><td>50k units/month</td><td>PROJECT.md</td></tr>
+      <tr><td>Versions</td><td>React 19.3.1, Vite 8.3.5, Playwright 1.64.1, MCP SDK 2.3.0</td><td>PROJECT.md, 2026-10-28</td></tr>
+    </tbody></table></div>
+    <p class="meta">architecture.html still says React 19.2, versions checked 2026-10-01, and “100 CU-h/mo”. Those three are older than PROJECT.md. This page follows PROJECT.md.</p>
+  </section>
+  <section class="panel" id="p1" role="tabpanel">${head("02","Flow","One ticket, hop by hop")}
+    <p class="lede">The same boxes as chapter 01. A lit edge means both ends are in this hop. The only named HTTP route in production.html is the webhook.</p>
+    <div class="stage"><div><div id="d1"></div><div class="device" id="r1"></div></div><div class="side" id="s1"></div></div>
+    <h3 class="sec">Payload fields</h3>
+    <div class="tw"><table class="t"><thead><tr><th>Hop</th><th>Fields the plan names</th></tr></thead><tbody>
+      <tr><td>Issue</td><td>repo, number, label, title, body. The worked example names route /cart and viewport 375px.</td></tr>
+      <tr><td>Webhook</td><td>delivery id, HMAC signature. Response is 202, or 401 if the signature is bad.</td></tr>
+      <tr><td>Workflow</td><td>ticket id as workflow id, state, idempotency key for the pull request.</td></tr>
+      <tr><td>Repro</td><td>verdict: valid, passes-on-bug, fails-on-golden, or error. Stop reason, including retry-cap.</td></tr>
+      <tr><td>Locate</td><td>file:line:col. Typed errors include not-found, ambiguous, no-source-info, stale-target, not-unique.</td></tr>
+      <tr><td>Trajectory</td><td>tokens in, out, cached. An omitted cache field is zero. A rejected tool call keeps the raw response.</td></tr>
+      <tr><td>Verdict</td><td>pixel, overflow, axe, console, then judge label. The judge does not override the checks.</td></tr>
+    </tbody></table></div>
+    <h3 class="sec">Reads by click</h3>
+    <div class="tw"><table class="t"><thead><tr><th>Click</th><th>Read that is not on the hot path</th></tr></thead><tbody>
+      <tr><td>Label while Render sleeps</td><td>Reconcile poller reads the issue from GitHub. No path is named beyond “read GitHub”.</td></tr>
+      <tr><td>Review comment during QA</td><td>Poller reads the comment and resumes the same workflow.</td></tr>
+      <tr><td>Second run of the same ticket</td><td>Find the existing pull request by ticket id. A lookup error leaves it untouched.</td></tr>
+    </tbody></table></div>
+  </section>
+  <section class="panel" id="p2" role="tabpanel">${head("03","Walk","Each step is one click")}
+    <p class="lede">The clicks are the production rail: Queued, Repro, Fix, Verify, PR, QA, Done. The screen is the worked example after that click.</p>
+    <div class="stage"><div><div id="d2"></div><div class="device" id="r2"></div></div><div class="side" id="s2"></div></div>
+  </section>
+  <section class="panel" id="p3" role="tabpanel">${head("04","Production","The ticket screen")}
+    <p class="lede">A reduced replica of production.html. Tokens inside the frame are that page’s ink, card, and blue, so this frame does not follow the doc theme. Click a state or the player.</p>
+    <div class="stage"><div class="device"><div class="chrome"><i></i><i></i><i></i><span class="url">production.html · you/shop-ui #142</span></div><div class="screen" id="prod"></div></div>
+    <div class="side"><div class="card insp" id="prodIns"></div></div></div>
+  </section>
+  <section class="panel" id="p4" role="tabpanel">${head("05","Changes","The screen as of a plan cut")}
+    <p class="lede">There is no pull request and no commit. The menu is the plan’s deploy cuts. Outlines mark controls that cut adds. This chapter names no route.</p>
+    <div class="pick"><label>As of <select id="cut"></select></label> <label><input type="checkbox" id="hl"> Highlight what changed</label></div>
+    <div class="trk" id="strip"></div>
+    <div class="stage"><div><div id="d4"></div><div class="device"><div class="chrome"><i></i><i></i><i></i><span class="url">worked example · issue 142</span></div><div class="screen" id="cutScreen"></div></div></div>
+    <div class="side"><div class="card" id="cutInfo"></div></div></div>
+  </section>
+  <section class="panel" id="p5" role="tabpanel">${head("06","Edges","When the happy path is the bug")}
+    <p class="lede">Failures use the red tone. Each case is a rule in the plan that is easy to miss.</p>
+    <div class="pick fail" id="edgePick"></div>
+    <div class="stage"><div><div id="d5"></div><div class="device" id="r5"></div></div><div class="side" id="s5"></div></div>
+  </section>
+  <section class="panel" id="p6" role="tabpanel">${head("07","Graph","What to learn, and in what order")}
+    <p class="lede">Thirty concepts from the plan. The hour on a card is that phase’s budget, shared by every concept in the phase. It is not a split.</p>
+    <div class="pick" id="gPills"></div>
+    <input id="gQ" placeholder="Filter" aria-label="Filter concepts" style="margin-bottom:10px;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:min(100%,280px)">
+    <div class="g-cols" id="gCols"></div>
+    <div class="card" id="gCard" style="margin-top:12px"></div>
+    <h3 class="sec">Learning path</h3>
+    <div class="card"><div class="bar" style="margin-bottom:8px"><i id="gBar"></i></div><p id="gCount" class="meta"></p><div class="g-path" id="gPath"></div></div>
+  </section>
+  <section class="panel" id="p7" role="tabpanel">${head("08","Tracker","Phases, not pull requests")}
+    <p class="lede">No package is built. Every row is planned. Hours and task counts are the phase table. Cuts are named and not booked.</p>
+    <div class="pick"><label>As of <select id="wp"></select></label></div>
+    <div class="trk" id="wpStrip"></div>
+    <div class="card" id="wpInfo"></div>
+    <h3 class="sec">Phase table</h3>
+    <div class="tw"><table class="t" id="wpTable"><thead><tr><th>Phase</th><th>Hours</th><th>Tasks</th><th>Adds</th><th>Status</th></tr></thead><tbody></tbody></table></div>
+  </section>
+  <details class="how"><summary>How to add the next row</summary>
+  <p>A concept: one entry in CONCEPTS, [id, cluster 0–6, name, prerequisite ids, phase key, cite, definition under 60 words, question, answer]. A flow step: one object in FLOW with title, active node ids, body, calls, apply. An edge scenario: one object in EDGES. A phase: one key in PHASES. Then reload. selfCheck throws if an id is unknown or the graph has a cycle.</p>
+  </details>`;
+}
+const byId = Object.fromEntries(CONCEPTS.map(c=>[c[0],c]));
+function topo(){
+  const seen=new Set(), out=[];
+  const vis=id=>{ if(seen.has(id)) return; seen.add(id); byId[id][3].forEach(vis); out.push(id); };
+  CONCEPTS.forEach(c=>vis(c[0]));
+  return out;
+}
+function paintGraph(){
+  const q=($("#gQ").value||"").toLowerCase();
+  const pill=[...$$("#gPills button")].find(b=>b.getAttribute("aria-pressed")==="true");
+  const col=pill?Number(pill.dataset.c):-1;
+  $("#gCols").innerHTML = CL.map((name,c)=>`<div><h5>${name}</h5>`+CONCEPTS.filter(n=>n[1]===c&&(col<0||col===c)&&(!q||n[2].toLowerCase().includes(q))).map(n=>`<button type="button" class="g-n${learned.has(n[0])?" ok":""}" data-c="${n[0]}">${esc(n[2])}</button>`).join("")+`</div>`).join("");
+  const order=topo();
+  $("#gPath").innerHTML=order.map((id,i)=>{const n=byId[id];return `<button type="button" data-c="${id}"><b>${i+1}. ${esc(n[2])}</b><br><small>${esc(n[5])} · phase budget ${PHASES[n[4]][1]} h</small></button>`;}).join("");
+  const left=CONCEPTS.length-learned.size;
+  $("#gCount").textContent=`learned ${learned.size} / ${CONCEPTS.length} · ${left} concepts left`;
+  $("#gBar").style.width=(learned.size/CONCEPTS.length*100)+"%";
+}
+function openConcept(id){
+  const n=byId[id], ph=PHASES[n[4]];
+  $("#gCard").innerHTML=`<h4>${esc(n[2])}</h4><p>${esc(n[6])}</p><p class="meta">${esc(ph[0])} · ${ph[1]} h shared phase budget · ${esc(n[5])}</p>
+    <p><b>Needs</b> ${n[3].map(p=>esc(byId[p][2])).join(", ")||"nothing"}</p>
+    <p><b>Check</b> ${esc(n[7])}</p><p id="ans" hidden>${esc(n[8])}</p>
+    <p><button class="btn" id="rev" type="button">Reveal</button> <button class="btn" id="mark" type="button">${learned.has(id)?"Learned":"Mark learned"}</button></p>`;
+  $("#rev").onclick=()=>{const a=$("#ans");a.hidden=!a.hidden;};
+  $("#mark").onclick=()=>{learned.has(id)?learned.delete(id):learned.add(id);saveLearned();openConcept(id);paintGraph();};
+  $$(".g-n").forEach(b=>b.classList.toggle("on", b.dataset.c===id));
+}
+function mountStepper(side, dia, rep, steps, fail){
+  let i=0, timer=null;
+  const base=()=>({rail:"queued",title:"",summary:"",asof:"p8"});
+  function at(n){const s=base();for(let k=0;k<=n;k++)steps[k].apply&&steps[k].apply(s);s.summary=steps[n].body;s.title=steps[n].title;return s;}
+  function draw(){
+    const st=at(i), step=steps[i];
+    $(dia).innerHTML=diagram(step.active,{tone:fail?"fail":"",prefix:dia});
+    if(rep) $(rep).innerHTML=`<div class="chrome"><i></i><i></i><i></i><span class="url">worked example · ${esc(st.rail)}</span></div><div class="screen">${boardHtml(st)}</div>`;
+    $(side).innerHTML=`<div class="card player"><div class="ctrls"><button class="btn" type="button" data-nav="p" ${i?"":"disabled"}>Prev</button><button class="btn pri" type="button" data-nav="play">${timer?"Pause":"Play"}</button><button class="btn" type="button" data-nav="n" ${i<steps.length-1?"":"disabled"}>Next</button><span class="cnt">${i+1} / ${steps.length}</span></div><div class="bar ${timer?"run":""}"><i style="width:${(i/(steps.length-1)||0)*100}%"></i></div></div>
+      <ol class="tl">${steps.map((s,k)=>`<li><button type="button" data-go="${k}" ${k===i?"aria-current=step":""} class="${k<i?"done":""}"><i>${k+1}</i>${esc(s.title)}</button></li>`).join("")}</ol>
+      <div class="card insp"><div class="tag">${fail?"Fail":"Hop"}</div><h3>${esc(step.title)}</h3><p>${esc(step.body)}</p>${callsHtml(step.calls)}</div>`;
+    const cur=$(side).querySelector("[aria-current]"); if(cur) cur.scrollIntoView({block:"nearest"});
+  }
+  function go(n){i=Math.max(0,Math.min(steps.length-1,n));if(i===steps.length-1){clearInterval(timer);timer=null;}draw();}
+  $(side).onclick=e=>{const t=e.target.closest("[data-nav],[data-go]");if(!t)return;if(t.dataset.go!=null){clearInterval(timer);timer=null;go(+t.dataset.go);}else if(t.dataset.nav==="p"){clearInterval(timer);timer=null;go(i-1);}else if(t.dataset.nav==="n"){clearInterval(timer);timer=null;go(i+1);}else{if(timer){clearInterval(timer);timer=null;draw();}else{timer=setInterval(()=>go(i+1),3400);draw();}}};
+  draw();
+  return {go,get i(){return i;},steps};
+}
+let steppers={};
+function prodState(ix){
+  const s={rail:RAIL[ix][0],title:FLOW[Math.min(ix,FLOW.length-1)].title,summary:FLOW[Math.min(ix,FLOW.length-1)].body,asof:"p8"};
+  return s;
+}
+let prodIx=0;
+function drawProd(){
+  const st=prodState(prodIx);
+  $("#prod").innerHTML=boardHtml(st);
+  const next=FLOW[Math.min(prodIx+1,FLOW.length-1)];
+  $("#prodIns").innerHTML=`<div class="tag">Next in production</div><h3>${esc(st.title)}</h3><p>${esc(st.summary)}</p><p class="meta">After this click, production moves toward ${esc(next.title)}.</p>`;
+}
+const CUTS=[
+  ["p6","P6 deployed core","Control plane, states, poller, and the pull-request opener. Backport is not on the screen.","P6 introduces the durable wait and the single opener."],
+  ["p8","P8 GitHub App","The tenant workflow and the backport sentence appear.","P8 introduces the backport note and the tenant-repo wording already in the shape row."],
+  ["p9","P9 optional lane","No new control on this screen. The phase file adds a backend golden-fix to existing Actions jobs and names no new host.","Nothing on this ticket screen is new."]
+];
+function drawCut(){
+  const id=$("#cut").value, row=CUTS.find(c=>c[0]===id), hl=$("#hl").checked;
+  const born=id==="p8"?{port:true}:id==="p9"?{}:{dbos:true};
+  const st={rail:"qa",title:row[1],summary:row[2],asof:id==="p6"?"p6":"p8",hl,born,nopath:true};
+  $("#cutScreen").innerHTML=boardHtml(st);
+  const active=id==="p6"?["hook","dbos","neon","poll","qa","pr"]:id==="p8"?["pr","qa"]:["issue"];
+  $("#d4").innerHTML=diagram(active,{prefix:"c4"});
+  $("#cutInfo").innerHTML=`<h4>${esc(row[1])}</h4><p>${esc(row[3])}</p><p class="meta">Status: planned. No pull request number exists.</p>`;
+  $$("#strip button").forEach(b=>b.toggleAttribute("aria-current", b.dataset.w===id));
+}
+function drawWp(){
+  const id=$("#wp").value, keys=Object.keys(PHASES), ix=keys.indexOf(id);
+  $("#wpInfo").innerHTML=`<h4>${esc(PHASES[id][0])}</h4><p>${esc(PHASES[id][3])}</p><p class="meta">${PHASES[id][1]} h · ${PHASES[id][2]} tasks · not started</p>`;
+  $$("#wpStrip button").forEach(b=>b.toggleAttribute("aria-current", b.dataset.w===id));
+  $("#wpTable tbody").innerHTML=keys.map((k,i)=>{const p=PHASES[k];return `<tr><td>${esc(p[0])}</td><td>${p[1]}</td><td>${p[2]}</td><td>${esc(p[3])}</td><td>${i<=ix?"in this slice":"later"}</td></tr>`;}).join("");
+}
+function selfCheck(){
+  const must=(c,m)=>{if(!c)throw new Error("selfCheck: "+m);};
+  Object.keys(GEO).forEach(id=>must(NODES[id],"GEO "+id));
+  Object.keys(NODES).forEach(id=>must(GEO[id],"NODES "+id));
+  EDGE_DEFS.forEach(e=>must(NODES[e[0]]&&NODES[e[1]],"edge "+e[0]));
+  FLOW.concat(WALK,...EDGES.map(e=>e.steps)).forEach(s=>s.active.forEach(id=>must(NODES[id],"step "+id)));
+  must(CONCEPTS.length===30,"30 concepts");
+  must(new Set(CONCEPTS.map(c=>c[0])).size===30,"unique concepts");
+  const order=topo();
+  must(order.length===30,"cycle");
+  CONCEPTS.forEach(c=>{c[3].forEach(p=>must(byId[p],"pre "+p));must(c[6].split(/\s+/).length<=60,"def "+c[0]);must(PHASES[c[4]],"phase "+c[0]);});
+  order.forEach((id,i)=>byId[id][3].forEach(p=>must(order.indexOf(p)<i,"order "+p)));
+  must(!/GET |POST |\/api|\/github/.test($("#p4").textContent),"chapter 05 must not name a route");
+  must(PHASES.p0[1]+PHASES.p1[1]+PHASES.p2[1]+PHASES.p3[1]+PHASES.p4[1]+PHASES.p5[1]+PHASES.p55[1]+PHASES.p6[1]+PHASES.p7[1]+PHASES.p8[1]===556,"556");
+  must(RAIL.map(r=>r[0]).join(",")==="queued,repro,fix,verify,pr,qa,done","states");
+}
+function boot(){
+  $("#chapters").innerHTML=CHAPTERS.map((c,i)=>`<li><button class="chap" type="button" role="tab" aria-selected="${i===0}" id="t${i}"><i>${c[0]}</i><span>${c[2]}</span></button></li>`).join("");
+  panels();
+  $("#d0").innerHTML=diagram([],{interactive:true,prefix:"p0"});
+  $("#d0").addEventListener("click",e=>{const g=e.target.closest("[data-node]");if(!g)return;$("#nodeCard").textContent=NODES[g.dataset.node][0]+". "+NODE_TEXT[g.dataset.node];diagramClick(g.dataset.node);});
+  $("#d0").addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){const g=e.target.closest("[data-node]");if(g){e.preventDefault();$("#nodeCard").textContent=NODE_TEXT[g.dataset.node];}}});
+  let trace=null;
+  const order=["issue","hook","dbos","neon","repro","ledger","fix","verify","judge","pr","qa","poll"];
+  $("#trace").onclick=()=>{clearInterval(trace);let n=0;trace=setInterval(()=>{$("#d0").innerHTML=diagram(order.slice(0,++n),{interactive:true,prefix:"p0"});if(n>=order.length)clearInterval(trace);},1100);};
+  function diagramClick(id){$("#d0").innerHTML=diagram([id],{interactive:true,prefix:"p0"});}
+  steppers.flow=mountStepper("#s1","#d1","#r1",FLOW,false);
+  steppers.walk=mountStepper("#s2","#d2","#r2",WALK,false);
+  $("#edgePick").innerHTML=EDGES.map((e,i)=>`<button type="button" data-e="${i}" aria-pressed="${i===0}">${esc(e.title)}</button>`).join("");
+  let edge=mountStepper("#s5","#d5","#r5",EDGES[0].steps,true);
+  $("#edgePick").onclick=e=>{const b=e.target.closest("button");if(!b)return;$$("#edgePick button").forEach(x=>x.setAttribute("aria-pressed",x===b));edge=mountStepper("#s5","#d5","#r5",EDGES[+b.dataset.e].steps,true);steppers.edge=edge;};
+  steppers.edge=edge;
+  drawProd();
+  $("#prod").onclick=e=>{const t=e.target.closest("[data-act]");if(!t)return;if(t.dataset.act==="rail")prodIx=RAIL.findIndex(r=>r[0]===t.dataset.arg);if(t.dataset.act==="next")prodIx=Math.min(RAIL.length-1,prodIx+1);if(t.dataset.act==="prev")prodIx=Math.max(0,prodIx-1);if(t.dataset.act==="play")prodIx=Math.min(RAIL.length-1,prodIx+1);drawProd();};
+  $("#cut").innerHTML=CUTS.map(c=>`<option value="${c[0]}">${esc(c[1])}</option>`).join("");
+  $("#strip").innerHTML=CUTS.map(c=>`<button type="button" data-w="${c[0]}">${esc(c[1])}</button>`).join("");
+  $("#cut").onchange=$("#hl").onchange=drawCut;
+  $("#strip").onclick=e=>{const b=e.target.closest("button");if(!b)return;$("#cut").value=b.dataset.w;drawCut();};
+  drawCut();
+  $("#gPills").innerHTML=`<button type="button" data-c="-1" aria-pressed="true">All</button>`+CL.map((n,i)=>`<button type="button" data-c="${i}" aria-pressed="false">${n}</button>`).join("");
+  $("#gPills").onclick=e=>{const b=e.target.closest("button");if(!b)return;$$("#gPills button").forEach(x=>x.setAttribute("aria-pressed",x===b));paintGraph();};
+  $("#gQ").oninput=paintGraph;
+  $("#p6").addEventListener("click",e=>{const b=e.target.closest("[data-c]");if(b)openConcept(b.dataset.c);});
+  paintGraph();
+  openConcept(topo()[0]);
+  const keys=Object.keys(PHASES);
+  $("#wp").innerHTML=keys.map(k=>`<option value="${k}">${esc(PHASES[k][0])}</option>`).join("");
+  $("#wpStrip").innerHTML=keys.map(k=>`<button type="button" data-w="${k}">${esc(k)}</button>`).join("");
+  $("#wp").onchange=drawWp;
+  $("#wpStrip").onclick=e=>{const b=e.target.closest("button");if(!b)return;$("#wp").value=b.dataset.w;drawWp();};
+  drawWp();
+  $$(".chap").forEach((b,i)=>{b.onclick=()=>show(i);});
+  document.addEventListener("keydown",e=>{
+    if((e.key==="ArrowLeft"||e.key==="ArrowRight")&&!/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)){
+      const map={1:"flow",2:"walk",5:"edge"};const key=map[chapter];if(!key)return;
+      e.preventDefault();
+      const box=$(chapter===1?"#s1":chapter===2?"#s2":"#s5");
+      const btn=box.querySelector(`[data-nav="${e.key==="ArrowLeft"?"p":"n"}"]`);if(btn)btn.click();
+    }
+    if(e.key==="Escape"){const d=$("#ans");if(d)d.hidden=true;}
+  });
+  const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  $$("[data-n]").forEach(el=>{
+    const to=+el.dataset.n;
+    if(reduce){el.textContent=String(to);return;}
+    const t0=performance.now();
+    const tick=n=>{const p=Math.min(1,(n-t0)/800);el.textContent=String(Math.round(to*(1-Math.pow(1-p,3))));if(p<1)requestAnimationFrame(tick);};
+    requestAnimationFrame(tick);
+  });
+  clock();setInterval(clock,1000);
+  $("#theme").onclick=()=>{const n=document.documentElement.getAttribute("data-theme")==="light"?"dark":"light";document.documentElement.setAttribute("data-theme",n);try{localStorage.setItem("argus-learn-theme",n)}catch(e){}};
+  $("#theme").textContent=document.documentElement.getAttribute("data-theme")==="light"?"Dark":"Light";
+  selfCheck();
+}
+boot();
+</script>
+</body>
+</html>

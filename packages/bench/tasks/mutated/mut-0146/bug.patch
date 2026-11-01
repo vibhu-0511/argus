@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -265,7 +265,7 @@
+ .ops-rc-rules th { text-align: left; font-weight: 600; color: var(--text-tertiary); }
+ .ops-rc-rules th, .ops-rc-rules td { padding: 4px 6px; border-top: 1px solid var(--border-primary); vertical-align: top; overflow-wrap: break-word; }
+ .ops-rc-rules td:nth-child(2), .ops-rc-rules td:nth-child(3) { font-family: var(--font-mono); overflow-wrap: normal; white-space: nowrap; }
+-.ops-rc-mark { display: inline-block; width: 16px; font-weight: 700; }
++
+ .ops-rc-rule--pass { color: var(--text-secondary); }
+ .ops-rc-rule--pass .ops-rc-mark { color: var(--accent-success); }
+ .ops-rc-rule--fail { color: var(--text-primary); }

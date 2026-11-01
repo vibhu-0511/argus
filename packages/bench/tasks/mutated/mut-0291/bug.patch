@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -347,7 +347,7 @@
+ .ops-params-bar { position: sticky; top: 0; z-index: 2; align-items: center; padding: 8px 12px; border: 1px solid var(--border-secondary); border-radius: 8px; background: var(--bg-secondary); }
+ .ops-params-count { color: var(--text-tertiary); margin-right: 4px; }
+ .ops-params-label { display: block; }
+-.ops-params-key { display: block; font-size: 11px; opacity: 0.7; }
++.ops-params-key { display: block; font-size: 15px; opacity: 0.7; }
+ .ops-params-unit { color: var(--text-tertiary); }
+ .ops-user { display: flex; align-items: center; gap: 8px; margin-left: 12px; font-size: 13px; }
+ .ops-user-name { font-weight: 600; }

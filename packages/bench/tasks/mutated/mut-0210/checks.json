@@ -1,0 +1,12 @@
+[
+  {
+    "params": {
+      "css": "apps/canvas/src/ops/ops.css",
+      "expected": "26px",
+      "flow": "/ops/radar",
+      "property": "line-height",
+      "selector": ".ops-horizon-dot"
+    },
+    "type": "computed_style"
+  }
+]

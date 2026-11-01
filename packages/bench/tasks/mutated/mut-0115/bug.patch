@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -316,7 +316,7 @@
+ .ops-rules-list-toggle { border: 0; background: transparent; color: var(--accent-primary); cursor: pointer; padding: 0; text-decoration: underline; }
+ 
+ /* The Codes tab (control-tower-v3 §5a): one card per code table, each window on a 24-hour bar. */
+-.ops-rules-tabs { display: flex; gap: 6px; border-bottom: 1px solid var(--border-primary); }
++
+ .ops-rules-tabs button { padding: 6px 14px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: inherit; cursor: pointer; }
+ .ops-rules-tabs button[aria-selected="true"] { border-bottom-color: var(--accent-primary); font-weight: 700; }
+ .ops-codes-card { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border: 1px solid var(--border-primary); border-radius: 8px; background: var(--surface-card); }

@@ -1,0 +1,24 @@
+--- a/apps/canvas/src/insights/desk/desk.css
++++ b/apps/canvas/src/insights/desk/desk.css
+@@ -17,20 +17,7 @@
+ .font-b612-mono { font-family: var(--font-mono); }
+ 
+ /* Desk surface tokens — navy/blue by default; light follows the ops sun/moon toggle. */
+-.cid-desk {
+-  --desk-bg: #0a0f1a;
+-  --desk-elevated: #101828;
+-  --desk-card: #101828;
+-  --desk-hover: #16233a;
+-  --desk-border: #1e2a40;
+-  --desk-ink: #e6edf7;
+-  --desk-muted: #8494ac;
+-  --desk-dim: #64748b;
+-  --desk-accent: #2563eb;
+-  --desk-accent-soft: #3b82f6;
+-  background: var(--desk-bg);
+-  color: var(--desk-ink);
+-}
++
+ html[data-theme="light"] .cid-desk {
+   --desk-bg: #f8fafc;
+   --desk-elevated: #ffffff;

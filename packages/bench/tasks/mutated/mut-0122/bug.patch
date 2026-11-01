@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -36,7 +36,7 @@
+ .ops-timeline { display: flex; flex-direction: column; gap: 4px; padding: 10px 14px 18px; border: 1px solid var(--border-primary); border-radius: 8px; background: var(--surface-card); color: var(--text-secondary); }
+ .ops-timeline-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 6px; }
+ .ops-timeline-summary { font: 600 14px var(--font-mono); color: var(--text-primary); margin-right: auto; }
+-.ops-timeline-chips, .ops-timeline-anchor { display: inline-flex; gap: 6px; align-items: center; }
++
+ .ops-timeline-chips > button, .ops-timeline-anchor > button { min-height: 32px; }
+ .ops-timeline-density { display: block; width: 100%; height: 28px; }
+ .ops-timeline-bar { fill: var(--border-secondary); }

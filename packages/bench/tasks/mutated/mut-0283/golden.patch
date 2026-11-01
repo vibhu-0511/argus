@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -46,7 +46,7 @@
+ .ops-timeline-band { position: absolute; top: 8px; height: 8px; border-radius: 4px; background: color-mix(in srgb, var(--accent-primary) 55%, transparent); cursor: grab; }
+ .ops-timeline-band:active { cursor: grabbing; }
+ .ops-timeline-now { position: absolute; top: 0; width: 2px; height: 24px; margin-left: -1px; background: var(--accent-warning); pointer-events: none; }
++.ops-timeline-handle { position: absolute; top: 2px; width: 14px; height: 20px; margin-left: -7px; border: 2px solid var(--surface-card); border-radius: 4px; background: var(--text-primary); cursor: ew-resize; }
+-.ops-timeline-handle { position: absolute; top: 2px; width: 18px; height: 20px; margin-left: -7px; border: 2px solid var(--surface-card); border-radius: 4px; background: var(--text-primary); cursor: ew-resize; }
+ .ops-timeline-handle:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; }
+ .ops-timeline-ticks { position: relative; height: 14px; }
+ .ops-timeline-tick { position: absolute; transform: translateX(-50%); font: 10px var(--font-mono); color: var(--text-tertiary); }

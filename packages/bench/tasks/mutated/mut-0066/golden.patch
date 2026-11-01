@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -385,7 +385,7 @@
+ .ops-horizon-kpi { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; padding: 8px 10px; border: 1px solid var(--border-primary); border-radius: 10px; background: var(--bg-primary); color: var(--text-primary); text-align: left; cursor: pointer; }
+ .ops-horizon-kpi-title { font-size: 12px; font-weight: 650; }
+ .ops-horizon-kpi-value { font-size: 18px; font-weight: 700; }
++.ops-horizon-kpi-foot { font-size: 11px; color: var(--text-tertiary); }
+-
+ .ops-horizon-delay { padding: 0; color: var(--text-primary); }
+ .ops-horizon-delay-list { max-height: 220px; overflow: auto; padding: 0 14px 10px; }
+ .ops-horizon-delay-row { display: flex; justify-content: space-between; gap: 12px; width: 100%; padding: 7px 0; border: 0; border-top: 1px solid var(--border-primary); background: none; color: inherit; font: inherit; font-size: 13px; text-align: left; cursor: pointer; }

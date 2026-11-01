@@ -1,0 +1,17 @@
+[project]
+name = "argus-bench"
+version = "0.1.0"
+description = "Bench scorer CLI and Playwright check runner."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = ["argus-core"]
+
+[project.scripts]
+bench = "argus_bench.cli:main"
+
+[tool.uv.sources]
+argus-core = { workspace = true }
+
+[build-system]
+requires = ["uv_build>=0.12.2,<0.13.0"]
+build-backend = "uv_build"

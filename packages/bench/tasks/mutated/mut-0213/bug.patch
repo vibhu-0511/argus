@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -21,7 +21,7 @@
+ .ops-view > button[aria-pressed="true"], .ops-timeline-rule > button[aria-pressed="true"], .ops-lang > button[aria-pressed="true"] {
+   background: var(--accent-primary-light); border-color: var(--border-secondary); color: var(--text-primary); font-weight: 700;
+ }
+-.ops-header { display: flex; align-items: center; gap: 24px; padding: 8px 16px; border-bottom: 1px solid var(--border-primary); }
++.ops-header { display: flex; align-items: center; gap: 28px; padding: 8px 16px; border-bottom: 1px solid var(--border-primary); }
+ .ops-brand { display: flex; align-items: center; gap: 10px; font-weight: 600; white-space: nowrap; }
+ .ops-logo { height: 30px; width: auto; display: block; }
+ .ops-tenant-logo { height: 28px; width: 28px; border-radius: 8px; object-fit: cover; display: block; }

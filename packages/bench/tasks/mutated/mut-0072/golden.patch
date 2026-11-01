@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -101,7 +101,7 @@
+ .ops-path--short { stroke: #f87171; opacity: 1; }
+ .ops-route:hover .ops-path { opacity: 1; }
+ .ops-flight-hit { fill: none; stroke: transparent; pointer-events: stroke; cursor: pointer; }
++.ops-halo { fill: none; stroke: #8494ac; opacity: 0.5; }
+-
+ .ops-origin-mark { fill: #8494ac; }
+ .ops-airport--base .ops-halo { stroke: #34d399; opacity: 0.8; }
+ .ops-airport--base .ops-origin-mark { fill: #34d399; }

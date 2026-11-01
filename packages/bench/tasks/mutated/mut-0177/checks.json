@@ -1,0 +1,12 @@
+[
+  {
+    "params": {
+      "css": "apps/canvas/src/ops/ops.css",
+      "expected": "pointer",
+      "flow": "/desk?sel=console",
+      "property": "cursor",
+      "selector": ".ops-event"
+    },
+    "type": "computed_style"
+  }
+]

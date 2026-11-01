@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -143,7 +143,7 @@
+ .ops-muted { color: var(--text-secondary); }
+ /* A rotating box's bounds grow by up to √2, and transformed boxes count as scrollable overflow: at the foot of a modal the
+  * spinner's corners toggled the scrollbar twice a turn. Clipping the row keeps the round ink and drops the box corners. */
++.ops-recheck-pending, .ops-loading-note { overflow: clip; }
+-
+ .ops-recheck-pending { display: flex; align-items: flex-start; gap: 10px; }
+ .ops-spinner { flex: none; width: 14px; height: 14px; margin-top: 3px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: ops-spin 0.8s linear infinite; }
+ @keyframes ops-spin { to { transform: rotate(360deg); } }

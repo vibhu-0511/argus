@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -419,7 +419,7 @@
+ .ops-horizon-stepper span { min-width: 48px; text-align: center; font-size: 13px; color: var(--text-secondary); }
+ .ops-horizon-expand { padding: 0 12px; background: var(--bg-primary); }
+ .ops-horizon-wire { display: flex; border-radius: 10px; background: var(--bg-primary); overflow: hidden; }
++.ops-horizon-gutter { width: 156px; flex: none; position: relative; }
+-
+ .ops-horizon-lane-name { position: absolute; left: 12px; right: 8px; font-size: 13px; color: var(--text-secondary); }
+ .ops-horizon-scroll { flex: 1; min-width: 0; overflow-x: scroll; overflow-y: hidden; scrollbar-width: thin; scrollbar-color: var(--accent-primary) color-mix(in srgb, var(--accent-primary) 28%, transparent); }
+ .ops-horizon-scroll::-webkit-scrollbar { height: 4px; }

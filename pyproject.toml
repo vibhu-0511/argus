@@ -1,0 +1,19 @@
+[project]
+name = "argus"
+version = "0.0.0"
+description = "Argus monorepo. The root is the workspace, not an installable package."
+requires-python = ">=3.12"
+dependencies = ["argus-core", "argus-bench"]
+
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+argus-core = { workspace = true }
+argus-bench = { workspace = true }
+
+[tool.uv.workspace]
+members = ["packages/argus-core", "packages/bench"]
+
+[dependency-groups]
+dev = ["pytest>=8"]

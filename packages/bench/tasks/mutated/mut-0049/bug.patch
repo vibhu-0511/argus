@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -280,7 +280,7 @@
+ .ops-rules-hash, .ops-rules-code { font: 12px var(--font-mono); color: var(--text-tertiary); }
+ .ops-rules-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+ .ops-rules-controls input[type="search"] { min-width: 260px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border-secondary); background: var(--bg-secondary); color: inherit; }
+-.ops-rules-tiers { display: inline-flex; flex-wrap: wrap; gap: 6px; }
++
+ .ops-rules-tiers button { border-radius: 999px; padding: 4px 12px; border: 1px solid var(--border-secondary); background: transparent; color: inherit; cursor: pointer; }
+ .ops-rules-tiers button[aria-pressed="true"] { background: var(--bg-tertiary); font-weight: 700; }
+ .ops-rules-count { margin-left: 4px; padding: 0 6px; border-radius: 999px; background: var(--bg-secondary); font-size: 11px; }

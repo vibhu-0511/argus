@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -274,7 +274,7 @@
+ 
+ /* The rules browser (knowledge-base/decisions/control-tower-v3.md §16): the summary strip, tier chips, one table per
+    tier, and the rule's detail as a side panel. */
+-.ops-rules { padding: 12px 16px; display: flex; flex-direction: column; gap: 12px; }
++.ops-rules { padding: 12px 16px; display: flex; flex-direction: column; gap: 16px; }
+ .ops-rules-summary { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 18px; padding: 10px 14px; border: 1px solid var(--border-primary); border-radius: 8px; background: var(--surface-card); color: var(--text-secondary); }
+ .ops-rules-generation { font: 700 18px var(--font-mono); color: var(--text-primary); }
+ .ops-rules-hash, .ops-rules-code { font: 12px var(--font-mono); color: var(--text-tertiary); }

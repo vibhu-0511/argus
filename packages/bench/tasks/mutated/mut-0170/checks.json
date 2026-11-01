@@ -1,0 +1,12 @@
+[
+  {
+    "params": {
+      "css": "apps/canvas/src/ops/ops.css",
+      "expected": "hidden",
+      "flow": "/desk?sel=console",
+      "property": "overflow",
+      "selector": ".ops-view"
+    },
+    "type": "computed_style"
+  }
+]

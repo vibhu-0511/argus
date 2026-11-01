@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -148,7 +148,7 @@
+ .ops-spinner { flex: none; width: 14px; height: 14px; margin-top: 3px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: ops-spin 0.8s linear infinite; }
+ @keyframes ops-spin { to { transform: rotate(360deg); } }
+ @media (prefers-reduced-motion: reduce) { .ops-spinner { animation-duration: 2.4s; } }
+-.ops-detail-strip { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
++
+ .ops-pill { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; letter-spacing: 0.02em; background: var(--bg-tertiary); color: var(--text-secondary); }
+ .ops-pill--departed, .ops-pill--airborne, .ops-pill--crew-full, .ops-pill--ok { background: color-mix(in srgb, var(--accent-success) 18%, transparent); color: var(--accent-success); }
+ .ops-pill--landed { background: color-mix(in srgb, var(--text-tertiary) 20%, transparent); color: var(--text-secondary); }

@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -211,7 +211,7 @@
+ .ops-pill--recheck-legal { background: color-mix(in srgb, var(--accent-success) 18%, transparent); color: var(--accent-success); }
+ .ops-pill--recheck-breach { background: color-mix(in srgb, var(--accent-error) 18%, transparent); color: var(--accent-error); }
+ .ops-pill--recheck-datacheck, .ops-pill--recheck-unchecked { background: color-mix(in srgb, var(--accent-warning) 18%, transparent); color: var(--accent-warning); }
++.ops-crew-tag { margin-left: auto; font-size: 11px; color: var(--text-tertiary); }
+-
+ .ops-rc-find { flex: none; margin-left: auto; white-space: nowrap; padding: 2px 8px; border: 1px solid var(--border-primary); border-radius: 6px; background: var(--bg-tertiary); font-size: 11px; color: var(--text-primary); cursor: pointer; }
+ .ops-rc-find[aria-pressed="true"] { border-color: var(--accent-error); }
+ [data-testid="ops-rc-swap"][aria-pressed="true"] { border-color: var(--accent-primary, var(--border-primary)); }

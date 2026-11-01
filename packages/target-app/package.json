@@ -1,0 +1,7 @@
+{
+  "name": "@argus/target-app",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Binding to the dcortex Canvas and copa-local Postgres. Not a second UI."
+}

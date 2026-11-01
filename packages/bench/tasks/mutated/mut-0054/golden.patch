@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -67,7 +67,7 @@
+ html[data-theme="light"] .ops-show-chip--cancelled[aria-pressed="true"] { color: #9d174d; background: color-mix(in srgb, #f472b6 14%, transparent); }
+ .ops-show-clear { min-height: 32px; font-size: 12px; }
+ 
++.ops-placeholder { padding: 24px 16px; }
+-
+ 
+ /* Map | Table | Both — side by side on wide screens, stacked below 1200px. */
+ .ops-grid { display: flex; flex-direction: column; gap: 12px; }

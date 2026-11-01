@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -182,7 +182,7 @@
+ .ops-event-chip--alert { border-left-color: #e8c547; }
+ .ops-event-chip--diversion { border-left-color: #b99cf0; }
+ .ops-positions { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+-.ops-position { display: inline-flex; align-items: baseline; gap: 8px; padding: 6px 12px; border: 1px solid var(--border-primary); border-radius: 8px; background: var(--surface-card); }
++
+ .ops-position-code { font: 600 12px var(--font-mono); color: var(--text-tertiary); }
+ .ops-position-count { font: 700 16px var(--font-mono); color: var(--accent-success); }
+ .ops-position--short { border-color: color-mix(in srgb, var(--accent-error) 60%, transparent); }

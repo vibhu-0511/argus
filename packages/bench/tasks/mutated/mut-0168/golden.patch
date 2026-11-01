@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -243,7 +243,7 @@
+ .ops-rc-verdict--illegal { color: var(--accent-error); }
+ .ops-rc-verdict--not-evaluated { color: var(--accent-warning, var(--text-secondary)); }
+ .ops-rc-verdict--needs-data-check { color: var(--text-secondary); }
++.ops-rc-datanotes { margin: 8px 0 0 28px; font-size: 12px; color: var(--text-secondary); }
+-
+ .ops-rc-datanote--breach { color: var(--accent-warning, var(--accent-error)); font-weight: 600; }
+ .ops-rc-datanotes-head { margin: 0 0 3px; }
+ .ops-rc-datanotes ul { display: grid; gap: 2px; margin: 0; padding-left: 16px; overflow-wrap: anywhere; }

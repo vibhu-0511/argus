@@ -1,0 +1,12 @@
+[
+  {
+    "params": {
+      "css": "apps/canvas/src/ops/ops.css",
+      "expected": "12px",
+      "flow": "/admin/users",
+      "property": "font-size",
+      "selector": ".ops-loading-note"
+    },
+    "type": "computed_style"
+  }
+]

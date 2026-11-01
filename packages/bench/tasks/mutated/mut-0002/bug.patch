@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/insights/desk/assistant.css
++++ b/apps/canvas/src/insights/desk/assistant.css
+@@ -23,7 +23,7 @@
+ .ic-b { transform-origin: bottom; animation: ic-b 1s ease-in-out infinite; }
+ @media (prefers-reduced-motion: reduce) { .ic-b { animation: none } }
+ @keyframes run-shimmer { from { background-position: -120px 0 } to { background-position: 120px 0 } }
+-.run-bar { background-size: 240px 100%; animation: run-shimmer 1.6s linear infinite; }
++
+ @media (prefers-reduced-motion: reduce) { .run-bar { animation: none } }
+ 
+ /* ---- reports ---- */

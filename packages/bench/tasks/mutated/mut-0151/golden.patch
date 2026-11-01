@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -139,7 +139,7 @@
+ .ops-theme { margin-left: auto; min-width: 36px; padding: 6px 10px; border-radius: 6px; font-size: 16px; line-height: 1; }
+ 
+ /* The flight modal (§5d/§5c-3): a status strip, the two ends as cards, then events and crew. */
++.ops-detail { display: flex; flex-direction: column; gap: 18px; color: var(--text-primary); }
+-
+ .ops-muted { color: var(--text-secondary); }
+ /* A rotating box's bounds grow by up to √2, and transformed boxes count as scrollable overflow: at the foot of a modal the
+  * spinner's corners toggled the scrollbar twice a turn. Clipping the row keeps the round ink and drops the box corners. */

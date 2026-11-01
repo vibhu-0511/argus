@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -338,7 +338,7 @@
+ .ops-params-actions button, .ops-params > button { padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border-secondary); background: var(--surface-card); color: inherit; cursor: pointer; }
+ .ops-params-actions button:disabled { opacity: 0.5; cursor: default; }
+ .ops-params input { width: 90px; padding: 4px 8px; border-radius: 4px; border: 1px solid var(--accent-primary); background: var(--bg-secondary); color: inherit; }
++.ops-params-pending { padding: 10px 14px; border: 1px solid var(--accent-warning); border-radius: 8px; background: var(--bg-secondary); }
+-
+ .ops-params-pending header { display: flex; flex-wrap: wrap; gap: 12px; align-items: baseline; }
+ .ops-params-pending ul { margin: 8px 0; padding-left: 18px; }
+ .ops-params > button { align-self: flex-start; }

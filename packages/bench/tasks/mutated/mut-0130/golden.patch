@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -400,7 +400,7 @@
+ .ops-horizon-dialog th, .ops-horizon-dialog td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border-primary); vertical-align: top; }
+ .ops-horizon-dialog th { color: var(--text-tertiary); font-weight: 650; font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; }
+ .ops-horizon-dialog tbody tr button { border: 0; padding: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
++.ops-horizon-scope { margin: 2px 0 8px; color: var(--text-secondary); font-size: 13px; }
+-
+ .ops-horizon-delta { color: #e8a317; font-weight: 700; }
+ .ops-horizon-row-miss td:first-child { box-shadow: inset 3px 0 0 #f07178; }
+ .ops-horizon-row-late td:first-child { box-shadow: inset 3px 0 0 #f0c14a; }

@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -165,7 +165,7 @@
+ .ops-leg-city { font-size: 13px; color: var(--text-secondary); }
+ .ops-leg-code[title], [data-testid="ops-place"][title] { cursor: help; }
+ .ops-leg-date { font-size: 12px; color: var(--text-tertiary); margin-bottom: 8px; }
++.ops-leg-times { display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; margin: 0; font-size: 13px; }
+-
+ .ops-leg-times dt { color: var(--text-tertiary); }
+ .ops-leg-times dd { margin: 0; font-family: var(--font-mono); color: var(--text-primary); }
+ .ops-progress { display: flex; flex-direction: column; gap: 6px; }

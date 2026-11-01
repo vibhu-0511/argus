@@ -1,0 +1,11 @@
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -429,7 +429,7 @@
+ .ops-horizon-band { position: absolute; bottom: 0; }
+ .ops-horizon-band.alt { background: color-mix(in srgb, var(--accent-primary) 8%, transparent); }
+ .ops-horizon-tick { position: absolute; top: 8px; transform: translateX(-50%); font-size: 11px; color: var(--text-tertiary); font-variant-numeric: tabular-nums; white-space: nowrap; }
+-.ops-horizon-daytick { position: absolute; top: 8px; transform: translateX(-50%); font-size: 11px; color: var(--text-secondary); font-weight: 650; white-space: nowrap; }
++.ops-horizon-daytick { position: absolute; top: 12px; transform: translateX(-50%); font-size: 11px; color: var(--text-secondary); font-weight: 650; white-space: nowrap; }
+ .ops-horizon-past { position: absolute; left: 0; bottom: 0; background: rgba(0, 0, 0, 0.18); pointer-events: none; }
+ .ops-horizon-line { position: absolute; left: 0; right: 0; height: 1px; background: var(--border-primary); }
+ .ops-horizon-now { position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: var(--accent-primary); z-index: 2; pointer-events: none; }

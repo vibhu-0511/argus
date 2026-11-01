@@ -1,0 +1,12 @@
+[
+  {
+    "params": {
+      "css": "apps/canvas/src/ops/ops.css",
+      "expected": "48px",
+      "flow": "/admin/users",
+      "property": "height",
+      "selector": ".ops-skel--block"
+    },
+    "type": "computed_style"
+  }
+]
