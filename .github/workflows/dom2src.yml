@@ -1,0 +1,25 @@
+name: dom2src
+
+on:
+  push:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: uv sync --all-packages --locked
+      - run: pnpm install --frozen-lockfile
+      # live tests need a dcortex-platform checkout (private) and the local pgvector container; run them locally
+      - run: uv run pytest packages/dom2src-mcp/tests -m "not live" -q
+      - run: pnpm --filter @argus/dom2src-plugin test
+      - run: pnpm --filter @argus/dom2src-plugin exec playwright install --with-deps chromium
+      - run: pnpm --filter @argus/dom2src-plugin run test:attribute
