@@ -1,6 +1,6 @@
 # Trajectory metrics
 
-Five numbers that describe how a run got to its answer, not only whether it did. Each is an exact formula over one trajectory file (`trajectory.jsonl`, schema in `packages/argus-core/src/argus_core/types.py`: `Trajectory`, `TrajectoryStep`). The worked example at the end of this file is computed by hand from one stored trajectory.
+Five numbers that describe how a run got to its answer, not only whether it did. Each is an exact formula over one trajectory file (`trajectory.jsonl`, schema in `packages/argus-core/src/argus_core/types.py`: `Trajectory`, `TrajectoryStep`). The code is `packages/eval/src/eval/metrics.py`. The worked example at the end of this file is computed by hand from one stored trajectory, and a unit test recomputes it.
 
 ## Notation
 
@@ -85,7 +85,7 @@ Rates are pooled (sum of numerators over sum of denominators), not averaged per 
 | stuck rate | `Σ stuck / N` |
 | recover-after-gate-failure rate | `Σ recovered / Σ gate_failures` |
 
-The stored P3 and P4 runs were driven by `fix_loop.turn`, which does not run the gates, so none of them has a rejected submit. Their recover rate is `null` (0 gate failures).
+The stored P3 and P4 runs were driven by `fix_loop.turn`, which does not run the gates, so none of them has a rejected submit. Their recover rate is `null` (0 gate failures); `packages/eval/results/stored-metrics.txt` has the counts. The formula is covered by a unit test on a built trajectory instead.
 
 ## Worked example
 
@@ -121,3 +121,5 @@ By hand:
 3. **redundant-call rate**: `calls = 20` (no `submit`). Redundant steps are 10, 11, 13, 15, 16, 17, 19, so `redundant = 7` and the rate is `7 / 20 = 0.35`.
 4. **stuck**: no three adjacent steps share a key (the closest are steps 8, 9, 10 = I, J, D). `stuck = 0`.
 5. **recover-after-gate-failure**: there is no `submit` step, so `gate_failures = 0` and the rate is undefined (`null`).
+
+`packages/eval/tests/test_metrics.py::test_worked_example` asserts these five results against the stored file.
