@@ -217,7 +217,7 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 - [ ] P5-T18 Write ADR-017: CI gate thresholds [ME] 1h
 - [x] P5-T19 Build the SWE-bench Multimodal subset adapter (10 to 20 tasks) into the Task format [PAIR] 3h
 - [ ] P5-T20 Run argus on the multimodal subset and report results and exclusions [ME] 3h
-- [ ] P5-T21 Build static dashboard from results JSON (resolve rate, tokens, latency, trajectory metrics) [CLAUDE] 3h
+- [x] P5-T21 Build static dashboard from results JSON (resolve rate, tokens, latency, trajectory metrics) [CLAUDE] 3h
 - [ ] P5-T22 Deploy the dashboard to GitHub Pages from an Action [CLAUDE] 2h
 
 ## Week 20 — P5, P5.5 (19 h scheduled)
