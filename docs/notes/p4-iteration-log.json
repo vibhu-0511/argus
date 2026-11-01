@@ -1,0 +1,103 @@
+{
+  "iterations": [
+    {
+      "id": "baseline-rubric-v1",
+      "run_id": "p4-judge-gemma4e4b-rubric-v1",
+      "model": "gemma4:e4b",
+      "rubric": "packages/verify/rubric.md",
+      "prompt": "v1",
+      "split": "all 100 pairs, forward order",
+      "labels": "labels.json (Claude drafts adopted by the owner)",
+      "alpha": -0.2448,
+      "bootstrap95": [
+        -0.3085,
+        -0.1923
+      ],
+      "dev_alpha": -0.2863,
+      "held_out_alpha": -0.1965,
+      "judge_labels": {
+        "pass": 100
+      },
+      "false_accept_rate": 1.0,
+      "errors": 0
+    },
+    {
+      "id": "iteration-1-rubric-v2",
+      "run_id": "p4-judge-gemma4e4b-v2-dev",
+      "model": "gemma4:e4b",
+      "rubric": "packages/verify/rubrics/v2.md",
+      "prompt": "v2 (name the difference, then the JSON label)",
+      "split": "dev, 50 pairs (runs/split-seed0.json)",
+      "labels": "labels.json (Claude drafts adopted by the owner)",
+      "alpha": -0.005,
+      "bootstrap95": [
+        -0.199,
+        0.182
+      ],
+      "agreement": "17/50",
+      "judge_labels": {
+        "pass": 23,
+        "collateral": 14,
+        "fail": 13
+      },
+      "false_accept_rate": 0.4,
+      "errors": 0,
+      "same_pairs_under_v1_alpha": -0.286,
+      "note": "budget spent after this iteration; rubric/prompt changes were made looking at this dev split only"
+    },
+    {
+      "id": "final-rubric-v2-heldout",
+      "run_id": "p4-judge-gemma4e4b-v2-heldout",
+      "model": "gemma4:e4b",
+      "rubric": "packages/verify/rubrics/v2.md",
+      "prompt": "v2",
+      "split": "held-out, 50 pairs, forward then reverse",
+      "alpha": 0.1164,
+      "order_disagreement_rate": 0.4,
+      "labels": "labels.json (Claude drafts adopted by the owner)",
+      "bootstrap95": [
+        -0.1177,
+        0.3432
+      ],
+      "agreement": "24/50",
+      "judge_labels": {
+        "pass": 30,
+        "collateral": 10,
+        "fail": 10
+      },
+      "false_accept_rate": 0.5652,
+      "errors": 0,
+      "mean_seconds_per_pair": 90.7,
+      "scored_file": "packages/verify/runs/judge-p4-judge-gemma4e4b-v2-heldout.held_out.scored.json",
+      "note": "forward 50/50 and reverse 50/50 finished; scored with calibration/score_split.py; order_disagreement_rate 0.4 = forward and reverse labels differ on 20 of 50 pairs"
+    },
+    {
+      "id": "same-family-claude-heldout",
+      "run_id": "p4-judge-claude-v2-heldout",
+      "model": "claude subagent (one fresh subagent per pair, sees only the prompt and the two images)",
+      "rubric": "packages/verify/rubrics/v2.md",
+      "prompt": "v2 (same as the Gemma held-out run)",
+      "split": "held-out, 50 pairs, forward order only (no reverse run)",
+      "labels": "labels.json (Claude drafts adopted by the owner)",
+      "alpha": 0.6713,
+      "bootstrap95": [
+        0.4688,
+        0.8357
+      ],
+      "agreement": "40/50",
+      "judge_labels": {
+        "pass": 27,
+        "fail": 12,
+        "collateral": 11
+      },
+      "false_accept_rate": 0.1304,
+      "errors": 0,
+      "order_disagreement_rate": null,
+      "scored_file": "packages/verify/runs/judge-p4-judge-claude-v2-heldout.held_out.scored.json",
+      "note": "P4-T17 same-family control. The fixer in these runs is a Claude session, so Claude is the same-family judge; this replaces the plan's Mistral pixtral run (no endpoint), by owner decision 2026-10-31. Circular: the labels are Claude's own drafts, so agreement is inflated and is not independent evidence. seconds and token fields are not measured."
+    }
+  ],
+  "dev_alpha": -0.005,
+  "held_out_alpha": 0.1164,
+  "reason": "alpha did not reach 0.80: dev -0.005, held-out 0.1164 (95% -0.118 to 0.343, agreement 24/50, order disagreement 0.40). The T14 budget is spent. labels.json is Claude's drafts adopted by the owner, so every alpha here is agreement with adopted drafts, not with independently produced human labels. ADR-013 keeps the judge advisory."
+}
