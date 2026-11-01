@@ -1,0 +1,13 @@
+{
+  "name": "@argus/bugsmith",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Deterministic JSX and CSS mutation generator.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "node --test test/apply-operator.test.ts test/operators.test.ts"
+  }
+}
