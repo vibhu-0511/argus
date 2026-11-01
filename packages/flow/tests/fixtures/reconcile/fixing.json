@@ -1,0 +1,40 @@
+{
+  "ticket": "acme/shop#12",
+  "expect": "fixing",
+  "why": "Repro concluded success; the fix run is queued.",
+  "issue": {
+    "number": 12,
+    "title": "Checkout total is wrong",
+    "state": "open",
+    "labels": [],
+    "html_url": "https://github.com/acme/shop/issues/12"
+  },
+  "pulls": [],
+  "ref": null,
+  "runs": {
+    "total_count": 2,
+    "workflow_runs": [
+      {
+        "id": 902,
+        "name": "argus-dispatch",
+        "display_title": "argus:acme/shop#12:dispatch-fix:1",
+        "event": "workflow_dispatch",
+        "status": "queued",
+        "conclusion": null,
+        "created_at": "2026-11-01T10:05:00Z",
+        "head_branch": "main"
+      },
+      {
+        "id": 901,
+        "name": "argus-dispatch",
+        "display_title": "argus:acme/shop#12:dispatch-repro:1",
+        "event": "workflow_dispatch",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-11-01T10:00:00Z",
+        "head_branch": "main"
+      }
+    ]
+  },
+  "comments": []
+}

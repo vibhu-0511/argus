@@ -1,0 +1,57 @@
+{
+  "ticket": "acme/shop#12",
+  "expect": "rejected",
+  "why": "The PR was closed without merging.",
+  "issue": {
+    "number": 12,
+    "title": "Checkout total is wrong",
+    "state": "open",
+    "labels": [
+      {
+        "name": "argus:awaiting-qa"
+      }
+    ],
+    "html_url": "https://github.com/acme/shop/issues/12"
+  },
+  "pulls": [
+    {
+      "number": 31,
+      "state": "closed",
+      "draft": true,
+      "merged_at": null,
+      "head": {
+        "ref": "argus/acme-shop-12-f2775f9c"
+      },
+      "html_url": "https://github.com/acme/shop/pull/31",
+      "title": "Argus fix for acme/shop#12"
+    }
+  ],
+  "ref": {
+    "ref": "refs/heads/argus/acme-shop-12-f2775f9c",
+    "object": {
+      "sha": "0000000000000000000000000000000000000001",
+      "type": "commit"
+    }
+  },
+  "runs": {
+    "total_count": 1,
+    "workflow_runs": [
+      {
+        "id": 903,
+        "name": "argus-dispatch",
+        "display_title": "argus:acme/shop#12:dispatch-verify:1",
+        "event": "workflow_dispatch",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-11-01T10:10:00Z",
+        "head_branch": "main"
+      }
+    ]
+  },
+  "comments": [
+    {
+      "id": 2,
+      "body": "Argus: awaiting-qa.\n<!-- argus-key: argus:acme/shop#12:comment-awaiting-qa:1 -->"
+    }
+  ]
+}
