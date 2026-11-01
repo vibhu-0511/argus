@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
+from eval import multimodal
 from eval.metrics import format_summary, load_dir, summarize
 from eval.results import schema_json
 from eval.runner import AgentConfig, load_agent, load_tasks, run_eval
@@ -26,8 +27,11 @@ def main(argv: list[str] | None = None) -> int:
     run.add_argument("--run-id", help="default: the agent name")
 
     sub.add_parser("schema", help="print the results JSON Schema")
+    multimodal.add_cli(sub)
 
     args = parser.parse_args(argv)
+    if args.command == "multimodal":
+        return multimodal.run_cli(args)
     if args.command == "schema":
         print(schema_json(), end="")
     elif args.command == "run":
