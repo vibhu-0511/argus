@@ -135,7 +135,7 @@ Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange.
 - `packages/verify`: four fixed checks in a fixed order (pixel, overflow, axe, console); a hard failure returns one verdict and stops.
 - A vision judge that is advisory only and never overrides a passing check run.
 - Best-of-k selection (default k = 1, cap 5), the Krippendorff-alpha code and a CI gate on a stored before/after pair (`verify.yml`).
-- 100 calibration pairs of real Canvas screenshots with blank human labels, and the best-of-k runs `packages/fix-loop/runs/p4-t20-*`.
+- 100 calibration pairs of real Canvas screenshots with labels that are Claude's drafts adopted by the owner (not independent human labels), and the best-of-k runs `packages/fix-loop/runs/p4-t20-*`.
 
 ## Earlier phases
 
