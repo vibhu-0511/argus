@@ -1,0 +1,12 @@
+{
+  "id": "085",
+  "ticket_id": "seed-e05",
+  "view": "ops-radar",
+  "constructed_as": "correct",
+  "shot_source": "real-canvas-mocked-api",
+  "after_variant": "correct:golden",
+  "after_source": "platform HEAD (seed-e05/golden.patch result)",
+  "changed_ratio_vs_before": 0.002372,
+  "changed_ratio_vs_golden": 0,
+  "label": null
+}

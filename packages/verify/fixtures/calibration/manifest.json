@@ -1,0 +1,29 @@
+{
+  "pairs": 100,
+  "target": 100,
+  "mix_target": {
+    "correct": 0.4,
+    "wrong": 0.3,
+    "collateral": 0.3
+  },
+  "mix_built": {
+    "correct": 40,
+    "wrong": 30,
+    "collateral": 30
+  },
+  "available_before_cap": {
+    "correct": 46,
+    "wrong": 53,
+    "collateral": 39
+  },
+  "distinct_tickets": 20,
+  "views": [
+    "landing",
+    "landing-login",
+    "ops-operations",
+    "ops-radar",
+    "ops-radar-departures"
+  ],
+  "viewport": "1280x800",
+  "min_visible_changed_ratio": 0.0003
+}

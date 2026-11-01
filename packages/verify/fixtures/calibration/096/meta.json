@@ -1,0 +1,12 @@
+{
+  "id": "096",
+  "ticket_id": "seed-e01",
+  "view": "landing-login",
+  "constructed_as": "wrong",
+  "shot_source": "real-canvas-mocked-api",
+  "after_variant": "wrong:nofix",
+  "after_source": "seed-e01/bug.patch left in place",
+  "changed_ratio_vs_before": 0.026693,
+  "changed_ratio_vs_golden": 0.027417,
+  "label": null
+}

@@ -1,0 +1,1 @@
+The landing page and the landing band both stop clipping.

@@ -1,0 +1,1 @@
+Operations and the timeline both lay out in a row.

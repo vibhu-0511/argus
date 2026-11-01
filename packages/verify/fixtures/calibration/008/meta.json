@@ -1,0 +1,12 @@
+{
+  "id": "008",
+  "ticket_id": "seed-m07",
+  "view": "landing-login",
+  "constructed_as": "wrong",
+  "shot_source": "real-canvas-mocked-api",
+  "after_variant": "wrong:partial1",
+  "after_source": "seed-m07: bug hunk 1 left in place, the other fixed",
+  "changed_ratio_vs_before": 0.000263,
+  "changed_ratio_vs_golden": 0.000511,
+  "label": null
+}

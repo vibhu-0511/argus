@@ -1,0 +1,12 @@
+{
+  "id": "091",
+  "ticket_id": "seed-h01",
+  "view": "ops-operations",
+  "constructed_as": "collateral",
+  "shot_source": "real-canvas-mocked-api",
+  "after_variant": "collateral:seed-e02-h0",
+  "after_source": "HEAD plus a regression from seed-e02",
+  "changed_ratio_vs_before": 0.050765,
+  "changed_ratio_vs_golden": 0.050827,
+  "label": null
+}

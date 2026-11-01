@@ -1,0 +1,404 @@
+{
+  "pairs": [
+    {
+      "id": "000",
+      "label": "pass"
+    },
+    {
+      "id": "001",
+      "label": "fail"
+    },
+    {
+      "id": "002",
+      "label": "pass"
+    },
+    {
+      "id": "003",
+      "label": "pass"
+    },
+    {
+      "id": "004",
+      "label": "pass"
+    },
+    {
+      "id": "005",
+      "label": "collateral"
+    },
+    {
+      "id": "006",
+      "label": "collateral"
+    },
+    {
+      "id": "007",
+      "label": "collateral"
+    },
+    {
+      "id": "008",
+      "label": "fail"
+    },
+    {
+      "id": "009",
+      "label": "collateral"
+    },
+    {
+      "id": "010",
+      "label": "fail"
+    },
+    {
+      "id": "011",
+      "label": "pass"
+    },
+    {
+      "id": "012",
+      "label": "fail"
+    },
+    {
+      "id": "013",
+      "label": "pass"
+    },
+    {
+      "id": "014",
+      "label": "fail"
+    },
+    {
+      "id": "015",
+      "label": "pass"
+    },
+    {
+      "id": "016",
+      "label": "collateral"
+    },
+    {
+      "id": "017",
+      "label": "collateral"
+    },
+    {
+      "id": "018",
+      "label": "collateral"
+    },
+    {
+      "id": "019",
+      "label": "collateral"
+    },
+    {
+      "id": "020",
+      "label": "fail"
+    },
+    {
+      "id": "021",
+      "label": "collateral"
+    },
+    {
+      "id": "022",
+      "label": "fail"
+    },
+    {
+      "id": "023",
+      "label": "fail"
+    },
+    {
+      "id": "024",
+      "label": "pass"
+    },
+    {
+      "id": "025",
+      "label": "collateral"
+    },
+    {
+      "id": "026",
+      "label": "pass"
+    },
+    {
+      "id": "027",
+      "label": "fail"
+    },
+    {
+      "id": "028",
+      "label": "fail"
+    },
+    {
+      "id": "029",
+      "label": "fail"
+    },
+    {
+      "id": "030",
+      "label": "fail"
+    },
+    {
+      "id": "031",
+      "label": "fail"
+    },
+    {
+      "id": "032",
+      "label": "pass"
+    },
+    {
+      "id": "033",
+      "label": "fail"
+    },
+    {
+      "id": "034",
+      "label": "collateral"
+    },
+    {
+      "id": "035",
+      "label": "pass"
+    },
+    {
+      "id": "036",
+      "label": "pass"
+    },
+    {
+      "id": "037",
+      "label": "pass"
+    },
+    {
+      "id": "038",
+      "label": "fail"
+    },
+    {
+      "id": "039",
+      "label": "pass"
+    },
+    {
+      "id": "040",
+      "label": "pass"
+    },
+    {
+      "id": "041",
+      "label": "fail"
+    },
+    {
+      "id": "042",
+      "label": "fail"
+    },
+    {
+      "id": "043",
+      "label": "fail"
+    },
+    {
+      "id": "044",
+      "label": "fail"
+    },
+    {
+      "id": "045",
+      "label": "pass"
+    },
+    {
+      "id": "046",
+      "label": "collateral"
+    },
+    {
+      "id": "047",
+      "label": "pass"
+    },
+    {
+      "id": "048",
+      "label": "collateral"
+    },
+    {
+      "id": "049",
+      "label": "pass"
+    },
+    {
+      "id": "050",
+      "label": "pass"
+    },
+    {
+      "id": "051",
+      "label": "collateral"
+    },
+    {
+      "id": "052",
+      "label": "pass"
+    },
+    {
+      "id": "053",
+      "label": "pass"
+    },
+    {
+      "id": "054",
+      "label": "pass"
+    },
+    {
+      "id": "055",
+      "label": "pass"
+    },
+    {
+      "id": "056",
+      "label": "collateral"
+    },
+    {
+      "id": "057",
+      "label": "pass"
+    },
+    {
+      "id": "058",
+      "label": "fail"
+    },
+    {
+      "id": "059",
+      "label": "collateral"
+    },
+    {
+      "id": "060",
+      "label": "collateral"
+    },
+    {
+      "id": "061",
+      "label": "pass"
+    },
+    {
+      "id": "062",
+      "label": "fail"
+    },
+    {
+      "id": "063",
+      "label": "pass"
+    },
+    {
+      "id": "064",
+      "label": "pass"
+    },
+    {
+      "id": "065",
+      "label": "pass"
+    },
+    {
+      "id": "066",
+      "label": "fail"
+    },
+    {
+      "id": "067",
+      "label": "pass"
+    },
+    {
+      "id": "068",
+      "label": "pass"
+    },
+    {
+      "id": "069",
+      "label": "fail"
+    },
+    {
+      "id": "070",
+      "label": "fail"
+    },
+    {
+      "id": "071",
+      "label": "fail"
+    },
+    {
+      "id": "072",
+      "label": "fail"
+    },
+    {
+      "id": "073",
+      "label": "pass"
+    },
+    {
+      "id": "074",
+      "label": "pass"
+    },
+    {
+      "id": "075",
+      "label": "pass"
+    },
+    {
+      "id": "076",
+      "label": "pass"
+    },
+    {
+      "id": "077",
+      "label": "pass"
+    },
+    {
+      "id": "078",
+      "label": "fail"
+    },
+    {
+      "id": "079",
+      "label": "collateral"
+    },
+    {
+      "id": "080",
+      "label": "pass"
+    },
+    {
+      "id": "081",
+      "label": "pass"
+    },
+    {
+      "id": "082",
+      "label": "pass"
+    },
+    {
+      "id": "083",
+      "label": "pass"
+    },
+    {
+      "id": "084",
+      "label": "pass"
+    },
+    {
+      "id": "085",
+      "label": "pass"
+    },
+    {
+      "id": "086",
+      "label": "collateral"
+    },
+    {
+      "id": "087",
+      "label": "fail"
+    },
+    {
+      "id": "088",
+      "label": "pass"
+    },
+    {
+      "id": "089",
+      "label": "pass"
+    },
+    {
+      "id": "090",
+      "label": "pass"
+    },
+    {
+      "id": "091",
+      "label": "collateral"
+    },
+    {
+      "id": "092",
+      "label": "pass"
+    },
+    {
+      "id": "093",
+      "label": "collateral"
+    },
+    {
+      "id": "094",
+      "label": "pass"
+    },
+    {
+      "id": "095",
+      "label": "fail"
+    },
+    {
+      "id": "096",
+      "label": "fail"
+    },
+    {
+      "id": "097",
+      "label": "collateral"
+    },
+    {
+      "id": "098",
+      "label": "pass"
+    },
+    {
+      "id": "099",
+      "label": "fail"
+    }
+  ]
+}
