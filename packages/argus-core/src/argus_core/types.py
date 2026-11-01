@@ -95,7 +95,7 @@ class TrajectoryMeta(_Model):
 
 
 class TrajectoryStep(_Model):
-    """One JSONL record. `tokens_cached` defaults to 0 when the field is omitted. `raw_response` keeps a rejected tool call visible to replay."""
+    """One JSONL record. `tokens_cached` defaults to 0 when the field is omitted. `raw_response` keeps a rejected tool call visible to replay. `tier`, `host` and `model` say who served the call when a router chose; older records omit them."""
 
     index: int = Field(ge=0)
     kind: Literal["step"] = "step"
@@ -107,6 +107,9 @@ class TrajectoryStep(_Model):
     message: dict[str, Any] | None = None
     tool_name: str | None = None
     tool_error: str | None = None
+    tier: str | None = None
+    host: str | None = None
+    model: str | None = None
 
 
 class Trajectory(_Model):
