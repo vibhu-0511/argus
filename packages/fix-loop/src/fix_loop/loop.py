@@ -16,6 +16,7 @@ from argus_core.client import Completion
 from argus_core.ledger import Ledger
 from argus_core.ledger import QuotaExceeded
 from argus_core.ledger import Usage as LedgerUsage
+from argus_core.telemetry import chat_span, record_completion, record_tool_error, tool_span, traced_agent
 from argus_core.types import StopReason, Trajectory, TrajectoryMeta, TrajectoryStep
 
 from fix_loop.budget import StepUsage, apply_budget
@@ -37,6 +38,7 @@ class LoopResult:
     trajectory_path: Path
 
 
+@traced_agent("fix-loop")
 def run_fix(
     *,
     worktree: Path,
@@ -77,7 +79,7 @@ def run_fix(
     reason = StopReason.step_cap
     for index in range(step_cap):
         try:
-            completion = _ask(ledger, model, complete, messages)
+            completion = _ask(ledger, model, complete, messages, index)
         except QuotaExceeded:
             steps.append(TrajectoryStep(index=index, stop_reason=StopReason.quota_exceeded, tool_error="QuotaExceeded"))
             reason = StopReason.quota_exceeded
@@ -123,7 +125,9 @@ def run_fix(
         name, payload = parsed
         key = name + "\n" + json.dumps(payload, sort_keys=True)
         recent.append(key)
-        result = act(name, payload)
+        with tool_span(name, run_id=run_id, step=index) as tool:
+            result = act(name, payload)
+            record_tool_error(tool, result.error if isinstance(result, ToolError) else None)
         timed_out = isinstance(result, ToolError) and result.error == "timeout"
         timeouts = timeouts + 1 if timed_out else 0
         if isinstance(result, ToolError) and result.error == "failed":
@@ -220,11 +224,15 @@ def _compact(
     return apply_budget(messages, used=used, budget=context_budget, strategy=strategy)
 
 
-def _ask(ledger: Ledger, model: str, complete: Callable[[list[dict]], Completion], messages: list[dict]) -> Completion:
+def _ask(
+    ledger: Ledger, model: str, complete: Callable[[list[dict]], Completion], messages: list[dict], step: int | None = None
+) -> Completion:
     held: dict[str, Completion] = {}
 
     def send() -> LedgerUsage:
-        completion = complete(messages)
+        with chat_span(model, step=step) as span:
+            completion = complete(messages)
+            record_completion(span, model, completion)
         held["completion"] = completion
         return LedgerUsage(
             completion.usage.tokens_in,
