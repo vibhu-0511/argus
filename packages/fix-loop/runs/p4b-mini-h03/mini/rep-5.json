@@ -1,0 +1,1 @@
+{"text": "Both .radar-modes and .landing have overflow: visible, so they no longer clip. Restore overflow: hidden on both.", "command": "cd /work/apps/canvas/src && sed -i '76s/overflow: visible/overflow: hidden/' ops/radar.css && sed -i '8s/overflow: visible/overflow: hidden/' styles/landing.css && sed -n '76p' ops/radar.css && sed -n '8p' styles/landing.css"}

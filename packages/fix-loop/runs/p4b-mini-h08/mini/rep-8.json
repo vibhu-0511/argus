@@ -1,0 +1,1 @@
+{"text": "radar.css:133 sets .radar-locked to flex-direction: row, and the card's children (meta, head, facts, actions) should stack. Check the context around it and the ops-grid rules before editing.", "command": "cd /work/apps/canvas/src/ops && nl -ba radar.css | sed -n '98,145p'; echo ---; nl -ba ops.css | sed -n '68,80p'; echo ---; nl -ba Operations.tsx | sed -n '215,240p'"}

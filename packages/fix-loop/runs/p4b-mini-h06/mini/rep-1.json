@@ -1,0 +1,1 @@
+{"text": "No matches for radar/admin label; look at the repo structure and search css selectors.", "command": "cd /work && ls -la && grep -rniE 'radar|label' . -l --exclude-dir=node_modules --exclude-dir=.git 2>/dev/null | head -30"}

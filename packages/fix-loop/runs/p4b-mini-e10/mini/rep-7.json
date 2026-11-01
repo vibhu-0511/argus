@@ -1,0 +1,1 @@
+{"text": "The bars are CSS classes. Find their styles.", "command": "cd /work/apps/canvas && timeout 20 grep -rn -B2 -A12 'landing-bar' src --include='*.css' | head -80"}

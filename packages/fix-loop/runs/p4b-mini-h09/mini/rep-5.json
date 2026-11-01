@@ -1,0 +1,1 @@
+{"text": "Look for clipping-related CSS (overflow, min-width/min-height) in radar.css and ops.css.", "command": "cd /work/apps/canvas/src/ops && grep -nE 'overflow|min-(width|height)|landing|text-overflow|ellipsis' radar.css ops.css | head -60"}

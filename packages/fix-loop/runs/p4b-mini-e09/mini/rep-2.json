@@ -1,0 +1,1 @@
+{"text": "Find landing page files.", "command": "cd /work && find . -ipath '*landing*' -not -path '*/node_modules/*' | head -30"}

@@ -1,0 +1,1 @@
+{"text": "Found apps/canvas/src/ops/radar.css. Look at it and find where the mode switch is styled and referenced.", "command": "cd /work/apps/canvas/src/ops && wc -l radar.css && grep -n -i -e 'mode' -e 'switch' -e 'overflow' radar.css | head -40 && grep -rIl --exclude-dir=node_modules -i 'radar.css' /work/apps/canvas/src | head"}

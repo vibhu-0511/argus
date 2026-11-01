@@ -1,0 +1,1 @@
+{"text": "Grep found nothing; broaden to find files mentioning ops or radar.", "command": "cd /work && grep -rliE 'radar|ops' . --exclude-dir=node_modules --exclude-dir=.git 2>/dev/null | head -30"}

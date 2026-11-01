@@ -1,0 +1,1 @@
+{"text": "No matches with those hints; list files in apps using z-index more broadly, limited by timeout.", "command": "cd /work/apps && timeout 25 grep -rlE 'z-index|zIndex' . 2>/dev/null | grep -v node_modules | head -40"}

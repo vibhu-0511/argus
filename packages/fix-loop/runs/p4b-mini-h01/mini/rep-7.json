@@ -1,0 +1,1 @@
+{"text": "Search only canvas/src for 8px font sizes with a plain recursive grep.", "command": "timeout 20 grep -rnE 'fontSize: *8[^0-9]|font-size: *8px|text-.8px.' /work/apps/canvas/src | head -30"}

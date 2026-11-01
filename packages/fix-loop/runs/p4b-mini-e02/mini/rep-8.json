@@ -1,0 +1,1 @@
+{"text": "ops.css line 2: .ops-app uses flex-direction: row; the header and content should stack, so change to column.", "command": "cd /work/apps/canvas/src/ops && sed -i '2s/flex-direction: row/flex-direction: column/' ops.css && sed -n '1,3p' ops.css"}

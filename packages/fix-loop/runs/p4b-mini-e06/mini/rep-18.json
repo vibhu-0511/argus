@@ -1,0 +1,1 @@
+{"text": "Rule is div.glabel in tokens.css; drop the div qualifier so spans match too.", "command": "sed -i 's/^div[.]glabel {/.glabel {/' /work/apps/canvas/src/styles/tokens.css && grep -n 'glabel' /work/apps/canvas/src/styles/tokens.css"}

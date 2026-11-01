@@ -1,0 +1,9 @@
+{
+  "task_id": "seed-h03",
+  "stop_reason": "step-cap",
+  "score_exit": 1,
+  "verdict": "unresolved",
+  "model": "claude-session",
+  "model_turns": 20,
+  "token_source": "chars/4 estimate"
+}

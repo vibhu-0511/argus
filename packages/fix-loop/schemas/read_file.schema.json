@@ -1,0 +1,18 @@
+{
+  "$id": "https://argus.local/schemas/fix/read_file.schema.json",
+  "additionalProperties": false,
+  "description": "Read a UTF-8 file inside the worktree.",
+  "properties": {
+    "path": {
+      "description": "Path relative to the worktree.",
+      "minLength": 1,
+      "title": "Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "path"
+  ],
+  "title": "ReadFileArgs",
+  "type": "object"
+}

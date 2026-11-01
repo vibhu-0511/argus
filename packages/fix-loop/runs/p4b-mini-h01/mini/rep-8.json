@@ -1,0 +1,1 @@
+{"text": "Two hits: landing.css:48 and tokens.css:180. Inspect context for both.", "command": "sed -n '40,55p' /work/apps/canvas/src/styles/landing.css; echo ----; sed -n '170,186p' /work/apps/canvas/src/styles/tokens.css"}

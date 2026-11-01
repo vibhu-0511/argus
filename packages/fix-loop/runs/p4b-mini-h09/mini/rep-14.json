@@ -1,0 +1,1 @@
+{"text": "The ops-horizon rules still clip. The 'landing band' may be the radar toolbar info row (bands vs ring) or the row title. Inspect radar.css lines 190-205 and the heading height variable.", "command": "cd /work/apps/canvas/src/ops && sed -n '190,204p' radar.css | cut -c1-500"}

@@ -1,0 +1,16 @@
+{
+ "run_id": "smoke-v2",
+ "model": "gemma4:e4b",
+ "prompt": "v2",
+ "rubric": "rubrics/v2.md",
+ "pairs": "fixtures/calibration",
+ "num_ctx": 8192,
+ "total": 2,
+ "started_utc": "2026-10-31T09:10:52.364781+00:00",
+ "status": "finished",
+ "done": 2,
+ "last": null,
+ "mean_seconds_per_job": 82.37948790000519,
+ "eta_seconds": 0.0,
+ "updated_utc": "2026-10-31T09:13:37.139530+00:00"
+}

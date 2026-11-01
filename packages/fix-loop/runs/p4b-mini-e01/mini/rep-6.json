@@ -1,0 +1,1 @@
+{"text": "Search the canvas app source only, for brand-related files and 8px.", "command": "cd /work/apps/canvas && ls && grep -rliE 'brand' src 2>/dev/null | head -30"}

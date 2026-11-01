@@ -1,0 +1,1 @@
+{"text": "BusyBox grep lacks --exclude-dir; use find with prune instead.", "command": "cd /work && find apps domains platform -path '*/node_modules' -prune -o -type f -name '*.*' -print 2>/dev/null | xargs grep -liE 'landing|ops-?map|opsmap' 2>/dev/null | head -40"}

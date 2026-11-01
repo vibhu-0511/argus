@@ -1,0 +1,1 @@
+{"text": "Line 48 is .landing-brand at 8px. Line 415 is also 8px, likely the login heading. Inspect it.", "command": "cd /work/apps/canvas/src/styles && sed -n '405,430p' landing.css"}

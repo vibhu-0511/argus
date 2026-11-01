@@ -1,0 +1,1 @@
+The landing brand is drawn at 8 px instead of 20 px.

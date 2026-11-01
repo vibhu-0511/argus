@@ -1,0 +1,1 @@
+{"text": "Search canvas source for div selectors near admin/button/label, bounded.", "command": "cd /work/apps/canvas && timeout 25 grep -rnE 'div.*(admin|button|label)' src | head -30"}

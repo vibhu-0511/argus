@@ -1,0 +1,1 @@
+{"text": "BusyBox grep lacks --include, so filter with find and grep for 8px font sizes.", "command": "cd /work/apps && timeout 25 find . -name node_modules -prune -o -type f ( -name '*.tsx' -o -name '*.css' ) -print | xargs grep -nE 'text-.8px.|font-size: *8px|fontSize: *8[^0-9]|font: *8px' | head -30"}

@@ -1,0 +1,1 @@
+{"text": "Inspect the landing-band rule and look for any existing stack-level tokens or tests referencing them.", "command": "cd /work/apps/canvas/src && sed -n '220,235p' styles/landing.css; grep -rnE 'z-index|zIndex|stack' styles/tokens.test.ts ops/OpsMap.test.tsx screens/Landing.test.tsx | head -20; ls styles"}

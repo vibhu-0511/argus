@@ -1,0 +1,1 @@
+{"text": "The clock rule is likely a missing .radar-clock-time rule. Check usage and the landing brand/logo rules.", "command": "cd /work/apps/canvas/src && grep -rn 'radar-clock' ops/*.tsx | head; sed -n 40,56p styles/landing.css; sed -n 195,260p styles/landing.css; grep -nE 'logo|brand' styles/landing.css"}

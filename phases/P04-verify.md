@@ -77,19 +77,24 @@ Decide whether a patch really fixed the bug and broke nothing else, using determ
 
 | Variant | Resolve rate (95% CI) | Tokens/bug (in, out, cached) | $-equivalent/bug | Quota share/bug | p50 latency | p95 latency | Judge–human α | False-accept rate |
 |---|---|---|---|---|---|---|---|---|
-| A | — | — | — | — | — | — | — | — |
-| B | — | — | — | — | — | — | — | — |
-| C | — | — | — | — | — | — | — | — |
-| D | — | — | — | — | — | — | — | — |
-| E | — | — | — | — | — | — | — | — |
+| A | n/a | n/a | — | n/a | n/a | n/a | 0.671 (0.469–0.836) | 0.130 |
+| B | n/a | n/a | — | n/a | n/a | n/a | 0.116 (-0.118–0.343) | 0.565 |
+| C | 20/29, 0.690 (0.508–0.827) | 202904 in, 205 out, 0 cached | — | — | — | — | n/a | n/a |
+| D | 24/29, 0.828 (0.655–0.924) | 401522 in, 584 out, 0 cached | — | — | — | — | n/a | n/a |
+| E | 24/29, 0.828 (0.655–0.924) | 607582 in, 1016 out, 0 cached | — | — | — | — | n/a | n/a |
+
+Rows A and B: held-out 50 pairs, rubric v2 and prompt v2, forward order, scored against labels.json (Claude drafts adopted by the owner, not independent human labels). Row A is Claude, not the planned Mistral model (no endpoint), run `p4-judge-claude-v2-heldout`; row B is `gemma4:e4b`, run `p4-judge-gemma4e4b-v2-heldout`. False-accept is the share of non-pass labels the judge called pass. Row A is inflated by the circular labels and by the capability gap; it is not a clean same-family comparison.
+
+
+Rows C to E: the 29 seeded tasks that run (`bug-17` is out: its patches no longer apply to platform HEAD), 5 draws each, model `claude-session` (a Claude session as the model, one fresh subagent per draw; not comparable with the plan's Devstral or Gemma rows). Draw 1 is the P3 variant A run, so row C is that P3 result by construction; draws 2 to 5 are the 104 `p4-t20-*` runs. The selector is the task's own scorer (an oracle): k = 1 takes draw 1, k = 3 and k = 5 count a task as resolved if any of the first k draws is, so this is what extra draws buy with a perfect selector, not what the judge-plus-checks selector would pick. The judge was not used. Per tier at k = 1, 3, 5: easy 9, 10, 10 of 10; medium 5, 7, 7 of 9; hard 6, 7, 7 of 10. Going from k = 1 to 3 added four tasks (`seed-e05`, `seed-h02`, `seed-m04`, `seed-m07`); k = 5 added none. Five tasks were never resolved in 5 draws (`seed-h01`, `h04`, `h07`, `m01`, `m05`: the tickets give no target value or location). Across all 145 draws 98 resolved (one draw, `e07-d4`, ran into the step cap and could not be scored; it counts as unresolved and its tokens are included). Tokens are the loop's chars/4 estimate, mean per task over the first k draws, summed over the k draws. Latency was not recorded (`—`). Quota: a Claude session has no provider quota, so there was nothing to split across days; the runs were made on one day (2026-10-31). Raw output and run ids: `packages/fix-loop/runs/p4-t20-seed-*` and `p4-t20-subset29-claude-session.json` (the earlier 3-task table is `p4-t20-pilot-claude-session.json`). Rows A and B: A (same-family, Mistral vision) needs a Mistral endpoint that does not exist; B (Gemma, cross-family) was run on the real calibration set but only against Claude's **draft** labels, never against human labels, so no α is entered here (see `docs/notes/p4-finish.md`). $-equivalent stays "—" until P5. ADR-013 and ADR-014 record the shortfall.
 
 **Phase report (against previous phase):**
 
 | Report | Resolve rate | Tokens/bug | $-equivalent | p50 latency | p95 latency |
 |---|---|---|---|---|---|
-| Previous phase | — | — | — | — | — |
-| This phase | — | — | — | — | — |
-| Delta | — | — | — | — | — |
+| Previous phase (P3 variant A, `claude-session`, 29 tasks) | 20/29, 0.690 (0.508–0.827) | 202904 in, 205 out, 0 cached | — | — | — |
+| This phase (best-of-5, oracle selector, same model and tasks) | 24/29, 0.828 (0.655–0.924) | 607582 in, 1016 out, 0 cached | — | — | — |
+| Delta | +4 tasks (+0.138; the intervals overlap) | +404678 in, +811 out (about 3.0x) | — | — | — |
 
 ## ADRs to write
 All [ME].

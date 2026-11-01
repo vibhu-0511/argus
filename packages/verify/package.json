@@ -1,0 +1,10 @@
+{
+  "name": "@argus/verify",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Browser capture for the verify checks. Decisions live in the Python package.",
+  "scripts": {
+    "test": "node --experimental-strip-types --test test/capture.test.ts"
+  }
+}

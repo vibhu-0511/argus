@@ -1,0 +1,31 @@
+{
+  "$id": "https://argus.local/schemas/fix/edit.schema.json",
+  "additionalProperties": false,
+  "description": "Replace one exact occurrence of old with new. A second match is an error that names the lines.",
+  "properties": {
+    "new": {
+      "description": "Replacement text. Empty deletes the match.",
+      "title": "New",
+      "type": "string"
+    },
+    "old": {
+      "description": "Exact text to replace. Whitespace is significant.",
+      "minLength": 1,
+      "title": "Old",
+      "type": "string"
+    },
+    "path": {
+      "description": "File relative to the worktree.",
+      "minLength": 1,
+      "title": "Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "path",
+    "old",
+    "new"
+  ],
+  "title": "EditArgs",
+  "type": "object"
+}

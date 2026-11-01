@@ -1,0 +1,1 @@
+{"text": "The previous grep timed out. git grep only searches tracked files, so it is much faster. Look for landing and stack together.", "command": "cd /work && git grep -niE 'landing' | grep -iE 'stack|bar|z-?index|layer' | head -30"}

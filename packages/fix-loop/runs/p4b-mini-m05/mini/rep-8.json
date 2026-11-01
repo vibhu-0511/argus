@@ -1,0 +1,1 @@
+{"text": "Perhaps the rules are CSS rules for the radar clock. Search css files under apps/ and packages/ (shallow, pruned, with timeout).", "command": "cd /work && timeout 25 find apps packages -maxdepth 5 -name node_modules -prune -o -type f -name '*.css' -print 2>/dev/null | head -30"}

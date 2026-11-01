@@ -1,0 +1,1 @@
+{"text": "No admin rule in styles.css; search platform for admin label with a bounded grep.", "command": "timeout 20 grep -rnE 'admin.*label|label.*admin' /work/platform --exclude-dir=node_modules | head -20"}

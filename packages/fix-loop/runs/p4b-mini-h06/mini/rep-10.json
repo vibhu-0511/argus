@@ -1,0 +1,1 @@
+{"text": "Two div-targeting rules found: div.radar-feed in ops/radar.css and div.glabel in styles/tokens.css. Inspect both and their usages.", "command": "cd /work/apps/canvas/src && sed -n 170,200p styles/tokens.css; sed -n 90,100p ops/radar.css; grep -rnE 'glabel|radar-feed' . --include=*.tsx --include=*.ts --include=*.css | head -30"}

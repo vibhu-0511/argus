@@ -1,0 +1,1 @@
+{"text": "Check for font-size variables in tokens.css.", "command": "grep -nE -e '--(text|font)[a-z-]*:' /work/apps/canvas/src/styles/tokens.css | head -30"}

@@ -1,0 +1,1 @@
+{"text": "git is unavailable; search the repo directly.", "command": "cd /work && grep -rniE 'radar|brand' --include=*.css --include=*.scss --include=*.html --include=*.js --include=*.ts --include=*.tsx -l . 2>/dev/null | grep -v node_modules | head -30"}

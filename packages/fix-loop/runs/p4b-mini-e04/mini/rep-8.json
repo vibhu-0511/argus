@@ -1,0 +1,1 @@
+{"text": "The .auth-backdrop rule in landing.css has z-index: 1 at line 388. Change it to 100 and show the rule.", "command": "cd /work/apps/canvas/src/styles && sed -i '388s/z-index: 1;/z-index: 100;/' landing.css && sed -n '384,395p' landing.css"}

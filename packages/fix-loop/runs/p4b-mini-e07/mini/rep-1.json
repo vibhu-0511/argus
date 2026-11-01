@@ -1,0 +1,1 @@
+{"text": "BusyBox grep rejects --include. Retry without it, excluding node_modules and .git.", "command": "grep -rniE 'admin.*label|label.*admin' /work --exclude-dir=node_modules --exclude-dir=.git -l | head -20"}

@@ -1,0 +1,1 @@
+{"text": "Start by finding the layout code for the ops shell and radar feed.", "command": "cd /work && grep -rniE 'flex-row|flex-direction|display: *flex' --include=*.css --include=*.tsx --include=*.jsx --include=*.vue --include=*.html . 2>/dev/null | grep -iE 'ops|radar|shell|feed' | head -30"}

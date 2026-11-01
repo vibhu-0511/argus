@@ -1,0 +1,1 @@
+{"text": "Check how glabel and radar-feed are used before editing the selectors.", "command": "cd /work/apps/canvas/src && grep -rnE 'glabel|radar-feed\b' . | grep -v '^./ops/radar.css' | head -30"}

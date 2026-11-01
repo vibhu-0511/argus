@@ -1,0 +1,12 @@
+{
+  "id": "033",
+  "ticket_id": "seed-m08",
+  "view": "ops-radar-departures",
+  "constructed_as": "wrong",
+  "shot_source": "real-canvas-mocked-api",
+  "after_variant": "wrong:bugplus-seed-e02-h0",
+  "after_source": "seed-m08 bug left in place, plus a regression from seed-e02",
+  "changed_ratio_vs_before": 0.04429,
+  "changed_ratio_vs_golden": 0.043691,
+  "label": null
+}

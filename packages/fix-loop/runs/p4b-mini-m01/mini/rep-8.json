@@ -1,0 +1,1 @@
+{"text": "Both rules are at 8px: .radar-clock-time (line 71) and .radar-row-title (line 175). Raise the clock to 13px and the row title to 14px (above the 12px row detail).", "command": "cd /work/apps/canvas/src/ops && sed -i '71s/font-size: 8px/font-size: 13px/; 175s/font-size: 8px/font-size: 14px/' radar.css && sed -n '71p;175p' radar.css"}

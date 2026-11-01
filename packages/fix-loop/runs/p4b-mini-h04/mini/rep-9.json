@@ -1,0 +1,1 @@
+{"text": "Search the canvas src (styles, ops, screens) for stacking-related terms.", "command": "cd /work/apps/canvas/src && timeout 20 grep -rnE 'z-index|zIndex|backdrop' styles ops screens 2>/dev/null | head -60"}

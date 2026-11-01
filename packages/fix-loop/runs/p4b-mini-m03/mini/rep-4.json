@@ -1,0 +1,1 @@
+{"text": "No git; the full find timed out. List top-level dirs and search source dirs with a timeout.", "command": "cd /work && ls && timeout 20 grep -rli radar apps packages src 2>/dev/null | grep -v node_modules | head -30"}

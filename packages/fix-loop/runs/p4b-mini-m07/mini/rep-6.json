@@ -1,0 +1,1 @@
+{"text": "Look in styles and screens for brand/login/landing rules with small font sizes.", "command": "cd /work/apps/canvas/src && ls styles screens && timeout 20 grep -rniE 'brand|login|landing' styles screens | head -40"}

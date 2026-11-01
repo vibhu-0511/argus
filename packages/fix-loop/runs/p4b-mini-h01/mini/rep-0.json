@@ -1,0 +1,1 @@
+{"text": "Find where the 8px font sizes for brand and admin label are defined.", "command": "grep -rnE '8px' /work --include=* -I --exclude-dir=node_modules --exclude-dir=.git | head -50"}

@@ -1,0 +1,1 @@
+{"text": "The grep timed out. Look at the rules directory layout and file names instead.", "command": "cd /work/rules && ls | head -50 && find . -maxdepth 3 -iname '*clock*' -o -maxdepth 3 -iname '*radar*' -o -maxdepth 3 -iname '*time*' | head -30"}

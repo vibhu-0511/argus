@@ -1,0 +1,1 @@
+The radar clock time rule and the clock label rule are both gone.

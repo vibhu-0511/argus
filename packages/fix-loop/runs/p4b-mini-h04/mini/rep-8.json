@@ -1,0 +1,1 @@
+{"text": "Nothing found in apps by name hints; look at the canvas and passenger-ops app layouts (excluding node_modules) to find UI source.", "command": "cd /work/apps && ls canvas passenger-ops && timeout 20 find canvas passenger-ops -maxdepth 3 -name node_modules -prune -o -type d -print | head -60"}

@@ -1,0 +1,1 @@
+{"text": "The earlier grep used a bad --include flag. Search the app sources for the radar locked card, skipping node_modules.", "command": "cd /work && grep -rliE 'locked' apps domains platform --include=*.tsx --include=*.ts --include=*.jsx --include=*.css --include=*.vue --include=*.html --exclude-dir=node_modules --exclude-dir=.git 2>/dev/null | head -30"}

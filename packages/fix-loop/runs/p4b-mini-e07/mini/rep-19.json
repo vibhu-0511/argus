@@ -1,0 +1,1 @@
+{"text": "Found a 8px font-size in tokens.css; inspect the surrounding rule.", "command": "cd /work && nl -ba apps/canvas/src/styles/tokens.css | sed -n '165,195p'"}

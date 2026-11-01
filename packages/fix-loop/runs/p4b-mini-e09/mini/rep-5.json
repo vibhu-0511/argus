@@ -1,0 +1,1 @@
+{"text": "Find the .landing CSS rule.", "command": "cd /work/apps/canvas/src && grep -rn 'landing' . -r --exclude-dir=node_modules -l | grep -i css"}

@@ -1,0 +1,8 @@
+{
+  "ticket": "The sign-in button does nothing.",
+  "repro": "valid",
+  "locate": {
+    "file": "apps/canvas/src/screens/Landing.tsx",
+    "line": 40
+  }
+}

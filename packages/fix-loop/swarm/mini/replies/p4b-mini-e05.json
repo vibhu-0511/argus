@@ -1,0 +1,1 @@
+{"text": "The 'rule' is probably a CSS rule: the markup uses radar-clock-time but the stylesheet may lack it. Check the CSS and the markup.", "command": "cd /work/apps/canvas/src/ops && timeout 20 grep -n -e 'radar-clock' radar.css ops.css; sed -n 880,900p Radar.tsx"}

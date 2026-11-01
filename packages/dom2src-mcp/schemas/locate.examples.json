@@ -1,0 +1,42 @@
+{
+  "errors": {
+    "ambiguous": {
+      "candidates": [
+        {
+          "col": 5,
+          "file": "apps/canvas/src/screens/Page.tsx",
+          "line": 8,
+          "rank": 1
+        },
+        {
+          "col": 3,
+          "file": "apps/canvas/src/ui/Button.tsx",
+          "line": 4,
+          "rank": 2
+        }
+      ],
+      "error": "ambiguous",
+      "message": "#save has 2 candidate source locations, ranked best first"
+    },
+    "no-source-info": {
+      "error": "no-source-info",
+      "message": "matched element has no data-src"
+    },
+    "not-found": {
+      "error": "not-found",
+      "message": "no element matches #missing"
+    },
+    "unsupported-selector": {
+      "error": "unsupported-selector",
+      "message": ".save is not #id or [data-testid=\"...\"]"
+    }
+  },
+  "input": {
+    "selector": "#sign-in"
+  },
+  "output": {
+    "col": 3,
+    "file": "apps/canvas/src/screens/Landing.tsx",
+    "line": 40
+  }
+}

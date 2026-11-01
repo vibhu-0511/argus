@@ -1,0 +1,1 @@
+{"text": "Found .radar-clock-time at 8px in ops/radar.css line 71. Now find the row title rule.", "command": "cd /work/apps/canvas/src/ops && grep -nE 'font-size: *8px|radar-row' radar.css"}

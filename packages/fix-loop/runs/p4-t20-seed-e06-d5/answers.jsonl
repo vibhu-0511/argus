@@ -1,0 +1,3 @@
+"{\"tool\": \"search\", \"arguments\": {\"query\": \"admin\", \"path\": \"apps/canvas/src\"}}"
+"{\"tool\": \"run_cmd\", \"arguments\": {\"command\": \"grep -rnE 'div\\.[a-z-]*admin[a-z-]*label|div\\.[a-z-]*label' apps/canvas/src --include=*.css | head -20\"}}"
+"{\"tool\": \"run_cmd\", \"arguments\": {\"command\": \"grep -rn 'div[.]' apps/canvas/src --include=*.css | grep -i label | head -20\"}}"

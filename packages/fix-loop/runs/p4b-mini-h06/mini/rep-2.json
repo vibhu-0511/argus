@@ -1,0 +1,1 @@
+{"text": "Greps found nothing by name; inspect the rules directory and search for div-targeting rules.", "command": "cd /work && ls rules | head -50 && grep -rniE 'radar|admin' rules -l | head -20"}

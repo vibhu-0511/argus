@@ -1,0 +1,12 @@
+{
+  "id": "012",
+  "ticket_id": "seed-h05",
+  "view": "ops-radar",
+  "constructed_as": "correct",
+  "shot_source": "real-canvas-mocked-api",
+  "after_variant": "correct:p3-a-claude-seed-h05",
+  "after_source": "P3 run p3-a-claude-seed-h05 (resolved) diff on platform HEAD",
+  "changed_ratio_vs_before": 0.002412,
+  "changed_ratio_vs_golden": 0.002128,
+  "label": null
+}

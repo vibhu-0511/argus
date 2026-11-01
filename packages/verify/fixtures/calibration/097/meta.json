@@ -1,0 +1,12 @@
+{
+  "id": "097",
+  "ticket_id": "seed-h05",
+  "view": "ops-radar",
+  "constructed_as": "wrong",
+  "shot_source": "real-canvas-mocked-api",
+  "after_variant": "wrong:bugplus-seed-e02-h0",
+  "after_source": "seed-h05 bug left in place, plus a regression from seed-e02",
+  "changed_ratio_vs_before": 0.046423,
+  "changed_ratio_vs_golden": 0.046789,
+  "label": null
+}

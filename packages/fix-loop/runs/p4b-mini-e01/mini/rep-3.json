@@ -1,0 +1,1 @@
+{"text": "Search the frontend for landing brand styling with an 8px size.", "command": "cd /work && find . -path ./node_modules -prune -o -path ./.git -prune -o -type f -print | grep -E '[.](css|tsx|scss)$' | xargs grep -niE '8px' 2>/dev/null | grep -iE 'brand|landing' | head -40"}

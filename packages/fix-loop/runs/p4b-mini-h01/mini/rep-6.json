@@ -1,0 +1,1 @@
+{"text": "Search 8px font sizes in tsx/css without parentheses in find.", "command": "cd /work/apps && timeout 25 find . -name node_modules -prune -o -type f -name '*.tsx' -print -o -type f -name '*.css' -print | xargs grep -nE 'text-.8px.|font-size: *8px|fontSize: *8[^0-9]' | head -30"}

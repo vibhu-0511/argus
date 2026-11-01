@@ -1,0 +1,1 @@
+{"text": "The find timed out on the large tree. Use git grep, which only searches tracked files and is fast.", "command": "cd /work && git grep -niE 'z-index|zIndex' -- '*.css' '*.scss' '*.ts' '*.tsx' '*.js' '*.jsx' '*.vue' | head -60"}

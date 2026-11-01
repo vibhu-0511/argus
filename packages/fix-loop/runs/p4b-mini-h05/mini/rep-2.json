@@ -1,0 +1,1 @@
+{"text": "No matches in common web file types; list the repo and search all files.", "command": "cd /work && ls -la && grep -rniE 'radar|brand' . -l 2>/dev/null | grep -v node_modules | head -30"}

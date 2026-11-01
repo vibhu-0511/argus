@@ -1,0 +1,1 @@
+{"text": "Explore rules/domain/airline for clock/radar-related rule files.", "command": "cd /work/rules/domain/airline && ls | head -50 && timeout 20 grep -rIil -e radar -e 'clock' . | head -30"}

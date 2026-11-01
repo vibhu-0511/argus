@@ -1,0 +1,1 @@
+{"text": "The full-repo grep timed out. List apps and look for landing and radar directories, skipping node_modules.", "command": "cd /work && ls apps && timeout 20 find apps -maxdepth 3 -name node_modules -prune -o -iname '*landing*' -print -o -iname '*radar*' -print | head -30"}

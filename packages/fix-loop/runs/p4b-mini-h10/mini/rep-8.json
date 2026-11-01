@@ -1,0 +1,1 @@
+{"text": "Check tokens.css and its test for existing stack-level (z) tokens before deciding how to fix landing-band and ops-map-controls.", "command": "cd /work/apps/canvas/src && grep -nE 'z|layer|stack' styles/tokens.css | head -20; grep -n 'z' styles/tokens.test.ts | head -20"}

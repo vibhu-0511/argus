@@ -1,0 +1,1 @@
+{"text": "radar.css:71 has .radar-clock-time at 8px. Find the admin label's 8px in the ops dir.", "command": "grep -rnE 'font-size: ?8px' /work/apps/canvas/src/ops | cut -c1-200"}

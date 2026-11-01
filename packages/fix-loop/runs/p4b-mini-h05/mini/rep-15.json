@@ -1,0 +1,1 @@
+{"text": "Look for sibling hints of the lost sizes: clock rules in other radar/ops css files and brand span rules in landing.css.", "command": "cd /work/apps/canvas/src && timeout 20 grep -nE 'clock|radar-brand-title' ops/ops.css insights/desk/desk.css | cut -c1-220 | head -20; grep -nE 'landing-brand|landing-powered' -A6 styles/landing.css | head -60"}

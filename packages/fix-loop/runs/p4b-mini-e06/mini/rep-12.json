@@ -1,0 +1,1 @@
+{"text": "Searches over /work are timing out; list the canvas-ui directory and grep for 10px label rules there.", "command": "ls /work/platform/canvas-ui | head -50; timeout 15 grep -rn 'font-size: 10px' /work/platform/canvas-ui --include=* 2>/dev/null | grep -i 'label' | head -20"}

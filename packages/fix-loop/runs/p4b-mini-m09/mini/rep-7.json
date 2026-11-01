@@ -1,0 +1,1 @@
+{"text": "BusyBox grep has no --include; use find to list css files and grep them.", "command": "cd /work/apps/canvas && find src -name '*.css' | xargs grep -n -E 'landing' | head -40"}

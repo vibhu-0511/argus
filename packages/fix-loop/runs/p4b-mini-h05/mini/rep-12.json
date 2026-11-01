@@ -1,0 +1,1 @@
+{"text": "Inspect the top of landing.css and the radar header rules to see what size declarations are missing on .landing-brand and .radar-clock-time.", "command": "cd /work/apps/canvas/src && sed -n 1,56p styles/landing.css; grep -nE 'radar-head|radar-brand-title|radar-tenant|--radar-' ops/radar.css | cut -c1-200 | head -30"}

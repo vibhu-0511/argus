@@ -1,0 +1,1 @@
+{"text": "No CSS hits under src. Search the whole canvas app (excluding node_modules) for landing-bar in any file.", "command": "cd /work/apps/canvas && timeout 25 grep -rn 'landing-bar' . --exclude-dir=node_modules --exclude-dir=dist | grep -v 'Landing.tsx' | head -30"}

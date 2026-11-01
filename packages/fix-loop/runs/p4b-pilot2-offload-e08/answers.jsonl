@@ -1,0 +1,3 @@
+"{\"tool\": \"search\", \"arguments\": {\"query\": \"radar-feed\", \"path\": \"apps/canvas\"}}"
+"{\"tool\": \"edit\", \"arguments\": {\"path\": \"apps/canvas/src/ops/radar.css\", \"old\": \".radar-feed { display: flex; flex-direction: row;\", \"new\": \".radar-feed { display: flex; flex-direction: column;\"}}"
+"{\"tool\": \"submit\", \"arguments\": {}}"

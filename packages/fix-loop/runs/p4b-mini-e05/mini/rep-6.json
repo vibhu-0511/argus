@@ -1,0 +1,1 @@
+{"text": "Packs only has passport and us-entry rules. Search the whole repo (excluding node_modules/.git) for 'radar' with a timeout, limited to likely source dirs.", "command": "cd /work && timeout 20 grep -rIil -e radar --exclude-dir=node_modules --exclude-dir=.git apps domains functions platform tests tools docs knowledge-base tenants rules 2>/dev/null | head -30"}

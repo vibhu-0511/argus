@@ -1,0 +1,13 @@
+diff --git a/apps/canvas/src/ops/radar.css b/apps/canvas/src/ops/radar.css
+index f2869186c..149d55938 100644
+--- a/apps/canvas/src/ops/radar.css
++++ b/apps/canvas/src/ops/radar.css
+@@ -68,7 +68,7 @@
+ .radar-feed-pill--stale .radar-live-dot { background: var(--radar-amber); box-shadow: 0 0 10px var(--radar-amber); }
+ .radar-live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--radar-accent); box-shadow: 0 0 10px var(--radar-accent); animation: radar-livedot 1.2s infinite; }
+ .radar-clock { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.1; font-family: var(--radar-mono); }
+-.radar-clock-time { font-size: 20px; font-weight: 600; }
++.radar-clock-time { font: 700 22px var(--radar-mono); color: var(--radar-ink); font-variant-numeric: tabular-nums; }
+ .radar-clock--utc .radar-clock-time { color: var(--radar-dim); }
+ .radar-clock-label { font-size: 10px; letter-spacing: 2px; color: var(--radar-dim); }
+ .radar-head-button { min-height: 36px; padding: 6px 12px; border: 1px solid rgba(59, 130, 246, 0.35); border-radius: 8px; background: transparent; color: var(--radar-muted); font-family: var(--radar-mono); font-size: 12px; font-weight: 600; letter-spacing: 1.5px; cursor: pointer; }

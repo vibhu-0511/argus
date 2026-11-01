@@ -80,6 +80,8 @@ class StopReason(StrEnum):
     consecutive_timeout = "consecutive-timeout"
     retry_cap = "retry-cap"
     tool_unavailable = "tool-unavailable"
+    summary = "summary"
+    verify_reject = "verify-reject"
 
 
 class TrajectoryMeta(_Model):

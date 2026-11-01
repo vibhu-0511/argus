@@ -1,0 +1,1 @@
+{"text": "No 8px hits. Look for admin token/label in UI sources with any font size, in canvas, work-os and engineering-ops src dirs.", "command": "cd /work && timeout 20 grep -rniE 'admin' apps/canvas apps/work-os apps/engineering-ops --include=*.tsx --include=*.css --include=*.ts -l --exclude-dir=node_modules 2>/dev/null | head; ls apps/canvas apps/work-os"}

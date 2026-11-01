@@ -1,0 +1,12 @@
+{
+  "id": "056",
+  "ticket_id": "seed-m08",
+  "view": "ops-radar-departures",
+  "constructed_as": "collateral",
+  "shot_source": "real-canvas-mocked-api",
+  "after_variant": "collateral:seed-e02-h0",
+  "after_source": "HEAD plus a regression from seed-e02",
+  "changed_ratio_vs_before": 0.047,
+  "changed_ratio_vs_golden": 0.046401,
+  "label": null
+}

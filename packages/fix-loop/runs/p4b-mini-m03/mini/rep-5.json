@@ -1,0 +1,1 @@
+{"text": "Only openapi.json mentions radar by name. Search source dirs for related terms (clip, mode switch, list) in apps/domains.", "command": "cd /work && timeout 25 grep -rliE 'radar|RadarList|radar_mode|radarMode' apps domains functions platform --include=*.ts --include=*.tsx --include=*.py --include=*.css 2>/dev/null | grep -v node_modules | head -30"}

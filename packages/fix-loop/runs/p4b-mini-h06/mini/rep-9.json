@@ -1,0 +1,1 @@
+{"text": "Find css rules whose selectors target a div.", "command": "cd /work/apps/canvas/src && find . -name '*.css' | xargs grep -nE '(^|[ ,>+~])div([ .:#{,>+~]|$)' | head -40"}

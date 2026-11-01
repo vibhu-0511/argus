@@ -1,0 +1,1 @@
+{"text": "OpsApp.tsx and ops.css likely define the shell layout. Check flex-direction and shell classes.", "command": "cd /work/apps/canvas/src/ops && timeout 20 grep -nE 'shell|flex-direction|display: *(flex|grid)' ops.css | head -40; timeout 20 grep -nE 'className' OpsApp.tsx | head -30"}

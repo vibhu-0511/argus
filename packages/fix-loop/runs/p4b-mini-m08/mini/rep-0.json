@@ -1,0 +1,1 @@
+{"text": "Start by finding the radar feed and locked card components.", "command": "cd /work && grep -rIl -i -E 'radar|locked' --exclude-dir=node_modules --exclude-dir=.git . | head -30"}

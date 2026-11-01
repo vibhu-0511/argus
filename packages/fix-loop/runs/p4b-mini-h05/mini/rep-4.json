@@ -1,0 +1,1 @@
+{"text": "No landing/radar-named paths under apps. Search source files for radar/brand with a bounded, node_modules-excluded grep.", "command": "cd /work && timeout 25 grep -rniE 'radar|brand' apps --include=*.css --include=*.tsx --include=*.ts --include=*.html --exclude-dir=node_modules --exclude-dir=.next --exclude-dir=dist -l | head -30"}

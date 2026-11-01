@@ -1,0 +1,1 @@
+{"text": "Search the apps dir narrowly for z-index with login/backdrop/map hints.", "command": "cd /work/apps && timeout 20 grep -rnE 'z-index|zIndex' . 2>/dev/null | grep -v node_modules | grep -iE 'backdrop|login|map|control' | head -40"}

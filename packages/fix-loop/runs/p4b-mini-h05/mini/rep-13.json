@@ -1,0 +1,1 @@
+{"text": "Look in the radar and landing css for sibling font-size conventions and any docs naming the clock/brand sizes.", "command": "cd /work/apps/canvas/src && grep -nE 'font-size' styles/landing.css | head -20; grep -nE 'radar-head ' ops/radar.css | cut -c1-220; grep -rnE 'clock-time|landing-brand' /work/knowledge-base/features 2>/dev/null | head -10"}

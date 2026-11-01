@@ -1,0 +1,1 @@
+{"text": "Search canvas design and src for label-related tokens with 8px/size 8.", "command": "cd /work && timeout 20 grep -rniE 'label' apps/canvas/design apps/canvas/src | grep -E '(^|[^0-9])8(px)?([^0-9]|$)' | head -30"}

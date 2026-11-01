@@ -1,0 +1,8 @@
+"{\"tool\": \"search\", \"arguments\": {\"query\": \"brand\", \"path\": \"apps/canvas\"}}"
+"{\"tool\": \"search\", \"arguments\": {\"query\": \"landing\", \"path\": \"apps/canvas/src\"}}"
+"{\"tool\": \"search\", \"arguments\": {\"query\": \"landing\", \"path\": \"apps/canvas/src\"}}"
+"{\"tool\": \"search\", \"arguments\": {\"query\": \"landing-brand\", \"path\": \"apps/canvas/src\"}}"
+"{\"tool\": \"read_file\", \"arguments\": {\"path\": \"apps/canvas/src/styles/landing.css\"}}"
+"{\"tool\": \"run_cmd\", \"arguments\": {\"command\": \"sed -n 40,75p apps/canvas/src/styles/landing.css; grep -n 'landing-brand\\|landing-mark\\|landing-logo' apps/canvas/src/screens/Landing.tsx\"}}"
+"{\"tool\": \"search\", \"arguments\": {\"query\": \"landing-brand\", \"path\": \"apps/canvas/src/styles/landing.css\"}}"
+"{\"tool\": \"read_file\", \"arguments\": {\"path\": \"apps/canvas/src/styles/landing.css\"}}"

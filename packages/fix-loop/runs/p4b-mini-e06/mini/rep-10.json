@@ -1,0 +1,1 @@
+{"text": "No div rule in styles.css. Look for div-prefixed class selectors with 10px in other canvas-ui files.", "command": "timeout 20 grep -rnE 'div[.][a-zA-Z-]+' /work/platform/canvas-ui | grep -v node_modules | head -20"}

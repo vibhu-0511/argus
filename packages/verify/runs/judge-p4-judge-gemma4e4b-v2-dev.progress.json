@@ -1,0 +1,16 @@
+{
+ "run_id": "p4-judge-gemma4e4b-v2-dev",
+ "model": "gemma4:e4b",
+ "prompt": "v2",
+ "rubric": "rubrics/v2.md",
+ "pairs": "fixtures/calibration",
+ "num_ctx": 8192,
+ "total": 50,
+ "started_utc": "2026-10-31T09:13:47.661970+00:00",
+ "status": "finished",
+ "done": 50,
+ "last": null,
+ "mean_seconds_per_job": 108.7046434580005,
+ "eta_seconds": 0.0,
+ "updated_utc": "2026-10-31T10:44:26.773112+00:00"
+}

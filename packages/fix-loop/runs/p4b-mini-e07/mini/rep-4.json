@@ -1,0 +1,1 @@
+{"text": "Searches time out on node_modules. Look for 8px font sizes in app source css/ts only, excluding node_modules via find prune on ls of apps.", "command": "cd /work && ls apps && timeout 20 grep -rnE '8px' apps/*/src 2>/dev/null | grep -iE 'admin|label|token' | head -30"}

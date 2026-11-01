@@ -1,0 +1,1 @@
+{"text": "Radar.tsx uses .radar-clock-time and .radar-clock-label but radar.css has no base rules for them. Check the radar color variables first.", "command": "cd /work/apps/canvas/src/ops && grep -n -e '--radar-' radar.css | head -20"}

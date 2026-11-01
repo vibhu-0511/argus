@@ -1,0 +1,1 @@
+{"text": "Radar not found anywhere. List all rule codes and titles in cars705.json and racp.json to spot a missing clock-time rule.", "command": "cd /work/domains/airline/crew/legality/src/regimes && timeout 20 grep -n -e '\"code\"' -e '\"title\"' cars705.json | head -120"}

@@ -1,0 +1,1 @@
+{"command": "timeout 20 grep -rn 'div' /work/platform/canvas-ui/styles.css | grep -i 'label' | head -20"}

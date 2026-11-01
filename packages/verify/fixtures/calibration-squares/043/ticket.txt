@@ -1,0 +1,1 @@
+The radar mode switch and the landing page both stop clipping.

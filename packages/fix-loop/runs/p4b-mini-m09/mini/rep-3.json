@@ -1,0 +1,1 @@
+{"text": "Search only the canvas app source for landing page/band code.", "command": "cd /work/apps/canvas && timeout 20 grep -ril 'landing' src 2>/dev/null | head -30"}

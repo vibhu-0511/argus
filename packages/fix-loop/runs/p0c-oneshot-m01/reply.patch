@@ -1,0 +1,15 @@
+--- a/apps/canvas/src/ops/radar.css
++++ b/apps/canvas/src/ops/radar.css
+@@ -71,7 +71,7 @@
+ .radar-live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--radar-accent); box-shadow: 0 0 10px var(--radar-accent); animation: radar-livedot 1.2s infinite; }
+ .radar-clock { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.1; font-family: var(--radar-mono); }
+-.radar-clock-time { font-size: 8px; font-weight: 600; }
++.radar-clock-time { font-size: 16px; font-weight: 600; }
+ .radar-clock--utc .radar-clock-time { color: var(--radar-dim); }
+ .radar-clock-label { font-size: 10px; letter-spacing: 2px; color: var(--radar-dim); }
+@@ -176,5 +176,5 @@
+ .radar-row-clock { font-size: 11px; color: var(--radar-dim); }
+ .radar-row-text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+-.radar-row-title { font-size: 8px; font-weight: 600; color: var(--radar-ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
++.radar-row-title { font-size: 15px; font-weight: 600; color: var(--radar-ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+ .radar-row-detail { font-size: 12px; color: var(--radar-detail); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

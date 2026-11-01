@@ -1,0 +1,1 @@
+{"text": "No results with those extensions. Search more broadly, case-insensitively, for radar in any file.", "command": "cd /work && grep -ril 'radar' . 2>/dev/null | grep -v node_modules | grep -v '^./.git/' | head -30"}

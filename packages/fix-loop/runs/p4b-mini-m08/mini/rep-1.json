@@ -1,0 +1,1 @@
+{"text": "BusyBox grep lacks --exclude-dir; search without it, filtering node_modules via grep -v.", "command": "cd /work && grep -rIl -i -E 'radar|locked' . 2>/dev/null | grep -v -E 'node_modules|^./.git/' | head -30"}

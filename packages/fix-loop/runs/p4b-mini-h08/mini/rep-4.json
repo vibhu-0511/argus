@@ -1,0 +1,1 @@
+{"text": "Greps for radar and locked returned nothing, which is suspicious. Find files by name and list apps.", "command": "cd /work && find . -type f -not -path '*/node_modules/*' | grep -iE 'radar|operation|locked' | head -30; echo ---; ls apps; ls apps/* | head -40"}

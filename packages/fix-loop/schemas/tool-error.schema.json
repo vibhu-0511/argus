@@ -1,0 +1,42 @@
+{
+  "$defs": {
+    "ToolErrorCode": {
+      "enum": [
+        "outside-worktree",
+        "not-found",
+        "not-unique",
+        "not-allowed",
+        "timeout",
+        "failed",
+        "bad-pattern"
+      ],
+      "title": "ToolErrorCode",
+      "type": "string"
+    }
+  },
+  "$id": "https://argus.local/schemas/fix/tool-error.schema.json",
+  "additionalProperties": false,
+  "description": "Typed failure from a fix-loop tool. The code is not a loop stop reason.",
+  "properties": {
+    "error": {
+      "$ref": "#/$defs/ToolErrorCode"
+    },
+    "message": {
+      "minLength": 1,
+      "title": "Message",
+      "type": "string"
+    },
+    "ok": {
+      "const": false,
+      "default": false,
+      "title": "Ok",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "error",
+    "message"
+  ],
+  "title": "ToolError",
+  "type": "object"
+}

@@ -1,0 +1,1 @@
+{"text": "Search for login/backdrop in css/tsx/ts files under apps and packages, skipping node_modules.", "command": "cd /work && timeout 25 grep -rliE 'backdrop|login' apps packages --include=*.css --include=*.tsx --include=*.ts 2>/dev/null | grep -v node_modules | head -30"}

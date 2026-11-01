@@ -1,0 +1,1 @@
+{"text": "Look in canvas styles dir for landing/brand rules.", "command": "cd /work/apps/canvas/src/styles && ls && grep -nE 'brand|landing' *.css | head -40"}

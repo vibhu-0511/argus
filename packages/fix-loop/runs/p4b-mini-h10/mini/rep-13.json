@@ -1,0 +1,1 @@
+{"text": "The tokens landed unindented inside the root block. Indent them to match the block style and confirm the result.", "command": "cd /work/apps/canvas/src && sed -i 's/^--z-band: 5;/  --z-band: 5;/; s/^--z-map-controls: 9;/  --z-map-controls: 9;/' styles/tokens.css && sed -n '72,79p' styles/tokens.css"}

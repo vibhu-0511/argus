@@ -9,7 +9,9 @@
         "stuck",
         "consecutive-timeout",
         "retry-cap",
-        "tool-unavailable"
+        "tool-unavailable",
+        "summary",
+        "verify-reject"
       ],
       "title": "StopReason",
       "type": "string"

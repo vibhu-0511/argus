@@ -1,0 +1,1 @@
+{"text": "Nothing found in canvas-ui. Search the other platform packages' sources and tests for admin together with label/token/size.", "command": "cd /work && for d in platform/*; do timeout 8 grep -rniE 'admin' $d --exclude=package.json -l 2>/dev/null | grep -v node_modules | head -5; done"}

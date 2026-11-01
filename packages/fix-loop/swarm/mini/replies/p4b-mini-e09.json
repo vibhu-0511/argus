@@ -1,0 +1,1 @@
+{"text": "The base .landing rule now has overflow: hidden, which restores clipping; the branded variant keeps its own overflow settings. Submitting.", "command": "echo COMPLETE_TASK_AND_SUBMIT_FINAL_OUTPUT"}

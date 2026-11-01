@@ -1,0 +1,1 @@
+{"text": "No file mentions radar. Look at the repo layout and search for 'feed' instead.", "command": "cd /work && ls -la && git ls-files | head -80 && grep -ril 'feed' . 2>/dev/null | grep -v node_modules | grep -v '^./.git/' | head -30"}

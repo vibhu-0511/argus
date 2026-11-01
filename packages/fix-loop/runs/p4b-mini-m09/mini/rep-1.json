@@ -1,0 +1,1 @@
+{"text": "BusyBox grep lacks --exclude-dir; retry with find/xargs.", "command": "cd /work && grep -ril 'landing' . 2>/dev/null | grep -v node_modules | grep -v '^./.git/' | head -30"}

@@ -1,0 +1,1 @@
+{"text": "The base .landing rule has overflow: visible, which is why it no longer clips. Change it to hidden (the branded variant overrides with its own overflow-y/x).", "command": "cd /work/apps/canvas/src/styles && sed -i '8s/overflow: visible;/overflow: hidden;/' landing.css && sed -n '5,9p' landing.css"}

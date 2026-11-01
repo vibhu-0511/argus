@@ -1,0 +1,1 @@
+{"text": "Lines 31 (.ops-operations) and 36 (.ops-timeline) in ops.css both use flex-direction: row. Inspect them before changing.", "command": "cd /work/apps/canvas/src/ops && sed -n '28,37p' ops.css"}

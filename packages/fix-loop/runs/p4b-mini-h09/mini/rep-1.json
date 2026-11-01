@@ -1,0 +1,1 @@
+{"command": "find /work -type f -not -path '*/node_modules/*' -not -path '*/.git/*' | xargs grep -liE 'radar|landing' | head -30"}

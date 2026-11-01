@@ -1,0 +1,1 @@
+{"text": "Look at landing references in canvas App.tsx.", "command": "cd /work/apps/canvas && grep -n -i 'landing' src/App.tsx | head -40"}

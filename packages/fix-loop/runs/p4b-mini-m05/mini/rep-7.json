@@ -1,0 +1,1 @@
+{"text": "Radar is documented in knowledge-base/features/ops-control-panel.md. Look there for clock rules, with a timeout.", "command": "cd /work/knowledge-base/features && timeout 20 grep -niE 'clock|label' ops-control-panel.md | head -40"}

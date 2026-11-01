@@ -1,0 +1,1 @@
+{"text": "Look at the ops CSS for shell and radar feed layout rules.", "command": "cd /work/apps/canvas/src/ops && grep -nE 'flex|grid|shell|radar|feed' ops.css | head -60; grep -rliE 'radar' /work/apps --include=*.css --include=*.tsx --exclude-dir=node_modules | head"}

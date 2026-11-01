@@ -1,0 +1,1 @@
+{"text": "The previous search timed out. Narrow it to the canvas source tree.", "command": "cd /work/apps/canvas/src && grep -rIl -i -E 'radar|locked' . | head -30"}

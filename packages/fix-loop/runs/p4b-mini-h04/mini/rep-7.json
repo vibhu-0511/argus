@@ -1,0 +1,1 @@
+{"text": "Grep found nothing under apps; list apps and look for backdrop/stacking terms with a timeout.", "command": "cd /work && ls apps && timeout 25 grep -rliE 'backdrop|z-?index' apps 2>/dev/null | grep -v node_modules | head -40"}

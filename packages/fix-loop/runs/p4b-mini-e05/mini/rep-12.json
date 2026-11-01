@@ -1,0 +1,1 @@
+{"text": "git is unavailable. List rule ids in the racp and cars705 regime JSON files to find the missing time rule.", "command": "cd /work/domains/airline/crew/legality/src/regimes && timeout 20 grep -o '\"id\": *\"[^\"]*\"' racp.json | head -80; timeout 20 grep -n -i -e 'time of day' -e 'local time' -e 'night' -e 'window' racp.json | head -20"}

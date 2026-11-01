@@ -2,3 +2,5 @@ packages:
   - "packages/target-app"
   - "packages/bench"
   - "packages/bugsmith"
+  - "packages/dom2src-plugin"
+  - "packages/verify"

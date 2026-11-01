@@ -1,0 +1,1 @@
+{"text": "busybox grep has no --include; use find + xargs. Look at ops-app children in OpsApp.tsx and radar css rules.", "command": "cd /work/apps/canvas/src && sed -n '110,160p' ops/OpsApp.tsx; find . -name '*.css' | xargs grep -nE 'radar-screen|radar-feed|radar-.*(flex|grid)' | head -30"}

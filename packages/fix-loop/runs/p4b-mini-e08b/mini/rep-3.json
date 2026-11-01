@@ -1,0 +1,1 @@
+{"text": "Found the radar files in apps/canvas/src/ops. Look at the css and the layout test/component for how the feed is laid out.", "command": "cd /work/apps/canvas/src/ops && cat radar.css | head -150; echo ---; grep -n -i 'feed' radar.css Radar.tsx radarModel.ts | head -50"}

@@ -1,0 +1,1 @@
+{"text": "The earlier grep timed out after finding only openapi.json. Narrow the search to source dirs and skip node_modules and .git, looking for radar and mode switch terms.", "command": "cd /work && timeout 25 grep -rIl --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=dist --exclude-dir=.next -i -e 'radar' -e 'ModeSwitch' apps packages src 2>/dev/null | head -30"}

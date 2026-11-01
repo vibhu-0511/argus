@@ -1,0 +1,1 @@
+{"text": "Search timed out over the whole tree. Restrict to apps/canvas, skip node_modules, and look for z-index near login/backdrop.", "command": "cd /work/apps/canvas && timeout 20 grep -rniE 'z-?index' design src 2>/dev/null | grep -iE 'login|backdrop|overlay' | head -20"}

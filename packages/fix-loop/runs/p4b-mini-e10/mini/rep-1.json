@@ -1,0 +1,1 @@
+{"text": "No hits for landing+bar/stack. Broaden: look for stack-related code and the repo layout.", "command": "cd /work && ls && grep -rniE 'stack' -l . 2>/dev/null | grep -v node_modules | grep -v '^./.git/' | head -30"}

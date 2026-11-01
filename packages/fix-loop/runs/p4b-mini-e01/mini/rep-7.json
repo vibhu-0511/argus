@@ -1,0 +1,1 @@
+{"text": "Look for 8px font-size in canvas css/tsx related to landing/login brand.", "command": "cd /work/apps/canvas/src && grep -rnE 'font-size: ?8px|fontSize: ?8\b' . | head -30; ls | head -80"}

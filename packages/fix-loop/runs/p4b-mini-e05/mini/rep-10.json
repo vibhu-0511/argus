@@ -1,0 +1,1 @@
+{"text": "No clock/radar in legality sources. Search the wider crew domain and rules for 'wall' or 'local time' style rules, listing legality rule files.", "command": "cd /work/domains/airline/crew/legality && timeout 20 find src -type f | head -80"}

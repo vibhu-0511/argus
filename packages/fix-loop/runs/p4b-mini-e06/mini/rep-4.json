@@ -1,0 +1,1 @@
+{"text": "Search the stylesheet for admin rules, especially ones with a div selector.", "command": "grep -n 'admin' /work/platform/canvas-ui/styles.css | head -30"}

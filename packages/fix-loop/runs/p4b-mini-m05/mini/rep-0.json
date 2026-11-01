@@ -1,0 +1,1 @@
+{"text": "Locate the clock-related rules in the repo.", "command": "grep -rliE 'clock' /work --exclude-dir=node_modules --exclude-dir=.git | head -30"}
