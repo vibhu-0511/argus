@@ -1,0 +1,1 @@
+{"text": "Find the CSS rule targeting a div with the admin label class.", "command": "grep -rn 'div.*label' /work --include=*.css --include=*.scss | head -20"}

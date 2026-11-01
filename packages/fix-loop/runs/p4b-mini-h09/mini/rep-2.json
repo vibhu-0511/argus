@@ -1,0 +1,1 @@
+{"text": "The previous full-tree scan timed out. List tracked source files only.", "command": "cd /work && git ls-files | grep -E 'css|tsx|jsx|html' | head -50"}

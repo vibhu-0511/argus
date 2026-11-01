@@ -1,0 +1,1 @@
+{"text": "Two 8px spots: radar.css .radar-clock-time and tokens.css .glabel. Look for where glabel is used and for :root tokens so both can share one token.", "command": "grep -rn 'glabel' /work/apps/canvas/src | cut -c1-160 | head -10; grep -n -- '--text-' /work/apps/canvas/src/styles/tokens.css | head -15"}

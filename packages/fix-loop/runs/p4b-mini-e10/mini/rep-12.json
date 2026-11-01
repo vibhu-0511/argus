@@ -1,0 +1,1 @@
+{"text": "The .landing-bar rule at line 21 has z-index: 0; change it to 2.", "command": "cd /work/apps/canvas/src/styles && sed -i '21s/z-index: 0;/z-index: 2;/' landing.css && sed -n '18,23p' landing.css"}

@@ -1,0 +1,1 @@
+{"text": "Look at the Landing screen for overflow or clipping rules.", "command": "cd /work/apps/canvas && ls src/screens | head -30; grep -n -i -E 'overflow|band|clip' src/screens/Landing.tsx | head -40"}

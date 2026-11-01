@@ -1,0 +1,1 @@
+{"text": "BusyBox grep lacks --include; use find with prune and xargs grep instead.", "command": "cd /work && timeout 25 find apps -name node_modules -prune -o -type f -name '*.css' -print -o -type f -name '*.tsx' -print | xargs grep -liE 'radar|brand' | head -30"}

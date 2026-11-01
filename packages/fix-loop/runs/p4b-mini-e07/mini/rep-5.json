@@ -1,0 +1,1 @@
+{"text": "No 8px hits with those filters. Search app src for fontSize 8 / 8px near admin or role tokens.", "command": "cd /work && timeout 20 grep -rnE 'fontSize: ?8|font-size: ?8px|\b8px' apps/canvas/src apps/work-os/src apps/engineering-ops/src 2>/dev/null | head -30"}

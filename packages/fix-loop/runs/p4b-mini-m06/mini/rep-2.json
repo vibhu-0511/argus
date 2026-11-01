@@ -1,0 +1,1 @@
+{"text": "Search style files for div selectors.", "command": "cd /work && grep -rnE 'div' . --include=*.css --include=*.scss --include=*.less | grep -iE 'admin|button' | head -30"}

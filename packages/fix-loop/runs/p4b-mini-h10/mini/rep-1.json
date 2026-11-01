@@ -1,0 +1,1 @@
+{"text": "The grep found nothing, so I'll look at the repo layout directly.", "command": "cd /work && ls -la && git ls-files | head -50"}

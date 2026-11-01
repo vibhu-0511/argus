@@ -1,0 +1,1 @@
+{"text": "Start by finding where the radar clock and row title font sizes are defined.", "command": "cd /work && grep -rniE 'radar|row.?title' --include=*.css --include=*.scss --include=*.js --include=*.jsx --include=*.ts --include=*.tsx --include=*.vue --include=*.html . 2>/dev/null | grep -v node_modules | head -50"}

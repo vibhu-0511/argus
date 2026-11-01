@@ -1,0 +1,1 @@
+{"text": "The full scan timed out. Narrow to files named for landing or login.", "command": "cd /work && find . -name node_modules -prune -o -name .git -prune -o -type f -name '*ogin*' -print -o -type f -name '*anding*' -print | head -30"}

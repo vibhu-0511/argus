@@ -1,0 +1,1 @@
+{"text": "The landing band has overflow: visible at line 229 of landing.css, so it no longer clips. Change it to hidden and show the line.", "command": "cd /work/apps/canvas/src/styles && sed -i '229s/overflow: visible/overflow: hidden/' landing.css && sed -n '223,231p' landing.css"}

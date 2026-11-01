@@ -1,0 +1,1 @@
+{"text": "The last find timed out. Use a bounded search for css files.", "command": "cd /work && ls && timeout 20 find . -maxdepth 4 -name node_modules -prune -o -name '*.css' -print | head -30"}

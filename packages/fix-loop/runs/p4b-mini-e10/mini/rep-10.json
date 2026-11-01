@@ -1,0 +1,1 @@
+{"text": "BusyBox grep lacks --exclude-dir. Use find to prune node_modules and grep css files for landing-bar.", "command": "cd /work/apps/canvas && timeout 25 find . -name node_modules -prune -o -name dist -prune -o -type f -name '*.css' -print 2>/dev/null | xargs grep -n 'landing-bar' 2>/dev/null | head -20"}

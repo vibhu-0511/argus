@@ -1,0 +1,1 @@
+{"text": "Finds timed out. List top-level apps and look for ops-related dirs with a shallow ls.", "command": "ls /work/apps; ls /work/apps/*/src 2>/dev/null | grep -i -E 'ops|shell' | head -20"}

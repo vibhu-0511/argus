@@ -1,0 +1,1 @@
+{"text": "Full-tree scans time out. Restrict the search to the canvas src dir.", "command": "cd /work/apps/canvas/src && grep -rliE 'radar|landing' . | head -30"}

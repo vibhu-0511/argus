@@ -1,0 +1,1 @@
+{"text": "No radar/clock matches in rules. Check git history and the domains dir for time-related rules (e.g. 'time' in names, 'wall clock', 'ATC').", "command": "cd /work && timeout 25 git log --oneline -n 15 2>/dev/null; timeout 20 git log --all --oneline -i --grep=radar -n 10 2>/dev/null; timeout 20 find domains -type f 2>/dev/null | grep -i -e time -e rule | head -30"}

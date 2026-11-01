@@ -1,0 +1,1 @@
+{"text": "The radar locked card has flex-direction: row at radar.css:133. Set it to column, then check ops.css for other row layouts.", "command": "cd /work/apps/canvas/src/ops && sed -i '133s/flex-direction: row;/flex-direction: column;/' radar.css && nl -ba radar.css | sed -n '133p' && grep -n 'flex-direction' ops.css | head -30"}

@@ -1,0 +1,1 @@
+{"text": "Nothing in canvas-ui matches. List top-level dirs of /work and search for stylesheets elsewhere with a bounded depth.", "command": "ls /work; timeout 20 grep -rlE 'div[.#]?[A-Za-z_-]*label|div[.][A-Za-z_-]*admin' /work/platform/bff /work/platform/contracts /work/apps /work/packages 2>/dev/null | head -20"}

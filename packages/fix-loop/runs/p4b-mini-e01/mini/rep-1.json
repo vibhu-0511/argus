@@ -1,0 +1,1 @@
+{"text": "BusyBox grep lacks --include; search with -rniE and filter by find.", "command": "cd /work && grep -rniE 'brand' . --exclude-dir=node_modules --exclude-dir=.git | head -40"}

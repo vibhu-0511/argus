@@ -1,0 +1,1 @@
+{"text": "The .landing-brand rule sets font-size: 8px. Change it to 20px.", "command": "cd /work/apps/canvas/src/styles && sed -i '45,50s/font-size: 8px;/font-size: 20px;/' landing.css && sed -n '44,51p' landing.css"}

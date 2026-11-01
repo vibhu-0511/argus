@@ -1,0 +1,1 @@
+{"text": "Inspect landing.css brand/title rules and any font-size values.", "command": "cd /work/apps/canvas/src/styles && sed -n '40,60p;115,140p' landing.css && grep -nE 'font-size|font:' landing.css | head -40 && grep -rnE 'font-size|fontSize|font:' ../screens/Landing.tsx ../screens/AuthModal.tsx | head"}

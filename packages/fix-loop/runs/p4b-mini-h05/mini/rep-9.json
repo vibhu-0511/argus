@@ -1,0 +1,1 @@
+{"text": "radar.css lacks a .radar-clock-time rule; check landing logo usage.", "command": "cd /work/apps/canvas/src && grep -rn 'radar-clock-time' . ; grep -rn 'landing-logo-img' . | head"}

@@ -1,0 +1,1 @@
+{"text": "Inspect the arrivals rules (the likely landing band) around lines 255-265 of radar.css.", "command": "cd /work/apps/canvas/src/ops && sed -n '255,266p' radar.css | cut -c1-400"}

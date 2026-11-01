@@ -1,0 +1,1 @@
+{"text": "BusyBox grep has no --exclude-dir; use find with prune and xargs grep.", "command": "cd /work && find . -path ./node_modules -prune -o -path ./.git -prune -o -type f -print | xargs grep -niE 'brand' 2>/dev/null | head -40"}

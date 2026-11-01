@@ -1,0 +1,1 @@
+{"text": "Inspect the context around radar-modes (line 76) and landing.css top rules.", "command": "cd /work/apps/canvas/src && sed -n '70,90p' ops/radar.css && sed -n '1,20p' styles/landing.css"}

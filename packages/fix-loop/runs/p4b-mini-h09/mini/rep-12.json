@@ -1,0 +1,1 @@
+{"text": "The radar list has overflow-y: visible. The landing band is not found yet; search for 'band' class names and overflow rules in ops source files.", "command": "cd /work/apps/canvas/src/ops && grep -nE 'band' radar.css ops.css Radar.tsx RadarScope.tsx | cut -c1-300 | head -30"}

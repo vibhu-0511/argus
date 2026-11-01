@@ -1,0 +1,1 @@
+{"text": "Earlier greps may have timed out. The console opens at /ops/radar, so search apps/canvas/src narrowly for radar and clock.", "command": "cd /work/apps/canvas && timeout 25 grep -rIil -e radar --exclude-dir=node_modules src 2>/dev/null | head -30"}

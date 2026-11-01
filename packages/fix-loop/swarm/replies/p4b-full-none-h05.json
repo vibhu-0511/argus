@@ -1,0 +1,1 @@
+{"tool": "edit", "arguments": {"path": "apps/canvas/src/ops/radar.css", "old": ".radar-clock--utc .radar-clock-time { color: var(--radar-dim); }", "new": ".radar-clock-time { font-size: 20px; font-weight: 600; letter-spacing: 1px; font-variant-numeric: tabular-nums; color: var(--radar-ink); }\n.radar-clock--utc .radar-clock-time { color: var(--radar-dim); }"}}

@@ -1,0 +1,1 @@
+{"text": "Grep for radar/admin found nothing in rules. Search the whole repo for div selectors in rule files, excluding lockfiles.", "command": "cd /work && find rules -type f | head -50 && grep -rnE 'div' rules -l | head -20"}

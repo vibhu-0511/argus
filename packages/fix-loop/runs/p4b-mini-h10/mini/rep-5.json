@@ -1,0 +1,1 @@
+{"text": "Check whether z-index tokens exist and see the landing band rules.", "command": "cd /work/apps/canvas/src && grep -rnE 'z-index: *var|--z-' styles ops | head -20; sed -n '30,40p;105,112p;385,390p' styles/landing.css"}

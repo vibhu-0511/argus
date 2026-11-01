@@ -1,0 +1,1 @@
+{"text": "Line 76 of radar.css sets .radar-modes to overflow: visible, which is why it no longer clips. Change it to hidden.", "command": "cd /work/apps/canvas/src/ops && sed -i '76s/overflow: visible;/overflow: hidden;/' radar.css && sed -n '76p' radar.css"}

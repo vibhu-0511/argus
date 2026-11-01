@@ -1,0 +1,1 @@
+{"text": "The full-repo find timed out. Narrow it to the apps directory with a depth limit.", "command": "find /work/apps -maxdepth 6 -path '*/node_modules' -prune -o -type f -iname '*ops*' -print | head -30"}

@@ -1,0 +1,1 @@
+{"text": "No radar/clock matches. Look at rule ids in the regime JSON files and git status for removed rules.", "command": "cd /work && timeout 25 git status --short | head -20; timeout 20 grep -o '\"id\": *\"[^\"]*\"' domains/airline/crew/legality/src/regimes/racp.json | head -60"}

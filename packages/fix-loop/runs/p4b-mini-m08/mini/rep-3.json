@@ -1,0 +1,1 @@
+{"text": "Look at the radar css and where the feed and locked card are laid out.", "command": "cd /work/apps/canvas/src/ops && grep -n -i -E 'locked|feed|flex-direction|display: *(flex|grid)' radar.css | head -60"}

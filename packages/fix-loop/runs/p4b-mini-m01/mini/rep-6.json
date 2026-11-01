@@ -1,0 +1,1 @@
+{"text": "Radar lives in the ops UI. Search the styles and ops dirs for radar CSS and 8px font sizes.", "command": "cd /work/apps/canvas/src && ls styles ops && grep -rniE 'radar' styles ops | grep -iE 'clock|title|row|font' | head -40"}

@@ -1,0 +1,1 @@
+{"text": "Grep over src timed out; list css files in canvas src only.", "command": "cd /work/apps/canvas/src && find . -maxdepth 3 -name '*.css'"}

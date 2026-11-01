@@ -1,0 +1,1 @@
+{"text": "Grep found nothing. List top-level and find files by name matching radar or mode switch.", "command": "cd /work && ls && timeout 25 find . -path ./node_modules -prune -o -path ./.git -prune -o -type f -iname '*radar*' -print | head -30"}

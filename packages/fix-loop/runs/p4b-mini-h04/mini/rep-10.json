@@ -1,0 +1,1 @@
+{"text": "Inspect the z-index rules and any stacking tokens.", "command": "cd /work/apps/canvas/src && grep -nE 'z-index|--z|--layer' styles/tokens.css | head -30; sed -n 380,396p styles/landing.css; grep -rn 'ops-map-controls' . | head"}

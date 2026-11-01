@@ -1,0 +1,1 @@
+{"text": "Whole-repo scan timed out. Restrict to apps/ source files, pruning node_modules.", "command": "cd /work/apps && timeout 20 find . -name node_modules -prune -o -type f -name '*.css' -print -o -type f -name '*.tsx' -print | xargs grep -nE '8px' 2>/dev/null | head -30"}

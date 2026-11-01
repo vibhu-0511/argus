@@ -1,0 +1,1 @@
+{"text": "No git and broad grep timed out. Search source files for radar, pruning node_modules.", "command": "cd /work && find . -name node_modules -prune -o -type f -name '*.ts' -print 2>/dev/null | xargs grep -li radar 2>/dev/null | head -30"}

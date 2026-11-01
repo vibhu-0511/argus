@@ -1,0 +1,1 @@
+{"text": "BusyBox grep lacks --exclude-dir; search files listing only.", "command": "timeout 20 grep -rlE 'admin' /work/platform | grep -v node_modules | head -20"}

@@ -1,0 +1,1 @@
+{"text": "Backdrop search returned nothing; BusyBox grep may not support --exclude-dir. Search for z-index with login instead.", "command": "grep -rniE 'z-?index' . -l 2>/dev/null | grep -v node_modules | head -30"}

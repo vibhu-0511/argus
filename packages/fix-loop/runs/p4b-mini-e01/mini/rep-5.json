@@ -1,0 +1,1 @@
+{"text": "The full-tree find times out. List the top-level apps and their src dirs first.", "command": "cd /work && ls apps && ls apps/*/src | head -60"}

@@ -1,0 +1,9 @@
+diff --git a/apps/canvas/src/ops/ops.css b/apps/canvas/src/ops/ops.css
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -2,7 +2,7 @@
+ /* Operations Control Panel (knowledge-base/features/ops-control-panel.md §5). Design tokens come from tokens.css. */
+-.ops-app { min-height: 100vh; display: flex; flex-direction: row; }
++.ops-app { min-height: 100vh; display: flex; flex-direction: column; }
+ /* The panel's plain controls in the Radar's outlined style. Each selector is wholly inside :where() so it weighs
+    nothing: an attribute or :hover left outside would outrank a screen's own class (it boxed the radar's blips). */

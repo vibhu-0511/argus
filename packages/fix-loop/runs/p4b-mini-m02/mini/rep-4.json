@@ -1,0 +1,1 @@
+{"text": "Find where Operations and Timeline are rendered together and the layout CSS.", "command": "cd /work/apps/canvas/src/ops && grep -n -E 'Operations|Timeline' OpsApp.tsx | head -30; grep -n -i -E 'timeline|operations|flex-direction|grid-template' ops.css | head -40"}

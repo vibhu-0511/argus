@@ -1,0 +1,1 @@
+{"text": "Start by exploring the repo for the login backdrop and landing bar.", "command": "cd /work && ls && grep -rIil 'backdrop' --exclude-dir=node_modules --exclude-dir=.git . | head -30"}

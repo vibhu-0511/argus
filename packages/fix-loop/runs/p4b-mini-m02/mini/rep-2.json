@@ -1,0 +1,1 @@
+{"text": "BusyBox grep lacks --include. Use find piped to grep -il.", "command": "find apps -type f -name '*.tsx' -not -path '*/node_modules/*' | xargs grep -il timeline 2>/dev/null | head -30"}

@@ -1,0 +1,1 @@
+{"text": "BusyBox grep lacks --exclude-dir; search with find and prune node_modules.", "command": "cd /work && grep -rIil 'backdrop' apps domains platform 2>/dev/null | grep -v node_modules | head -30"}

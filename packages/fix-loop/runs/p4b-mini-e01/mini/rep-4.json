@@ -1,0 +1,1 @@
+{"text": "The previous search timed out, probably from walking nested node_modules. Prune node_modules and list landing/brand-named files.", "command": "cd /work && find . -name node_modules -prune -o -name .git -prune -o -type f -print | grep -iE 'landing|brand' | head -40"}

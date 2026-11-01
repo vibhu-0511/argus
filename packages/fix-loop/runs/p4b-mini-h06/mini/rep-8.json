@@ -1,0 +1,1 @@
+{"text": "BusyBox grep lacks --include; use find to list css files then grep them for admin/radar/feed selectors.", "command": "cd /work/apps/canvas/src && find . -name '*.css' | xargs grep -nE 'admin|radar|feed' | head -40"}

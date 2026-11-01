@@ -1,0 +1,1 @@
+{"text": "Radar UI is likely in apps/canvas/src; search there with a timeout.", "command": "cd /work/apps/canvas/src && timeout 20 grep -rli radar . 2>/dev/null | head -30"}

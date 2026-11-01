@@ -1,0 +1,1 @@
+{"text": "radar-list has overflow-y: visible, so it no longer scrolls/clips. The landing band probably is the arrivals strip, so I will look at the arrivals and band rules next, without editing yet.", "command": "cd /work/apps/canvas/src/ops && grep -nE 'arrival|band|landing' radar.css | cut -c1-300 | head -30"}

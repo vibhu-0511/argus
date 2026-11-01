@@ -1,0 +1,1 @@
+{"text": "No z tokens exist. Find where the dark/base token block ends in tokens.css so I can add stack-level tokens, and see how the map and its controls are laid out.", "command": "cd /work/apps/canvas/src && grep -n '^}' styles/tokens.css | head -5; grep -n 'ops-map' ops/ops.css | head -20; sed -n '195,215p' ops/OpsMap.tsx"}

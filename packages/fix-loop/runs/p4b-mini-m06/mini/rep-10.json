@@ -1,0 +1,1 @@
+{"text": "tokens.css has div.btn at line 207; inspect it and nearby admin label rule.", "command": "cd /work/apps/canvas && grep -nE 'div' src/styles/tokens.css | head -30; sed -n 195,225p src/styles/tokens.css"}

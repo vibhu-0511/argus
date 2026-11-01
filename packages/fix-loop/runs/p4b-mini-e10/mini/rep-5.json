@@ -1,0 +1,1 @@
+{"text": "Found Landing.test.tsx. Look at it and sibling files in the screens dir.", "command": "cd /work/apps/canvas/src/screens && ls && grep -niE 'stack|bar' Landing.test.tsx | head -30"}

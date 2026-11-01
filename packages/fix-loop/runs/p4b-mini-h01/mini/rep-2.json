@@ -1,0 +1,1 @@
+{"text": "Drop the unsupported flags; BusyBox grep only supports -rnE. Limit to source dirs by skipping node_modules via find.", "command": "grep -rnE '8px' /work/src /work/app /work/packages 2>/dev/null | head -50 || true"}

@@ -1,0 +1,1 @@
+{"text": "BusyBox grep lacks --exclude-dir. Use find with prune and grep -l.", "command": "find /work -path /work/node_modules -prune -o -path /work/.git -prune -o -type f -print | xargs grep -liE 'admin.*label|label.*admin' 2>/dev/null | head -20"}

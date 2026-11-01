@@ -1,0 +1,1 @@
+{"text": "Inspect how openapi.json mentions radar.", "command": "cd /work && grep -i -n radar apps/bff/openapi.json | cut -c1-200 | head -10"}

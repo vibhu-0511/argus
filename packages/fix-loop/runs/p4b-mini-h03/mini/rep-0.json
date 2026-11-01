@@ -1,0 +1,1 @@
+{"text": "Start by exploring the repo for radar mode switch and landing page clipping styles.", "command": "cd /work && grep -rniE 'overflow|clip' --include=*.css --include=*.scss --include=*.tsx --include=*.jsx --include=*.html -l . 2>/dev/null | grep -v node_modules | head -30"}

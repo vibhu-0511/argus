@@ -1,0 +1,1 @@
+{"text": "First, find the CSS rules mentioned in the issue.", "command": "cd /work && grep -rn 'div' --include=*.css --include=*.scss --include=*.less . 2>/dev/null | grep -iE 'admin|button|label' | head -30"}

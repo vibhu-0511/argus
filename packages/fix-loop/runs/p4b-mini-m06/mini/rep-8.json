@@ -1,0 +1,1 @@
+{"text": "Find CSS selectors using div with admin/btn classes in canvas src.", "command": "cd /work/apps/canvas && timeout 25 grep -rnE 'div[.](admin|btn|button)' src | head -30"}

@@ -1,0 +1,1 @@
+{"text": "Line 2 of ops.css makes .ops-app (the shell) a row. Inspect the top of the file and find the radar feed rules/usages.", "command": "cd /work/apps/canvas/src/ops && sed -n '1,12p' ops.css; grep -rniE 'radar|feed' ops.css | head -30; grep -rnE 'className=\"[^\"]*(feed|radar)' . | head"}

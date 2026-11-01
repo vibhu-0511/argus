@@ -1,0 +1,1 @@
+{"text": "Look for shell layout files in the ops-related apps, shallow and with a timeout.", "command": "timeout 20 ls /work/apps/engineering-ops/src /work/apps/passenger-ops/src /work/apps/canvas/src 2>/dev/null | head -60; timeout 20 grep -rilE 'shell' /work/apps/engineering-ops/src /work/apps/passenger-ops/src 2>/dev/null | head -20"}

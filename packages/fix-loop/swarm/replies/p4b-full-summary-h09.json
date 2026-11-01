@@ -1,0 +1,11 @@
+Summary of turns so far: explored, made one edit, tried to verify but the test command failed to run.
+
+Environment: BusyBox shell (grep has no --include/--exclude; filter with pipes). npx is not found, so "npx vitest" does not work; find another way to run vitest (for example a node_modules/.bin/vitest path, or npm/pnpm/yarn scripts if present). Exclude apps/canvas/src/i18n/messages.ts from radar searches.
+
+Relevant files: apps/canvas/src/ops/Radar.tsx, radar.css, radarModel.ts, tests Radar.test.tsx, radarLayout.test.ts, radarModel.test.ts. Constraint: apps/canvas/src/styles/tokens.test.ts reads ../ops/radar.css and asserts regexes (theme tokens, flat ground, .radar-modes/.radar-kpi border-radius 0, .radar-kpis gap 0), so radar.css edits must keep it passing.
+
+Findings: Radar.tsx markup is fine (div.radar-list with one button.radar-row per item). The bug is CSS: .radar-list had max-height 540px (and flex 1 1 0 / max-height none in the min-width 1041px block, whose comment says the list scrolls inside the feed column) but overflow-y: visible, so rows spilled out instead of scrolling. Other radar.css sections are deliberate or unrelated; leave alone.
+
+Done: edited apps/canvas/src/ops/radar.css, changing .radar-list overflow-y from visible to auto (edit succeeded). Not yet verified because the test run failed with "sh: npx: not found".
+
+Next steps: locate a working way to run vitest, then run styles/tokens.test.ts, Radar.test.tsx and radarLayout.test.ts to confirm they pass; if they do, finish. If no runner can be found, finish with the single CSS edit noted as unverified.

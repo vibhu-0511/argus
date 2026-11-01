@@ -1,0 +1,1 @@
+{"text": "Only radar.css has 8px in ops. Search the rest of canvas src for 8px font sizes.", "command": "grep -rnE 'font-size: ?8px|text-.8px.' /work/apps/canvas/src | cut -c1-200 | head -20"}

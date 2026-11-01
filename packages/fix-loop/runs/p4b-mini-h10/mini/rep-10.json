@@ -1,0 +1,1 @@
+{"text": "No z tokens exist. Check how ops-map-controls and landing-band are used, and any 'stack' or 'layer' wording in canvas src.", "command": "cd /work/apps/canvas/src && grep -rniE 'stack|layer|--z' --include=*.css --include=*.ts --include=*.tsx . | grep -viE 'node_modules|flex-direction' | head -30; grep -n 'ops-map-controls' -r . | head"}

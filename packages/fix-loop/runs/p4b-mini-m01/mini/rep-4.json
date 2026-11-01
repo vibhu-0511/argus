@@ -1,0 +1,1 @@
+{"text": "Greps return nothing. List the apps tree.", "command": "cd /work && ls apps apps/canvas 2>&1 | head -40"}

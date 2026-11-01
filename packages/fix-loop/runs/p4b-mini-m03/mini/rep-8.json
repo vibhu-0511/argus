@@ -1,0 +1,1 @@
+{"text": "Earlier --include grep failed silently under BusyBox. Use find with a timeout, pruning node_modules.", "command": "cd /work && timeout 25 find apps -name node_modules -prune -o -type f -name '*.ts*' -print | xargs grep -li radar 2>/dev/null | head -30"}

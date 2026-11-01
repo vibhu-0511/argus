@@ -1,0 +1,1 @@
+{"text": "The fix is applied: .radar-modes now has overflow: hidden. The focus outline uses a negative offset, so it stays inside the clip. Submitting.", "command": "echo COMPLETE_TASK_AND_SUBMIT_FINAL_OUTPUT"}

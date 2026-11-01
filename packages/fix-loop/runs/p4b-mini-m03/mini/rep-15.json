@@ -1,0 +1,1 @@
+{"text": "Both rules have overflow set to visible, so they stop clipping. Restore hidden on the mode switch and auto on the list's y axis.", "command": "cd /work/apps/canvas/src/ops && sed -i '76s/overflow: visible/overflow: hidden/;157s/overflow-y: visible/overflow-y: auto/' radar.css && sed -n '76p;157p' radar.css"}

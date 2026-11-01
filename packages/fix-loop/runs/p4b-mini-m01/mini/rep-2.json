@@ -1,0 +1,1 @@
+{"command": "cd /work && grep -rniE 'font-size: *8px|clock' . --exclude-dir=node_modules --exclude-dir=.git 2>/dev/null | head -40"}

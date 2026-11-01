@@ -1,0 +1,1 @@
+{"text": "Only DeskAlertModal.tsx mentions radar in canvas src; inspect the matches.", "command": "cd /work/apps/canvas/src && grep -n -i radar desk/DeskAlertModal.tsx | cut -c1-200; ls desk | head -50"}

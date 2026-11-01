@@ -1,0 +1,1 @@
+{"text": "BusyBox grep lacks --include. Look at the CSS for the ops grid and radar locked card directly.", "command": "cd /work/apps/canvas/src && grep -rnE 'ops-grid|radar-locked|ops-clocks' ops/radar.css ops/*.css | head -40"}

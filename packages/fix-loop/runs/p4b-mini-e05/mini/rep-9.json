@@ -1,0 +1,1 @@
+{"text": "Search the legality and assignment-check sources for clock-time rule names, with a timeout.", "command": "cd /work/domains/airline/crew && timeout 25 grep -rIin -e 'clock' -e 'radar' --exclude-dir=node_modules legality/src assignment-check/src facts/src 2>/dev/null | head -30"}

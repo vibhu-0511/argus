@@ -1,0 +1,1 @@
+{"text": "Two 8px spots: radar.css .radar-clock-time and tokens.css .glabel. Check for a font-size token first.", "command": "grep -n 'size' /work/apps/canvas/src/styles/tokens.css | head -20"}

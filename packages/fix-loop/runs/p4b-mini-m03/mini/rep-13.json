@@ -1,0 +1,1 @@
+{"text": "Radar UI lives in apps/canvas/src/ops. Inspect radar.css for overflow/clip rules on the mode switch and list.", "command": "cd /work/apps/canvas/src/ops && grep -n -iE 'overflow|clip|mode|list' radar.css | cut -c1-160 | head -80"}

@@ -1,0 +1,1 @@
+{"text": "No 'radar' string exists anywhere. Inspect the rule entries in racp.json around the rolling_clock windows to see rule keys and find which rule might be missing.", "command": "cd /work/domains/airline/crew/legality/src/regimes && sed -n 180,215p racp.json && sed -n 685,700p racp.json && timeout 20 grep -n -e '\"key\"' -e '\"code\"' -e '\"rid\"' racp.json | head -60"}
