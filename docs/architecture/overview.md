@@ -1,6 +1,6 @@
-# Architecture overview (P0 to P2)
+# Architecture overview (P0 to P3)
 
-As-built view of Argus after phase P2. Later phases are not drawn. This file grows by one phase in each stacked pull request; the diagram source is the same text the PR description shows.
+As-built view of Argus after phase P3. Later phases are not drawn. This file grows by one phase in each stacked pull request; the diagram source is the same text the PR description shows.
 
 ```mermaid
 flowchart LR
@@ -32,12 +32,21 @@ flowchart LR
     REPLAY["fixture replay<br/>CI, no model"]:::p1
   end
 
-  subgraph S2 ["P2 dom2src (NEW IN THIS PR)"]
+  subgraph S2 ["P2 dom2src"]
     PLUGIN["Vite plugin<br/>stamps data-src"]:::p2
     LOCATE["locate MCP server<br/>spec 2026-07-28"]:::p2
     RMAP["repo-map index"]:::p2
     PGV["pgvector file search"]:::p2
     ABL["retrieval harness<br/>and ablation"]:::p2
+  end
+
+  subgraph S3 ["P3 fix loop (NEW IN THIS PR)"]
+    FIX["fix-loop run_fix<br/>named stop reasons"]:::p3
+    TOOLS["six typed tools<br/>exact-match edit"]:::p3
+    WT["worktree and Docker sandbox<br/>network none"]:::p3
+    CTX["context budget<br/>four strategies"]:::p3
+    GATES["build, typecheck,<br/>lint, unit, bench gates"]:::p3
+    TRAJ["trajectory JSONL<br/>and replay"]:::p3
   end
 
   BUGSMITH --> FILTER
@@ -69,15 +78,27 @@ flowchart LR
   RMAP --> ABL
   PGV --> ABL
   SEEDED -. "golden patch file" .-> ABL
+  RVERIFY -. "fixture" .-> FIX
+  LOCATE -. "fixture" .-> FIX
+  PGV -. "fixture" .-> FIX
+  FIX --> TOOLS
+  FIX --> WT
+  FIX --> CTX
+  FIX --> GATES
+  FIX --> TRAJ
+  FIX --> CLIENT
+  GATES -- "bench gate" --> SCORER
 
   classDef p0 fill:#dbeafe,stroke:#1d4ed8,stroke-width:1.5px,color:#111827
   style S0 fill:none,stroke:#1d4ed8,stroke-width:1.5px
   classDef p1 fill:#cffafe,stroke:#0e7490,stroke-width:1.5px,color:#111827
   style S1 fill:none,stroke:#0e7490,stroke-width:1.5px
-  classDef p2 fill:#dcfce7,stroke:#15803d,stroke-width:4px,color:#111827
-  style S2 fill:none,stroke:#15803d,stroke-width:4px
+  classDef p2 fill:#dcfce7,stroke:#15803d,stroke-width:1.5px,color:#111827
+  style S2 fill:none,stroke:#15803d,stroke-width:1.5px
+  classDef p3 fill:#fef9c3,stroke:#a16207,stroke-width:4px,color:#111827
+  style S3 fill:none,stroke:#a16207,stroke-width:4px
   classDef ext fill:#ffffff,stroke:#6b7280,color:#111827,stroke-dasharray: 4 3
-  linkStyle 23,24,25,26,27,28 stroke-width:3px
+  linkStyle 29,30,31,32,33,34,35,36,37,38 stroke-width:3px
 ```
 
 ## How to read it
@@ -92,17 +113,19 @@ flowchart LR
 
 Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange.
 
-## What P2 adds
+## What P3 adds
 
-- `packages/dom2src-plugin`: a Vite plugin that stamps `data-src="file:line:col"` on elements in dev and test builds.
-- `packages/dom2src-mcp`: `locate(selector, html)` as an MCP server, a symbol repo-map and local pgvector search over Canvas files.
-- A harness that scores each retriever by the file in the golden patch, and an ablation over the 30 seeded tasks.
+- `packages/fix-loop`: six typed tools (no write-file; an edit must match exactly once) and a loop with named stop reasons.
+- A throwaway git worktree plus a Docker sandbox with no network, 1 CPU, 512 MB and the checks mounted read-only.
+- Four context strategies, five gates (build, typecheck, lint, unit, bench), a trajectory file per run and a replay command.
+- Saved runs under `packages/fix-loop/runs`. The `verify` callback and the `verify-reject` stop are already in the loop; the checks behind them arrive in P4.
 
 ## Earlier phases
 
 - **P0 bench and quota ledger:** `packages/bench`: 30 seeded and 300 generated bug tasks, and the scorer that runs a task's Playwright checks against a copy of Canvas with no model call.
 - **P1 repro agent:** `packages/repro-agent`: a loop that asks a model for a Playwright script, runs it, revises on error and stops at a cap with a named stop reason.
+- **P2 dom2src:** `packages/dom2src-plugin`: a Vite plugin that stamps `data-src="file:line:col"` on elements in dev and test builds.
 
 ## Sources
 
-Built from `PLAN.md` (Architecture) and, where they exist, the `docs/architecture/pN.md` "As built" sections. Edges not stated word for word there: `RVERIFY --> SCORER` (the verifier runs a script on a task's buggy and golden trees); `SEEDED -.-> ABL` (retrievers are scored by the golden patch's file).
+Built from `PLAN.md` (Architecture) and, where they exist, the `docs/architecture/pN.md` "As built" sections. Edges not stated word for word there: `RVERIFY --> SCORER` (the verifier runs a script on a task's buggy and golden trees); `SEEDED -.-> ABL` (retrievers are scored by the golden patch's file); `GATES --> SCORER` (the `bench` gate).
