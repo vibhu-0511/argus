@@ -1,0 +1,18 @@
+{
+  "$id": "https://argus.local/schemas/repro/navigate.schema.json",
+  "additionalProperties": false,
+  "description": "Open an http or https URL.",
+  "properties": {
+    "url": {
+      "description": "Absolute http or https URL.",
+      "minLength": 1,
+      "title": "Url",
+      "type": "string"
+    }
+  },
+  "required": [
+    "url"
+  ],
+  "title": "NavigateArgs",
+  "type": "object"
+}

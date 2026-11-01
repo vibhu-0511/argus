@@ -13,7 +13,13 @@ argus-core = { workspace = true }
 argus-bench = { workspace = true }
 
 [tool.uv.workspace]
-members = ["packages/argus-core", "packages/bench"]
+members = ["packages/argus-core", "packages/bench", "packages/repro-agent"]
 
 [dependency-groups]
 dev = ["pytest>=8"]
+
+[tool.pytest.ini_options]
+markers = [
+    "docker: needs a Docker daemon and builds or runs the sandbox image",
+    "live_app: needs the Playwright MCP server via npx",
+]
