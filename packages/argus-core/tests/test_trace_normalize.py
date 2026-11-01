@@ -14,7 +14,8 @@ from opentelemetry.trace import Status, StatusCode
 
 from argus_core import telemetry
 from argus_core.telemetry import TraceConfigError, trace_config
-from argus_core.trace_normalize import KNOWN, PROFILES, NormalizingExporter
+from argus_core import trace_normalize
+from argus_core.trace_normalize import KNOWN, PROFILES, NormalizingExporter, UnmappedAttribute
 
 # Written out by hand, not read from PROFILES: (profile, argus attribute) -> (sample value, backend attribute, expected value).
 EXPECTED = {
@@ -38,10 +39,10 @@ EXPECTED = {
 }
 
 
-def _export(profile: str, attributes: dict, **span_fields):
+def _export(profile: str, attributes: dict, strict: bool = False, **span_fields):
     """One span with `attributes` through a real provider and `NormalizingExporter(profile)`; returns (span, exporter)."""
     memory = InMemorySpanExporter()
-    exporter = NormalizingExporter(memory, profile)
+    exporter = NormalizingExporter(memory, profile, strict)
     provider = TracerProvider(resource=Resource.create({"argus.trace.schema_version": "1"}))
     provider.add_span_processor(SimpleSpanProcessor(exporter))
     with provider.get_tracer("argus").start_as_current_span("chat m", attributes=attributes, **span_fields):
@@ -58,7 +59,7 @@ def test_every_rule_has_a_test_row():
 @pytest.mark.parametrize("profile,name", sorted(EXPECTED))
 def test_mapped_attribute(profile, name):
     value, target, expected = EXPECTED[profile, name]
-    span, exporter = _export(profile, {name: value})
+    span, exporter = _export(profile, {name: value}, strict=True)
     assert span.attributes == {target: expected}
     assert not exporter.unmapped
 
@@ -140,3 +141,46 @@ def test_start_tracing_exposes_the_unmapped_counter(monkeypatch):
     provider.shutdown()
     telemetry.start_tracing(InMemorySpanExporter())  # a passed exporter is not normalized, so nothing is counted
     assert telemetry.unmapped_attributes() == Counter()
+
+
+# P5-T24: a semconv revision renames `gen_ai.usage.input_tokens`. The new name below is made up; the spec has not done this.
+RENAMED = "gen_ai.usage.input_token_count"
+
+
+def test_a_renamed_attribute_trips_strict_mode_in_every_profile():
+    for profile in PROFILES:
+        exporter = NormalizingExporter(InMemorySpanExporter(), profile, strict=True)
+        with pytest.raises(UnmappedAttribute, match=RENAMED):
+            exporter.normalize({RENAMED: 100, "gen_ai.operation.name": "chat"})
+        assert exporter.unmapped == Counter({RENAMED: 1})  # counted before it raised
+
+
+def test_strict_mode_is_off_by_default_and_can_come_from_the_environment(monkeypatch):
+    span, exporter = _export("phoenix", {RENAMED: 100})  # production default: passes through, counted
+    assert span.attributes == {RENAMED: 100} and exporter.unmapped == Counter({RENAMED: 1})
+    monkeypatch.setenv("ARGUS_TRACE_STRICT", "1")
+    with pytest.raises(UnmappedAttribute):
+        NormalizingExporter(InMemorySpanExporter(), "phoenix").normalize({RENAMED: 100})
+
+
+def test_strict_mode_inside_a_run_drops_the_span_and_does_not_raise(caplog):
+    memory = InMemorySpanExporter()
+    provider = TracerProvider()
+    provider.add_span_processor(SimpleSpanProcessor(NormalizingExporter(memory, "phoenix", strict=True)))
+    with caplog.at_level(logging.ERROR):
+        with provider.get_tracer("argus").start_as_current_span("chat m", attributes={RENAMED: 100}):
+            pass  # the SDK catches the error: the code that made the span carries on
+    assert memory.get_finished_spans() == ()
+    assert "Exception while exporting Span" in caplog.text
+
+
+def test_adding_the_new_name_with_the_old_one_kept_as_alias_fixes_it(monkeypatch):
+    # The fix: the new name goes into KNOWN and into each profile that maps the old one. `gen_ai.usage.input_tokens` stays.
+    monkeypatch.setattr(trace_normalize, "KNOWN", KNOWN | {RENAMED})
+    monkeypatch.setitem(PROFILES["phoenix"], RENAMED, PROFILES["phoenix"]["gen_ai.usage.input_tokens"])
+    span, exporter = _export("phoenix", {RENAMED: 100}, strict=True)
+    assert span.attributes == {"llm.token_count.prompt": 100} and not exporter.unmapped
+    span, exporter = _export("phoenix", {"gen_ai.usage.input_tokens": 100}, strict=True)  # the old name still maps
+    assert span.attributes == {"llm.token_count.prompt": 100} and not exporter.unmapped
+    span, exporter = _export("langfuse", {RENAMED: 100}, strict=True)  # a profile that passes tokens through unchanged
+    assert span.attributes == {RENAMED: 100} and not exporter.unmapped

@@ -223,8 +223,8 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 ## Week 20 — P5, P5.5 (19 h scheduled)
 
 - [ ] P5-T23 Verify a full run's trace in Langfuse and link it from the README [CLAUDE] 2h
-- [ ] P5-T24 Break it: rename a span attribute as a semconv update would [ME] 2h
-- [ ] P5-T25 Break it: make the trace backend unreachable [ME] 2h
+- [x] P5-T24 Break it: rename a span attribute as a semconv update would [ME] 2h
+- [x] P5-T25 Break it: make the trace backend unreachable [ME] 2h
 - [x] P5-T26 Break it: put a timestamp at the top of the system prompt [ME] 2h
 - [ ] P5-T27 Break it: route a hard fix step to the cheap tier [ME] 2h
 - [ ] P5-T28 Write package README and phase report against P4 [CLAUDE] 1h
