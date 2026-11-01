@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Argus eval dashboard</title>
+<style>
+:root {
+  --bg: #ffffff; --ink: #1b1f24; --muted: #4a5360; --line: #d0d5dc; --card: #f5f7fa; --warn-bg: #fff4d6; --warn-ink: #5c4300;
+  --c0: #1f5fbf; --c1: #b3470f; --c2: #1a7f5a; --c3: #7a3fb0; --c4: #8a6d00; --c5: #b0245a;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14171b; --ink: #e8ebef; --muted: #aab3bf; --line: #3a424c; --card: #1d2228; --warn-bg: #3b3000; --warn-ink: #ffe9a8;
+    --c0: #6ea8fe; --c1: #f0a070; --c2: #5fcf9f; --c3: #c39bf0; --c4: #e2c04a; --c5: #f08ab0;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+header, main, footer { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
+h1 { font-size: 1.6rem; margin: 24px 0 4px; }
+h2 { font-size: 1.25rem; margin: 32px 0 8px; }
+h3 { font-size: 1.05rem; margin: 0 0 4px; }
+p { margin: 4px 0 12px; }
+.muted { color: var(--muted); }
+.note { background: var(--warn-bg); color: var(--warn-ink); border-left: 4px solid currentColor; padding: 8px 12px; margin: 8px 0; }
+.badge { font-size: .75rem; font-weight: 700; border: 1px solid currentColor; padding: 0 5px; border-radius: 3px; white-space: nowrap; }
+.wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; font-variant-numeric: tabular-nums; }
+caption { text-align: left; font-weight: 600; padding-bottom: 4px; }
+th, td { border-bottom: 1px solid var(--line); padding: 4px 8px; text-align: right; vertical-align: top; }
+th:first-child, td:first-child, .left { text-align: left; }
+thead th { border-bottom: 2px solid var(--line); }
+.pickers { display: flex; gap: 16px; flex-wrap: wrap; margin: 8px 0; }
+label { display: flex; flex-direction: column; font-size: .85rem; color: var(--muted); }
+select { font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--muted); border-radius: 4px; padding: 4px; min-width: 14rem; max-width: 100%; }
+:focus-visible { outline: 3px solid var(--c0); outline-offset: 2px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 12px 16px; margin: 12px 0; }
+.pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 720px) { .pair { grid-template-columns: minmax(0, 1fr); } }
+.legend { list-style: none; display: flex; gap: 4px 16px; flex-wrap: wrap; padding: 0; margin: 4px 0 8px; font-size: .85rem; }
+.legend li { display: flex; align-items: center; gap: 6px; }
+svg.chart { width: 100%; height: auto; display: block; }
+svg text { fill: var(--ink); font: 11px system-ui, sans-serif; }
+svg .axis text { fill: var(--muted); }
+svg .grid { stroke: var(--line); stroke-width: 1; }
+svg .whisk { stroke: var(--ink); stroke-width: 1.5; }
+svg .mu { fill-opacity: .4; stroke-dasharray: 3 2; stroke-width: 1.5; }
+#runs th, #runs td { text-align: left; }
+code { font-size: .85em; background: var(--card); padding: 0 4px; border-radius: 3px; }
+footer { margin: 32px auto; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Argus eval dashboard</h1>
+  <p class="muted">Phase-over-phase table and one chart per metric, built from the results JSON files listed under “Runs”. A missing value shows as “—”, never as zero.</p>
+  <noscript><p class="note">This page needs JavaScript to draw its tables and charts.</p></noscript>
+</header>
+
+<main>
+  <section aria-labelledby="h-phase">
+    <h2 id="h-phase">Phase over phase</h2>
+    <div class="pickers">
+      <label for="pick-prev">Previous phase<select id="pick-prev"></select></label>
+      <label for="pick-this">This phase<select id="pick-this"></select></label>
+    </div>
+    <div id="phase-note"></div>
+    <div class="wrap" id="phase-table" tabindex="0" role="region" aria-label="Phase over phase table, scrollable"></div>
+    <p class="muted">Tokens/bug is tokens in + out per scored task (cached tokens are already inside tokens in). $-equivalent is list price per scored task. A delta needs both sides. Same table as <code>python -m eval report</code>.</p>
+  </section>
+
+  <section aria-labelledby="h-charts">
+    <h2 id="h-charts">Metrics by run</h2>
+    <div id="charts"></div>
+  </section>
+
+  <section aria-labelledby="h-runs">
+    <h2 id="h-runs">Runs</h2>
+    <div class="wrap" id="runs" tabindex="0" role="region" aria-label="Runs table, scrollable"></div>
+  </section>
+</main>
+
+<footer class="muted">
+  Data: <code>data.js</code>, written by <code>python packages/dashboard/build.py</code> from results files that follow <code>packages/eval/schemas/results.schema.json</code>.
+</footer>
+
+<script src="data.js"></script>
+<script>
+"use strict";
+const RUNS = window.ARGUS_RUNS || [];
+const DASH = "—";
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const gone = (v) => v === null || v === undefined;   // missing: null or absent, never 0
+const orDash = (v, f) => (gone(v) ? DASH : f(v));
+const int = (v) => v.toLocaleString("en-US", { maximumFractionDigits: 0 });
+const pct = (v) => (v * 100).toFixed(1) + "%";
+const sgn = (x) => (x < 0 || Object.is(x, -0) ? "-" : "+");
+const name = (r) => r.run_id + (r.made_up ? " (made up)" : "");
+const color = (i) => `var(--c${i % 6})`;
+
+/* ---- phase table: same rules as packages/eval/src/eval/report.py ---- */
+function values(r) {
+  const per = r.tokens.per_task, total = r.resolve_rate.total, usd = r["$_equivalent"];
+  return [
+    r.resolve_rate.rate,
+    gone(per) ? null : per.tokens_in + per.tokens_out,
+    gone(usd) || !total ? null : usd / total,
+    r.latency_s.p50,
+    r.latency_s.p95,
+  ];
+}
+function cells(r, v) {
+  const rr = r.resolve_rate;
+  return [
+    orDash(v[0], (x) => `${pct(x)} (${rr.successes}/${rr.total})`),
+    orDash(v[1], int),
+    orDash(v[2], (x) => "$" + x.toFixed(4)),
+    orDash(v[3], (x) => x.toFixed(1) + " s"),
+    orDash(v[4], (x) => x.toFixed(1) + " s"),
+  ];
+}
+const pctOf = (n, o) => (o ? ` (${sgn(n - o)}${(Math.abs(n - o) / Math.abs(o) * 100).toFixed(1)}%)` : "");
+function delta(p, t) {
+  const d = (i, f) => (gone(p[i]) || gone(t[i]) ? DASH : f(t[i], p[i]));
+  return [
+    d(0, (b, a) => `${sgn(b - a)}${Math.abs((b - a) * 100).toFixed(1)} pp`),
+    d(1, (b, a) => `${sgn(b - a)}${int(Math.abs(b - a))}${pctOf(b, a)}`),
+    d(2, (b, a) => `${b >= a ? "+" : "-"}$${Math.abs(b - a).toFixed(4)}${pctOf(b, a)}`),
+    d(3, (b, a) => `${sgn(b - a)}${Math.abs(b - a).toFixed(1)} s`),
+    d(4, (b, a) => `${sgn(b - a)}${Math.abs(b - a).toFixed(1)} s`),
+  ];
+}
+function phaseTable(prev, cur) {
+  const empty = Array(5).fill(DASH);
+  const pv = prev && values(prev), tv = cur && values(cur);
+  const rows = [
+    ["Previous phase", prev ? cells(prev, pv) : empty, prev && name(prev)],
+    ["This phase", cur ? cells(cur, tv) : empty, cur && name(cur)],
+    ["Delta", pv && tv ? delta(pv, tv) : empty, ""],
+  ];
+  const head = ["Report", "Resolve rate", "Tokens/bug", "$-equivalent", "p50 latency", "p95 latency"];
+  return `<table><thead><tr>${head.map((h) => `<th scope="col">${h}</th>`).join("")}</tr></thead><tbody>` +
+    rows.map(([n, c, who]) => `<tr><th scope="row">${n}${who ? `<br><span class="muted">${esc(who)}</span>` : ""}</th>${c.map((x) => `<td>${esc(x)}</td>`).join("")}</tr>`).join("") +
+    "</tbody></table>";
+}
+
+/* ---- charts: horizontal bars, one colour per run, optional interval whisker ---- */
+function niceStep(raw) {
+  const p = 10 ** Math.floor(Math.log10(raw)), f = raw / p;
+  return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * p;
+}
+function chartSvg(spec, id) {
+  const W = 360, L = 8, R = 60, PW = W - L - R, BAR = 14, GAP = 4, LABEL = 16, GROUP = 10, AXIS = 22;
+  const pts = spec.cats.map((_, j) => RUNS.map((r) => spec.points(r)[j]));
+  const top = Math.max(0, ...pts.flat().flatMap((p) => [p.v, p.hi]).filter((x) => !gone(x)));
+  let step = spec.step || niceStep((top || 1) / 5);
+  const max = spec.max || Math.ceil((top || 1) / step) * step;
+  const empty = !pts.flat().some((p) => !gone(p.v));
+  const x = (v) => L + (v / max) * PW;
+  const gh = LABEL + RUNS.length * (BAR + GAP) + GROUP;
+  const H = spec.cats.length * gh + (empty ? 0 : AXIS);
+  let g = "", axis = "";
+  for (let i = 0; !empty && i * step <= max + 1e-9; i++) {
+    const t = +(i * step).toPrecision(10);
+    axis += `<line class="grid" x1="${x(t)}" x2="${x(t)}" y1="0" y2="${H - AXIS}"/><text x="${x(t)}" y="${H - 6}" text-anchor="${t === 0 ? "start" : "middle"}">${esc(spec.tick(t))}</text>`;
+  }
+  spec.cats.forEach((cat, j) => {
+    const y0 = j * gh;
+    g += `<text x="${L}" y="${y0 + 12}" font-weight="600">${esc(cat)}</text>`;
+    RUNS.forEach((r, i) => {
+      const p = pts[j][i], y = y0 + LABEL + i * (BAR + GAP), mid = y + BAR / 2;
+      if (gone(p.v)) {
+        g += `<text x="${L + 4}" y="${mid + 4}">${DASH}</text>`;
+        return;
+      }
+      g += `<rect class="${r.made_up ? "mu" : ""}" x="${L}" y="${y}" width="${Math.max(0, x(p.v) - L)}" height="${BAR}" fill="${color(i)}" stroke="${color(i)}"/>`;
+      let end = x(p.v);
+      if (!gone(p.lo) && !gone(p.hi)) {
+        g += `<path class="whisk" d="M${x(p.lo)} ${mid}H${x(p.hi)}M${x(p.lo)} ${y + 2}V${y + BAR - 2}M${x(p.hi)} ${y + 2}V${y + BAR - 2}"/>`;
+        end = x(p.hi);
+      }
+      g += `<text x="${end + 6}" y="${mid + 4}">${esc(spec.fmt(p.v))}</text>`;
+    });
+  });
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-labelledby="${id}-t ${id}-d">` +
+    `<title id="${id}-t">${esc(spec.title)}</title><desc id="${id}-d">${esc(spec.desc)} The same numbers are in the table next to the chart.</desc>` +
+    `<g class="axis">${axis}</g>${g}</svg>`;
+}
+const legend = () => `<ul class="legend">` + RUNS.map((r, i) =>
+  `<li><svg width="14" height="14" aria-hidden="true"><rect class="${r.made_up ? "mu" : ""}" x="1" y="1" width="12" height="12" fill="${color(i)}" stroke="${color(i)}"/></svg>${esc(name(r))}</li>`).join("") + "</ul>";
+
+const rate = (m, k) => ({ v: gone(m) ? null : m[k].value });
+const frac = (m, k) => (gone(m) || gone(m[k].value) ? DASH : `${pct(m[k].value)} (${m[k].num}/${m[k].den})`);
+const SPECS = [
+  {
+    id: "rate", title: "Resolve rate with 95% Wilson interval", desc: "Resolve rate per run as a bar, with the interval as a whisker.",
+    cats: ["Resolve rate"], max: 1, step: 0.25, fmt: pct, tick: (t) => Math.round(t * 100) + "%",
+    points: (r) => [{ v: r.resolve_rate.rate, lo: r.resolve_rate.ci_low, hi: r.resolve_rate.ci_high }],
+    head: ["Run", "Resolve rate", "Interval", "Resolved / scored"],
+    row: (r) => { const q = r.resolve_rate; return [orDash(q.rate, pct), gone(q.ci_low) ? DASH : `${pct(q.ci_low)} to ${pct(q.ci_high)}`, `${q.successes} / ${q.total}`]; },
+  },
+  {
+    id: "tokens", title: "Tokens per bug (in + out)", desc: "Tokens in plus tokens out per scored task, per run.",
+    cats: ["Tokens per bug"], fmt: int, tick: (t) => (t >= 1000 ? t / 1000 + "k" : t),
+    points: (r) => [{ v: gone(r.tokens.per_task) ? null : r.tokens.per_task.tokens_in + r.tokens.per_task.tokens_out }],
+    head: ["Run", "In", "Out", "Cached (inside in)", "In + out"],
+    row: (r) => { const p = r.tokens.per_task; return gone(p) ? Array(4).fill(DASH) : [int(p.tokens_in), int(p.tokens_out), int(p.tokens_cached), int(p.tokens_in + p.tokens_out)]; },
+  },
+  {
+    id: "latency", title: "Latency per task, seconds", desc: "Median (p50) and 95th percentile (p95) latency per run.",
+    cats: ["p50", "p95"], fmt: (v) => v.toFixed(1) + " s", tick: (t) => t,
+    points: (r) => [{ v: r.latency_s.p50 }, { v: r.latency_s.p95 }],
+    head: ["Run", "p50", "p95", "Tasks with a latency"],
+    row: (r) => [orDash(r.latency_s.p50, (x) => x.toFixed(1) + " s"), orDash(r.latency_s.p95, (x) => x.toFixed(1) + " s"), r.latency_s.n],
+  },
+  {
+    id: "traj", title: "Trajectory metrics (rates)", desc: "Tool-error, redundant-call, stuck and recover-after-gate-failure rates per run.",
+    cats: ["Tool errors", "Redundant calls", "Stuck", "Recover after gate failure"], max: 1, step: 0.25, fmt: pct, tick: (t) => Math.round(t * 100) + "%",
+    points: (r) => { const m = r.trajectory_metrics; return ["tool_error_rate", "redundant_call_rate", "stuck_rate", "recover_after_gate_failure_rate"].map((k) => rate(m, k)); },
+    head: ["Run", "Runs", "Mean steps", "Tool errors", "Redundant calls", "Stuck", "Recover"],
+    row: (r) => { const m = r.trajectory_metrics; return gone(m) ? Array(6).fill(DASH) : [m.trajectories, m.steps.mean.toFixed(1), frac(m, "tool_error_rate"), frac(m, "redundant_call_rate"), frac(m, "stuck_rate"), frac(m, "recover_after_gate_failure_rate")]; },
+  },
+];
+function chartCard(spec) {
+  const id = "ch-" + spec.id;
+  const empty = RUNS.every((r) => spec.points(r).every((p) => gone(p.v)));
+  const body = RUNS.map((r, i) => `<tr><th scope="row">${esc(name(r))}</th>${spec.row(r).map((c) => `<td>${esc(c)}</td>`).join("")}</tr>`).join("");
+  return `<article class="card" aria-labelledby="${id}-h"><h3 id="${id}-h">${esc(spec.title)}</h3>` +
+    (empty ? `<p class="muted">No loaded run recorded this metric, so nothing is drawn.</p>` : "") +
+    legend() + `<div class="pair"><div>${chartSvg(spec, id)}</div>` +
+    `<div class="wrap" tabindex="0" role="region" aria-label="${esc(spec.title)} table, scrollable"><table><caption>${esc(spec.title)}, as numbers</caption>` +
+    `<thead><tr>${spec.head.map((h) => `<th scope="col">${esc(h)}</th>`).join("")}</tr></thead><tbody>${body}</tbody></table></div></div></article>`;
+}
+
+/* ---- runs list ---- */
+function runsTable() {
+  const rows = RUNS.map((r) => {
+    const c = r.counts, a = r.agent, params = Object.entries(a.params || {}).map(([k, v]) => `${k}: ${v}`).join("; ");
+    return `<tr><th scope="row">${esc(r.run_id)} ${r.made_up ? '<span class="badge">MADE UP</span>' : ""}</th>` +
+      `<td class="left">${esc(a.name)}<br><span class="muted">${esc(a.model)} on ${esc(a.host)}</span></td><td>${esc(r.created_at)}</td>` +
+      `<td class="left"><code>${esc(r.source)}</code></td><td>${c.resolved} / ${c.unresolved} / ${c.excluded} / ${c.error}</td><td class="left">${esc(params)}</td></tr>`;
+  }).join("");
+  const head = ["Run", "Agent", "Created", "Results file", "Resolved / unresolved / excluded / error", "Notes from the file"];
+  return `<table><thead><tr>${head.map((h) => `<th scope="col">${h}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table>` +
+    `<p class="muted">Runs marked MADE UP are test fixtures with invented numbers, not measurements. Excluded tasks are not in the resolve-rate total.</p>`;
+}
+
+/* ---- wire up ---- */
+function init() {
+  if (!RUNS.length) { $("phase-table").textContent = "No results loaded. Run python packages/dashboard/build.py."; return; }
+  // default like report_files: last real run is "this phase", the real one before it is "previous"
+  const real = RUNS.map((r, i) => i).filter((i) => !RUNS[i].made_up);
+  const pool = real.length ? real : RUNS.map((_, i) => i);
+  const dflt = { prev: pool.length > 1 ? pool[pool.length - 2] : "", cur: pool[pool.length - 1] };
+  const opts = (sel, who) => {
+    sel.innerHTML = `<option value="">none (dashes)</option>` + RUNS.map((r, i) => `<option value="${i}">${esc(name(r))}</option>`).join("");
+    sel.value = String(who);
+  };
+  const draw = () => {
+    const p = $("pick-prev").value, c = $("pick-this").value;
+    const prev = p === "" ? null : RUNS[+p], cur = c === "" ? null : RUNS[+c];
+    $("phase-table").innerHTML = phaseTable(prev, cur);
+    $("phase-note").innerHTML = (prev && prev.made_up) || (cur && cur.made_up)
+      ? `<p class="note" role="note"><strong>Made-up fixture selected.</strong> At least one of these runs has invented numbers; the row is a test of the table, not a measurement.</p>` : "";
+  };
+  opts($("pick-prev"), dflt.prev); opts($("pick-this"), dflt.cur);
+  $("pick-prev").onchange = $("pick-this").onchange = draw;
+  draw();
+  $("charts").innerHTML = (RUNS.some((r) => r.made_up) ? `<p class="note" role="note"><strong>Made-up fixtures are charted too.</strong> Dashed, lighter bars and “(made up)” in the name mark runs with invented numbers.</p>` : "") + SPECS.map(chartCard).join("");
+  $("runs").innerHTML = runsTable();
+}
+init();
+</script>
+</body>
+</html>
