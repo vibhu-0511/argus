@@ -46,15 +46,23 @@ class Container:
     def __init__(self, name: str) -> None:
         assert name.startswith(NAME_PREFIX), f"{CONTAINER_ENV} must name a container that starts with {NAME_PREFIX}"
         self.name = name
+        self.stopped_at = self.started_at = 0.0  # time.monotonic() when `docker stop` / `docker start` returned
 
     def _docker(self, *args: str) -> None:
         subprocess.run(["docker", *args, self.name], check=True, capture_output=True, timeout=60)
 
     def stop(self) -> None:
         self._docker("stop")
+        self.stopped_at = time.monotonic()
 
     def start(self) -> None:
         self._docker("start")
+        if self.started_at < self.stopped_at:  # the first start after a stop; a later no-op start does not move it
+            self.started_at = time.monotonic()  # the process is up; it may need a moment more to accept connections
+
+    @property
+    def down_seconds(self) -> float:
+        return self.started_at - self.stopped_at
 
     def start_later(self, seconds: float) -> threading.Thread:
         """Start the server again after `seconds`, from another thread, and return that thread."""
