@@ -257,8 +257,8 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 - [x] P6-T02 Design the workflow state machine: states, transitions, idempotency keys [ME] 3h
 - [ ] P6-T03 Implement the workflow with DBOS durable steps against a local Postgres [ME] 4h
 - [ ] P6-T04 Dispatch agent jobs to GitHub Actions as the execution plane and collect artifacts [PAIR] 3h
-- [ ] P6-T05 Build the FastAPI webhook endpoint with HMAC signature verification [PAIR] 2h
-- [ ] P6-T06 Treat webhooks as hints: enqueue a reconcile and return immediately [ME] 1h
+- [x] P6-T05 Build the FastAPI webhook endpoint with HMAC signature verification [PAIR] 2h
+- [x] P6-T06 Treat webhooks as hints: enqueue a reconcile and return immediately [ME] 1h
 - [ ] P6-T07 Build the reconciliation poller that rebuilds state from GitHub [ME] 3h
 - [ ] P6-T08 Add the QA signal wait with a timeout [ME] 2h
 
@@ -280,7 +280,7 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 
 - [ ] P6-T20 Add CI job for flow tests with a Postgres service container, no LLM [CLAUDE] 2h
 - [ ] P6-T21 Break it: kill the worker after the PR is opened but before state is saved [ME] 2h
-- [ ] P6-T22 Break it: deliver the same webhook twice [ME] 2h
+- [x] P6-T22 Break it: deliver the same webhook twice [ME] 2h
 - [ ] P6-T23 Break it: let Render sleep and drop a webhook [ME] 2h
 - [ ] P6-T24 Break it: suspend Neon mid-run [ME] 2h
 - [ ] P6-T25 Write package README and phase report against P5 [CLAUDE] 1h
