@@ -1,0 +1,14 @@
+{
+  "name": "p55-t08-with-skills",
+  "model": "claude-sonnet-5-5",
+  "host": "claude-session",
+  "factory": "eval.t14_turn:replay",
+  "params": {
+    "out_dir": "packages/eval/results/t08/S",
+    "fix_only": true,
+    "claude_session": true,
+    "skills": true,
+    "token_source": "chars/4 estimate of the messages; excludes subagent harness overhead; fix stage only",
+    "latency": "wall clock of the whole task including coordinator waits; several tasks ran at once; not comparable across the two rows"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "p55-t08-without-skills",
+  "model": "claude-sonnet-5-5",
+  "host": "claude-session",
+  "factory": "eval.t14_turn:replay",
+  "params": {
+    "out_dir": "packages/eval/results/t14/A",
+    "fix_only": true,
+    "claude_session": true,
+    "skills": false,
+    "token_source": "chars/4 estimate of the messages; excludes subagent harness overhead; fix stage only (the stored P5-T14 variant A also ran a repro stage that is left out here)",
+    "latency": "wall clock of the whole task including coordinator waits; several tasks ran at once; not comparable across the two rows"
+  }
+}

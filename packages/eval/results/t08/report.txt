@@ -1,0 +1,45 @@
+held-out runnable tasks: 29
+| Row | Resolve rate (95% CI, Wilson) | Tokens/bug in / out / cached (fix stage, chars/4) | Fix steps/bug | $-equivalent/bug | p50 / p95 wall | Skills loaded |
+|---|---|---|---|---|---|---|
+| without skills (P5-T14 variant A, stored) | 70.4% (19/27) [51.5%, 84.1%] | 37,419 / 205 / 0 | 7.6 | $0.0769 | 992 s / 1,830 s | 0 in 0 of 29 runs |
+| with skills (variant S) | 72.4% (21/29) [54.3%, 85.3%] | 40,199 / 201 / 0 | 7.8 | $0.0824 | 1,106 s / 2,361 s | 14 in 14 of 29 runs |
+
+Paired on 27 tasks scored in both rows: both 19, neither 8, without only 0, with only 0
+On those same tasks, mean per bug (fix stage): without tokens in 37,419, out 205, steps 7.6, fix turns 7.7; with tokens in 40,470, out 203, steps 7.9, fix turns 7.9
+With skills, by whether a skill was loaded: loaded in 14 runs, 10 resolved; not loaded in 15 runs, 11 resolved.
+Excluded by the scorer (exit 2): {'without': ['seed-h06', 'seed-h09'], 'with': []}. Without a verdict: {'without': [], 'with': []}.
+Worker steps (model turns): fix stage without 228, with 227; all stages incl. repro without 311, with 227. Trajectory steps: without 222, with 227.
+
+Skills loaded, runs that loaded each (row with skills): css-rule-missing-for-class 2, css-value-changed-in-existing-rule 12
+
+| Task | Without | With | Steps without / with | Skills loaded (with) | Stop (with) |
+|---|---|---|---|---|---|
+| seed-e01 | resolved | resolved | 8 / 6 | css-value-changed-in-existing-rule | submit |
+| seed-e02 | resolved | resolved | 3 / 7 | css-value-changed-in-existing-rule | submit |
+| seed-e03 | resolved | resolved | 5 / 6 | css-value-changed-in-existing-rule | submit |
+| seed-e04 | resolved | resolved | 4 / 5 | css-value-changed-in-existing-rule | submit |
+| seed-e05 | resolved | resolved | 8 / 5 | css-rule-missing-for-class | submit |
+| seed-e06 | resolved | resolved | 11 / 11 | none | submit |
+| seed-e07 | resolved | resolved | 18 / 7 | css-value-changed-in-existing-rule | submit |
+| seed-e08 | resolved | resolved | 3 / 4 | css-value-changed-in-existing-rule | submit |
+| seed-e09 | resolved | resolved | 4 / 4 | none | submit |
+| seed-e10 | resolved | resolved | 4 / 5 | css-value-changed-in-existing-rule | submit |
+| seed-h01 | unresolved | unresolved | 9 / 15 | css-value-changed-in-existing-rule | submit |
+| seed-h02 | resolved | resolved | 5 / 6 | none | submit |
+| seed-h03 | resolved | resolved | 9 / 8 | none | submit |
+| seed-h04 | unresolved | unresolved | 8 / 17 | none | submit |
+| seed-h05 | unresolved | unresolved | 12 / 13 | none | submit |
+| seed-h06 | excluded | resolved | 4 / 7 | none | submit |
+| seed-h07 | unresolved | unresolved | 8 / 8 | css-value-changed-in-existing-rule | submit |
+| seed-h08 | resolved | resolved | 5 / 6 | css-value-changed-in-existing-rule | submit |
+| seed-h09 | excluded | resolved | 13 / 8 | none | submit |
+| seed-h10 | unresolved | unresolved | 11 / 20 | none | step-cap |
+| seed-m01 | unresolved | unresolved | 7 / 7 | css-value-changed-in-existing-rule | submit |
+| seed-m02 | resolved | resolved | 20 / 6 | none | submit |
+| seed-m03 | resolved | resolved | 7 / 5 | none | submit |
+| seed-m04 | unresolved | unresolved | 6 / 6 | none | submit |
+| seed-m05 | unresolved | unresolved | 5 / 9 | css-rule-missing-for-class | submit |
+| seed-m06 | resolved | resolved | 10 / 6 | none | submit |
+| seed-m07 | resolved | resolved | 5 / 9 | css-value-changed-in-existing-rule | submit |
+| seed-m08 | resolved | resolved | 5 / 5 | none | submit |
+| seed-m09 | resolved | resolved | 5 / 6 | none | submit |
