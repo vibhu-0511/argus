@@ -244,8 +244,10 @@ def _replay(out: Path, quiet: bool = False) -> int:
 
 
 def replay(config: AgentConfig):
-    """Agent factory for `eval.runner.run_eval`: reads the finished runs under params.out_dir, calls no model."""
+    """Agent factory for `eval.runner.run_eval`: reads the finished runs under params.out_dir, calls no model.
+    `params.fix_only` leaves the repro trajectory out of the totals (P5.5-T17: variant A next to variant S, which has no repro stage)."""
     base = Path(config.params["out_dir"])
+    stages = ("fix",) if config.params.get("fix_only") else ("repro", "fix")
 
     def agent(task: Task) -> Outcome:
         out = base / task.id
@@ -253,7 +255,7 @@ def replay(config: AgentConfig):
             verdict = json.loads((out / "verdict.json").read_text(encoding="utf-8"))
         except FileNotFoundError:
             return Outcome("error", reason="no verdict.json: the run did not finish")
-        paths = [p for p in (out / "repro" / "trajectory.jsonl", out / "fix" / "trajectory.jsonl") if p.exists()]
+        paths = [p for p in (out / s / "trajectory.jsonl" for s in stages) if p.exists()]
         tin, tout, tcached, dollars = _totals(paths)
         fix = out / "fix" / "trajectory.jsonl"
         steps = len(Trajectory.from_jsonl(fix.read_text(encoding="utf-8")).steps) if fix.exists() else None

@@ -248,7 +248,7 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 - [x] P5.5-T14 Break it: activate a skill that tries to send data out over the network [ME] 2h
 - [x] P5.5-T15 Break it: write a skill whose description matches every ticket [ME] 2h
 - [x] P5.5-T16 Break it: leave a skill that names a file since renamed [ME] 2h
-- [ ] P5.5-T17 Write package README and phase report against P5 [CLAUDE] 1h
+- [x] P5.5-T17 Write package README and phase report against P5 [CLAUDE] 1h (rows from stored results files; the previous-phase row is P5 variant B and is not the same method, see `docs/notes/p5.5-t17.md`)
 
 ## Week 22 — P6 (20 h scheduled)
 

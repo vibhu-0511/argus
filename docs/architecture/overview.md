@@ -1,6 +1,6 @@
 # Architecture overview (P0 to P5.5)
 
-As-built view of Argus after phase P5.5 (so far). Later phases are not drawn. This file grows by one phase in each stacked pull request; the diagram source is the same text the PR description shows.
+As-built view of Argus after phase P5.5. Later phases are not drawn. This file grows by one phase in each stacked pull request; the diagram source is the same text the PR description shows.
 
 ```mermaid
 flowchart LR
@@ -82,6 +82,15 @@ flowchart LR
   subgraph S55 ["P5.5 skills (NEW IN THIS PR)"]
     SPLIT["train and held-out split<br/>check: no shared task or file-operator pair"]:::p55
     SKLOAD["skill loader<br/>catalog in prompt, load_skill returns a body"]:::p55
+    TRUST["trust checks<br/>review flag, hash pin, tool allowlist, cap of 3"]:::p55
+    LOCK["skills.lock.json<br/>owner's sign-off, pin command"]:::p55
+    SKILLS["5 reviewed skills<br/>SKILL.md only, hash-pinned"]:::p55
+    COLLECT["trajectory collection<br/>20 resolved train runs"]:::p55
+    DRAFTER["draft script<br/>unreviewed drafts, frontmatter written by script"]:::p55
+    SLINT["skills lint<br/>skills-lint.yml, no model"]:::p55
+    SELECT["selection test<br/>catalog only, 7 of 10 right"]:::p55
+    SABL["with vs without skills<br/>29 held-out tasks, no gain seen"]:::p55
+    BREAKS["break-it tests<br/>poisoned, always-matching, stale"]:::p55
   end
 
   BUGSMITH --> FILTER
@@ -166,6 +175,21 @@ flowchart LR
   MUTANTS -- "train pool" --> SPLIT
   SKLOAD -- "catalog and load_skill tool" --> FIX
   SKLOAD -.-> TRAJ
+  SPLIT -- "train order" --> COLLECT
+  DRIVER -- "variant T, train mutants" --> COLLECT
+  COLLECT --> DRAFTER
+  DRAFTER -- "unreviewed drafts, then review" --> SKILLS
+  LOCK --> TRUST
+  TRUST --> SKLOAD
+  SKLOAD -- "reads, loads on demand" --> SKILLS
+  SLINT --> SKILLS
+  SLINT -. "the loader's own checks" .-> TRUST
+  SELECT --> SKLOAD
+  DRIVER -- "variant S, skills on" --> SKLOAD
+  SABL --> RUNNER
+  SABL -. "stored P5 variant A" .-> ABLH
+  BREAKS --> TRUST
+  BREAKS --> WT
 
   classDef p0 fill:#dbeafe,stroke:#1d4ed8,stroke-width:1.5px,color:#111827
   style S0 fill:none,stroke:#1d4ed8,stroke-width:1.5px
@@ -182,7 +206,7 @@ flowchart LR
   classDef p55 fill:#ede9fe,stroke:#6d28d9,stroke-width:4px,color:#111827
   style S55 fill:none,stroke:#6d28d9,stroke-width:4px
   classDef ext fill:#ffffff,stroke:#6b7280,color:#111827,stroke-dasharray: 4 3
-  linkStyle 78,79,80,81 stroke-width:3px
+  linkStyle 78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96 stroke-width:3px
 ```
 
 ## How to read it
@@ -197,11 +221,15 @@ flowchart LR
 
 Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink, P5.5 purple.
 
-## What P5.5 adds (so far)
+## What P5.5 adds
 
-- `packages/skills`: the train and held-out split (`python -m skills.split split|check`). Held-out is the 30 seeded tasks (29 runnable); train is 40 mutants. The check fails on a shared task id or a shared (mutated file, operator) pair. All mutants are `font-size` or `missing-style` and easy, so train covers 2 of the 6 archetypes.
-- `fix_loop.skills`: reads `packages/skills/skills/<name>/SKILL.md`, checks the format (six spec fields, body at most 8,000 characters) and gives `run_fix` a `skills` argument. The system message lists names and descriptions only; the `load_skill` tool returns one body. Twenty skills add 880 estimated tokens against 23,280 for their bodies in the test. Loads are read back from the trajectory (no schema change). One function, `trust_refusal`, is where T10 adds the trust checks; it refuses nothing today.
-- Docs: re-checked versions and the Agent Skills spec notes, including the one limit Argus enforces (body at most 8,000 characters) and where the three trust controls live.
+- `packages/skills`: five reviewed skills (`SKILL.md` only, one per bug archetype) and the tools around them. `skills.split` builds and checks the train and held-out split (held-out is the 30 seeded tasks, 29 run; train is 40 mutants; the check fails on a shared task id or a shared (file, operator) pair). `skills.collect` and `skills.draft` turn resolved train runs into unreviewed drafts. `skills.pin` is the owner's sign-off. `skills.lint` is the CI check. `skills.selection` is the catalog-only selection test.
+- `fix_loop.skills`: reads `packages/skills/skills/<name>/SKILL.md` and gives `run_fix` a `skills` argument. The system message lists names and descriptions only; the `load_skill` tool returns one body, and at most 3 load per run. Twenty skills add 880 estimated tokens against 23,280 for their bodies in the test. Loads are read back from the trajectory (no schema change).
+- Trust controls: a skill is refused unless `skills.lock.json` holds a reviewed entry with the SHA-256 of the file, and the agent may call only the tools the loaded skills allow (a skill narrows the tools, never widens them). The review flag is read from the lock, never from the file. ADR-019 says what this trusts, checks and cannot check.
+- Measured: a catalog-only selection test (7 of 10 right, 3 misses that no wording can fix because the ticket text does not tell three CSS skills apart) and a with-vs-without run on the 29 held-out tasks (variant S of `eval.t14_turn`, `eval.skills_ablation`): 21 of 29 against 19 of 27, the same outcome on all 27 paired tasks, tokens in about 8% higher, a skill loaded in 14 of 29 runs and 2 of the 5 skills ever loaded. Skills did not help. They are off by default.
+- Break-its: a skill that edits the bench checks (refused, or the read-only mount rejects the write), one that sends data out (no route, logged), one whose description matches every ticket (lint and a cap of 3), one that names a moved file (a path lint).
+- ADR-018 (format and distillation criteria: what a run must show to feed a skill, at least 3 runs per skill, a selection check before a pin, who reviews, what must be shown before skills are on by default) and ADR-019 (trust model).
+- The phase report against P5 is in `phases/P05.5-argus-skills.md`, made with `python -m eval report`; the two T08 rows are results files in `packages/eval/results/t08/`.
 - Per-task detail: `docs/architecture/p5.5.md`.
 
 ## What P5 adds (so far)

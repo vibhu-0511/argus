@@ -107,6 +107,20 @@ def test_replay_agent_reads_only_what_the_run_wrote(tmp_path: Path):
     assert agent(_task(9)).verdict == "error"
 
 
+def test_replay_fix_only_leaves_the_repro_stage_out_of_the_totals(tmp_path: Path):
+    done = tmp_path / "seed-t0"
+    _traj(done / "repro" / "trajectory.jsonl", [("strong", SONNET, 300, 40)])
+    _traj(done / "fix" / "trajectory.jsonl", [("strong", SONNET, 800, 20)])
+    (done / "verdict.json").write_text(json.dumps({"verdict": "resolved", "stop_reason": "submit", "wall_s": 1.0}), encoding="utf-8")
+
+    def tokens(**params) -> tuple[int, int]:
+        config = AgentConfig(name="n", model=SONNET, factory="eval.t14_turn:replay", params={"out_dir": str(tmp_path), **params})
+        out = t14_turn.replay(config)(_task(0))
+        return out.tokens_in, out.tokens_out
+
+    assert tokens() == (1100, 60) and tokens(fix_only=True) == (800, 20)
+
+
 def test_the_table_labels_a_claude_session_run_and_leaves_the_quota_cell_a_dash(tmp_path: Path, monkeypatch):
     from eval.ablation import DASH, table
 
