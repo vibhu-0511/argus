@@ -97,7 +97,8 @@ flowchart LR
     QMCP["MRTR elicitation tool<br/>input_required, inputResponses"]:::p6
     DBWAKE["database wake-up<br/>bounded retry with backoff, TLS required"]:::p6
     SERVICE["Render service<br/>flow.service, /health, render.yaml, not deployed"]:::p6
-    UNWIRED["GitHub write client<br/>not written, UnwiredGitHub raises"]:::p6
+    GHWRITE["GitHub write client<br/>find before act, draft PR, mock transport only"]:::p6
+    AGENTJOB["flow.agent_job<br/>runs one step, writes result.json, never run on GitHub"]:::p6
     CRASH["crash-recovery harness<br/>real process kills, ledger fakes"]:::p6
     FLOWCI["flow.yml<br/>Postgres service container, green on GitHub"]:::p6
     COLD["cold-start timer<br/>signed ping, 10 s verdict, not run"]:::p6
@@ -195,7 +196,10 @@ flowchart LR
   CFG --> WF
   WF --> ACTIONS
   ACTIONS -- "workflow_dispatch" --> AJOB
-  AJOB -. "entry point flow.agent_job not written" .-> FIX
+  AJOB --> AGENTJOB
+  AGENTJOB --> REPRO
+  AGENTJOB --> FIX
+  AGENTJOB -. "scores the patch" .-> SCORER
   ACTIONS --> GITHUB
   GREAD --> GITHUB
   RECON --> GREAD
@@ -210,7 +214,8 @@ flowchart LR
   SERVICE --> WEBHOOK
   SERVICE --> DBWAKE
   SERVICE --> RECON
-  SERVICE --> UNWIRED
+  SERVICE --> GHWRITE
+  GHWRITE --> GITHUB
   CRASH -. "hard-kills the worker" .-> WF
   FLOWCI -. "flow test suite" .-> WF
   COLD -. "times the 202" .-> WEBHOOK
@@ -231,7 +236,7 @@ flowchart LR
   classDef p6 fill:#ede9fe,stroke:#6d28d9,stroke-width:4px,color:#111827
   style S6 fill:none,stroke:#6d28d9,stroke-width:4px
   classDef ext fill:#ffffff,stroke:#6b7280,color:#111827,stroke-dasharray: 4 3
-  linkStyle 78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110 stroke-width:3px
+  linkStyle 78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114 stroke-width:3px
 ```
 
 ## How to read it
@@ -251,11 +256,11 @@ Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink, P6 violet.
 - `packages/flow`: the ticket workflow state machine (`flow.states`): ten states, 12 legal transitions, any other pair raises, and stable idempotency keys for each side effect. Pure Python, no DBOS yet.
 - A FastAPI webhook endpoint that checks GitHub's HMAC-SHA256 signature (secret from `GITHUB_WEBHOOK_SECRET`, fail closed) and a handler that treats the webhook as a hint: it enqueues a reconcile and returns 202 with no GitHub read. A repeated delivery id is a no-op. The enqueue is an interface; `DbosEnqueuer` starts the workflow under the ticket id.
 - `flow.workflow` (T03): the ticket workflow as a DBOS workflow with five idempotent steps (repro, fix, verify, open PR, hand-off), step results stored in Postgres, find-or-create PR on one stable draft branch. `flow.config` fixes `use_listen_notify` off, a pinned application version and executor id, and no conductor key. The repro, fix and verify runners and the GitHub client are injected fakes; nothing dispatches to Actions yet (T04) and the QA wait is a stub (T08).
-- `flow.actions` (T04): an Actions runner that dispatches a step as a `workflow_dispatch` run, finds an existing run by its run key before starting one, and reads the patch and trajectory artifact. `agent-job.yml` is written but has never run on GitHub, and its entry point `flow.agent_job` does not exist yet, so T04 is unticked.
+- `flow.actions` (T04): an Actions runner that dispatches a step as a `workflow_dispatch` run, finds an existing run by its run key before starting one, and reads the patch and trajectory artifact. `agent-job.yml` is written but has never run on GitHub, and its entry point `flow.agent_job` (wave 6) runs one step and writes `result.json`, but its default steps have not run and the workflow does not yet check out the platform repository or start the Docker rig, so T04 is unticked.
 - `flow.reconcile` and `flow.github_read` (T07): a read-only GitHub reader and a poller that maps issue, branch, PR and run onto the workflow states and enqueues under the same workflow id as the webhook. Tested on 11 recorded GitHub JSON fixtures.
 - QA wait (T08, T10, T09, T18): the workflow waits in `awaiting-qa` for an approve or reject signal with a timeout. A review comment (`/argus approve` or `/argus reject`) from an allowed reviewer ships as the QA path (ADR-023); the MRTR elicitation tool is built and tested in memory, with no real MCP client run.
 - `flow.db_wake` (T11, T24): a bounded wake-up with backoff before DBOS launches, and a rule that a non-local database URL must use TLS (`sslmode=require` or stronger). Tested against a local Postgres with TLS, by killing connections and by stopping and starting it; nothing ran against Neon. ADR-020 records DBOS over Temporal (decision only, nothing built for Temporal).
-- `flow.service` and `render.yaml` (T12): the one app Render would run, with `/health` that answers before the database is awake and a late-bound enqueuer so the webhook still answers 202. Not deployed; the workflow's GitHub write client is `UnwiredGitHub` (every call raises) because no real one exists yet, so the Blueprint keeps polling off.
+- `flow.service` and `render.yaml` (T12): the one app Render would run, with `/health` that answers before the database is awake and a late-bound enqueuer so the webhook still answers 202. Not deployed. The workflow's GitHub write client (`flow.github_write`, wave 6) finds before it acts and keeps the PR a draft; it has only run against a mock transport, never real GitHub. The Blueprint keeps polling off until the first real run.
 - Crash-recovery experiment (T19, T21): 150 real process kills per variant (plain function against DBOS) at 15 points, fake runners with a durable ledger. Both variants finished every run; DBOS repeated fewer calls (0.93 against 4.47 per kill) and made no duplicate effect, the plain function set one label twice. Killing after the PR is created left one draft PR (10 of 10).
 - `flow.yml` (T20) runs the flow tests on a Postgres service container and was green on GitHub on 2026-11-02 (364 passed, 5 skipped). A Render sleep that drops a webhook is shown locally (T23); a sleeping service runs no poller, an open finding.
 - Measurement tooling (T13, T14): a script that times the Render cold start with a signed ping against the 10 s webhook timeout, and a probe that compares Neon usage with what DBOS polling asks of the database. Neither has run against a real deploy; no cold-start time and no CU-hour figure exist. Owner steps are in `docs/notes/p6-t13.md` and `p6-t14.md`.
