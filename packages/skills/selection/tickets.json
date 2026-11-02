@@ -1,0 +1,25 @@
+{
+  "note": "P5.5-T07. Ten hand-written ticket snippets. `expected` is the skill of the run behind the ticket (null: no skill should match). `fits` is every skill whose description the ticket text alone cannot rule out; it was fixed before any model saw the tickets. s01/s02 and s03/s04 are the two same-ticket pairs of docs/notes/p5.5-t06-review-guide.md (mut-0206/mut-0030, mut-0228/mut-0055): identical text, a different picture at the first search.",
+  "tickets": [
+    {"id": "s01", "from": "mut-0206 (rule exists, wrong value)", "text": "border-radius on .ops-rules-alarm changed from 8px.",
+     "expected": "css-value-changed-in-existing-rule", "fits": ["css-value-changed-in-existing-rule", "css-rule-missing-for-class", "css-property-missing-from-grouped-rule"]},
+    {"id": "s02", "from": "mut-0030 (no rule for the class)", "text": "border-radius on .ops-rules-alarm changed from 8px.",
+     "expected": "css-rule-missing-for-class", "fits": ["css-value-changed-in-existing-rule", "css-rule-missing-for-class", "css-property-missing-from-grouped-rule"]},
+    {"id": "s03", "from": "mut-0228 (rule exists, wrong value)", "text": "The tenant logo in the sidebar looks squashed. height on .ops-tenant-logo changed from 28px.",
+     "expected": "css-value-changed-in-existing-rule", "fits": ["css-value-changed-in-existing-rule", "css-rule-missing-for-class", "css-property-missing-from-grouped-rule"]},
+    {"id": "s04", "from": "mut-0055 (no rule for the class)", "text": "The tenant logo in the sidebar looks squashed. height on .ops-tenant-logo changed from 28px.",
+     "expected": "css-rule-missing-for-class", "fits": ["css-value-changed-in-existing-rule", "css-rule-missing-for-class", "css-property-missing-from-grouped-rule"]},
+    {"id": "s05", "from": "mut-0201 style (rule exists, wrong value)", "text": "gap on .ops-leg-card changed from 2px.",
+     "expected": "css-value-changed-in-existing-rule", "fits": ["css-value-changed-in-existing-rule", "css-rule-missing-for-class", "css-property-missing-from-grouped-rule"]},
+    {"id": "s06", "from": "mut-0006 (class in a grouped rule)", "text": "The horizon board lost its inner spacing. padding on .ops-horizon-board changed from 14px 16px.",
+     "expected": "css-property-missing-from-grouped-rule", "fits": ["css-value-changed-in-existing-rule", "css-rule-missing-for-class", "css-property-missing-from-grouped-rule"]},
+    {"id": "s07", "from": "mut-0004 style (SVG animation)", "text": "The crew ring spinner turns around the wrong point. transform-box on .crew-ring changed from fill-box.",
+     "expected": "svg-transform-box-missing", "fits": ["svg-transform-box-missing"]},
+    {"id": "s08", "from": "mut-0003 style (CSS variable)", "text": "The CID desk lost its dark background. --desk-bg on .cid-desk changed from #0a0f1a.",
+     "expected": "css-custom-property-missing-from-base-rule", "fits": ["css-custom-property-missing-from-base-rule"]},
+    {"id": "s09", "from": "no skill: not CSS", "text": "Clicking Save on the crew roster throws TypeError: Cannot read properties of undefined (reading 'map') when the roster is empty.",
+     "expected": null, "fits": [null]},
+    {"id": "s10", "from": "no skill: CSS but no class, property or value named", "text": "On small screens the tooltip in the radar header is cut off at the edge of the card. It should be fully visible.",
+     "expected": null, "fits": [null]}
+  ]
+}

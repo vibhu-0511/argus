@@ -9,9 +9,10 @@ import pytest
 from fix_loop.skills import content_hash, load_skills
 from skills.lint import lint, main
 
-GOOD = "---\nname: {name}\ndescription: Fix a stale closure in an event handler.\n---\n# Steps\n{body}\n"
+DESC = "Use when a ticket says a click handler reads an old state value after a re-render. The fix adds the state to the dependency list. Not for class components."
+GOOD = "---\nname: {name}\ndescription: " + DESC + "\n---\n# Steps\n{body}\n"
 CLAIMS_REVIEWED = (
-    "---\nname: stale-closure\ndescription: Fix a stale closure.\nmetadata:\n  argus-status: reviewed\n---\n# Steps\nRead it.\n"
+    "---\nname: stale-closure\ndescription: " + DESC + "\nmetadata:\n  argus-status: reviewed\n---\n# Steps\nRead it.\n"
 )
 
 
@@ -138,7 +139,7 @@ def test_command_line_exits_non_zero_on_a_bad_skill(tmp_path):
     assert run.returncode == 1 and "bad-frontmatter" in run.stderr
 
 
-TOOLS = "---\nname: stale-closure\ndescription: Fix a stale closure.\nallowed-tools: {tools}\n---\n# Steps\nRead it.\n"
+TOOLS = "---\nname: stale-closure\ndescription: " + DESC + "\nallowed-tools: {tools}\n---\n# Steps\nRead it.\n"
 
 
 def test_allowed_tools_from_the_loop_are_clean(tmp_path):
@@ -171,3 +172,70 @@ def test_every_lint_reason_is_the_loaders_reason(tmp_path):
         assert [r.reason.value for r in load_skills(skills, lock)[1]] == [reason]
         [line] = lint(skills, lock)
         assert line.startswith(f"stale-closure: {reason}:")
+
+
+def with_description(description):
+    return "---\nname: stale-closure\ndescription: " + json.dumps(description) + "\n---\n# Steps\nRead it.\n"
+
+
+VAGUE = {
+    "use for any task": ("Use for any task in the app. Applies whatever the file, the class or the property is, and it is always right. Not for nothing.", "any task"),
+    "every ticket": ("Use when a ticket arrives about the canvas app, every ticket of every kind. Not for tickets about other apps.", "every ticket"),
+    "all tasks": ("Use for all tasks that touch the front end of the console, in any file. Not for the build.", "all tasks"),
+    "always": ("Load this first. It always applies to a CSS or React change in the console. Not for the build scripts.", "always"),
+}
+
+
+@pytest.mark.parametrize("text,phrase", VAGUE.values(), ids=VAGUE.keys())
+def test_a_catch_all_description_fails(tmp_path, text, phrase):
+    skills, lock = make(tmp_path, with_description(text))
+    [line] = lint(skills, lock)
+    assert line == f'stale-closure: vague-description: description claims every ticket with "{phrase}"' or phrase in line
+    assert main(["--skills", str(skills), "--lock", str(lock)]) == 1
+
+
+def test_a_short_description_fails(tmp_path):
+    skills, lock = make(tmp_path, with_description("Fix CSS. Not for JS."))
+    [line] = lint(skills, lock)
+    assert line.startswith("stale-closure: vague-description: description is 20 characters, the minimum is 80")
+
+
+def test_a_description_with_no_exclusion_fails(tmp_path):
+    skills, lock = make(tmp_path, with_description("Use when a ticket says a click handler reads an old state value after a re-render of the card."))
+    [line] = lint(skills, lock)
+    assert line.startswith("stale-closure: vague-description: description has no")
+
+
+def test_a_long_vague_description_without_the_phrases_is_not_caught(tmp_path):
+    """The limit, written down: it reads words, not meaning."""
+    skills, lock = make(tmp_path, with_description("Use for front-end problems in the console, such as styling, layout and state. Not for the backend or the build."))
+    assert lint(skills, lock) == []
+
+
+def test_vague_description_is_a_lint_reason_the_loader_does_not_refuse_on(tmp_path):
+    skills, lock = make(tmp_path, with_description("Use for any task. Not for none."))
+    assert [r.reason.value for r in load_skills(skills, lock)[1]] == []
+    assert lint(skills, lock)
+
+
+def test_the_real_reviewed_skills_pass():
+    from skills.lint import LOCK, SKILLS
+
+    assert lint(SKILLS, LOCK) == []
+
+
+def test_the_t15_always_matching_skill_is_caught(tmp_path):
+    """The break-it fixture (a description that matches every ticket), pinned in a throwaway lock, still fails the lint."""
+    import shutil
+    from pathlib import Path
+
+    fixture = Path(__file__).parent / "fixtures" / "always-matching" / "use-for-any-task"
+    skills = tmp_path / "skills"
+    shutil.copytree(fixture, skills / fixture.name)
+    lock = tmp_path / "skills.lock.json"
+    lock.write_text(json.dumps({"version": 1, "skills": {fixture.name: {"reviewed": True, "sha256": content_hash((fixture / "SKILL.md").read_bytes())}}}), encoding="utf-8")
+    found = lint(skills, lock)
+    assert [line.split(": ")[1] for line in found] == ["vague-description", "vague-description"], found
+    assert 'with "any task"' in found[1] and "no" in found[0]
+    assert main(["--skills", str(skills), "--lock", str(lock)]) == 1
+    assert [r.name for r in load_skills(skills, lock)[0]] == [fixture.name]  # the loader alone would have served it

@@ -41,6 +41,7 @@ DESCRIPTION_MAX = 1024
 COMPATIBILITY_MAX = 500
 FIELDS = frozenset({"name", "description", "license", "compatibility", "metadata", "allowed-tools"})
 LOAD_SKILL = "load_skill"
+MAX_LOADED_SKILLS = 3  # per run: a skill that matches every ticket cannot pull the whole catalog into the context (P5.5-T15)
 _NAME = re.compile(r"[a-z0-9]+(-[a-z0-9]+)*")  # no leading or trailing hyphen, no `--`
 LOCK_NAME = "skills.lock.json"
 LOCK_VERSION = 1
@@ -58,6 +59,7 @@ class Reason(StrEnum):
     too_large = "too-large"
     bad_frontmatter = "bad-frontmatter"
     tool_not_allowed = "tool-not-allowed"
+    vague_description = "vague-description"  # raised by the lint only (P5.5-T15); the loader never refuses on it
 
 
 @dataclass(frozen=True)
@@ -204,6 +206,8 @@ def load_skill(skills: list[Skill], payload: dict, loaded: set[str]) -> ToolResu
         return ToolError(error="not-found", message=f"{name} is not a skill; choose one of: {', '.join(sorted(by_name))}")
     if name in loaded:
         return ToolResult(tool=LOAD_SKILL, text=f"skill {name} is already loaded; use the instructions above")
+    if len(loaded) >= MAX_LOADED_SKILLS:
+        return ToolError(error="failed", message=f"at most {MAX_LOADED_SKILLS} skills per run; {name} was not loaded")
     loaded.add(name)
     return ToolResult(tool=LOAD_SKILL, text=f'<skill_content name="{name}">\n{by_name[name].body}\n</skill_content>')
 
