@@ -47,6 +47,11 @@ KNOWN = frozenset(
         "argus.tool.error",
         "argus.usage.cost_usd",
         "argus.tier",
+        "argus.stage",
+        "argus.verdict",
+        "argus.replay",
+        "argus.replay.source_run",
+        "argus.replay.note",
     }
 )
 
@@ -65,7 +70,10 @@ PROFILES: dict[str, dict[str, Rule]] = {
     "langfuse": {
         "argus.usage.cost_usd": ("gen_ai.usage.cost", None),
         "gen_ai.conversation.id": ("langfuse.session.id", None),
-        **{n: _metadata(n) for n in ("argus.stop_reason", "argus.step.index", "argus.task.id", "argus.tool.error", "argus.tier")},
+        **{n: _metadata(n) for n in (
+            "argus.stop_reason", "argus.step.index", "argus.task.id", "argus.tool.error", "argus.tier",
+            "argus.stage", "argus.verdict", "argus.replay", "argus.replay.source_run", "argus.replay.note",
+        )},
     },
     "phoenix": {
         "gen_ai.operation.name": ("openinference.span.kind", lambda v: _SPAN_KIND.get(v, "CHAIN")),

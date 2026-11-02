@@ -1,0 +1,22 @@
+diff --git a/apps/canvas/src/styles/landing.css b/apps/canvas/src/styles/landing.css
+index 16cafdce2..87128bbb3 100644
+--- a/apps/canvas/src/styles/landing.css
++++ b/apps/canvas/src/styles/landing.css
+@@ -18,7 +18,7 @@
+ .landing-bar {
+   position: absolute;
+   inset-inline: 0;
+-  z-index: 2;
++  z-index: 0;
+   pointer-events: none;
+ }
+ .landing-bar-top {
+@@ -385,7 +385,7 @@ html[data-theme="light"] .landing-powered {
+ .auth-backdrop {
+   position: fixed;
+   inset: 0;
+-  z-index: 100;
++  z-index: 20;
+   display: grid;
+   place-items: center;
+   padding: 16px;

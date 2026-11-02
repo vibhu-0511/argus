@@ -1,0 +1,12 @@
+# Variant C of the P5-T27 break-it: the fix stage is forced onto the cheap tier (haiku). Same as claude-routed.yaml (variant B)
+# except for `fix: cheap`, so a drop in resolve rate is the wrong tier for the hard step and nothing else.
+stages:
+  repro: cheap
+  localize: cheap
+  fix: cheap
+tiers:
+  cheap:
+    primary: {host: claude-session, model: claude-haiku-5-5}
+  strong:
+    primary: {host: claude-session, model: claude-sonnet-5-5}
+fallback_on: [quota_exceeded, http_429]

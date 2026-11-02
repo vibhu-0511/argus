@@ -1,0 +1,116 @@
+"""P5-T14 Claude-session driver: policies, stage and tier on a pending turn, wrong-kind replies, and folding finished runs
+into a results file. Hand-built run folders, no platform checkout, no Docker, no model. Needs the fix-loop and repro-agent
+dependencies: `uv run --package repro-agent pytest packages/eval/tests/test_t14_turn.py`."""
+
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+import pytest
+
+pytest.importorskip("mcp", reason="run with: uv run --package repro-agent pytest packages/eval/tests/test_t14_turn.py")
+for src in ("eval", "fix-loop", "repro-agent", "bench"):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / src / "src"))
+
+from argus_core.ledger import Ledger
+from argus_core.prices import dollar_equivalent
+from argus_core.router import load_policy
+from argus_core.types import Check, CheckType, Task, TaskMeta, Ticket, Trajectory, TrajectoryMeta, TrajectoryStep
+
+from eval import t14_turn
+from eval.runner import AgentConfig
+
+SONNET, HAIKU = "claude-sonnet-5-5", "claude-haiku-5-5"
+
+
+def test_policies_route_by_variant_and_share_the_strong_tier():
+    a, b = (load_policy(t14_turn.VARIANTS[v][1]) for v in "AB")
+    assert {a.tiers["strong"].primary.model, b.tiers["strong"].primary.model} == {SONNET}
+    assert set(a.stages.values()) == {"strong"}
+    assert b.stages == {"repro": "cheap", "localize": "cheap", "fix": "strong"} and b.tiers["cheap"].primary.model == HAIKU
+    assert set(t14_turn.WORKER_MODEL) == {SONNET, HAIKU} == set(t14_turn.BUDGET)
+
+
+def _router(variant: str, answers: list[dict]) -> t14_turn._StageRouter:
+    policy = load_policy(t14_turn.VARIANTS[variant][1])
+    return t14_turn._StageRouter(policy, Ledger(Path("unused.json"), t14_turn.BUDGET), {t14_turn.HOST: t14_turn._Replay(answers)})
+
+
+def test_a_pending_turn_names_its_stage_tier_and_model(tmp_path: Path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    for variant, stage, tier, model in [("B", "repro", "cheap", HAIKU), ("B", "fix", "strong", SONNET), ("A", "repro", "strong", SONNET)]:
+        with pytest.raises(t14_turn.NeedTurn) as need:
+            _router(variant, []).complete(stage, [{"role": "user", "content": "x"}])
+        assert (need.value.stage, need.value.tier, need.value.model) == (stage, tier, model)
+
+
+def test_a_stored_answer_is_served_once_and_a_policy_change_is_caught(tmp_path: Path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    given = [{"stage": "repro", "tier": "cheap", "model": HAIKU, "reply": "await expect(a).toBeVisible();"}]
+    router = _router("B", given)
+    messages = [{"role": "user", "content": "x" * 400}]
+    routed = router.complete("repro", messages)
+    assert routed.completion.content == given[0]["reply"] and (routed.tier, routed.model) == ("cheap", HAIKU)
+    assert routed.completion.usage.tokens_in == len(json.dumps(messages)) // 4  # chars/4 estimate, as in fix_loop.turn
+    with pytest.raises(RuntimeError, match="policy now routes"):
+        _router("A", given).complete("repro", [{"role": "user", "content": "x"}])
+
+
+def test_wrong_kind_of_reply_is_rejected_by_stage():
+    call = json.dumps({"tool": "submit", "arguments": {}})
+    assert t14_turn._wrong_kind("fix", call) is None
+    assert t14_turn._wrong_kind("fix", "just text") and t14_turn._wrong_kind("fix", "")
+    assert t14_turn._wrong_kind("repro", "```js\nawait expect(a).toBeVisible();\n```") is None
+    assert t14_turn._wrong_kind("repro", call) and t14_turn._wrong_kind("repro", "  ")
+
+
+def _task(i: int) -> Task:
+    return Task(
+        id=f"seed-t{i}", ticket=Ticket(id=f"seed-t{i}", text="x"), bug_patch="b", golden_patch="g",
+        checks=[Check(type=CheckType.pixel_diff)], meta=TaskMeta(source="seeded", archetype="a", tier="easy"),
+    )
+
+
+def _traj(path: Path, rows: list[tuple[str, str, int, int]]) -> None:
+    steps = [TrajectoryStep(index=i, tokens_in=a, tokens_out=b, tier=tier, host="claude-session", model=model) for i, (tier, model, a, b) in enumerate(rows)]
+    meta = TrajectoryMeta(run_id="r", task_id="t", model=SONNET, host="claude-session", prompt_hash="p", git_commit="c")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(Trajectory(meta=meta, steps=steps).to_jsonl(), encoding="utf-8")
+
+
+def test_finished_runs_fold_into_a_results_file_split_by_tier(tmp_path: Path, monkeypatch):
+    base = tmp_path / "B"
+    done = base / "seed-t0"
+    _traj(done / "repro" / "trajectory.jsonl", [("cheap", HAIKU, 300, 40)])
+    _traj(done / "fix" / "trajectory.jsonl", [("strong", SONNET, 800, 20), ("strong", SONNET, 900, 10)])
+    (done / "verdict.json").write_text(json.dumps({"verdict": "resolved", "stop_reason": "submit", "wall_s": 61.5}), encoding="utf-8")
+    monkeypatch.setattr(t14_turn, "RUNS", tmp_path)
+    tasks = tmp_path / "tasks.json"
+    tasks.write_text(json.dumps([_task(i).model_dump(mode="json") for i in range(2)]), encoding="utf-8")
+    out = tmp_path / "res.json"
+    assert t14_turn.results("B", tasks, out, []) == 0
+    res = json.loads(out.read_text(encoding="utf-8"))
+    rows = {r["task_id"]: r for r in res["tasks"]}
+    assert rows["seed-t0"]["verdict"] == "resolved" and rows["seed-t0"]["tokens"]["tokens_in"] == 2000
+    assert rows["seed-t1"]["verdict"] == "error" and "did not finish" in rows["seed-t1"]["reason"]  # a task with no run is an error row, not a gap
+    assert res["agent"]["params"]["claude_session"] is True and res["agent"]["params"]["worker_models"] == {"cheap": "haiku", "strong": "sonnet"}
+    # priced model by model: haiku tokens at the haiku rate, sonnet tokens at the sonnet rate
+    want = dollar_equivalent(HAIKU, 300, 40) + dollar_equivalent(SONNET, 1700, 30)
+    assert res["$_equivalent"] == pytest.approx(want, abs=1e-6)
+    assert rows["seed-t0"]["latency_s"] == 61.5  # the run's own wall clock, not the replay's
+
+
+def test_replay_agent_reads_only_what_the_run_wrote(tmp_path: Path):
+    agent = t14_turn.replay(AgentConfig(name="n", model=SONNET, factory="eval.t14_turn:replay", params={"out_dir": str(tmp_path)}))
+    assert agent(_task(9)).verdict == "error"
+
+
+def test_the_table_labels_a_claude_session_run_and_leaves_the_quota_cell_a_dash(tmp_path: Path, monkeypatch):
+    from eval.ablation import DASH, table
+
+    test_finished_runs_fold_into_a_results_file_split_by_tier(tmp_path, monkeypatch)
+    text = table(tmp_path / "res.json", tmp_path / "res.json")
+    assert "Claude-session tiers" in text and "chars/4 estimates" in text
+    assert f"| {DASH} | " in text and f"{DASH} (stage" not in text  # quota share is a dash; the trajectories matched

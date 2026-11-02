@@ -1,0 +1,24 @@
+{
+  "task_id": "seed-h09",
+  "variant": "A",
+  "stop_reason": "submit",
+  "repro_stop_reason": "retry-cap",
+  "repro_found": false,
+  "score_exit": 2,
+  "verdict": "excluded",
+  "model_turns": 16,
+  "turns_by_stage": {
+    "repro": 2,
+    "fix": 14
+  },
+  "turns_by_tier": {
+    "strong": 16
+  },
+  "models": [
+    "claude-sonnet-5-5"
+  ],
+  "token_source": "chars/4 estimate",
+  "started_at": 1793549282.6511824,
+  "finished_at": 1793550956.3225622,
+  "wall_s": 1673.7
+}

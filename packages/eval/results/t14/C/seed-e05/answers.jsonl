@@ -1,0 +1,21 @@
+{"stage": "repro", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "```js\nawait page.goto('/ops/radar');\nawait expect(page.getByRole('timer', { name: /clock|time/i })).toBeVisible();\n```"}
+{"stage": "repro", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "```js\n// Radar clock time rule: the radar page should show a clock time.\n// The bug removes the clock time rule, so the time element is missing.\nawait page.goto('/ops/radar');\nawait expect(page.getByRole('time')).toBeVisible();\n```"}
+{"stage": "repro", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "```js\nawait page.goto('/ops/radar');\nawait expect(page.getByRole('region', { name: 'Clock time' })).toBeVisible();\nawait expect(page.getByRole('heading', { name: 'Clock time rule' })).toBeVisible();\n```"}
+{"stage": "fix", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "{\"tool\": \"search\", \"arguments\": {\"query\": \"clock\", \"path\": \"apps/canvas\"}}"}
+{"stage": "fix", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "{\"tool\": \"search\", \"arguments\": {\"query\": \"radar\", \"path\": \"apps/canvas/src\"}}"}
+{"stage": "fix", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "{\"tool\": \"search\", \"arguments\": {\"query\": \"ops.radar.ringLabel\", \"path\": \"apps/canvas/src\"}}"}
+{"stage": "fix", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "{\"tool\": \"read_file\", \"arguments\": {\"path\": \"apps/canvas/src/ops/Radar.tsx\"}}"}
+{"stage": "fix", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "{\"tool\": \"search\", \"arguments\": {\"query\": \"hhmm(\", \"path\": \"apps/canvas/src/ops\"}}"}
+{"stage": "fix", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "{\"tool\": \"search\", \"arguments\": {\"query\": \"clock\", \"path\": \"apps/canvas/src/ops/Radar.tsx\"}}"}
+{"stage": "fix", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "{\"tool\": \"search\", \"arguments\": {\"query\": \"radar-clock-time\", \"path\": \"apps/canvas/src\"}}"}
+{"stage": "fix", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "{\"tool\": \"search\", \"arguments\": {\"query\": \"rule\", \"path\": \"apps/canvas/src/ops/Radar.tsx\"}}"}
+{"stage": "fix", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "{\"tool\": \"search\", \"arguments\": {\"query\": \"zone =\", \"path\": \"apps/canvas/src/ops/Radar.tsx\"}}"}
+{"stage": "fix", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "{\"tool\": \"search\", \"arguments\": {\"query\": \"operationalZone\", \"path\": \"apps/canvas/src/api\"}}"}
+{"stage": "fix", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "{\"tool\": \"read_file\", \"arguments\": {\"path\": \"apps/canvas/src/ops/Radar.tsx\"}}"}
+{"stage": "fix", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "{\"tool\": \"search\", \"arguments\": {\"query\": \"rule\", \"path\": \"apps/canvas/src/ops\"}}"}
+{"stage": "fix", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "{\"tool\": \"search\", \"arguments\": {\"query\": \"clock\", \"path\": \"rules\"}}"}
+{"stage": "fix", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "{\"tool\": \"read_file\", \"arguments\": {\"path\": \"apps/canvas/src/ops/radar.css\"}}"}
+{"stage": "fix", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "{\"tool\": \"search\", \"arguments\": {\"query\": \"scheduledDeparture\", \"path\": \"apps/canvas/src/ops/Radar.tsx\"}}"}
+{"stage": "fix", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "{\"tool\": \"search\", \"arguments\": {\"query\": \"clock\", \"path\": \"knowledge-base/features\"}}"}
+{"stage": "fix", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "{\"tool\": \"edit\", \"arguments\": {\"path\": \"apps/canvas/src/ops/radar.css\", \"old\": \".radar-clock--utc .radar-clock-time { color: var(--radar-dim); }\", \"new\": \".radar-clock-time { font-size: 22px; font-weight: 600; letter-spacing: 1px; color: var(--radar-ink); }\\n.radar-clock--utc .radar-clock-time { color: var(--radar-dim); }\"}}"}
+{"stage": "fix", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "{\"tool\": \"submit\", \"arguments\": {}}"}

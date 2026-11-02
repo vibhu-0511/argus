@@ -1,0 +1,24 @@
+{
+  "task_id": "seed-m05",
+  "variant": "A",
+  "stop_reason": "submit",
+  "repro_stop_reason": "retry-cap",
+  "repro_found": false,
+  "score_exit": 1,
+  "verdict": "unresolved",
+  "model_turns": 8,
+  "turns_by_stage": {
+    "repro": 3,
+    "fix": 5
+  },
+  "turns_by_tier": {
+    "strong": 8
+  },
+  "models": [
+    "claude-sonnet-5-5"
+  ],
+  "token_source": "chars/4 estimate",
+  "started_at": 1793543185.880264,
+  "finished_at": 1793544567.852055,
+  "wall_s": 1382.0
+}

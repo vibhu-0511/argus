@@ -1,0 +1,24 @@
+{
+  "task_id": "seed-m06",
+  "variant": "C",
+  "stop_reason": "submit",
+  "repro_stop_reason": "retry-cap",
+  "repro_found": false,
+  "score_exit": 0,
+  "verdict": "resolved",
+  "model_turns": 11,
+  "turns_by_stage": {
+    "repro": 3,
+    "fix": 8
+  },
+  "turns_by_tier": {
+    "cheap": 11
+  },
+  "models": [
+    "claude-haiku-5-5"
+  ],
+  "token_source": "chars/4 estimate",
+  "started_at": 1793565573.2016733,
+  "finished_at": 1793566779.6240602,
+  "wall_s": 1206.4
+}

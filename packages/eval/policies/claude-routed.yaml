@@ -1,0 +1,12 @@
+# Variant B of the P5-T14 run with Claude sessions as the model: repro (and localize, which makes no chat call) on the
+# cheap tier, fix on the strong tier. Same shape as argus_core/routing.yaml; the strong tier is the same as in claude-strong-only.yaml.
+stages:
+  repro: cheap
+  localize: cheap
+  fix: strong
+tiers:
+  cheap:
+    primary: {host: claude-session, model: claude-haiku-5-5}
+  strong:
+    primary: {host: claude-session, model: claude-sonnet-5-5}
+fallback_on: [quota_exceeded, http_429]

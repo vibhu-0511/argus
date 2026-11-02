@@ -1,6 +1,6 @@
 name: eval-gate
 
-# Stored results only: no model call, no network, no secrets. The gate compares
+# Stored results only: no model call, no network, no keys or tokens. The gate compares
 # packages/eval/results/current.json with packages/eval/results/baseline.json (thresholds: packages/eval/gate.toml).
 on:
   push:

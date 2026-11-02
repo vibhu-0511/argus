@@ -11,5 +11,6 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           python-version: "3.12"
+      - run: uv sync --all-packages --locked
       - run: uv run pytest packages/fix-loop/tests -q -k "not sandbox and not ast_grep"
       - run: uv run --package fix-loop python -m fix_loop.frameworks
