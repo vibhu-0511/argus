@@ -200,7 +200,7 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 ## Week 18 — P5 (22 h scheduled)
 
 - [x] P5-T06 Instrument the loop and tools with OTel spans using GenAI attributes [ME] 3h
-- [ ] P5-T07 Configure OTLP export to Langfuse Cloud Hobby [CLAUDE] 2h
+- [x] P5-T07 Configure OTLP export to Langfuse Cloud Hobby [CLAUDE] 2h
 - [x] P5-T08 Build the attribute normalizer between argus spans and backend conventions [ME] 3h
 - [x] P5-T09 Prove the backend swap with a second local OTLP backend [PAIR] 1h
 - [x] P5-T10 Write ADR-015: Trace backend and normalizer [ME] 1h

@@ -228,7 +228,7 @@ flowchart LR
 
 ## What this PR does not claim
 
-- **No Langfuse trace has been seen** (P5-T07, P5-T23). There is no Langfuse account or key in the sessions. The exporter is built and tested against local receivers, and a real Phoenix 21.0.0 received the same run. The owner's steps are in `docs/notes/p5-t07.md`.
+- **Only a smoke trace has been seen in Langfuse** (P5-T07 is ticked on that; P5-T23 is not). The owner ran `python -m argus_core.telemetry` against a Langfuse Hobby project (US region) on 2026-11-02 and saw one trace: `invoke_agent argus-smoke` with a `chat` (generation) and a tool child. No trace of a real fix-loop run has been sent yet, so there is no real-run trace screenshot or project link. A real Phoenix 21.0.0 received the same stubbed run earlier. Details: `docs/notes/p5-t07.md`.
 - **The GitHub runs are not seen** (P5-T17, P5-T22): the `eval-gate` workflow (green on the baseline, red on a worse file) and the Pages deploy have not run on GitHub, and Pages is not switched on. Steps: `docs/notes/p5-t17.md`, `docs/notes/p5-t22.md`.
 - **P5-T14 is unticked**: quota share is a dash (Claude sessions have only a self-imposed cap) and latency is not comparable between variants. Whether a Claude-session run meets the task is the owner's call.
 - **P5-T20 is unticked**: the multimodal agent was one plain Claude subagent per task, one draw each, not the argus pipeline, and the agents did not run the repo tests. Two Chart.js tasks timed out in the grader on both tries (patch produced, not scored).
