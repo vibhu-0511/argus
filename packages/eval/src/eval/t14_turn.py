@@ -5,14 +5,15 @@ the fix loop alone): `run_repro` (stage `repro`), then `run_fix` (stage `fix`), 
 policy. The first model call with no stored answer ends the call and prints what that turn's model must see. Every
 stored answer records its stage, tier and model, and every trajectory step carries the same tier, host and model.
 
-    python -m eval.t14_turn start <A|B> <task id>        e.g. start B seed-h05   (run id: B-seed-h05)
+    python -m eval.t14_turn start <A|B|T> <task id>      e.g. start B seed-h05   (run id: B-seed-h05)
     python -m eval.t14_turn show <run id>                print the pending turn (stage, tier, worker model, messages)
     python -m eval.t14_turn answer <run id> < reply      store one reply; prints one status line, not the next turn
     python -m eval.t14_turn status <run id>              the status line again (what the coordinator needs), or the verdict
     python -m eval.t14_turn results <A|B> --tasks F --out F [--only ID ...]   fold finished runs into a results JSON
 
 The status line says which subagent model the next worker must run on (`worker_model=sonnet|haiku`), or is the verdict.
-Variant A: every stage on sonnet. Variant B: repro on haiku, fix on sonnet (policies/claude-*.yaml). Tokens are chars/4
+Variant A: every stage on sonnet. Variant B: repro on haiku, fix on sonnet (policies/claude-*.yaml). Variant T (P5.5-T04): a
+train mutant from packages/bench/tasks/mutated, fix stage only on sonnet (no repro stage), runs under runs/p55-t04/<task id>. Tokens are chars/4
 estimates of the messages, not provider usage, and exclude the harness overhead of each subagent.
 
 ponytail: the repro tree runner needs the rig up (`python -m repro_agent.trees up`) and ARGUS_PLATFORM_REPO. A replay runs the
@@ -42,8 +43,11 @@ from eval.runner import AgentConfig, Outcome, load_tasks, run_eval
 
 HOST = "claude-session"
 RUNS = Path(os.environ.get("T14_RUNS") or Path(__file__).resolve().parents[2] / "runs" / "t14")
+TRAIN_RUNS = Path(__file__).resolve().parents[2] / "runs" / "p55-t04"  # variant T: no <variant> folder, the task ids are mut-NNNN
+MUTATED = SEEDED.parent / "mutated"
 VARIANTS = {"A": ("ablation-A-claude-strong-only", POLICIES / "claude-strong-only.yaml"), "B": ("ablation-B-claude-routed", POLICIES / "claude-routed.yaml"),
-            "C": ("breakit-C-claude-cheap-fix", POLICIES / "claude-cheap-fix.yaml")}  # C: P5-T27 break-it, fix on the cheap tier
+            "C": ("breakit-C-claude-cheap-fix", POLICIES / "claude-cheap-fix.yaml"),  # C: P5-T27 break-it, fix on the cheap tier
+            "T": ("p55-t04-train-fix-only", POLICIES / "claude-strong-only.yaml")}  # T: P5.5-T04, train mutants, fix stage only
 WORKER_MODEL = {"claude-sonnet-5-5": "sonnet", "claude-haiku-5-5": "haiku"}  # the Agent tool's `model` parameter
 STRATEGY, BUDGET_TOKENS = "cap", 32_000  # the fix loop's context strategy and budget, the P3/P4 harness defaults
 REPRO_CAP = 3
@@ -96,21 +100,25 @@ class _StageRouter(Router):
             raise
 
 
+def _variant_dir(variant: str) -> Path:
+    return TRAIN_RUNS if variant == "T" else RUNS / variant
+
+
 def _run_dir(run_id: str) -> Path:
     variant, _, task = run_id.partition("-")
     if variant not in VARIANTS or not task:
         raise SystemExit(f"run id must look like A-seed-h05 or B-seed-h05, got {run_id!r}")
-    return RUNS / variant / task
+    return _variant_dir(variant) / task
 
 
 def start(variant: str, task_id: str) -> int:
     from argus_bench.golden import platform_repo
     from fix_loop import worktree
 
-    task = SEEDED / task_id
+    task = (MUTATED if variant == "T" else SEEDED) / task_id
     if variant not in VARIANTS or not (task / "ticket.json").is_file():
-        raise SystemExit(f"usage: start <A|B> <seeded task id>; {task} not found")
-    out = RUNS / variant / task_id
+        raise SystemExit(f"usage: start <A|B|T> <task id>; {task} not found")
+    out = _variant_dir(variant) / task_id
     out.mkdir(parents=True, exist_ok=False)
     (out / "checks").mkdir()
     shutil.copy(task / "checks.json", out / "checks" / "checks.json")  # golden.patch stays out of the mount
@@ -159,7 +167,7 @@ def _replay(out: Path, quiet: bool = False) -> int:
     from fix_loop import worktree
     from fix_loop.loop import run_fix
     from fix_loop.strategies import cap_strategy
-    from fix_loop.turn import PROTOCOL, STEP_CAP, TOKEN_CAP, _execute, _print_full, _reset
+    from fix_loop.turn import PROTOCOL, STEP_CAP, TOKEN_CAP, _execute, _git, _print_full, _reset
     from argus_bench.golden import platform_repo
     from repro_agent.loop import run_repro
     from repro_agent.trees import trees_for
@@ -172,10 +180,14 @@ def _replay(out: Path, quiet: bool = False) -> int:
     strong = policy.tiers["strong"].primary.model
     run_id = f"{variant}-{ticket.id}"
     _reset(tree, (task / "bug.patch").read_text(encoding="utf-8"))
+    # T: the tree is HEAD plus the bug, so a fix that undoes the bug exactly diffs to nothing against HEAD; diff against the bug state
+    bug_state = _git(tree, "stash", "create").stdout.strip() if variant == "T" else ""
+    if variant == "T" and not bug_state:
+        raise RuntimeError("git stash create gave no commit; a diff against HEAD would be empty for an exact revert")
     with tempfile.TemporaryDirectory() as scratch:
         router = _StageRouter(policy, Ledger(Path(scratch) / "ledger.json", BUDGET), {HOST: _Replay(answers)})
         try:
-            repro = run_repro(
+            repro = None if variant == "T" else run_repro(  # T: fix stage only (repro found a script in 1 of 58 runs in P5-T14)
                 ticket=ticket.model_copy(update={"text": ticket.text + BRIEF}), task_dir=task, model=strong, out_dir=out / "repro", cap=REPRO_CAP,
                 run_trees=trees_for(task, out / "trees-cache"), run_id=run_id, host=HOST, git_commit=_head(), router=router, stage="repro",
                 tool_timeout=TOOL_TIMEOUT,
@@ -183,7 +195,7 @@ def _replay(out: Path, quiet: bool = False) -> int:
             fix = run_fix(
                 worktree=tree, model=strong, host=HOST, router=router, stage="fix", out_dir=out / "fix", step_cap=STEP_CAP, token_cap=TOKEN_CAP,
                 run_id=run_id, git_commit=_head(), task_id=ticket.id, system=PROTOCOL, execute=_execute(tree, out / "checks"),
-                user=f"Ticket:\n{ticket.text}\n\nRepro: {repro.script or 'not-run'}\nLocate: none\n",
+                user=f"Ticket:\n{ticket.text}\n\nRepro: {(repro and repro.script) or 'not-run'}\nLocate: none\n",
                 context_budget=BUDGET_TOKENS, strategy=cap_strategy,
             )
         except NeedTurn as need:
@@ -207,15 +219,15 @@ def _replay(out: Path, quiet: bool = False) -> int:
         by_tier[a["tier"]] = by_tier.get(a["tier"], 0) + 1
     now = time.time()
     verdict = {
-        "task_id": ticket.id, "variant": variant, "stop_reason": fix.stop_reason.value, "repro_stop_reason": repro.stop_reason.value,
-        "repro_found": repro.script is not None, "score_exit": code,
+        "task_id": ticket.id, "variant": variant, "stop_reason": fix.stop_reason.value, "repro_stop_reason": repro.stop_reason.value if repro else "off",
+        "repro_found": repro is not None and repro.script is not None, "score_exit": code,
         "verdict": "excluded" if code == 2 else "resolved" if code == 0 else "unresolved",
         "model_turns": len(answers), "turns_by_stage": by_stage, "turns_by_tier": by_tier, "models": sorted({a["model"] for a in answers}),
         "token_source": "chars/4 estimate", "started_at": meta["started_at"], "finished_at": now, "wall_s": round(now - meta["started_at"], 1),
     }
     (out / "verdict.json").write_text(json.dumps(verdict, indent=2) + "\n", encoding="utf-8")
     (out / "diff.patch").write_text(
-        subprocess.run(["git", "-c", "core.autocrlf=false", "-C", str(tree), "diff"], capture_output=True, text=True, encoding="utf-8").stdout,
+        subprocess.run(["git", "-c", "core.autocrlf=false", "-C", str(tree), "diff", *([bug_state] if bug_state else [])], capture_output=True, text=True, encoding="utf-8").stdout,
         encoding="utf-8", newline="\n",
     )
     worktree.destroy(platform_repo(), tree)
@@ -255,7 +267,7 @@ def results(variant: str, tasks_file: Path, out_file: Path, only: list[str]) -> 
     config = AgentConfig(
         name=name, model=policy.tiers["strong"].primary.model, host=HOST, factory="eval.t14_turn:replay",
         params={
-            "out_dir": str(RUNS / variant), "claude_session": True, "token_source": "chars/4 estimate of the messages; excludes subagent harness overhead",
+            "out_dir": str(_variant_dir(variant)), "claude_session": True, "token_source": "chars/4 estimate of the messages; excludes subagent harness overhead",
             "worker_models": {t: WORKER_MODEL[r.primary.model] for t, r in policy.tiers.items()}, "stages": policy.stages,
             "fix_context": {"strategy": STRATEGY, "budget": BUDGET_TOKENS}, "repro_cap": REPRO_CAP,
             "latency": "wall clock of the whole task including coordinator waits; several tasks ran at once",
