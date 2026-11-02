@@ -1,0 +1,12 @@
+diff --git a/apps/canvas/src/ops/ops.css b/apps/canvas/src/ops/ops.css
+index 43cffcc25..4cec56b18 100644
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -290,6 +290,7 @@ html[data-theme="light"] .ops-show-chip--cancelled[aria-pressed="true"] { color:
+ .ops-rules-group tbody tr { cursor: pointer; }
+ .ops-rules-group tbody tr:hover, .ops-rules-group tbody tr:focus-visible { background: var(--surface-card); outline: none; }
+ .ops-rules-note { padding: 24px 16px; }
++.ops-rules-alarm { border-radius: 8px; }
+ 
+ .ops-rules-detail { position: fixed; top: 0; right: 0; bottom: 0; box-sizing: border-box; width: min(520px, 100vw); overflow-y: auto; padding: 16px 20px; background: var(--bg-secondary); border-left: 1px solid var(--border-secondary); box-shadow: var(--shadow-lg); z-index: 20; }
+ .ops-rules-detail header { display: flex; align-items: flex-start; gap: 12px; }

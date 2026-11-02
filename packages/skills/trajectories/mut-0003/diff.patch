@@ -1,0 +1,15 @@
+diff --git a/apps/canvas/src/insights/desk/desk.css b/apps/canvas/src/insights/desk/desk.css
+index 3211442ab..0ff84ed0c 100644
+--- a/apps/canvas/src/insights/desk/desk.css
++++ b/apps/canvas/src/insights/desk/desk.css
+@@ -18,6 +18,10 @@
+ 
+ /* Desk surface tokens — navy/blue by default; light follows the ops sun/moon toggle. */
+ 
++.cid-desk {
++  --desk-bg: #0a0f1a;
++}
++
+ html[data-theme="light"] .cid-desk {
+   --desk-bg: #f8fafc;
+   --desk-elevated: #ffffff;

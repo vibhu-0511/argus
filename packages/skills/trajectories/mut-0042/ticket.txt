@@ -1,0 +1,1 @@
+width on .ops-horizon-gutter changed from 156px.

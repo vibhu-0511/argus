@@ -1,0 +1,1 @@
+gap on .ops-legend-group changed from 12px.
