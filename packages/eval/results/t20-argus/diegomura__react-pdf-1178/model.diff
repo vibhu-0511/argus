@@ -1,0 +1,13 @@
+diff --git a/packages/stylesheet/src/expand.js b/packages/stylesheet/src/expand.js
+index 7e973de..c8d6f30 100644
+--- a/packages/stylesheet/src/expand.js
++++ b/packages/stylesheet/src/expand.js
+@@ -2,7 +2,7 @@ import * as R from 'ramda';
+ 
+ import shorthands from './shorthands';
+ 
+-const BOX_MODEL_REGEX = /\d+(\.\d+)?(px|in|mm|cm|pt|%|vw|vh|px)?/g;
++const BOX_MODEL_REGEX = /auto|\d+(\.\d+)?(px|in|mm|cm|pt|%|vw|vh|px)?/g;
+ const OBJECT_POSITION_REGEX = /\d+(\.\d+)?(px|in|mm|cm|pt|%|vw|vh|px)?/g;
+ const BORDER_SHORTHAND_REGEX = /(\d+(\.\d+)?(px|in|mm|cm|pt|vw|vh|px)?)\s(\S+)\s(.+)/;
+ const TRANSFORM_ORIGIN_REGEX = /(-?\d+(px|in|mm|cm|pt|%|vw|vh|px)?)|top|right|bottom|left|center/g;

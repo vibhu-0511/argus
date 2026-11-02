@@ -1,0 +1,70 @@
+Repository: processing/p5.js at commit 196d3afbf44de116c84936ff20cf4a5b8056ccb7
+
+Issue:
+Should webGL alpha default to false?
+I was looking into the issues described in #5451 & #5195  and testing out how alpha blending is working with webGL mode. I think that the current behavior is causing a fair amount of confusion and unexpected results. 
+
+Here is a red square on black with 50% opacity, two ways. The first is just using css with a red div on a black div. The second is p5's default drawing mode.
+
+[Example Sketch](https://editor.p5js.org/aferriss/sketches/nCTX5cXjA)
+```html
+ <style>
+    body {
+      background-color: blue;
+    }
+
+    #outer {
+      background-color: black;
+      width: 100px;
+      height: 100px;
+    }
+
+    #inner {
+      background-color: red;
+      opacity: 0.5;
+      width: 80px;
+      height: 80px;
+    }
+  </style>
+
+  <div id="outer">
+    <div id="inner"></div>
+  </div>
+```
+```javascript
+function setup() {
+  createCanvas(100, 100);
+}
+
+function draw() {
+  background(0, 0, 0, 255);
+  fill(255, 0, 0, 128);
+  rect(10, 10, 80, 80);
+}
+```
+![Screen Shot 2022-01-14 at 11 54 12 AM](https://user-images.githubusercontent.com/3698659/149576927-bed39ec9-30ff-4afa-9db8-d2984a167ed1.png)
+
+So far everything looks good and like we'd expect.
+
+However, if we change to webGL mode...
+![Screen Shot 2022-01-14 at 11 57 06 AM](https://user-images.githubusercontent.com/3698659/149577198-0d6a2acb-ba23-4f64-b3d1-70c416f153fc.png)
+
+You can see that the red color is blending with the blue background of the page, rather than the black of the canvas. 
+
+If I add in a ` setAttributes('alpha', false);` then our blending works as expected again. [Here's another example](https://editor.p5js.org/aferriss/sketches/-PMHMXcnp). 
+
+I feel like the current blending defaults cause unexpected results, and that setting it to false would cause the least amount of surprises. It also brings us in line with the output of the 2d renderer.
+
+The only downside I currently can see with this change is that if you want a canvas with a transparent background, you'll now need to call `setAttributes('alpha', true)`. However, I feel this is probably a more niche use case and this simple fix wouldn't be a burden to those people. Maybe we could also document that behavior somewhere as well.
+
+If we agree, I'm happy to prepare a PR. It's just a single boolean change :)
+
+@stalgiag Thoughts?
+
+
+
+Screenshots attached to the issue:
+- C:\swebench-run\argus-run\processing__p5.js-5555\images\01.png
+- C:\swebench-run\argus-run\processing__p5.js-5555\images\02.png
+
+Fix the issue by editing the repository.

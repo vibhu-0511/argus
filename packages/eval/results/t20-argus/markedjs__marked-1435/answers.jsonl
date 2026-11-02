@@ -1,0 +1,7 @@
+"{\"tool\": \"search\", \"arguments\": {\"query\": \"link:\", \"path\": \"lib/marked.js\"}}"
+"{\"tool\": \"search\", \"arguments\": {\"query\": \"href\", \"path\": \"lib/marked.js\"}}"
+"{\"tool\": \"edit\", \"arguments\": {\"path\": \"lib/marked.js\", \"old\": \"inline._href = /\\\\s*(<(?:\\\\\\\\[<>]?|[^\\\\s<>\\\\\\\\])*>|[^\\\\s\\\\x00-\\\\x1f]*)/;\", \"new\": \"inline._href = /\\\\s*(<(?:\\\\\\\\[<>]?|[^\\\\s<>\\\\\\\\])*>|(?:\\\\\\\\[()]?|\\\\([^\\\\s\\\\x00-\\\\x1f()\\\\\\\\]*\\\\)|[^\\\\s\\\\x00-\\\\x1f()\\\\\\\\])*?)/;\"}}"
+"{\"tool\": \"run_cmd\", \"arguments\": {\"command\": \"node --check lib/marked.js\"}}"
+"{\"tool\": \"edit\", \"arguments\": {\"path\": \"lib/marked.js\", \"old\": \"|\\\\([^\\\\s\\\\x00-\\\\x1f()\\\\\\\\]*\\\\)|\", \"new\": \"|\\\\((?:\\\\\\\\[()]?|[^\\\\s\\\\x00-\\\\x1f()\\\\\\\\])*\\\\)|\"}}"
+"{\"tool\": \"run_cmd\", \"arguments\": {\"command\": \"node --check lib/marked.js\"}}"
+"{\"tool\": \"submit\", \"arguments\": {}}"

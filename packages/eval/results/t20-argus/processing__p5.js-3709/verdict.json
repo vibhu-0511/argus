@@ -1,0 +1,13 @@
+{
+  "task_id": "processing__p5.js-3709",
+  "stop_reason": "submit",
+  "verdict": "patch-captured",
+  "patch_lines": 53,
+  "model_turns": 16,
+  "model": "claude-sonnet-5-5",
+  "worker_model": "sonnet",
+  "token_source": "chars/4 estimate",
+  "started_at": 1793599815.1738956,
+  "finished_at": 1793601696.7202842,
+  "wall_s": 1881.5
+}

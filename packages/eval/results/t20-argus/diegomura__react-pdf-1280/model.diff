@@ -1,0 +1,13 @@
+diff --git a/packages/stylesheet/src/expand.js b/packages/stylesheet/src/expand.js
+index 50c40f6..66df2cc 100644
+--- a/packages/stylesheet/src/expand.js
++++ b/packages/stylesheet/src/expand.js
+@@ -184,7 +184,7 @@ const processFlexShrink = (key, value) => {
+ const processFlexBasis = (key, value) => {
+   if (isNumber(value)) return value;
+   const matches = value.split(' ');
+-  return matches[2];
++  return matches.length === 1 ? value : matches[2];
+ };
+ 
+ const keepSame = (key, value) => value;

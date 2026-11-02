@@ -1,0 +1,5 @@
+"{\"tool\": \"search\", \"arguments\": {\"query\": \"onLeave\", \"path\": \"src\"}}"
+"{\"tool\": \"read_file\", \"arguments\": {\"path\": \"src/plugins/plugin.legend.js\"}}"
+"{\"tool\": \"edit\", \"arguments\": {\"path\": \"src/plugins/plugin.legend.js\", \"old\": \"    if (e.type === 'mousemove') {\\n      const previous\", \"new\": \"    if (e.type === 'mousemove' || e.type === 'mouseout') {\\n      const previous\"}}"
+"{\"tool\": \"edit\", \"arguments\": {\"path\": \"src/plugins/plugin.legend.js\", \"old\": \"  if (type === 'mousemove' && (opts.onHover || opts.onLeave)) {\", \"new\": \"  if ((type === 'mousemove' || type === 'mouseout') && (opts.onHover || opts.onLeave)) {\"}}"
+"{\"tool\": \"submit\", \"arguments\": {}}"
