@@ -1,6 +1,6 @@
-# Architecture overview (P0 to P5)
+# Architecture overview (P0 to P5.5)
 
-As-built view of Argus after phase P5 (so far). Later phases are not drawn. This file grows by one phase in each stacked pull request; the diagram source is the same text the PR description shows.
+As-built view of Argus after phase P5.5 (so far). Later phases are not drawn. This file grows by one phase in each stacked pull request; the diagram source is the same text the PR description shows.
 
 ```mermaid
 flowchart LR
@@ -58,7 +58,7 @@ flowchart LR
     VCI["verify.yml<br/>stored-pair gate"]:::p4
   end
 
-  subgraph S5 ["P5 eval (NEW IN THIS PR)"]
+  subgraph S5 ["P5 eval"]
     METRICS["trajectory metrics<br/>five formulas, docs/metrics.md"]:::p5
     RUNNER["eval runner<br/>Wilson 95% interval, results JSON"]:::p5
     PRICES["price table<br/>dated list prices, dollar equivalent"]:::p5
@@ -77,6 +77,10 @@ flowchart LR
     DRIVER["Claude-session driver<br/>one subagent per step, tier per stage"]:::p5
     TREES["repro tree runner<br/>buggy and golden tree, internal network"]:::p5
     MMRUN["multimodal run<br/>local SWE-bench grading, none dropped"]:::p5
+  end
+
+  subgraph S55 ["P5.5 skills (NEW IN THIS PR)"]
+    SPLIT["train and held-out split<br/>check: no shared task or file-operator pair"]:::p55
   end
 
   BUGSMITH --> FILTER
@@ -157,6 +161,8 @@ flowchart LR
   TREES --> RVERIFY
   MM --> MMRUN
   MMRUN --> RUNNER
+  SEEDED -- "held-out set" --> SPLIT
+  MUTANTS -- "train pool" --> SPLIT
 
   classDef p0 fill:#dbeafe,stroke:#1d4ed8,stroke-width:1.5px,color:#111827
   style S0 fill:none,stroke:#1d4ed8,stroke-width:1.5px
@@ -168,10 +174,12 @@ flowchart LR
   style S3 fill:none,stroke:#a16207,stroke-width:1.5px
   classDef p4 fill:#ffedd5,stroke:#c2410c,stroke-width:1.5px,color:#111827
   style S4 fill:none,stroke:#c2410c,stroke-width:1.5px
-  classDef p5 fill:#fce7f3,stroke:#be185d,stroke-width:4px,color:#111827
-  style S5 fill:none,stroke:#be185d,stroke-width:4px
+  classDef p5 fill:#fce7f3,stroke:#be185d,stroke-width:1.5px,color:#111827
+  style S5 fill:none,stroke:#be185d,stroke-width:1.5px
+  classDef p55 fill:#ede9fe,stroke:#6d28d9,stroke-width:4px,color:#111827
+  style S55 fill:none,stroke:#6d28d9,stroke-width:4px
   classDef ext fill:#ffffff,stroke:#6b7280,color:#111827,stroke-dasharray: 4 3
-  linkStyle 46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77 stroke-width:3px
+  linkStyle 78,79 stroke-width:3px
 ```
 
 ## How to read it
@@ -184,7 +192,13 @@ flowchart LR
 | Dotted arrow | a stored input (`fixture`), a test-only link or an advisory link, not a live call |
 | Thick arrow | a link added in this phase |
 
-Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink.
+Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink, P5.5 purple.
+
+## What P5.5 adds (so far)
+
+- `packages/skills`: the train and held-out split (`python -m skills.split split|check`). Held-out is the 30 seeded tasks (29 runnable); train is 40 mutants. The check fails on a shared task id or a shared (mutated file, operator) pair. All mutants are `font-size` or `missing-style` and easy, so train covers 2 of the 6 archetypes.
+- Docs: re-checked versions and the Agent Skills spec notes, including the one limit Argus enforces (body at most 8,000 characters) and where the three trust controls live.
+- Per-task detail: `docs/architecture/p5.5.md`.
 
 ## What P5 adds (so far)
 
