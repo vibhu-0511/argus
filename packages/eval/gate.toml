@@ -1,0 +1,13 @@
+# Regression gate thresholds (P5-T16). The only place they live; `python -m eval gate` reads this file.
+# ADR-017 (docs/adr/0017-ci-gate-thresholds.md) chose these values from the observed run-to-run noise. Only the repo owner changes them, in a reviewed PR.
+
+[resolve_rate]
+# z of the Wilson interval put around the baseline's successes/total. 1.96 = 95%, the same interval the results files store.
+z = 1.96
+# The run fails when its resolve rate is below (baseline lower bound - margin). 0.0 = no slack.
+margin = 0.0
+
+[tokens_per_bug]
+# The run fails when mean (tokens_in + tokens_out) per scored task is more than this fraction above the baseline's.
+# 1.0 = twice the baseline. Only meaningful when both files count tokens the same way.
+max_growth = 1.0

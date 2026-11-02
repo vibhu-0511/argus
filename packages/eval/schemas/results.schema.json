@@ -1,0 +1,551 @@
+{
+  "$defs": {
+    "AgentInfo": {
+      "additionalProperties": false,
+      "properties": {
+        "host": {
+          "minLength": 1,
+          "title": "Host",
+          "type": "string"
+        },
+        "model": {
+          "minLength": 1,
+          "title": "Model",
+          "type": "string"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "params": {
+          "additionalProperties": true,
+          "description": "The agent config's free-form params, copied as given.",
+          "title": "Params",
+          "type": "object"
+        }
+      },
+      "required": [
+        "name",
+        "model",
+        "host"
+      ],
+      "title": "AgentInfo",
+      "type": "object"
+    },
+    "Counts": {
+      "additionalProperties": false,
+      "properties": {
+        "error": {
+          "description": "The agent raised. Counted as unresolved in the denominator.",
+          "minimum": 0,
+          "title": "Error",
+          "type": "integer"
+        },
+        "excluded": {
+          "description": "Could not be set up or scored. Listed with a reason, left out of the resolve-rate denominator.",
+          "minimum": 0,
+          "title": "Excluded",
+          "type": "integer"
+        },
+        "resolved": {
+          "minimum": 0,
+          "title": "Resolved",
+          "type": "integer"
+        },
+        "unresolved": {
+          "minimum": 0,
+          "title": "Unresolved",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "resolved",
+        "unresolved",
+        "excluded",
+        "error"
+      ],
+      "title": "Counts",
+      "type": "object"
+    },
+    "Latency": {
+      "additionalProperties": false,
+      "properties": {
+        "n": {
+          "description": "Scored tasks that have a latency.",
+          "minimum": 0,
+          "title": "N",
+          "type": "integer"
+        },
+        "p50": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Seconds, linear interpolation between closest ranks. null when n is 0.",
+          "title": "P50"
+        },
+        "p95": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Seconds, same method. null when n is 0.",
+          "title": "P95"
+        }
+      },
+      "required": [
+        "p50",
+        "p95",
+        "n"
+      ],
+      "title": "Latency",
+      "type": "object"
+    },
+    "MetricsSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "recover_after_gate_failure_rate": {
+          "$ref": "#/$defs/Ratio"
+        },
+        "redundant_call_rate": {
+          "$ref": "#/$defs/Ratio"
+        },
+        "steps": {
+          "$ref": "#/$defs/StepStats"
+        },
+        "stuck_rate": {
+          "$ref": "#/$defs/Ratio"
+        },
+        "tool_error_rate": {
+          "$ref": "#/$defs/Ratio"
+        },
+        "trajectories": {
+          "title": "Trajectories",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "trajectories",
+        "steps",
+        "tool_error_rate",
+        "redundant_call_rate",
+        "stuck_rate",
+        "recover_after_gate_failure_rate"
+      ],
+      "title": "MetricsSummary",
+      "type": "object"
+    },
+    "Ratio": {
+      "additionalProperties": false,
+      "description": "`value` is null when the denominator is zero.",
+      "properties": {
+        "den": {
+          "title": "Den",
+          "type": "integer"
+        },
+        "num": {
+          "title": "Num",
+          "type": "integer"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "value",
+        "num",
+        "den"
+      ],
+      "title": "Ratio",
+      "type": "object"
+    },
+    "ResolveRate": {
+      "additionalProperties": false,
+      "properties": {
+        "ci_high": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Upper bound of the interval. null when total is 0.",
+          "title": "Ci High"
+        },
+        "ci_low": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Lower bound of the interval. null when total is 0.",
+          "title": "Ci Low"
+        },
+        "interval": {
+          "const": "wilson95",
+          "default": "wilson95",
+          "description": "Wilson score interval, 95%, z = 1.96.",
+          "title": "Interval",
+          "type": "string"
+        },
+        "rate": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "successes / total, 6 decimals. null when total is 0.",
+          "title": "Rate"
+        },
+        "successes": {
+          "description": "resolved",
+          "minimum": 0,
+          "title": "Successes",
+          "type": "integer"
+        },
+        "total": {
+          "description": "resolved + unresolved + error",
+          "minimum": 0,
+          "title": "Total",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "successes",
+        "total",
+        "rate",
+        "ci_low",
+        "ci_high"
+      ],
+      "title": "ResolveRate",
+      "type": "object"
+    },
+    "StepStats": {
+      "additionalProperties": false,
+      "properties": {
+        "mean": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Mean"
+        },
+        "median": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Median"
+        },
+        "total": {
+          "title": "Total",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "total",
+        "mean",
+        "median"
+      ],
+      "title": "StepStats",
+      "type": "object"
+    },
+    "TaskRow": {
+      "additionalProperties": false,
+      "properties": {
+        "latency_s": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Seconds. The agent's own figure if it gave one, else wall time around the agent call.",
+          "title": "Latency S"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Why a task is excluded or errored. null otherwise.",
+          "title": "Reason"
+        },
+        "steps": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Steps"
+        },
+        "stop_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The run's stop reason, for example submit or step-cap.",
+          "title": "Stop Reason"
+        },
+        "task_id": {
+          "minLength": 1,
+          "title": "Task Id",
+          "type": "string"
+        },
+        "tier": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "easy, medium or hard, from the task's meta.",
+          "title": "Tier"
+        },
+        "tokens": {
+          "$ref": "#/$defs/TokenCounts"
+        },
+        "trajectory": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Path to the run's trajectory.jsonl, as the agent gave it.",
+          "title": "Trajectory"
+        },
+        "verdict": {
+          "enum": [
+            "resolved",
+            "unresolved",
+            "excluded",
+            "error"
+          ],
+          "title": "Verdict",
+          "type": "string"
+        }
+      },
+      "required": [
+        "task_id",
+        "tier",
+        "verdict",
+        "reason",
+        "stop_reason",
+        "steps",
+        "tokens",
+        "latency_s",
+        "trajectory"
+      ],
+      "title": "TaskRow",
+      "type": "object"
+    },
+    "TokenCounts": {
+      "additionalProperties": false,
+      "properties": {
+        "tokens_cached": {
+          "minimum": 0,
+          "title": "Tokens Cached",
+          "type": "integer"
+        },
+        "tokens_in": {
+          "minimum": 0,
+          "title": "Tokens In",
+          "type": "integer"
+        },
+        "tokens_out": {
+          "minimum": 0,
+          "title": "Tokens Out",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "tokens_in",
+        "tokens_out",
+        "tokens_cached"
+      ],
+      "title": "TokenCounts",
+      "type": "object"
+    },
+    "TokenMeans": {
+      "additionalProperties": false,
+      "properties": {
+        "tokens_cached": {
+          "title": "Tokens Cached",
+          "type": "number"
+        },
+        "tokens_in": {
+          "title": "Tokens In",
+          "type": "number"
+        },
+        "tokens_out": {
+          "title": "Tokens Out",
+          "type": "number"
+        }
+      },
+      "required": [
+        "tokens_in",
+        "tokens_out",
+        "tokens_cached"
+      ],
+      "title": "TokenMeans",
+      "type": "object"
+    },
+    "Tokens": {
+      "additionalProperties": false,
+      "properties": {
+        "per_task": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TokenMeans"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "total / resolve_rate.total. null when total is 0."
+        },
+        "total": {
+          "$ref": "#/$defs/TokenCounts",
+          "description": "Summed over scored tasks (every task except excluded ones)."
+        }
+      },
+      "required": [
+        "total",
+        "per_task"
+      ],
+      "title": "Tokens",
+      "type": "object"
+    }
+  },
+  "$id": "https://argus.local/schemas/results.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "$_equivalent": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "List-price dollar equivalent of the scored tokens (argus_core.prices). null when there are no tokens.",
+      "title": "$ Equivalent"
+    },
+    "agent": {
+      "$ref": "#/$defs/AgentInfo"
+    },
+    "counts": {
+      "$ref": "#/$defs/Counts"
+    },
+    "created_at": {
+      "description": "UTC, ISO 8601, seconds.",
+      "title": "Created At",
+      "type": "string"
+    },
+    "latency_s": {
+      "$ref": "#/$defs/Latency"
+    },
+    "resolve_rate": {
+      "$ref": "#/$defs/ResolveRate"
+    },
+    "run_id": {
+      "minLength": 1,
+      "title": "Run Id",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "tasks": {
+      "items": {
+        "$ref": "#/$defs/TaskRow"
+      },
+      "title": "Tasks",
+      "type": "array"
+    },
+    "tokens": {
+      "$ref": "#/$defs/Tokens"
+    },
+    "trajectory_metrics": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/MetricsSummary"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "docs/metrics.md over the tasks that gave a trajectory. null when none did."
+    }
+  },
+  "required": [
+    "run_id",
+    "created_at",
+    "agent",
+    "counts",
+    "resolve_rate",
+    "tokens",
+    "latency_s",
+    "trajectory_metrics",
+    "tasks"
+  ],
+  "title": "Results",
+  "type": "object"
+}

@@ -1,0 +1,527 @@
+{
+  "schema_version": 1,
+  "run_id": "ablation-B-claude-routed",
+  "created_at": "2026-11-01T18:02:33Z",
+  "agent": {
+    "name": "ablation-B-claude-routed",
+    "model": "claude-sonnet-5-5",
+    "host": "claude-session",
+    "params": {
+      "out_dir": "C:\\Users\\vibha\\Downloads\\data\\personal\\argus\\.claude\\worktrees\\p5-tasks-waves-45bbcf\\packages\\eval\\runs\\t14\\B",
+      "claude_session": true,
+      "token_source": "chars/4 estimate of the messages; excludes subagent harness overhead",
+      "worker_models": {
+        "cheap": "haiku",
+        "strong": "sonnet"
+      },
+      "stages": {
+        "repro": "cheap",
+        "localize": "cheap",
+        "fix": "strong"
+      },
+      "fix_context": {
+        "strategy": "cap",
+        "budget": 32000
+      },
+      "repro_cap": 3,
+      "latency": "wall clock of the whole task including coordinator waits; several tasks ran at once"
+    }
+  },
+  "counts": {
+    "resolved": 20,
+    "unresolved": 8,
+    "excluded": 1,
+    "error": 0
+  },
+  "resolve_rate": {
+    "successes": 20,
+    "total": 28,
+    "rate": 0.714286,
+    "ci_low": 0.529404,
+    "ci_high": 0.847462,
+    "interval": "wilson95"
+  },
+  "tokens": {
+    "total": {
+      "tokens_in": 965190,
+      "tokens_out": 13116,
+      "tokens_cached": 0
+    },
+    "per_task": {
+      "tokens_in": 34471.071,
+      "tokens_out": 468.429,
+      "tokens_cached": 0.0
+    }
+  },
+  "latency_s": {
+    "p50": 1617.05,
+    "p95": 5097.535,
+    "n": 28
+  },
+  "trajectory_metrics": {
+    "trajectories": 29,
+    "steps": {
+      "total": 204,
+      "mean": 7.034483,
+      "median": 6.0
+    },
+    "tool_error_rate": {
+      "value": 0.083333,
+      "num": 17,
+      "den": 204
+    },
+    "redundant_call_rate": {
+      "value": 0.011429,
+      "num": 2,
+      "den": 175
+    },
+    "stuck_rate": {
+      "value": 0.0,
+      "num": 0,
+      "den": 29
+    },
+    "recover_after_gate_failure_rate": {
+      "value": null,
+      "num": 0,
+      "den": 0
+    }
+  },
+  "$_equivalent": 1.944574,
+  "tasks": [
+    {
+      "task_id": "seed-e01",
+      "tier": "easy",
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 5,
+      "tokens": {
+        "tokens_in": 20469,
+        "tokens_out": 268,
+        "tokens_cached": 0
+      },
+      "latency_s": 1083.5,
+      "trajectory": "packages/eval/results/t14/B/seed-e01/fix/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-e02",
+      "tier": "easy",
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 9,
+      "tokens": {
+        "tokens_in": 39287,
+        "tokens_out": 339,
+        "tokens_cached": 0
+      },
+      "latency_s": 1011.0,
+      "trajectory": "packages/eval/results/t14/B/seed-e02/fix/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-e03",
+      "tier": "easy",
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 6,
+      "tokens": {
+        "tokens_in": 14691,
+        "tokens_out": 324,
+        "tokens_cached": 0
+      },
+      "latency_s": 1017.2,
+      "trajectory": "packages/eval/results/t14/B/seed-e03/fix/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-e04",
+      "tier": "easy",
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 4,
+      "tokens": {
+        "tokens_in": 13579,
+        "tokens_out": 241,
+        "tokens_cached": 0
+      },
+      "latency_s": 884.8,
+      "trajectory": "packages/eval/results/t14/B/seed-e04/fix/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-e05",
+      "tier": "easy",
+      "verdict": "unresolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 7,
+      "tokens": {
+        "tokens_in": 33616,
+        "tokens_out": 365,
+        "tokens_cached": 0
+      },
+      "latency_s": 1112.2,
+      "trajectory": "packages/eval/results/t14/B/seed-e05/fix/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-e06",
+      "tier": "easy",
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 6,
+      "tokens": {
+        "tokens_in": 12918,
+        "tokens_out": 331,
+        "tokens_cached": 0
+      },
+      "latency_s": 1392.2,
+      "trajectory": "packages/eval/results/t14/B/seed-e06/fix/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-e07",
+      "tier": "easy",
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 10,
+      "tokens": {
+        "tokens_in": 54880,
+        "tokens_out": 415,
+        "tokens_cached": 0
+      },
+      "latency_s": 2470.5,
+      "trajectory": "packages/eval/results/t14/B/seed-e07/fix/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-e08",
+      "tier": "easy",
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 3,
+      "tokens": {
+        "tokens_in": 5384,
+        "tokens_out": 244,
+        "tokens_cached": 0
+      },
+      "latency_s": 750.6,
+      "trajectory": "packages/eval/results/t14/B/seed-e08/fix/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-e09",
+      "tier": "easy",
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 4,
+      "tokens": {
+        "tokens_in": 22738,
+        "tokens_out": 187,
+        "tokens_cached": 0
+      },
+      "latency_s": 899.2,
+      "trajectory": "packages/eval/results/t14/B/seed-e09/fix/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-e10",
+      "tier": "easy",
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 4,
+      "tokens": {
+        "tokens_in": 22286,
+        "tokens_out": 309,
+        "tokens_cached": 0
+      },
+      "latency_s": 876.1,
+      "trajectory": "packages/eval/results/t14/B/seed-e10/fix/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-h01",
+      "tier": "hard",
+      "verdict": "unresolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 7,
+      "tokens": {
+        "tokens_in": 42449,
+        "tokens_out": 602,
+        "tokens_cached": 0
+      },
+      "latency_s": 1582.1,
+      "trajectory": "packages/eval/results/t14/B/seed-h01/fix/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-h02",
+      "tier": "hard",
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 5,
+      "tokens": {
+        "tokens_in": 13797,
+        "tokens_out": 574,
+        "tokens_cached": 0
+      },
+      "latency_s": 1297.5,
+      "trajectory": "packages/eval/results/t14/B/seed-h02/fix/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-h03",
+      "tier": "hard",
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 7,
+      "tokens": {
+        "tokens_in": 25845,
+        "tokens_out": 563,
+        "tokens_cached": 0
+      },
+      "latency_s": 1652.0,
+      "trajectory": "packages/eval/results/t14/B/seed-h03/fix/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-h04",
+      "tier": "hard",
+      "verdict": "unresolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 12,
+      "tokens": {
+        "tokens_in": 73892,
+        "tokens_out": 833,
+        "tokens_cached": 0
+      },
+      "latency_s": 1833.5,
+      "trajectory": "packages/eval/results/t14/B/seed-h04/fix/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-h05",
+      "tier": "hard",
+      "verdict": "unresolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 10,
+      "tokens": {
+        "tokens_in": 62929,
+        "tokens_out": 595,
+        "tokens_cached": 0
+      },
+      "latency_s": 2271.0,
+      "trajectory": "packages/eval/results/t14/B/seed-h05/fix/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-h06",
+      "tier": "hard",
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 7,
+      "tokens": {
+        "tokens_in": 22543,
+        "tokens_out": 380,
+        "tokens_cached": 0
+      },
+      "latency_s": 372.2,
+      "trajectory": "packages/eval/results/t14/B/seed-h06/fix/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-h07",
+      "tier": "hard",
+      "verdict": "unresolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 6,
+      "tokens": {
+        "tokens_in": 25010,
+        "tokens_out": 569,
+        "tokens_cached": 0
+      },
+      "latency_s": 6177.3,
+      "trajectory": "packages/eval/results/t14/B/seed-h07/fix/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-h08",
+      "tier": "hard",
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 5,
+      "tokens": {
+        "tokens_in": 24535,
+        "tokens_out": 476,
+        "tokens_cached": 0
+      },
+      "latency_s": 1811.3,
+      "trajectory": "packages/eval/results/t14/B/seed-h08/fix/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-h09",
+      "tier": "hard",
+      "verdict": "excluded",
+      "reason": "scorer exit 2",
+      "stop_reason": "submit",
+      "steps": 11,
+      "tokens": {
+        "tokens_in": 49680,
+        "tokens_out": 662,
+        "tokens_cached": 0
+      },
+      "latency_s": null,
+      "trajectory": "packages/eval/results/t14/B/seed-h09/fix/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-h10",
+      "tier": "hard",
+      "verdict": "unresolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 14,
+      "tokens": {
+        "tokens_in": 84972,
+        "tokens_out": 958,
+        "tokens_cached": 0
+      },
+      "latency_s": 6154.5,
+      "trajectory": "packages/eval/results/t14/B/seed-h10/fix/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-m01",
+      "tier": "medium",
+      "verdict": "unresolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 4,
+      "tokens": {
+        "tokens_in": 4283,
+        "tokens_out": 309,
+        "tokens_cached": 0
+      },
+      "latency_s": 995.8,
+      "trajectory": "packages/eval/results/t14/B/seed-m01/fix/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-m02",
+      "tier": "medium",
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 17,
+      "tokens": {
+        "tokens_in": 163621,
+        "tokens_out": 756,
+        "tokens_cached": 0
+      },
+      "latency_s": 2806.7,
+      "trajectory": "packages/eval/results/t14/B/seed-m02/fix/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-m03",
+      "tier": "medium",
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 7,
+      "tokens": {
+        "tokens_in": 35506,
+        "tokens_out": 595,
+        "tokens_cached": 0
+      },
+      "latency_s": 2077.6,
+      "trajectory": "packages/eval/results/t14/B/seed-m03/fix/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-m04",
+      "tier": "medium",
+      "verdict": "unresolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 5,
+      "tokens": {
+        "tokens_in": 18927,
+        "tokens_out": 690,
+        "tokens_cached": 0
+      },
+      "latency_s": 1917.6,
+      "trajectory": "packages/eval/results/t14/B/seed-m04/fix/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-m05",
+      "tier": "medium",
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 6,
+      "tokens": {
+        "tokens_in": 22911,
+        "tokens_out": 345,
+        "tokens_cached": 0
+      },
+      "latency_s": 1961.7,
+      "trajectory": "packages/eval/results/t14/B/seed-m05/fix/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-m06",
+      "tier": "medium",
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 6,
+      "tokens": {
+        "tokens_in": 14913,
+        "tokens_out": 400,
+        "tokens_cached": 0
+      },
+      "latency_s": 3134.6,
+      "trajectory": "packages/eval/results/t14/B/seed-m06/fix/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-m07",
+      "tier": "medium",
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 6,
+      "tokens": {
+        "tokens_in": 27338,
+        "tokens_out": 403,
+        "tokens_cached": 0
+      },
+      "latency_s": 1856.1,
+      "trajectory": "packages/eval/results/t14/B/seed-m07/fix/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-m08",
+      "tier": "medium",
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 6,
+      "tokens": {
+        "tokens_in": 31272,
+        "tokens_out": 584,
+        "tokens_cached": 0
+      },
+      "latency_s": 1961.1,
+      "trajectory": "packages/eval/results/t14/B/seed-m08/fix/trajectory.jsonl"
+    },
+    {
+      "task_id": "seed-m09",
+      "tier": "medium",
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 5,
+      "tokens": {
+        "tokens_in": 30599,
+        "tokens_out": 461,
+        "tokens_cached": 0
+      },
+      "latency_s": 1277.2,
+      "trajectory": "packages/eval/results/t14/B/seed-m09/fix/trajectory.jsonl"
+    }
+  ]
+}

@@ -6,6 +6,8 @@ from dataclasses import dataclass
 
 import httpx
 
+from argus_core.telemetry import chat_span, record_completion
+
 
 @dataclass(frozen=True)
 class Usage:
@@ -30,6 +32,12 @@ class ModelClient:
         self.timeout = timeout
 
     def complete(self, model: str, messages: list[dict]) -> Completion:
+        with chat_span(model, self.base_url) as span:
+            done = self._post(model, messages)
+            record_completion(span, model, done)
+            return done
+
+    def _post(self, model: str, messages: list[dict]) -> Completion:
         headers = {"Content-Type": "application/json"}
         if self.api_key:
             headers["Authorization"] = f"Bearer {self.api_key}"

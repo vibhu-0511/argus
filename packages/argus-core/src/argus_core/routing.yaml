@@ -1,0 +1,23 @@
+# Routing policy. Data, not code: edit this file to move a stage to another tier or a tier to another model.
+# stages: stage name -> tier. A stage that is not listed is an error (UnknownStage), never a default.
+# tiers: tier -> primary route, and an optional fallback route on a different host.
+# fallback_on: what makes the router try the fallback route.
+#
+# Both primaries are Groq models because those are the two with a measured quota row (docs/quotas.md)
+# and a dated price (prices.json). config/profiles.md names Mistral Devstral as the fixer; Mistral has no
+# key on the Free plan, so it is the fallback for the strong tier instead of the primary.
+# The Mistral id below is NOT confirmed against docs.mistral.ai and has no quota row. Until
+# docs/quotas.md gets one the ledger refuses it, and a strong-tier quota refusal ends as QuotaExceeded.
+# The Ollama fallback is the local judge model; the caller must give it a quota row (no cap is published).
+stages:
+  repro: cheap
+  localize: cheap
+  fix: strong
+tiers:
+  cheap:
+    primary: {host: groq, model: openai/gpt-oss-20b}
+    fallback: {host: ollama, model: "gemma4:e4b"}
+  strong:
+    primary: {host: groq, model: openai/gpt-oss-120b}
+    fallback: {host: mistral, model: devstral-small-latest}
+fallback_on: [quota_exceeded, http_429]

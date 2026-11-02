@@ -1,0 +1,47 @@
+{
+  "unit": "USD per 1M tokens, list price",
+  "models": {
+    "openai/gpt-oss-20b": {
+      "input": 0.075,
+      "output": 0.30,
+      "cached_input": 0.0375,
+      "source": "https://console.groq.com/docs/models",
+      "cached_source": "https://console.groq.com/docs/prompt-caching",
+      "note": "cached_input is the page's 50% discount on input",
+      "date": "2026-11-01"
+    },
+    "openai/gpt-oss-120b": {
+      "input": 0.15,
+      "output": 0.60,
+      "cached_input": 0.075,
+      "source": "https://console.groq.com/docs/models",
+      "cached_source": "https://console.groq.com/docs/prompt-caching",
+      "note": "cached_input is the page's 50% discount on input",
+      "date": "2026-11-01"
+    },
+    "qwen/qwen3.8-27b": {
+      "input": 0.80,
+      "output": 4.00,
+      "cached_input": null,
+      "source": "https://console.groq.com/docs/models",
+      "note": "Groq prompt caching does not list this model, so cached tokens are priced at the input rate",
+      "date": "2026-11-01"
+    },
+    "claude-haiku-5-5": {
+      "input": 0.10,
+      "output": 0.50,
+      "cached_input": 0.01,
+      "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "note": "page lists the display name 'Claude Haiku 5.5'; the id is the API id (the page shows no ids). Rates are the row for prompts up to 100,000 tokens; prompts over that cost 0.50 / 2.50 / 0.05, and no run here sends one",
+      "date": "2026-11-01"
+    },
+    "claude-sonnet-5-5": {
+      "input": 2.00,
+      "output": 10.00,
+      "cached_input": 0.10,
+      "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "note": "page lists the display name 'Claude Sonnet 5.5'; the id is the API id; cache hit is 0.05x input",
+      "date": "2026-11-01"
+    }
+  }
+}

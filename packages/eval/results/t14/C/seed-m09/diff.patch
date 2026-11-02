@@ -1,0 +1,31 @@
+diff --git a/apps/canvas/src/styles/landing.css b/apps/canvas/src/styles/landing.css
+index 16cafdce2..aa810a70e 100644
+--- a/apps/canvas/src/styles/landing.css
++++ b/apps/canvas/src/styles/landing.css
+@@ -5,7 +5,7 @@
+ .landing {
+   position: fixed;
+   inset: 0;
+-  overflow: hidden;
++  overflow: visible;
+   color: #fff;
+   font-family: var(--font-sans);
+   /* cinematic near-black: a cool radial glow off the upper-right over a black base,
+@@ -121,7 +121,7 @@
+   line-height: 1.05;
+   letter-spacing: -0.01em;
+   white-space: nowrap;
+-  animation: landing-wipe 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.25s both;
++  animation: landing-wipe 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.25s backwards;
+ }
+ .landing-accent {
+   width: max-content;
+@@ -226,7 +226,7 @@
+   top: 0;
+   height: var(--band-h);
+   z-index: 1;
+-  overflow: hidden;
++  overflow: visible;
+   background: #0a0f1a;
+   /* the photograph dissolves into the page background; ending on a flat colour would leave a visible seam */
+   -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 56%, transparent 100%);
