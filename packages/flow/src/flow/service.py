@@ -15,9 +15,9 @@ Start-up has two parts, so the port opens fast and a missing setting still stops
 503 only if the engine failed to start, so Render's health check restarts the instance.
 `GET /health/db` does touch the database (and so wakes a suspended Neon compute).
 
-The runners are the T04 `ActionsRunner` (repro, fix, verify). The GitHub write client the workflow
-needs (push branch, find or create the draft PR, ready, close, comment, label) does not exist yet:
-`UnwiredGitHub` raises on every call. See docs/notes/p6-t12.md for what that does to a ticket.
+The runners are the T04 `ActionsRunner` (repro, fix, verify). The workflow's GitHub write client
+(push branch, find or create the draft PR, ready, close, comment, label) is `HttpGitHubClient`
+(`flow.github_write`); it has not talked to the real GitHub yet (docs/notes/p6-t12.md).
 The MCP QA tool (`flow.qa_mcp`) is not mounted; the review-comment path (T10) is.
 
 Secrets are read from the environment only, and no log line or error text here carries a value.
@@ -48,11 +48,13 @@ from flow.dbos_runtime import launch, shutdown
 from flow.enqueue import Enqueuer
 from flow.github_read import TOKEN_ENV as READ_TOKEN_ENV
 from flow.github_read import HttpGitHubReader
+from flow.github_write import TOKEN_ENV as WRITE_TOKEN_ENV
+from flow.github_write import HttpGitHubClient
 from flow.reconcile import REPO_ENV, DbosLookup, PollConfig, Reconciler, poll_forever
 from flow.review_comment import ReviewSignal, send_review_signal
 from flow.webhook import SECRET_ENV as WEBHOOK_SECRET_ENV
 from flow.webhook import create_app
-from flow.workflow import Deps, PullRequest
+from flow.workflow import Deps
 
 log = logging.getLogger("flow.service")
 
@@ -74,40 +76,12 @@ class ServiceConfig:
 def load_config() -> ServiceConfig:
     """Read and check every setting. Raises RuntimeError that names variables, never values."""
     polling = os.environ.get(POLL_ENABLED_ENV, "1").strip().lower() not in _OFF
-    required = [DATABASE_URL_ENV, WEBHOOK_SECRET_ENV, DISPATCH_TOKEN_ENV, REPO_ENV] + ([READ_TOKEN_ENV] if polling else [])
+    required = [DATABASE_URL_ENV, WEBHOOK_SECRET_ENV, DISPATCH_TOKEN_ENV, WRITE_TOKEN_ENV, REPO_ENV] + ([READ_TOKEN_ENV] if polling else [])
     missing = [name for name in required if not os.environ.get(name)]
     if missing:
         raise RuntimeError("missing required environment variables: " + ", ".join(missing))
     settings = FlowSettings.from_env()  # TLS and number checks; its messages name the variable only
     return ServiceConfig(settings, repo=os.environ[REPO_ENV], poll=PollConfig.from_env() if polling else None)
-
-
-class UnwiredGitHub:
-    """The workflow's `GitHubClient` in production until the real one is written. Every call raises."""
-
-    def _no(self) -> None:
-        raise NotImplementedError("the GitHub write client (push branch, PR, comment, label) is not built yet")
-
-    def push_branch(self, branch: str, patch: str, key: str) -> None:
-        self._no()
-
-    def find_pr(self, branch: str) -> PullRequest | None:
-        self._no()
-
-    def create_draft_pr(self, branch: str, title: str, body: str) -> PullRequest:
-        self._no()
-
-    def ready_pr(self, branch: str) -> None:
-        self._no()
-
-    def close_pr(self, branch: str) -> None:
-        self._no()
-
-    def post_comment(self, ticket_id: str, key: str, body: str) -> None:
-        self._no()
-
-    def set_label(self, ticket_id: str, state: str) -> None:
-        self._no()
 
 
 class Engine(NamedTuple):
@@ -118,7 +92,7 @@ class Engine(NamedTuple):
 def start_engine(cfg: ServiceConfig) -> Engine:
     """Blocking: wake the database, launch DBOS, build the poller. Run it in a thread."""
     runners = {step: ActionsRunner.from_env(step, repo=cfg.repo) for step in ("repro", "fix", "verify")}
-    enqueuer = launch(cfg.settings, Deps(**runners, github=UnwiredGitHub()))
+    enqueuer = launch(cfg.settings, Deps(**runners, github=HttpGitHubClient.from_env(cfg.repo)))
     poller = Reconciler(HttpGitHubReader.from_env(), DbosLookup(), enqueuer, cfg.poll) if cfg.poll else None
     return Engine(enqueuer, poller)
 

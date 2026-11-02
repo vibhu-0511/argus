@@ -19,6 +19,8 @@ services:
         sync: false
       - key: GITHUB_DISPATCH_TOKEN # fine-grained, Actions read/write on the one repository
         sync: false
+      - key: GITHUB_WRITE_TOKEN # fine-grained, Contents, Pull requests and Issues read/write on the one repository
+        sync: false
       - key: GITHUB_TOKEN # read-only, for the poller
         sync: false
       - key: ARGUS_FLOW_REPO # owner/name of the repository whose issues are tickets
@@ -27,5 +29,5 @@ services:
         sync: false
       - key: ARGUS_FLOW_QA_TIMEOUT_SECONDS # how long a reviewer may take; the code default (60 s) is for tests
         sync: false
-      - key: ARGUS_FLOW_POLL_ENABLED # off until the GitHub write client exists (docs/notes/p6-t12.md)
+      - key: ARGUS_FLOW_POLL_ENABLED # off until the first real run (docs/notes/p6-t12.md): with no ticket label the poller would start a workflow for every open issue
         value: "false"

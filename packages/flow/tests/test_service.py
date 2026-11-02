@@ -23,7 +23,9 @@ from fastapi.testclient import TestClient
 from flow.config import DATABASE_URL_ENV, FlowSettings
 from flow.db_wake import DatabaseUnavailable
 from flow.enqueue import FakeEnqueuer
-from flow.service import Engine, ServiceConfig, UnwiredGitHub, create_service_app, load_config
+from flow import service
+from flow.github_write import HttpGitHubClient
+from flow.service import Engine, ServiceConfig, create_service_app, load_config, start_engine
 
 REAL_URL = os.environ.get(DATABASE_URL_ENV)  # read at import: the `env` fixture replaces the variable with a fake
 SECRET = "hook-secret-not-real"
@@ -34,6 +36,7 @@ ENV = {
     DATABASE_URL_ENV: URL,
     "GITHUB_WEBHOOK_SECRET": SECRET,
     "GITHUB_DISPATCH_TOKEN": "dispatch-token-not-real",
+    "GITHUB_WRITE_TOKEN": "write-token-not-real",
     "GITHUB_TOKEN": "read-token-not-real",
     "ARGUS_FLOW_REPO": "acme/shop",
 }
@@ -67,7 +70,7 @@ def wait_for(predicate, timeout: float = 3.0) -> bool:
 
 @pytest.fixture
 def env(monkeypatch):
-    for name in (DATABASE_URL_ENV, "ARGUS_FLOW_POLL_ENABLED", "ARGUS_FLOW_REPO", "GITHUB_TOKEN", "GITHUB_DISPATCH_TOKEN", "GITHUB_WEBHOOK_SECRET"):
+    for name in (DATABASE_URL_ENV, "ARGUS_FLOW_POLL_ENABLED", "ARGUS_FLOW_REPO", "GITHUB_TOKEN", "GITHUB_DISPATCH_TOKEN", "GITHUB_WRITE_TOKEN", "GITHUB_WEBHOOK_SECRET"):
         monkeypatch.delenv(name, raising=False)
     for name, value in ENV.items():
         monkeypatch.setenv(name, value)
@@ -114,10 +117,11 @@ def test_a_database_that_never_answers_fails_health_with_the_class_only(caplog):
 def test_the_service_refuses_to_start_without_its_settings_and_names_only_variables(env):
     env.delenv("GITHUB_WEBHOOK_SECRET")
     env.delenv("GITHUB_DISPATCH_TOKEN")
+    env.delenv("GITHUB_WRITE_TOKEN")
     with pytest.raises(RuntimeError) as raised, TestClient(create_service_app()):
         pass
     message = str(raised.value)
-    assert "GITHUB_WEBHOOK_SECRET" in message and "GITHUB_DISPATCH_TOKEN" in message
+    assert "GITHUB_WEBHOOK_SECRET" in message and "GITHUB_DISPATCH_TOKEN" in message and "GITHUB_WRITE_TOKEN" in message
     assert PASSWORD not in message and SECRET not in message and ENV["GITHUB_TOKEN"] not in message
 
 
@@ -193,9 +197,13 @@ def test_a_webhook_during_start_up_is_answered_202_and_enqueued_when_the_engine_
         assert enqueuer.calls == ["acme/shop#7"]
 
 
-def test_the_unwired_github_client_refuses_loudly():
-    with pytest.raises(NotImplementedError, match="not built yet"):
-        UnwiredGitHub().create_draft_pr("argus/x", "t", "b")
+def test_start_engine_hands_the_workflow_the_real_github_client(env, monkeypatch):
+    seen = []
+    monkeypatch.setattr(service, "launch", lambda settings, deps: seen.append(deps) or FakeEnqueuer())
+    start_engine(fake_config())
+    (deps,) = seen
+    assert isinstance(deps.github, HttpGitHubClient)
+    assert ENV["GITHUB_WRITE_TOKEN"] not in repr(deps.github)
 
 
 def test_render_blueprint_is_a_free_web_service_with_secrets_as_keys_only():
@@ -204,7 +212,7 @@ def test_render_blueprint_is_a_free_web_service_with_secrets_as_keys_only():
     assert (service["type"], service["plan"], service["runtime"], service["healthCheckPath"]) == ("web", "free", "python", "/health")
     assert "flow.service:create_service_app" in service["startCommand"] and "--factory" in service["startCommand"]
     keys = {e["key"]: e for e in service["envVars"]}
-    for name in (DATABASE_URL_ENV, "GITHUB_WEBHOOK_SECRET", "GITHUB_DISPATCH_TOKEN", "GITHUB_TOKEN"):
+    for name in (DATABASE_URL_ENV, "GITHUB_WEBHOOK_SECRET", "GITHUB_DISPATCH_TOKEN", "GITHUB_WRITE_TOKEN", "GITHUB_TOKEN"):
         assert keys[name] == {"key": name, "sync": False}, f"{name} must not carry a value"
     assert not [k for k in keys if k.startswith("DBOS") or "CONDUCTOR" in k.upper()]
 
