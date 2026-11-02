@@ -228,27 +228,27 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 - [x] P5-T26 Break it: put a timestamp at the top of the system prompt [ME] 2h
 - [x] P5-T27 Break it: route a hard fix step to the cheap tier [ME] 2h
 - [x] P5-T28 Write package README and phase report against P4 [CLAUDE] 1h
-- [ ] P5.5-T00 Re-verify pinned versions via web search [CLAUDE] 1h
-- [ ] P5.5-T01 Read the Agent Skills spec and the Anthropic post, write notes [ME] 1h
-- [ ] P5.5-T02 Build the skill loader with progressive disclosure inside fix-loop [ME] 2h
-- [ ] P5.5-T03 Define the train and held-out split [ME] 1h
-- [ ] P5.5-T04 Collect successful trajectories on the training tasks [ME] 2h
-- [ ] P5.5-T05 Draft candidate skills from successful trajectories with the cheap-tier model [PAIR] 1h
+- [x] P5.5-T00 Re-verify pinned versions via web search [CLAUDE] 1h
+- [x] P5.5-T01 Read the Agent Skills spec and the Anthropic post, write notes [ME] 1h (notes written by Claude, owner to read)
+- [x] P5.5-T02 Build the skill loader with progressive disclosure inside fix-loop [ME] 2h
+- [x] P5.5-T03 Define the train and held-out split [ME] 1h
+- [x] P5.5-T04 Collect successful trajectories on the training tasks [ME] 2h (20 resolved of 21 finished; the budget is self-imposed, no provider ledger exists for Claude sessions: docs/notes/p5.5-t04.md)
+- [x] P5.5-T05 Draft candidate skills from successful trajectories with the cheap-tier model [PAIR] 1h
 
 ## Week 21 — P5.5 (20 h scheduled)
 
-- [ ] P5.5-T06 Review, edit and keep at least 5 skills [ME] 2h
-- [ ] P5.5-T07 Test skill selection: does the description trigger the right skill [PAIR] 1h
-- [ ] P5.5-T08 Run ablation: with vs without skills on the held-out set [ME] 3h
-- [ ] P5.5-T09 Write ADR-018: Skill format and distillation criteria [ME] 1h
-- [ ] P5.5-T10 Build skill trust controls: review flag, content hash pin and tool allowlist per skill [ME] 2h
-- [ ] P5.5-T11 Write ADR-019: Skill trust model [ME] 1h
-- [ ] P5.5-T12 Add CI job to lint skill files (frontmatter, size limit, hash file), no LLM [CLAUDE] 1h
-- [ ] P5.5-T13 Break it: activate a skill that tells the agent to edit the bench checks [ME] 2h
-- [ ] P5.5-T14 Break it: activate a skill that tries to send data out over the network [ME] 2h
-- [ ] P5.5-T15 Break it: write a skill whose description matches every ticket [ME] 2h
-- [ ] P5.5-T16 Break it: leave a skill that names a file since renamed [ME] 2h
-- [ ] P5.5-T17 Write package README and phase report against P5 [CLAUDE] 1h
+- [x] P5.5-T06 Review, edit and keep at least 5 skills [ME] 2h. Done on 2026-11-02 by Claude at the owner's request, and the owner confirmed the 5 pins in chat: 3 skills backed by 11, 3 and 4 runs, 2 thin ones (1 run each); drafts deleted. See `docs/notes/p5.5-t06.md`.
+- [x] P5.5-T07 Test skill selection: does the description trigger the right skill [PAIR] 1h
+- [x] P5.5-T08 Run ablation: with vs without skills on the held-out set [ME] 3h. Done on 2026-11-02 on the 29 runnable held-out tasks (not 30): 72.4% (21/29) with skills against 70.4% (19/27) without, same outcome on all 27 paired tasks; skills did not help. See `docs/notes/p5.5-t08.md`.
+- [x] P5.5-T09 Write ADR-018: Skill format and distillation criteria [ME] 1h (drafted by Claude, status proposed: owner to review. See `docs/adr/0018-skill-format-and-distillation-criteria.md`)
+- [x] P5.5-T10 Build skill trust controls: review flag, content hash pin and tool allowlist per skill [ME] 2h
+- [x] P5.5-T11 Write ADR-019: Skill trust model [ME] 1h
+- [x] P5.5-T12 Add CI job to lint skill files (frontmatter, size limit, hash file), no LLM [CLAUDE] 1h. Green on GitHub on PR #14 (push run 41509388038 and pull-request run 41509383525, commit 52493d5); the lint fails on a bad skill in the tests.
+- [x] P5.5-T13 Break it: activate a skill that tells the agent to edit the bench checks [ME] 2h
+- [x] P5.5-T14 Break it: activate a skill that tries to send data out over the network [ME] 2h
+- [x] P5.5-T15 Break it: write a skill whose description matches every ticket [ME] 2h
+- [x] P5.5-T16 Break it: leave a skill that names a file since renamed [ME] 2h
+- [x] P5.5-T17 Write package README and phase report against P5 [CLAUDE] 1h (rows from stored results files; the previous-phase row is P5 variant B and is not the same method, see `docs/notes/p5.5-t17.md`)
 
 ## Week 22 — P6 (20 h scheduled)
 

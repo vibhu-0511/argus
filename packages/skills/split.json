@@ -1,0 +1,268 @@
+{
+  "rule": "train = 20 mutants per archetype, spread over source files (files take turns, each file's picks evenly spaced by id), only mutants sharing no (file, operator) pair with any held-out task; ordered by tier then interleaved by archetype; held-out = all seeded tasks. No randomness.",
+  "held_out": [
+    {
+      "id": "bug-17",
+      "runnable": false
+    },
+    {
+      "id": "seed-e01",
+      "runnable": true
+    },
+    {
+      "id": "seed-e02",
+      "runnable": true
+    },
+    {
+      "id": "seed-e03",
+      "runnable": true
+    },
+    {
+      "id": "seed-e04",
+      "runnable": true
+    },
+    {
+      "id": "seed-e05",
+      "runnable": true
+    },
+    {
+      "id": "seed-e06",
+      "runnable": true
+    },
+    {
+      "id": "seed-e07",
+      "runnable": true
+    },
+    {
+      "id": "seed-e08",
+      "runnable": true
+    },
+    {
+      "id": "seed-e09",
+      "runnable": true
+    },
+    {
+      "id": "seed-e10",
+      "runnable": true
+    },
+    {
+      "id": "seed-h01",
+      "runnable": true
+    },
+    {
+      "id": "seed-h02",
+      "runnable": true
+    },
+    {
+      "id": "seed-h03",
+      "runnable": true
+    },
+    {
+      "id": "seed-h04",
+      "runnable": true
+    },
+    {
+      "id": "seed-h05",
+      "runnable": true
+    },
+    {
+      "id": "seed-h06",
+      "runnable": true
+    },
+    {
+      "id": "seed-h07",
+      "runnable": true
+    },
+    {
+      "id": "seed-h08",
+      "runnable": true
+    },
+    {
+      "id": "seed-h09",
+      "runnable": true
+    },
+    {
+      "id": "seed-h10",
+      "runnable": true
+    },
+    {
+      "id": "seed-m01",
+      "runnable": true
+    },
+    {
+      "id": "seed-m02",
+      "runnable": true
+    },
+    {
+      "id": "seed-m03",
+      "runnable": true
+    },
+    {
+      "id": "seed-m04",
+      "runnable": true
+    },
+    {
+      "id": "seed-m05",
+      "runnable": true
+    },
+    {
+      "id": "seed-m06",
+      "runnable": true
+    },
+    {
+      "id": "seed-m07",
+      "runnable": true
+    },
+    {
+      "id": "seed-m08",
+      "runnable": true
+    },
+    {
+      "id": "seed-m09",
+      "runnable": true
+    }
+  ],
+  "train": [
+    "mut-0190",
+    "mut-0001",
+    "mut-0195",
+    "mut-0002",
+    "mut-0201",
+    "mut-0003",
+    "mut-0206",
+    "mut-0004",
+    "mut-0212",
+    "mut-0005",
+    "mut-0217",
+    "mut-0006",
+    "mut-0223",
+    "mut-0018",
+    "mut-0228",
+    "mut-0030",
+    "mut-0234",
+    "mut-0042",
+    "mut-0239",
+    "mut-0055",
+    "mut-0245",
+    "mut-0067",
+    "mut-0251",
+    "mut-0079",
+    "mut-0256",
+    "mut-0091",
+    "mut-0262",
+    "mut-0104",
+    "mut-0267",
+    "mut-0116",
+    "mut-0273",
+    "mut-0128",
+    "mut-0278",
+    "mut-0140",
+    "mut-0284",
+    "mut-0153",
+    "mut-0289",
+    "mut-0165",
+    "mut-0295",
+    "mut-0177"
+  ],
+  "pairs": {
+    "held_out": [
+      [
+        "apps/canvas/src/ops/ops.css",
+        "swap-flex-direction"
+      ],
+      [
+        "apps/canvas/src/ops/ops.css",
+        "z-index"
+      ],
+      [
+        "apps/canvas/src/ops/radar.css",
+        "change-element"
+      ],
+      [
+        "apps/canvas/src/ops/radar.css",
+        "change-unit"
+      ],
+      [
+        "apps/canvas/src/ops/radar.css",
+        "delete-rule"
+      ],
+      [
+        "apps/canvas/src/ops/radar.css",
+        "drop-prop"
+      ],
+      [
+        "apps/canvas/src/ops/radar.css",
+        "overflow"
+      ],
+      [
+        "apps/canvas/src/ops/radar.css",
+        "swap-flex-direction"
+      ],
+      [
+        "apps/canvas/src/styles/landing.css",
+        "change-unit"
+      ],
+      [
+        "apps/canvas/src/styles/landing.css",
+        "delete-rule"
+      ],
+      [
+        "apps/canvas/src/styles/landing.css",
+        "overflow"
+      ],
+      [
+        "apps/canvas/src/styles/landing.css",
+        "z-index"
+      ],
+      [
+        "apps/canvas/src/styles/tokens.css",
+        "change-element"
+      ],
+      [
+        "apps/canvas/src/styles/tokens.css",
+        "change-unit"
+      ],
+      [
+        "apps/canvas/src/styles/tokens.css",
+        "drop-prop"
+      ]
+    ],
+    "train": [
+      [
+        "apps/canvas/src/insights/desk/assistant.css",
+        "delete-rule"
+      ],
+      [
+        "apps/canvas/src/insights/desk/desk.css",
+        "delete-rule"
+      ],
+      [
+        "apps/canvas/src/ops/ops.css",
+        "change-unit"
+      ],
+      [
+        "apps/canvas/src/ops/ops.css",
+        "delete-rule"
+      ]
+    ]
+  },
+  "counts": {
+    "held_out": 30,
+    "held_out_runnable": 29,
+    "train": 40,
+    "mutants": 300,
+    "mutants_dropped_for_shared_pair": 0,
+    "train_by_archetype": {
+      "font-size": 20,
+      "missing-style": 20
+    },
+    "train_by_tier": {
+      "easy": 40
+    },
+    "train_by_file": {
+      "apps/canvas/src/ops/ops.css": 35,
+      "apps/canvas/src/insights/desk/assistant.css": 2,
+      "apps/canvas/src/insights/desk/desk.css": 3
+    }
+  }
+}

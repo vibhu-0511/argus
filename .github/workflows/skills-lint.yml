@@ -1,0 +1,30 @@
+name: skills-lint
+
+# No model call, no network, no keys or tokens. Lints packages/skills/skills/*/SKILL.md and skills.lock.json
+# (frontmatter, body size limit, hash pin) with the loader's own checks, so the fix-loop skill module is a trigger too.
+on:
+  push:
+    paths:
+      - "packages/skills/**"
+      - "packages/fix-loop/src/fix_loop/skills.py"
+      - ".github/workflows/skills-lint.yml"
+  pull_request:
+    paths:
+      - "packages/skills/**"
+      - "packages/fix-loop/src/fix_loop/skills.py"
+      - ".github/workflows/skills-lint.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+      - run: uv sync --all-packages --locked
+      - run: uv run pytest packages/skills/tests/test_lint.py -q
+      - run: uv run --package skills python -m skills.lint

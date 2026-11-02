@@ -1,0 +1,1 @@
+--desk-bg on .cid-desk changed from #0a0f1a.

@@ -1,0 +1,22 @@
+diff --git a/apps/canvas/src/ops/radar.css b/apps/canvas/src/ops/radar.css
+index e258d8594..f2869186c 100644
+--- a/apps/canvas/src/ops/radar.css
++++ b/apps/canvas/src/ops/radar.css
+@@ -73,7 +73,7 @@
+ .radar-clock-label { font-size: 10px; letter-spacing: 2px; color: var(--radar-dim); }
+ .radar-head-button { min-height: 36px; padding: 6px 12px; border: 1px solid rgba(59, 130, 246, 0.35); border-radius: 8px; background: transparent; color: var(--radar-muted); font-family: var(--radar-mono); font-size: 12px; font-weight: 600; letter-spacing: 1.5px; cursor: pointer; }
+ .radar-screen:fullscreen .radar-head-button { display: none; }
+-.radar-modes { display: inline-flex; align-items: stretch; margin-left: auto; border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px; overflow: visible; background: transparent; }
++.radar-modes { display: inline-flex; align-items: stretch; margin-left: auto; border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px; overflow: hidden; background: transparent; }
+ .radar-modes .radar-mode { min-height: 36px; padding: 6px 14px; border: 0; border-radius: 0; background: transparent; color: var(--radar-muted); font-family: var(--radar-mono); font-size: 12px; font-weight: 600; letter-spacing: 1.5px; line-height: 1.25; cursor: pointer; }
+ .radar-modes .radar-mode + .radar-mode { border-left: 1px solid rgba(59, 130, 246, 0.3); }
+ .radar-modes .radar-mode[aria-pressed="true"] { background: rgba(59, 130, 246, 0.14); color: var(--radar-ink); }
+@@ -154,7 +154,7 @@ button.radar-secondary:hover { background: rgba(59, 130, 246, 0.08); }
+ .radar-ack-error { color: var(--radar-amber-ink); font-size: 12px; }
+ .radar-unplaced { margin: 0; font: 12px var(--radar-mono); color: var(--radar-faint); }
+ 
+-.radar-list { display: flex; flex-direction: column; max-height: 540px; overflow-y: visible; padding-right: 4px; border-top: 1px solid var(--radar-line); }
++.radar-list { display: flex; flex-direction: column; max-height: 540px; overflow-y: auto; padding-right: 4px; border-top: 1px solid var(--radar-line); }
+ .radar-list::-webkit-scrollbar { width: 8px; }
+ .radar-list::-webkit-scrollbar-thumb { background: rgba(59, 130, 246, 0.25); border-radius: 4px; }
+ .radar-row { display: grid; grid-template-columns: 56px auto minmax(0, 1fr) auto; gap: 12px; align-items: center; width: 100%; min-height: 54px; padding: 9px 10px 9px 12px; border: 0; border-bottom: 1px solid rgba(59, 130, 246, 0.08); border-left: 2px solid transparent; border-radius: 0; background: transparent; color: inherit; text-align: left; cursor: pointer; }

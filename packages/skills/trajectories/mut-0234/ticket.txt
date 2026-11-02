@@ -1,0 +1,1 @@
+margin-top on .ops-rules-fdp changed from 10px.

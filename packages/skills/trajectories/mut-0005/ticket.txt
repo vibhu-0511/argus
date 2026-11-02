@@ -1,0 +1,1 @@
+transform-box on .ic-rise changed from fill-box.
