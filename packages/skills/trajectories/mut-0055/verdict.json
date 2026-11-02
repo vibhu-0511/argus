@@ -1,0 +1,23 @@
+{
+  "task_id": "mut-0055",
+  "variant": "T",
+  "stop_reason": "submit",
+  "repro_stop_reason": "off",
+  "repro_found": false,
+  "score_exit": 0,
+  "verdict": "resolved",
+  "model_turns": 12,
+  "turns_by_stage": {
+    "fix": 12
+  },
+  "turns_by_tier": {
+    "strong": 12
+  },
+  "models": [
+    "claude-sonnet-5-5"
+  ],
+  "token_source": "chars/4 estimate",
+  "started_at": 1793635562.8419368,
+  "finished_at": 1793636449.9484625,
+  "wall_s": 887.1
+}

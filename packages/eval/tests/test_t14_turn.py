@@ -114,3 +114,42 @@ def test_the_table_labels_a_claude_session_run_and_leaves_the_quota_cell_a_dash(
     text = table(tmp_path / "res.json", tmp_path / "res.json")
     assert "Claude-session tiers" in text and "chars/4 estimates" in text
     assert f"| {DASH} | " in text and f"{DASH} (stage" not in text  # quota share is a dash; the trajectories matched
+
+
+def _git(repo: Path, *args: str) -> None:
+    import subprocess
+
+    subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", "-C", str(repo), *args], check=True, capture_output=True)
+
+
+def test_variant_t_starts_a_mutated_task_fix_stage_only(tmp_path: Path, monkeypatch, capsys):
+    """P5.5-T04: a train mutant is found under tasks/mutated, runs under runs/p55-t04/<id>, and the first model turn is a fix turn."""
+    repo = tmp_path / "platform"
+    repo.mkdir()
+    (repo / "a.css").write_text(".x {\n  font-size: 13px;\n}\n", encoding="utf-8", newline="\n")
+    _git(repo, "init", "-q")
+    _git(repo, "add", ".")
+    _git(repo, "commit", "-qm", "init")
+    mutated = tmp_path / "mutated" / "mut-9999"
+    mutated.mkdir(parents=True)
+    (mutated / "ticket.json").write_text(json.dumps({"id": "mut-9999", "text": "font-size on .x changed from 13px."}), encoding="utf-8")
+    (mutated / "checks.json").write_text("[]", encoding="utf-8")
+    (mutated / "bug.patch").write_bytes(b"--- a/a.css\n+++ b/a.css\n@@ -1,3 +1,3 @@\n .x {\n-  font-size: 13px;\n+  font-size: 99px;\n }\n")
+    monkeypatch.setenv("ARGUS_PLATFORM_REPO", str(repo))
+    monkeypatch.setattr(t14_turn, "MUTATED", tmp_path / "mutated")
+    monkeypatch.setattr(t14_turn, "SEEDED", tmp_path / "seeded")
+    monkeypatch.setattr(t14_turn, "TRAIN_RUNS", tmp_path / "p55-t04")
+    monkeypatch.setattr(t14_turn, "_head", lambda: "stub")
+
+    with pytest.raises(SystemExit, match="not found"):  # A and B still look only in seeded
+        t14_turn.start("A", "mut-9999")
+    assert t14_turn.start("T", "mut-9999") == 0
+    assert "next: stage=fix tier=strong worker_model=sonnet" in capsys.readouterr().out  # no repro stage was asked for
+    out = tmp_path / "p55-t04" / "mut-9999"
+    assert json.loads((out / "task.json").read_text(encoding="utf-8"))["task"] == str(mutated)
+    assert not (out / "repro").exists()
+    # a stub reply moves the run on; the patch was applied to the tree
+    assert t14_turn.answer("T-mut-9999", json.dumps({"tool": "read_file", "arguments": {"path": "a.css"}})) == 0
+    assert "recorded 1 answers; next: stage=fix" in capsys.readouterr().out
+    assert "99px" in (Path(json.loads((out / "task.json").read_text(encoding="utf-8"))["tree"]) / "a.css").read_text(encoding="utf-8")
+    assert t14_turn._run_dir("T-mut-9999") == out
