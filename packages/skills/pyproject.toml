@@ -1,7 +1,7 @@
 [project]
 name = "skills"
 version = "0.1.0"
-description = "P5.5 skill tooling: the train and held-out split, and the draft script."
+description = "P5.5 skill tooling: the train and held-out split, the draft script, the trust pin and the skill lint."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = ["argus-core", "fix-loop"]
