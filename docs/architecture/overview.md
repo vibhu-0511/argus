@@ -123,6 +123,12 @@ flowchart LR
     VERS["version re-check<br/>promptfoo, gVisor, Firecracker, App token, 2026-11-03"]:::p7
     OWASPN["OWASP ASI01 to ASI10 and Firecracker notes<br/>names from the launch post, PDF not read"]:::p7
     TM["threat model<br/>assets, trust boundaries, data flow, 10 ASI rows"]:::p7
+    SECINV["secrets inventory<br/>name, place, who can read"]:::p7
+    REDACT["redactor<br/>argus_core.redact, masks known env values and token shapes"]:::p7
+    RSCAN["secret scan<br/>check_no_secrets.py, remote-URL check, secret-scan.yml not run on GitHub"]:::p7
+    AUDIT["audit log<br/>hash chain, guard verify-log, not wired into fix-loop"]:::p7
+    EGRESS["egress probe<br/>tcp, https, dns; ran locally, egress.yml not run on GitHub"]:::p7
+    ESCAPE["escape suite<br/>12 probes, docker tier 12 of 12 blocked, gvisor and firecracker not run"]:::p7
   end
 
   BUGSMITH --> FILTER
@@ -269,6 +275,16 @@ flowchart LR
   TM -. "skill injection path" .-> SKLOAD
   TM -. "webhook and token" .-> WEBHOOK
   TM -. "workflow and Actions" .-> WF
+  SECINV -. "lists" .-> REDACT
+  REDACT -- "masks every trajectory file" --> TRAJ
+  REDACT -- "masks span attributes" --> OTEL
+  RSCAN -. "scans tracked files" .-> CORE
+  AUDIT -. "will record tool calls" .-> TOOLS
+  EGRESS -- "same probe as the sandbox" --> WT
+  ESCAPE -- "12 probes" --> WT
+  ESCAPE -. "extends" .-> EGRESS
+  TM -. "ASI10 control" .-> AUDIT
+  TM -. "ASI05 control" .-> ESCAPE
 
   classDef p0 fill:#dbeafe,stroke:#1d4ed8,stroke-width:1.5px,color:#111827
   style S0 fill:none,stroke:#1d4ed8,stroke-width:1.5px
@@ -289,7 +305,7 @@ flowchart LR
   classDef p7 fill:#fee2e2,stroke:#b91c1c,stroke-width:4px,color:#111827
   style S7 fill:none,stroke:#b91c1c,stroke-width:4px
   classDef ext fill:#ffffff,stroke:#6b7280,color:#111827,stroke-dasharray: 4 3
-  linkStyle 134,135,136,137,138,139,140,141 stroke-width:3px
+  linkStyle 134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151 stroke-width:3px
 ```
 
 ## How to read it
@@ -337,6 +353,9 @@ Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink, P5.5 purple,
 - Wave 1 (docs): `docs/notes/p7-t00-versions.md` re-checks the promptfoo, gVisor, Firecracker, App token and runner rows (the claim that hosted Linux runners expose `/dev/kvm` is not supported by any source read; T11 must prove it). `docs/notes/p7-t01-owasp-firecracker.md` lists ASI01 to ASI10 as the OWASP launch post names them (the PDF itself could not be read) and the isolation claims of the Firecracker paper.
 - `packages/guard/threat-model.md`: assets, ten trust boundaries, a data-flow diagram of the pipeline as built, ten ASI rows with threat, control and residual risk (each control marked as existing today or planned for a P7 task), the injection paths, and gaps no P7 task covers.
 - `packages/guard` is scaffolded (the `guard` command has no sub-command yet).
+- Wave 2: `argus_core.redact` masks known secret values and token-shaped strings in every trajectory file (`Trajectory.to_jsonl`) and every span (`RedactingExporter`); `packages/guard/secrets-inventory.md` lists each secret, where it lives and who can read it; `check_no_secrets.py` also fails on a token in a git remote URL; `secret-scan.yml` is written but has not run on GitHub (P7-T03 stays unticked).
+- `guard.auditlog` and `guard verify-log`: an append-only JSONL hash chain; verification names the first bad line (edited, deleted, swapped lines); a truncated tail is only caught by comparing a shipped head hash. It is not wired into the fix loop yet.
+- `guard.egress` and `guard.escape`: the no-egress probe ran locally against the fix-loop sandbox (the control container reached the host, the sandbox did not). `guard escape --tier docker` ran 12 probes, all blocked; the gVisor and Firecracker tiers print "not available" and never pass. `egress.yml` has not run on GitHub (P7-T05 stays unticked).
 - Per-task detail: `docs/architecture/p7.md`.
 
 ## What P5 added
