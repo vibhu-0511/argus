@@ -99,7 +99,7 @@ flowchart LR
     SERVICE["Render service<br/>flow.service, /health, render.yaml, not deployed"]:::p6
     UNWIRED["GitHub write client<br/>not written, UnwiredGitHub raises"]:::p6
     CRASH["crash-recovery harness<br/>real process kills, ledger fakes"]:::p6
-    FLOWCI["flow.yml<br/>Postgres service container, never run"]:::p6
+    FLOWCI["flow.yml<br/>Postgres service container, green on GitHub"]:::p6
     COLD["cold-start timer<br/>signed ping, 10 s verdict, not run"]:::p6
     NEONUSE["Neon usage probe<br/>CU-hours against polling, not run"]:::p6
   end
@@ -257,7 +257,7 @@ Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink, P6 violet.
 - `flow.db_wake` (T11, T24): a bounded wake-up with backoff before DBOS launches, and a rule that a non-local database URL must use TLS (`sslmode=require` or stronger). Tested against a local Postgres with TLS, by killing connections and by stopping and starting it; nothing ran against Neon. ADR-020 records DBOS over Temporal (decision only, nothing built for Temporal).
 - `flow.service` and `render.yaml` (T12): the one app Render would run, with `/health` that answers before the database is awake and a late-bound enqueuer so the webhook still answers 202. Not deployed; the workflow's GitHub write client is `UnwiredGitHub` (every call raises) because no real one exists yet, so the Blueprint keeps polling off.
 - Crash-recovery experiment (T19, T21): 150 real process kills per variant (plain function against DBOS) at 15 points, fake runners with a durable ledger. Both variants finished every run; DBOS repeated fewer calls (0.93 against 4.47 per kill) and made no duplicate effect, the plain function set one label twice. Killing after the PR is created left one draft PR (10 of 10).
-- `flow.yml` (T20) runs the flow tests on a Postgres service container but has not run on GitHub. A Render sleep that drops a webhook is shown locally (T23); a sleeping service runs no poller, an open finding.
+- `flow.yml` (T20) runs the flow tests on a Postgres service container and was green on GitHub on 2026-11-02 (364 passed, 5 skipped). A Render sleep that drops a webhook is shown locally (T23); a sleeping service runs no poller, an open finding.
 - Measurement tooling (T13, T14): a script that times the Render cold start with a signed ping against the 10 s webhook timeout, and a probe that compares Neon usage with what DBOS polling asks of the database. Neither has run against a real deploy; no cold-start time and no CU-hour figure exist. Owner steps are in `docs/notes/p6-t13.md` and `p6-t14.md`.
 - ADR-021 (webhooks as hints with reconciliation) and ADR-022 (free-tier topology) are written and marked proposed. `packages/flow/README.md` and the phase report hold the status; the P5 cells stay as dashes.
 - Version re-check and DBOS and MRTR notes (`docs/notes/p6-t00-versions.md`, `p6-t01-dbos-mrtr.md`). Per-task detail: `docs/architecture/p6.md`.
