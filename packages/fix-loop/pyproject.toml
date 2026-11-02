@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "From-scratch fix agent. One git worktree per task."
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = ["argus-core", "pydantic>=2.14.1"]
+dependencies = ["argus-core", "pydantic>=2.14.1", "pyyaml>=6.0.3"]
 
 [project.scripts]
 fix-loop = "fix_loop.__main__:main"

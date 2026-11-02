@@ -487,12 +487,14 @@ source = { editable = "packages/fix-loop" }
 dependencies = [
     { name = "argus-core" },
     { name = "pydantic" },
+    { name = "pyyaml" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "argus-core", editable = "packages/argus-core" },
     { name = "pydantic", specifier = ">=2.14.1" },
+    { name = "pyyaml", specifier = ">=6.0.3" },
 ]
 
 [[package]]
