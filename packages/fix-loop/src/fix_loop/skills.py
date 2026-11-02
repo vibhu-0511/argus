@@ -81,20 +81,27 @@ def content_hash(raw: bytes) -> str:
     return hashlib.sha256(raw.replace(b"\r\n", b"\n")).hexdigest()
 
 
-def read_lock(path: Path) -> dict[str, dict]:
-    """The `skills` map of the lock file. A missing, unreadable or wrong-version file gives an empty map, so every skill
-    is refused as unreviewed: a broken lock never trusts anything."""
+def lock_skills(path: Path) -> tuple[dict[str, dict], str | None]:
+    """The `skills` map of the lock file and, when the file exists but cannot be trusted, what is wrong with it. A missing,
+    unreadable or wrong-version file gives an empty map. The T12 lint reads the problem; `read_lock` logs it."""
     try:
         doc = json.loads(path.read_text(encoding="utf-8"))
     except FileNotFoundError:
-        return {}
+        return {}, None
     except (OSError, ValueError) as exc:
-        log.error("skill lock %s is unreadable (%s); no skill is trusted", path, exc)
-        return {}
+        return {}, f"is unreadable ({exc})"
     skills = doc.get("skills") if isinstance(doc, dict) else None
     if not isinstance(doc, dict) or doc.get("version") != LOCK_VERSION or not isinstance(skills, dict):
-        log.error("skill lock %s is not version %s with a skills map; no skill is trusted", path, LOCK_VERSION)
-        return {}
+        return {}, f"is not version {LOCK_VERSION} with a skills map"
+    return skills, None
+
+
+def read_lock(path: Path) -> dict[str, dict]:
+    """The `skills` map of the lock file. A missing, unreadable or wrong-version file gives an empty map, so every skill
+    is refused as unreviewed: a broken lock never trusts anything."""
+    skills, problem = lock_skills(path)
+    if problem:
+        log.error("skill lock %s %s; no skill is trusted", path, problem)
     return skills
 
 

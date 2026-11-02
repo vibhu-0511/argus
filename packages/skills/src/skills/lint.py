@@ -8,45 +8,45 @@ Checks every `<skills>/<name>/SKILL.md`:
   one place. That covers a missing or unclosed frontmatter, an unknown field, a repeated key, a bad `name` or
   `metadata`, and a body over 8,000 characters.
 - the directory holds `SKILL.md` and nothing else (v1 has no scripts or resource files; spec notes section 2).
-- the lock file (`skills.lock.json`, spec notes section 4): each skill has an entry whose `sha256` is 64 lowercase hex
-  characters and equals the hash of the file (CRLF to LF, then SHA-256), and no entry names a skill that is gone.
+- the trust checks, by calling the loader's own `fix_loop.skills.trust_refusal` (lock read by `lock_skills`, hash by
+  `content_hash`): `unreviewed`, `not-pinned`, `hash-mismatch` and `tool-not-allowed` mean exactly what they mean at
+  load time (ADR-019, `docs/notes/p5.5-t10.md`). They run only on a skill that passes the format checks, as in the loader.
+  Extra: no lock entry may name a skill that is gone, and a missing or unusable lock file fails.
+
+A draft (no reviewed lock entry, `argus-status` not `reviewed`) is `unreviewed` at load time but not a lint failure: it
+is the normal state between T05 and T06. A skill whose frontmatter says `argus-status: reviewed` and has no reviewed lock
+entry is the disagreement the spec notes (section 4) ask the lint to catch, and fails as `unreviewed`.
 
 Each line printed names the skill and one of the loader's typed reasons (`fix_loop.skills.Reason`).
 
-ponytail: the hash and lock checks are the lint's own, because `fix_loop.skills.trust_refusal` is empty until P5.5-T10.
-When T10 lands, call its lock reader and hash function here instead of `_hash` and `_lock_problems`, and add the
-review-flag checks the spec lists for the lint (`argus-status` against the lock's `reviewed`, `argus-archetype` when
-reviewed, `argus-sources` against the held-out ids). Not checked today: those three.
+ponytail: not checked yet: `argus-status: unreviewed` on a skill the lock says is reviewed, `argus-archetype` when
+reviewed, `argus-sources` against the held-out ids.
 """
 
 from __future__ import annotations
 
 import argparse
-import hashlib
-import json
-import re
 import sys
 from pathlib import Path
 
-from fix_loop.skills import MAX_BODY_CHARS, Reason, Refusal, _parse
+from fix_loop.skills import MAX_BODY_CHARS, Reason, Refusal, _parse, lock_skills, trust_refusal
 
 PACKAGE = Path(__file__).resolve().parents[2]
 SKILLS = PACKAGE / "skills"
 LOCK = PACKAGE / "skills.lock.json"
-_SHA256 = re.compile(r"[0-9a-f]{64}")
-
-
-def _hash(raw: bytes) -> str:
-    return hashlib.sha256(raw.replace(b"\r\n", b"\n")).hexdigest()
 
 
 def lint(skills: Path, lock: Path) -> list[str]:
     """Every problem found, one line each as `<skill>: <reason>: <detail>`. Empty means clean."""
     folders = sorted(p for p in skills.iterdir() if p.is_dir() and not p.name.startswith(".")) if skills.is_dir() else []
     problems: list[str] = []
-    entries, lock_note = _read_lock(lock) if folders or lock.is_file() else ({}, None)
-    if lock_note:
-        problems.append(f"skills.lock.json: {Reason.not_pinned.value}: {lock_note}")
+    entries: dict[str, dict] = {}
+    if lock.is_file():
+        entries, broken = lock_skills(lock)
+        if broken:
+            problems.append(f"skills.lock.json: {Reason.unreviewed.value}: the lock file {broken}; no skill is trusted")
+    elif folders:
+        problems.append(f"skills.lock.json: {Reason.unreviewed.value}: the lock file is missing; no skill is trusted")
     for folder in folders:
         problems += [f"{folder.name}: {reason.value}: {detail}" for reason, detail in _skill_problems(folder, entries)]
     problems += [
@@ -54,19 +54,6 @@ def lint(skills: Path, lock: Path) -> list[str]:
         for name in sorted(set(entries) - {f.name for f in folders})
     ]
     return problems
-
-
-def _read_lock(lock: Path) -> tuple[dict, str | None]:
-    try:
-        doc = json.loads(lock.read_text(encoding="utf-8"))
-        entries = doc["skills"]
-        if not isinstance(entries, dict):
-            raise TypeError
-    except FileNotFoundError:
-        return {}, "the lock file is missing"
-    except (ValueError, KeyError, TypeError):
-        return {}, 'the lock file is not JSON of the form {"version": 1, "skills": {...}}'
-    return entries, None
 
 
 def _skill_problems(folder: Path, entries: dict) -> list[tuple[Reason, str]]:
@@ -80,17 +67,14 @@ def _skill_problems(folder: Path, entries: dict) -> list[tuple[Reason, str]]:
     raw = file.read_bytes()
     parsed = _parse(folder.name, raw)
     if isinstance(parsed, Refusal):
-        found.append((parsed.reason, parsed.detail))
-    elif len(parsed[1]) > MAX_BODY_CHARS:
-        found.append((Reason.too_large, f"body is {len(parsed[1])} characters, the limit is {MAX_BODY_CHARS}"))
-    entry = entries.get(folder.name)
-    pin = entry.get("sha256") if isinstance(entry, dict) else None
-    if entry is None:
-        found.append((Reason.not_pinned, "no entry in the lock file"))
-    elif not isinstance(pin, str) or not _SHA256.fullmatch(pin):
-        found.append((Reason.not_pinned, "the lock entry has no sha256 of 64 lowercase hex characters"))
-    elif pin != _hash(raw):
-        found.append((Reason.hash_mismatch, f"SKILL.md hashes to {_hash(raw)}, the lock has {pin}"))
+        return [*found, (parsed.reason, parsed.detail)]
+    fields, body = parsed
+    if len(body) > MAX_BODY_CHARS:
+        found.append((Reason.too_large, f"body is {len(body)} characters, the limit is {MAX_BODY_CHARS}"))
+    trust = trust_refusal(folder.name, raw, fields, entries)
+    claims_reviewed = (fields.get("metadata") or {}).get("argus-status") == "reviewed"
+    if trust is not None and (trust[0] is not Reason.unreviewed or claims_reviewed):
+        found.append(trust)
     return found
 
 
