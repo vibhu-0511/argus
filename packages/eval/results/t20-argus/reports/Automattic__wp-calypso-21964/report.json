@@ -1,0 +1,36 @@
+{
+    "Automattic__wp-calypso-21964": {
+        "patch_is_None": false,
+        "patch_exists": true,
+        "patch_successfully_applied": true,
+        "resolved": true,
+        "infra_failure": false,
+        "tests_status": {
+            "FAIL_TO_PASS": {
+                "success": [
+                    "index - #login() - should return the login url with encoded OAuth2 client ID param"
+                ],
+                "failure": []
+            },
+            "PASS_TO_PASS": {
+                "success": [
+                    "index - #login() - should return the legacy login url",
+                    "index - #login() - should return the login url with encoded redirect url param",
+                    "index - #login() - should return the login url with encoded email_address param",
+                    "index - #login() - should return the login url when the two factor auth page is supplied",
+                    "index - #login() - should return the legacy login url with encoded redirect url param",
+                    "index - #login() - should return the login url"
+                ],
+                "failure": []
+            },
+            "FAIL_TO_FAIL": {
+                "success": [],
+                "failure": []
+            },
+            "PASS_TO_FAIL": {
+                "success": [],
+                "failure": []
+            }
+        }
+    }
+}

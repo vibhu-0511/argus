@@ -1,0 +1,4 @@
+"{\"tool\": \"search\", \"arguments\": {\"query\": \"alpha: true\", \"path\": \"src\"}}"
+"{\"tool\": \"read_file\", \"arguments\": {\"path\": \"src/webgl/p5.RendererGL.js\"}}"
+"{\"tool\": \"edit\", \"arguments\": {\"path\": \"src/webgl/p5.RendererGL.js\", \"old\": \"    alpha: true,\\n    depth: true,\", \"new\": \"    alpha: false,\\n    depth: true,\"}}"
+"{\"tool\": \"submit\", \"arguments\": {}}"

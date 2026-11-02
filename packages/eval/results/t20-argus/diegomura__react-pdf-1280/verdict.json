@@ -1,0 +1,13 @@
+{
+  "task_id": "diegomura__react-pdf-1280",
+  "stop_reason": "submit",
+  "verdict": "patch-captured",
+  "patch_lines": 13,
+  "model_turns": 5,
+  "model": "claude-sonnet-5-5",
+  "worker_model": "sonnet",
+  "token_source": "chars/4 estimate",
+  "started_at": 1793599775.3441596,
+  "finished_at": 1793601029.3573604,
+  "wall_s": 1254.0
+}

@@ -1,0 +1,13 @@
+diff --git a/src/webgl/p5.RendererGL.js b/src/webgl/p5.RendererGL.js
+index 9a759ea..3bb1c60 100755
+--- a/src/webgl/p5.RendererGL.js
++++ b/src/webgl/p5.RendererGL.js
+@@ -235,7 +235,7 @@ p5.RendererGL.prototype._setAttributeDefaults = function(pInst) {
+   // See issue #3850, safer to enable AA in Safari
+   const applyAA = navigator.userAgent.toLowerCase().includes('safari');
+   const defaults = {
+-    alpha: true,
++    alpha: false,
+     depth: true,
+     stencil: true,
+     antialias: applyAA,

@@ -1,0 +1,35 @@
+Repository: Automattic/wp-calypso at commit 97d16987f9b4897e3e71ab9d3688ad59d4c57e3d
+
+Issue:
+Jetpack Connect: Plans page inadvertently shows site entry screen for subscribers
+It seems that when a non-admin user attempts to connect their site, initiating the flow in Jetpack, after connection, they're directed to `/jetpack/connect/plans`, but they see the JPC initial site entry screen instead of the plans page.
+
+#### Steps to reproduce
+* Connect a Jetpack site with your Jetpack site admin user.
+* Login in WP.com with another user.
+* Create a non-admin (subscriber) user with the same email that you use for the .com account in the last step.
+* Login to your Jetpack site with the new subscriber user.
+* Connect the site for the subscriber user, starting from wp-admin.
+* Approve the connection in the JPC flow.
+* Witness a short redirect loop in the URL bar.
+* You're presented with the JPC initial site entry step, rather than the plans page (but the URL is `/jetpack/connect/plans`).
+
+#### What I expected
+To be redirected back to wp-admin.
+
+#### What happened instead
+I was presented with the JPC plans page URL, but it displayed the JPC initial site entry step.
+
+#### Screenshot / Video
+![](https://cldup.com/A0Nsu9q2Uw.png)
+
+#### Context / Source
+Found while manually testing Jetpack 5.5beta3
+
+#manual-testing
+
+
+Screenshots attached to the issue:
+- C:\swebench-run\argus-run\Automattic__wp-calypso-21492\images\01.png
+
+Fix the issue by editing the repository.

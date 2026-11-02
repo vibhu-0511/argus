@@ -1,0 +1,30 @@
+Repository: markedjs/marked at commit 2df12a7f2a0544a979efc49ab9ee4407354002eb
+
+Issue:
+Checkbox rendering bug
+**Describe the bug**
+If newline exists between checkbox list, it looks like doesn't render well
+
+**To Reproduce**
+```
+- Tasks
+- [x] Task1
+- [ ] Task2
+
+- [ ] Another Task
+
+```
+
+![image](https://user-images.githubusercontent.com/520523/62999436-5f5a1380-bea9-11e9-8b34-c233b31800bf.png)
+
+1. [Marked Demo](https://marked.js.org/demo/?text=-%20Tasks%0A-%20%5Bx%5D%20Task1%0A-%20%5B%20%5D%20Task2%0A%0A-%20%5B%20%5D%20Another%20Task%0A&options=%7B%0A%20%22baseUrl%22%3A%20null%2C%0A%20%22breaks%22%3A%20false%2C%0A%20%22gfm%22%3A%20true%2C%0A%20%22headerIds%22%3A%20true%2C%0A%20%22headerPrefix%22%3A%20%22%22%2C%0A%20%22highlight%22%3A%20null%2C%0A%20%22langPrefix%22%3A%20%22language-%22%2C%0A%20%22mangle%22%3A%20true%2C%0A%20%22pedantic%22%3A%20false%2C%0A%20%22sanitize%22%3A%20false%2C%0A%20%22sanitizer%22%3A%20null%2C%0A%20%22silent%22%3A%20false%2C%0A%20%22smartLists%22%3A%20false%2C%0A%20%22smartypants%22%3A%20false%2C%0A%20%22xhtml%22%3A%20false%0A%7D&version=0.7.0)
+2. [CommonMark Demo](https://spec.commonmark.org/dingus/?text=-%20Tasks%0A-%20%5Bx%5D%20Task1%0A-%20%5B%20%5D%20Task2%0A%0A-%20%5B%20%5D%20Another%20Task%0A)
+
+
+
+
+
+Screenshots attached to the issue:
+- C:\swebench-run\argus-run\markedjs__marked-1535\images\01.png
+
+Fix the issue by editing the repository.

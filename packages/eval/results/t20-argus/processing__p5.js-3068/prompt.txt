@@ -1,0 +1,36 @@
+Repository: processing/p5.js at commit 52151068bdc7e95150a189392fbd5ec0a48318f0
+
+Issue:
+loadStrings() omits empty lines
+v0.6.1
+
+when loading a file containing empty lines, *processing* includes empty strings in the array for each empty line.
+
+p5.js filters out empty lines.
+
+here's a demo: https://codepen.io/Spongman/pen/wXVeYP
+this loads and prints lines 24 onwards from the p5.js library, here: https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.1/addons/p5.dom.js
+
+the text file looks like this:
+```
+ * @main
+ */
+
+(function(root, factory) {
+  if (typeof define === 'function' && define.amd)
+    define('p5.dom', ['p5'], function(p5) {
+      factory(p5);
+    });
+```
+
+but the string array returned by `loadStrings` omits the empty lines:
+![image](https://user-images.githubusercontent.com/1088194/42413671-bb74b886-81d9-11e8-8434-f8c0a14ef113.png)
+
+i discovered this trying to work out why the line numbers for errors in glsl shaders loaded by `loadShader` don't match up with the lines in the source files. this bug makes it particularly frustrating trying to track down such errors.
+
+
+
+Screenshots attached to the issue:
+- C:\swebench-run\argus-run\processing__p5.js-3068\images\01.png
+
+Fix the issue by editing the repository.

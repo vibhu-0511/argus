@@ -1,0 +1,13 @@
+{
+  "task_id": "Automattic__wp-calypso-21964",
+  "stop_reason": "submit",
+  "verdict": "patch-captured",
+  "patch_lines": 34,
+  "model_turns": 11,
+  "model": "claude-sonnet-5-5",
+  "worker_model": "sonnet",
+  "token_source": "chars/4 estimate",
+  "started_at": 1793599996.173408,
+  "finished_at": 1793601091.3797662,
+  "wall_s": 1095.2
+}

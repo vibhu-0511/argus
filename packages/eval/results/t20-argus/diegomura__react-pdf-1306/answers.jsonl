@@ -1,0 +1,3 @@
+"{\"tool\": \"read_file\", \"arguments\": {\"path\": \"packages/types/image.d.ts\"}}"
+"{\"tool\": \"edit\", \"arguments\": {\"path\": \"packages/types/image.d.ts\", \"old\": \"  | { uri: string; method: HTTPMethod; body: any; headers: any };\", \"new\": \"  | { uri: string; method: HTTPMethod; body: any; headers: any }\\n  | (() => string)\\n  | (() => Promise<string>);\"}}"
+"{\"tool\": \"submit\", \"arguments\": {}}"
