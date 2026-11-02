@@ -213,7 +213,7 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 
 - [x] P5-T15 Write ADR-016: Routing policy [ME] 1h
 - [x] P5-T16 Build CI regression gate: compare a results file to the stored baseline with intervals [PAIR] 3h
-- [ ] P5-T17 Wire the regression gate into GitHub Actions on stored results, no LLM calls [CLAUDE] 2h
+- [x] P5-T17 Wire the regression gate into GitHub Actions on stored results, no LLM calls [CLAUDE] 2h
 - [x] P5-T18 Write ADR-017: CI gate thresholds [ME] 1h
 - [x] P5-T19 Build the SWE-bench Multimodal subset adapter (10 to 20 tasks) into the Task format [PAIR] 3h
 - [ ] P5-T20 Run argus on the multimodal subset and report results and exclusions [ME] 3h. Done with one Claude subagent per task, not the argus pipeline: 7 solved, 5 unsolved, 1 excluded, 2 patch produced but not scored (packages/eval/results/p5-t20-multimodal.json, docs/notes/p5-t20.md section 9).
