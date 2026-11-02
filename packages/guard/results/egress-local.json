@@ -1,0 +1,25 @@
+{
+  "probe": "egress",
+  "context": "local",
+  "ran_at": "2026-11-02T20:58:22+00:00",
+  "host": "Windows-11-10.0.26200-SP0",
+  "docker_server": "29.5.3",
+  "image": "argus-fix-sandbox:p3",
+  "targets": {
+    "tcp": "1.1.1.1:443",
+    "https": "https://1.1.1.1/",
+    "dns": "example.com"
+  },
+  "sandbox_results": {
+    "tcp": "connect-failed",
+    "https": "connect-failed",
+    "dns": "connect-failed"
+  },
+  "no_egress_held": true,
+  "control_results": {
+    "tcp": "reached",
+    "https": "reached",
+    "dns": "reached"
+  },
+  "control_saw_reached": true
+}
