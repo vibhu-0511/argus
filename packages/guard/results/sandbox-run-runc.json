@@ -1,0 +1,41 @@
+{
+  "task": "sandbox-run",
+  "runtime": "runc",
+  "ran_at": "2026-11-02T21:13:51+00:00",
+  "host": "Windows-11-10.0.26200-SP0",
+  "docker_server": "29.5.3",
+  "image": "argus-fix-sandbox:p3",
+  "runsc_version": null,
+  "docker_runtimes": [
+    "io.containerd.runc.v2",
+    "nvidia",
+    "runc"
+  ],
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "--runtime",
+    "runc",
+    "--network",
+    "none",
+    "--cpus",
+    "1",
+    "--memory",
+    "512m",
+    "-v",
+    "<tmp>\\work:/work",
+    "-v",
+    "<tmp>\\checks:/checks:ro",
+    "-w",
+    "/work",
+    "argus-fix-sandbox:p3",
+    "sh",
+    "-c",
+    "echo fixture-ok; echo fixture-ok > /work/out.txt; echo checks-keep=$(cat /checks/keep.txt); if echo x > /checks/keep.txt 2>/dev/null; then echo checks-ro=no; else echo checks-ro=yes; fi; echo kernel=$(uname -sr); dmesg 2>&1 | head -n 3"
+  ],
+  "wall_seconds": 1.089,
+  "status": "pass",
+  "detail": "fixture ran, result file written, /checks read-only",
+  "stdout": "fixture-ok\nchecks-keep=same\nchecks-ro=yes\nkernel=Linux 6.18.33.1-microsoft-standard-WSL2\ndmesg: klogctl: Operation not permitted"
+}
