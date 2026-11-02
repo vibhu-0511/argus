@@ -41,4 +41,4 @@ Denominators exclude runs the scorer could not score (exit 2): A on `seed-h06` a
 
 ## Acceptance (`phases/P05-argus-eval.md`, P5-T14)
 
-"Two rows filled from real runs with the same tasks; tokens, quota share, resolve rate and latency reported." Two rows are filled from real runs on the same tasks, with tokens, resolve rate and latency reported. Quota share is reported as a dash with the reason above, so T14 is not ticked: whether a Claude-session run with no provider cap meets the task is the owner's call.
+"Two rows filled from real runs with the same tasks; tokens, quota share, resolve rate and latency reported." Two rows are filled from real runs on the same tasks, with tokens, resolve rate and latency reported. Quota share is a dash with the reason above (no provider cap exists for Claude sessions). **The owner decided on 2026-11-02 that a Claude-session run counts for T14, so the task is ticked.** The caveats above stay.
