@@ -2,7 +2,7 @@
 
 Browsers block fetch() of local JSON from file://, so the data goes into a script tag file instead.
 Usage: python packages/dashboard/build.py [results.json ...] [--out DIR]
-No files given: the two results files in the repo (the real P3 variant A baseline, then the made-up worse file).
+No files given: the real results files in the repo (DEFAULT_FILES).
 Files are kept in the order given; the page reads the last real run as "this phase" and the one before as "previous".
 """
 
@@ -12,7 +12,18 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 HERE = Path(__file__).resolve().parent
-DEFAULT_FILES = ["packages/eval/fixtures/gate/baseline.json", "packages/eval/fixtures/gate/worse.json"]
+# The real runs, oldest first. The page reads the last two real runs as "previous" and "this phase", so the P5 ablation (A, then B) goes last.
+# T20 is a different task set (14 multimodal tasks); it is charted beside the others, labelled by run id.
+DEFAULT_FILES = [
+    "packages/eval/results/baseline.json",  # P3 variant A, 29 seeded tasks
+    "packages/eval/results/p5-t20-multimodal.json",  # T20 baseline, one plain subagent per task
+    "packages/eval/results/p5-t20-multimodal-argus.json",  # T20 with the argus fix loop
+    "packages/eval/results/breakit-C.json",  # T27 break-it: fix on the cheap model
+    "packages/eval/results/ablation-A.json",  # T14 all strong
+    "packages/eval/results/ablation-B.json",  # T14 routed
+]
+# Kept to exercise the delta and the "made up" labels in the tests; not shown by default.
+FIXTURE_FILES = ["packages/eval/fixtures/gate/baseline.json", "packages/eval/fixtures/gate/worse.json"]
 KEEP = ("run_id", "created_at", "agent", "counts", "resolve_rate", "tokens", "latency_s", "trajectory_metrics", "$_equivalent")
 
 
