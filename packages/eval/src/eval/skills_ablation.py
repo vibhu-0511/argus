@@ -110,6 +110,15 @@ def report(without: dict[str, Run | None], with_skills: dict[str, Run | None]) -
     for key, tasks in cells.items():
         if key in ("without only", "with only") and tasks:
             out.append(f"- {key}: {', '.join(tasks)}")
+    both = sorted(set(_scored(without)) & set(_scored(with_skills)))
+    if both:
+        out.append("On those same tasks, mean per bug (fix stage): " + "; ".join(
+            f"{n} tokens in {_mean([row[t].tokens_in for t in both]):,.0f}, out {_mean([row[t].tokens_out for t in both]):,.0f}, steps {_mean([row[t].steps for t in both]):.1f}, fix turns {_mean([row[t].fix_turns for t in both]):.1f}"
+            for n, row in (("without", without), ("with", with_skills))))
+    scored = _scored(with_skills)
+    loaded = [r for r in scored.values() if r.loaded]
+    out.append(f"With skills, by whether a skill was loaded: loaded in {len(loaded)} runs, {sum(r.verdict == 'resolved' for r in loaded)} resolved; "
+               f"not loaded in {len(scored) - len(loaded)} runs, {sum(r.verdict == 'resolved' for r in scored.values() if not r.loaded)} resolved.")
     excluded = {n: sorted(t for t, r in row.items() if r is not None and r.verdict == "excluded") for n, row in (("without", without), ("with", with_skills))}
     unfinished = {n: sorted(t for t, r in row.items() if r is None) for n, row in (("without", without), ("with", with_skills))}
     out.append(f"Excluded by the scorer (exit 2): {excluded}. Without a verdict: {unfinished}.")

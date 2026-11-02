@@ -239,7 +239,7 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 
 - [x] P5.5-T06 Review, edit and keep at least 5 skills [ME] 2h. Done on 2026-11-02 by Claude at the owner's request, and the owner confirmed the 5 pins in chat: 3 skills backed by 11, 3 and 4 runs, 2 thin ones (1 run each); drafts deleted. See `docs/notes/p5.5-t06.md`.
 - [ ] P5.5-T07 Test skill selection: does the description trigger the right skill [PAIR] 1h
-- [ ] P5.5-T08 Run ablation: with vs without skills on the held-out set [ME] 3h
+- [x] P5.5-T08 Run ablation: with vs without skills on the held-out set [ME] 3h. Done on 2026-11-02 on the 29 runnable held-out tasks (not 30): 72.4% (21/29) with skills against 70.4% (19/27) without, same outcome on all 27 paired tasks; skills did not help. See `docs/notes/p5.5-t08.md`.
 - [ ] P5.5-T09 Write ADR-018: Skill format and distillation criteria [ME] 1h
 - [x] P5.5-T10 Build skill trust controls: review flag, content hash pin and tool allowlist per skill [ME] 2h
 - [x] P5.5-T11 Write ADR-019: Skill trust model [ME] 1h
