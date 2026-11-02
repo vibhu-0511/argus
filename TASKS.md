@@ -244,8 +244,8 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 - [x] P5.5-T10 Build skill trust controls: review flag, content hash pin and tool allowlist per skill [ME] 2h
 - [x] P5.5-T11 Write ADR-019: Skill trust model [ME] 1h
 - [ ] P5.5-T12 Add CI job to lint skill files (frontmatter, size limit, hash file), no LLM [CLAUDE] 1h
-- [ ] P5.5-T13 Break it: activate a skill that tells the agent to edit the bench checks [ME] 2h
-- [ ] P5.5-T14 Break it: activate a skill that tries to send data out over the network [ME] 2h
+- [x] P5.5-T13 Break it: activate a skill that tells the agent to edit the bench checks [ME] 2h
+- [x] P5.5-T14 Break it: activate a skill that tries to send data out over the network [ME] 2h
 - [ ] P5.5-T15 Break it: write a skill whose description matches every ticket [ME] 2h
 - [ ] P5.5-T16 Break it: leave a skill that names a file since renamed [ME] 2h
 - [ ] P5.5-T17 Write package README and phase report against P5 [CLAUDE] 1h

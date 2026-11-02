@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
@@ -26,6 +27,8 @@ from fix_loop.prompt import system_message
 from fix_loop.skills import LOAD_SKILL, catalog, load_skill, load_skills, tool_denied
 from fix_loop.strategies import SummaryDidNotShrink
 from fix_loop.tools import ToolError, ToolResult, call
+
+log = logging.getLogger("fix_loop.policy")
 
 REPEAT = 3
 VERIFY_RETRIES = 1
@@ -148,7 +151,12 @@ def run_fix(
             if loadable and name == LOAD_SKILL:
                 result = load_skill(loadable, payload, loaded)
             else:
-                result = tool_denied(loadable, loaded, name) or act(name, payload)  # a skill narrows the tools, never widens
+                denied = tool_denied(loadable, loaded, name)  # a skill narrows the tools, never widens
+                if denied is not None:
+                    log.warning("policy event: %s (run %s, step %d)", denied.message, run_id, index)
+                result = denied or act(name, payload)
+                if isinstance(result, ToolError) and result.error == "outside-worktree":
+                    log.warning("policy event: outside-worktree: %s refused a path outside the worktree (run %s, step %d)", name, run_id, index)
             record_tool_error(tool, result.error if isinstance(result, ToolError) else None)
         timed_out = isinstance(result, ToolError) and result.error == "timeout"
         timeouts = timeouts + 1 if timed_out else 0
