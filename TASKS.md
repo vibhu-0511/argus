@@ -222,12 +222,12 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 
 ## Week 20 — P5, P5.5 (19 h scheduled)
 
-- [ ] P5-T23 Verify a full run's trace in Langfuse and link it from the README [CLAUDE] 2h
+- [x] P5-T23 Verify a full run's trace in Langfuse and link it from the README [CLAUDE] 2h. Met in a weaker form, with the owner's agreement: the trace is a replay of a stored run (16 spans, marked `argus.replay`), the API evidence file `docs/notes/p5-t23-trace-evidence.md` stands in for a screenshot (not committed), and there is no dashboard URL (Pages skipped); the README links the Langfuse project and says how to open the dashboard.
 - [x] P5-T24 Break it: rename a span attribute as a semconv update would [ME] 2h
 - [x] P5-T25 Break it: make the trace backend unreachable [ME] 2h
 - [x] P5-T26 Break it: put a timestamp at the top of the system prompt [ME] 2h
 - [x] P5-T27 Break it: route a hard fix step to the cheap tier [ME] 2h
-- [ ] P5-T28 Write package README and phase report against P4 [CLAUDE] 1h
+- [x] P5-T28 Write package README and phase report against P4 [CLAUDE] 1h
 - [ ] P5.5-T00 Re-verify pinned versions via web search [CLAUDE] 1h
 - [ ] P5.5-T01 Read the Agent Skills spec and the Anthropic post, write notes [ME] 1h
 - [ ] P5.5-T02 Build the skill loader with progressive disclosure inside fix-loop [ME] 2h
