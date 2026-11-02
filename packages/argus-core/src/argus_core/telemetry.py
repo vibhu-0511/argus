@@ -25,17 +25,19 @@ from urllib.parse import urlparse
 from opentelemetry import trace
 from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
 from opentelemetry.sdk.resources import Resource
-from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace import Event, ReadableSpan, TracerProvider
 from opentelemetry.sdk.trace.export import (
     BatchSpanProcessor,
     ConsoleSpanExporter,
     SimpleSpanProcessor,
     SpanExporter,
+    SpanExportResult,
     SpanProcessor,
 )
 from opentelemetry.trace import Span, SpanKind, Status, StatusCode
 
 from argus_core.prices import UnknownModelPrice, dollar_equivalent
+from argus_core.redact import redact
 from argus_core.trace_normalize import PROFILES, NormalizingExporter
 
 SCHEMA_VERSION = "1"
@@ -97,6 +99,55 @@ def trace_config(env: Mapping[str, str] | None = None) -> TraceConfig:
     raise TraceConfigError("ARGUS_TRACE_BACKEND must be console, langfuse or otlp")
 
 
+def _masked(value):
+    if isinstance(value, str):
+        return redact(value)
+    if isinstance(value, tuple):
+        return tuple(_masked(v) for v in value)
+    return value
+
+
+class RedactingExporter(SpanExporter):
+    """P7-T03: masks secrets in every string attribute, event attribute and status text before a span is exported.
+
+    Catches what `str(exc)` and the SDK's recorded exceptions put on a span. Wraps the normalizer, or a test exporter.
+    """
+
+    def __init__(self, inner: SpanExporter) -> None:
+        self.inner = inner
+
+    def export(self, spans) -> SpanExportResult:
+        return self.inner.export([self._rewrite(s) for s in spans])
+
+    def _rewrite(self, span: ReadableSpan) -> ReadableSpan:
+        events = [
+            Event(e.name, {k: _masked(v) for k, v in (e.attributes or {}).items()}, e.timestamp) for e in span.events
+        ]
+        status = span.status
+        if status.description:
+            status = Status(status.status_code, redact(status.description))
+        return ReadableSpan(
+            name=span.name,
+            context=span.context,
+            parent=span.parent,
+            resource=span.resource,
+            attributes={k: _masked(v) for k, v in (span.attributes or {}).items()},
+            events=events,
+            links=span.links,
+            kind=span.kind,
+            status=status,
+            start_time=span.start_time,
+            end_time=span.end_time,
+            instrumentation_scope=span.instrumentation_scope,
+        )
+
+    def shutdown(self) -> None:
+        self.inner.shutdown()
+
+    def force_flush(self, timeout_millis: int = 30000) -> bool:
+        return self.inner.force_flush(timeout_millis)
+
+
 def _default_exporter() -> NormalizingExporter:
     """The one place an exporter is chosen: read from the environment, wrapped to use the profile's attribute names."""
     config = trace_config()
@@ -118,14 +169,14 @@ def start_tracing(exporter: SpanExporter | None = None) -> TracerProvider:
     _provider = TracerProvider(resource=Resource.create({"argus.trace.schema_version": SCHEMA_VERSION}))
     processor: SpanProcessor
     if exporter is not None:
-        _normalizer, processor = None, SimpleSpanProcessor(exporter)
+        _normalizer, processor = None, SimpleSpanProcessor(RedactingExporter(exporter))
     else:
         _normalizer = _default_exporter()
         if isinstance(_normalizer.inner, ConsoleSpanExporter):
-            processor = SimpleSpanProcessor(_normalizer)
+            processor = SimpleSpanProcessor(RedactingExporter(_normalizer))
         else:
             processor = BatchSpanProcessor(
-                _normalizer,
+                RedactingExporter(_normalizer),
                 max_queue_size=QUEUE_SIZE,
                 schedule_delay_millis=2000,
                 max_export_batch_size=QUEUE_SIZE,  # one batch holds the whole queue: a dead backend costs one timeout, not eight
