@@ -17,7 +17,7 @@ from argus_core.types import Trajectory
 
 from fix_loop.loop import run_fix
 from fix_loop.prompt import system_message
-from fix_loop.skills import LOCK_NAME, MAX_BODY_CHARS, Reason, content_hash, loaded_names, load_skills, tool_spec
+from fix_loop.skills import LOCK_NAME, MAX_BODY_CHARS, MAX_LOADED_SKILLS, Reason, content_hash, loaded_names, load_skills, tool_spec
 from fix_loop.turn import PROTOCOL
 
 
@@ -93,6 +93,19 @@ def test_load_skill_returns_the_body_and_a_second_call_says_loaded(tmp_path: Pat
     assert "already loaded" in seen[2][-1]["content"] and "Read the hook" not in seen[2][-1]["content"]
     assert loaded_names(trajectory.steps) == ["stale-closure"]  # counted once, from the stored steps
     assert [s.tool_name for s in trajectory.steps] == ["load_skill", "load_skill", "submit"]
+
+
+def test_at_most_max_loaded_skills_per_run_and_up_to_the_cap_is_unchanged(tmp_path: Path):
+    skills = tmp_path / "skills"
+    names = [f"skill-{i}" for i in range(MAX_LOADED_SKILLS + 1)]
+    for name in names:
+        _write(skills, name, body=f"Body of {name}.")
+    calls = [{"tool": "load_skill", "arguments": {"name": name}} for name in names]
+    seen, trajectory = _run(tmp_path, "a", calls, skills)
+    for i in range(MAX_LOADED_SKILLS):  # under the cap: the same answer as before the cap existed
+        assert seen[i + 1][-1]["content"] == f'<skill_content name="{names[i]}">\nBody of {names[i]}.\n</skill_content>'
+    assert seen[MAX_LOADED_SKILLS + 1][-1]["content"] == f"failed: at most {MAX_LOADED_SKILLS} skills per run; {names[-1]} was not loaded"
+    assert loaded_names(trajectory.steps) == names[:MAX_LOADED_SKILLS]
 
 
 def test_unknown_skill_name_is_an_error_and_not_counted(tmp_path: Path):

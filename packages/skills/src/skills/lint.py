@@ -17,15 +17,23 @@ A draft (no reviewed lock entry, `argus-status` not `reviewed`) is `unreviewed` 
 is the normal state between T05 and T06. A skill whose frontmatter says `argus-status: reviewed` and has no reviewed lock
 entry is the disagreement the spec notes (section 4) ask the lint to catch, and fails as `unreviewed`.
 
+- description specificity (P5.5-T15, `vague-description`): at least `MIN_DESCRIPTION` characters, a "not for" or "not when"
+  clause, and none of the catch-all phrases in `CATCH_ALL` ("any task", "every ticket", "always", ...). A description that
+  claims every ticket is loaded for every ticket, so the skills-loaded count and the tokens per bug rise with no gain.
+
 Each line printed names the skill and one of the loader's typed reasons (`fix_loop.skills.Reason`).
 
-ponytail: not checked yet: `argus-status: unreviewed` on a skill the lock says is reviewed, `argus-archetype` when
+ponytail: the specificity check reads words, not meaning. It catches the blunt cases (too short, no exclusion, a catch-all
+phrase). It does not catch a long description that is vague in its own words ("Use for front-end problems. Not for the
+backend.") or two skills whose descriptions overlap; T07 shows that overlap is the likelier problem. A catch-all phrase inside
+a "not for" clause is a false alarm. Not checked yet: `argus-status: unreviewed` on a skill the lock says is reviewed, `argus-archetype` when
 reviewed, `argus-sources` against the held-out ids.
 """
 
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 from pathlib import Path
 
@@ -34,6 +42,11 @@ from fix_loop.skills import MAX_BODY_CHARS, Reason, Refusal, _parse, lock_skills
 PACKAGE = Path(__file__).resolve().parents[2]
 SKILLS = PACKAGE / "skills"
 LOCK = PACKAGE / "skills.lock.json"
+MIN_DESCRIPTION = 80  # the five reviewed descriptions are 194 to 331 characters
+EXCLUSION = re.compile(r"\bnot (for|when|if)\b", re.IGNORECASE)
+CATCH_ALL = re.compile(
+    r"\b(any|every|all|each)\s+(task|ticket|bug|issue|request|problem|change)s?\b|\balways\b|\beverything\b|\banything\b", re.IGNORECASE
+)
 
 
 def lint(skills: Path, lock: Path) -> list[str]:
@@ -71,10 +84,23 @@ def _skill_problems(folder: Path, entries: dict) -> list[tuple[Reason, str]]:
     fields, body = parsed
     if len(body) > MAX_BODY_CHARS:
         found.append((Reason.too_large, f"body is {len(body)} characters, the limit is {MAX_BODY_CHARS}"))
+    found += [(Reason.vague_description, detail) for detail in _vague(fields["description"])]
     trust = trust_refusal(folder.name, raw, fields, entries)
     claims_reviewed = (fields.get("metadata") or {}).get("argus-status") == "reviewed"
     if trust is not None and (trust[0] is not Reason.unreviewed or claims_reviewed):
         found.append(trust)
+    return found
+
+
+def _vague(description: str) -> list[str]:
+    text = " ".join(description.split())
+    found = []
+    if len(text) < MIN_DESCRIPTION:
+        found.append(f"description is {len(text)} characters, the minimum is {MIN_DESCRIPTION}")
+    if not EXCLUSION.search(text):
+        found.append('description has no "not for" or "not when" clause saying which tickets it is not for')
+    if (match := CATCH_ALL.search(text)) is not None:
+        found.append(f'description claims every ticket with "{match.group(0)}"')
     return found
 
 
