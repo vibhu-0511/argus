@@ -7,8 +7,12 @@ The format and the numbers are fixed in `docs/notes/p5.5-t01-skills-spec.md`.
 `load_skills` reads `<directory>/<name>/SKILL.md` and returns `(loadable skills, refusals)`. A skill that fails a check
 is left out of the catalog and logged with a typed `Reason`, so the model cannot be steered toward it.
 
-The format checks live in `_parse`. The trust checks (review flag, lock file hash, tool allowlist) are P5.5-T10:
-`trust_refusal` is the one place that decides loadable vs refused on trust, and T10 fills it. Today it refuses nothing.
+The format checks live in `_parse`. The trust checks (P5.5-T10) live in `trust_refusal`, the one place that decides
+loadable vs refused on trust. The trust anchor is the lock file `skills.lock.json` (next to the skills directory, in
+`packages/skills`), not the SKILL.md itself: the owner's sign-off is writing `reviewed: true` and the SHA-256 there
+(`python -m skills.pin`). A skill passes only when its lock entry says reviewed, pins a hash, the file still has that
+hash, and every name in its `allowed-tools` is a loop tool. At run time `tool_denied` keeps the agent inside the
+`allowed-tools` of the skills it has loaded.
 
 ponytail: the loop has no native tool-calling API, a reply is one JSON `{"tool", "arguments"}` object and the tool list
 is text in the system message. So the `name` enum is both in that text and in `tool_spec` (a JSON schema for clients
@@ -17,6 +21,8 @@ that do send tools) and is enforced again when the call arrives.
 
 from __future__ import annotations
 
+import hashlib
+import json
 import logging
 import re
 from dataclasses import dataclass
@@ -25,7 +31,7 @@ from pathlib import Path
 
 import yaml
 
-from fix_loop.tools import ToolError, ToolResult
+from fix_loop.tools import ALLOW, ToolError, ToolResult
 
 log = logging.getLogger(__name__)
 
@@ -36,6 +42,10 @@ COMPATIBILITY_MAX = 500
 FIELDS = frozenset({"name", "description", "license", "compatibility", "metadata", "allowed-tools"})
 LOAD_SKILL = "load_skill"
 _NAME = re.compile(r"[a-z0-9]+(-[a-z0-9]+)*")  # no leading or trailing hyphen, no `--`
+LOCK_NAME = "skills.lock.json"
+LOCK_VERSION = 1
+READ_ONLY = frozenset({"read_file", "list_dir", "search", "ast_grep"})  # the tools of a loaded skill with no `allowed-tools`
+_SHA256 = re.compile(r"[0-9a-f]{64}")
 _WRAPPER = re.compile(r'<skill_content name="([^"]+)">')
 
 
@@ -56,6 +66,7 @@ class Skill:
     description: str
     body: str
     path: Path
+    tools: frozenset[str] = READ_ONLY  # the skill's `allowed-tools`, a ceiling while it is loaded
 
 
 @dataclass(frozen=True)
@@ -65,14 +76,39 @@ class Refusal:
     detail: str
 
 
-def load_skills(directory: Path) -> tuple[list[Skill], list[Refusal]]:
-    """Every skill directory under `directory`, split into loadable skills and refusals. Each refusal is logged."""
+def content_hash(raw: bytes) -> str:
+    """The pin: SHA-256 of the whole SKILL.md with CRLF read as LF (the T01 notes). The lint (T12) uses this too."""
+    return hashlib.sha256(raw.replace(b"\r\n", b"\n")).hexdigest()
+
+
+def read_lock(path: Path) -> dict[str, dict]:
+    """The `skills` map of the lock file. A missing, unreadable or wrong-version file gives an empty map, so every skill
+    is refused as unreviewed: a broken lock never trusts anything."""
+    try:
+        doc = json.loads(path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        return {}
+    except (OSError, ValueError) as exc:
+        log.error("skill lock %s is unreadable (%s); no skill is trusted", path, exc)
+        return {}
+    skills = doc.get("skills") if isinstance(doc, dict) else None
+    if not isinstance(doc, dict) or doc.get("version") != LOCK_VERSION or not isinstance(skills, dict):
+        log.error("skill lock %s is not version %s with a skills map; no skill is trusted", path, LOCK_VERSION)
+        return {}
+    return skills
+
+
+def load_skills(directory: Path, lock: Path | None = None) -> tuple[list[Skill], list[Refusal]]:
+    """Every skill directory under `directory`, split into loadable skills and refusals. Each refusal is logged.
+
+    `lock` defaults to `skills.lock.json` in the parent of `directory`."""
     if not directory.is_dir():
         raise FileNotFoundError(f"skills directory {directory} does not exist")
+    pins = read_lock(lock if lock is not None else directory.parent / LOCK_NAME)
     loadable: list[Skill] = []
     refusals: list[Refusal] = []
     for folder in sorted(item for item in directory.iterdir() if item.is_dir() and not item.name.startswith(".")):
-        outcome = _load_one(folder)
+        outcome = _load_one(folder, pins)
         if isinstance(outcome, Skill):
             loadable.append(outcome)
         else:
@@ -81,13 +117,44 @@ def load_skills(directory: Path) -> tuple[list[Skill], list[Refusal]]:
     return loadable, refusals
 
 
-def trust_refusal(name: str, raw: bytes, fields: dict) -> tuple[Reason, str] | None:
-    """P5.5-T10 fills this: review flag and hash pin from the lock file, `allowed-tools` names. None means trusted.
+def trust_refusal(name: str, raw: bytes, fields: dict, pins: dict[str, dict]) -> tuple[Reason, str] | None:
+    """The trust checks, in this order. None means trusted.
 
-    `raw` is the whole SKILL.md as read from disk; the hash definition (CRLF to LF, then SHA-256) is in the T01 notes.
-    """
-    del name, raw, fields
+    1. `unreviewed`: no lock entry, or its `reviewed` is not `true`. (A draft has no entry.)
+    2. `not-pinned`: a reviewed entry with no valid `sha256`.
+    3. `hash-mismatch`: the file no longer has the pinned hash. The hash covers the frontmatter, so a changed
+       `allowed-tools` or `argus-status` needs a new pin.
+    4. `tool-not-allowed`: `allowed-tools` names something that is not a loop tool (`ALLOW`), such as `Bash(curl:*)`.
+
+    `raw` is the whole SKILL.md as read from disk; `pins` is the lock's `skills` map."""
+    entry = pins.get(name)
+    if not isinstance(entry, dict) or entry.get("reviewed") is not True:
+        return Reason.unreviewed, "the lock file has no reviewed entry for this skill"
+    pinned = entry.get("sha256")
+    if not isinstance(pinned, str) or not _SHA256.fullmatch(pinned):
+        return Reason.not_pinned, "the lock entry has no valid sha256"
+    actual = content_hash(raw)
+    if actual != pinned:
+        return Reason.hash_mismatch, f"SKILL.md hashes to {actual[:12]}, the lock pins {pinned[:12]}"
+    unknown = [tool for tool in fields.get("allowed-tools", "").split() if tool not in ALLOW]
+    if unknown:
+        return Reason.tool_not_allowed, f"allowed-tools names {', '.join(unknown)}; the loop tools are {' '.join(ALLOW)}"
     return None
+
+
+def tool_denied(skills: list[Skill], loaded: set[str], name: str) -> ToolError | None:
+    """The run-time allowlist. While skills are loaded the agent may call only the tools every loaded skill allows, so a
+    skill can narrow the loop's tools and never widen them. `submit` always passes (a run must be able to end) and so does
+    `load_skill`. With nothing loaded there is no limit, and the run is the same as one with no skills."""
+    if not loaded or name in (LOAD_SKILL, "submit"):
+        return None
+    allowed = frozenset(ALLOW).intersection(*(skill.tools for skill in skills if skill.name in loaded))
+    if name in allowed:
+        return None
+    return ToolError(
+        error="not-allowed",
+        message=f"{Reason.tool_not_allowed.value}: {name} is outside the allowed-tools of the loaded skills ({', '.join(sorted(loaded))})",
+    )
 
 
 def catalog(skills: list[Skill]) -> str:
@@ -145,7 +212,7 @@ def loaded_names(steps) -> list[str]:
     return names
 
 
-def _load_one(folder: Path) -> Skill | Refusal:
+def _load_one(folder: Path, pins: dict[str, dict]) -> Skill | Refusal:
     file = folder / "SKILL.md"
     if not file.is_file():
         return Refusal(folder.name, Reason.bad_frontmatter, "no SKILL.md")
@@ -156,10 +223,11 @@ def _load_one(folder: Path) -> Skill | Refusal:
     fields, body = parsed
     if len(body) > MAX_BODY_CHARS:
         return Refusal(folder.name, Reason.too_large, f"body is {len(body)} characters, the limit is {MAX_BODY_CHARS}")
-    trust = trust_refusal(folder.name, raw, fields)
+    trust = trust_refusal(folder.name, raw, fields, pins)
     if trust is not None:
         return Refusal(folder.name, *trust)
-    return Skill(name=fields["name"], description=fields["description"], body=body, path=file)
+    tools = frozenset(fields["allowed-tools"].split()) if "allowed-tools" in fields else READ_ONLY
+    return Skill(name=fields["name"], description=fields["description"], body=body, path=file, tools=tools)
 
 
 def _parse(folder_name: str, raw: bytes) -> tuple[dict, str] | Refusal:

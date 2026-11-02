@@ -17,8 +17,17 @@ from argus_core.types import Trajectory
 
 from fix_loop.loop import run_fix
 from fix_loop.prompt import system_message
-from fix_loop.skills import MAX_BODY_CHARS, Reason, loaded_names, load_skills, tool_spec
+from fix_loop.skills import LOCK_NAME, MAX_BODY_CHARS, Reason, content_hash, loaded_names, load_skills, tool_spec
 from fix_loop.turn import PROTOCOL
+
+
+def pin(root: Path, name: str, *, reviewed: bool = True) -> None:
+    """Review sign-off for a test skill: a lock entry next to the skills directory (where the loader looks)."""
+    lock = root.parent / LOCK_NAME
+    doc = json.loads(lock.read_text(encoding="utf-8")) if lock.exists() else {"version": 1, "skills": {}}
+    raw = (root / name / "SKILL.md").read_bytes()
+    doc["skills"][name] = {"sha256": content_hash(raw), "reviewed": reviewed, "reviewed_by": "test", "reviewed_on": "2026-11-02"}
+    lock.write_text(json.dumps(doc), encoding="utf-8")
 
 
 def _write(root: Path, name: str, *, description: str = "Fix a stale value. Use when a button shows old data.", body: str = "Step one.", front: str | None = None) -> Path:
@@ -26,6 +35,7 @@ def _write(root: Path, name: str, *, description: str = "Fix a stale value. Use 
     folder.mkdir(parents=True)
     head = front if front is not None else f"name: {name}\ndescription: {json.dumps(description)}"
     (folder / "SKILL.md").write_text(f"---\n{head}\n---\n{body}\n", encoding="utf-8", newline="\n")
+    pin(root, name)
     return folder
 
 
