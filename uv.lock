@@ -58,6 +58,7 @@ source = { virtual = "." }
 dependencies = [
     { name = "argus-bench" },
     { name = "argus-core" },
+    { name = "fix-loop" },
 ]
 
 [package.dev-dependencies]
@@ -69,6 +70,7 @@ dev = [
 requires-dist = [
     { name = "argus-bench", editable = "packages/bench" },
     { name = "argus-core", editable = "packages/argus-core" },
+    { name = "fix-loop", editable = "packages/fix-loop" },
 ]
 
 [package.metadata.requires-dev]

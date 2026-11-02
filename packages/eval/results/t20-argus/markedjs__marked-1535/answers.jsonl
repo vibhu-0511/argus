@@ -1,0 +1,8 @@
+"{\"tool\": \"search\", \"arguments\": {\"query\": \"checkbox\", \"path\": \"src\"}}"
+"{\"tool\": \"search\", \"arguments\": {\"query\": \"checkbox\", \"path\": \"lib\"}}"
+"{\"tool\": \"read_file\", \"arguments\": {\"path\": \"lib/marked.js\"}}"
+"{\"tool\": \"search\", \"arguments\": {\"query\": \"istask\", \"path\": \"lib/marked.js\"}}"
+"{\"tool\": \"edit\", \"arguments\": {\"path\": \"lib/marked.js\", \"old\": \"body += this.renderer.checkbox(checked);\", \"new\": \"if (this.token.loose) {\\n          if (this.peek().type === 'text') {\\n            var nextToken = this.peek();\\n            nextToken.text = this.renderer.checkbox(checked) + ' ' + nextToken.text;\\n          } else {\\n            this.tokens.push({\\n              type: 'text',\\n              text: this.renderer.checkbox(checked)\\n            });\\n          }\\n        } else {\\n          body += this.renderer.checkbox(checked);\\n        }\"}}"
+"{\"tool\": \"run_cmd\", \"arguments\": {\"command\": \"node --check lib/marked.js\"}}"
+"{\"tool\": \"run_cmd\", \"arguments\": {\"command\": \"git diff\"}}"
+"{\"tool\": \"submit\", \"arguments\": {}}"

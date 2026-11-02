@@ -1,0 +1,22 @@
+diff --git a/lib/marked.js b/lib/marked.js
+index 8397486..7cb6862 100644
+--- a/lib/marked.js
++++ b/lib/marked.js
+@@ -1340,7 +1340,7 @@ function merge(obj) {
+ }
+ 
+ function splitCells(tableRow, count) {
+-  var cells = tableRow.replace(/([^\\])\|/g, '$1 |').split(/ +\| */),
++  var cells = tableRow.replace(/\\\||\|/g, function(m) { return m.length > 1 ? m : ' |'; }).split(/ \|/),
+       i = 0;
+ 
+   if (cells.length > count) {
+@@ -1350,7 +1350,7 @@ function splitCells(tableRow, count) {
+   }
+ 
+   for (; i < cells.length; i++) {
+-    cells[i] = cells[i].replace(/\\\|/g, '|');
++    cells[i] = cells[i].trim().replace(/\\\|/g, '|');
+   }
+   return cells;
+ }

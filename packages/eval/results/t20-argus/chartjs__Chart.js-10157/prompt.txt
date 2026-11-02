@@ -1,0 +1,33 @@
+Repository: chartjs/Chart.js at commit c80b1450f55189a03bf3781e04559eb9b68f2129
+
+Issue:
+borderRadius gets ignored for the bottom corners of 0-value bars in bar chart when borderSkipped and minBarLength are set
+## Expected Behavior
+When setting the following properties on a dataset:
+```js
+minBarLength: 50,
+borderRadius: 100,
+borderSkipped: false,
+```
+bars with a value of 0 should show up as a circle with all corners respecting the `borderRadius` setting
+
+## Current Behavior
+bars with a value of 0 are showing up instead with the bottom two corners ignoring the `borderRadius` setting and rendering as semi-circles with flat bottoms, like this:
+![Screen Shot 2021-12-17 at 12 18 06 PM](https://user-images.githubusercontent.com/10648471/146602938-9d5be17b-e050-4a9a-b9ac-5f9f51e08e8b.png)
+
+## Steps to Reproduce
+Example: https://codepen.io/dcj/pen/VwMbGZM
+
+## Context
+Trying to respect the designed version of the chart, where the value of some bars will be 0, and want to render those in a consistent way that respects the design
+
+## Environment
+* Chart.js version: latest
+* Browser name and version: happens the same in latest version of Safari, Chrome, Brave, Firefox
+* Link to your project: [I can add a GitHub link to a PR where this will live, but it's not clean enough to push up yet]
+
+
+Screenshots attached to the issue:
+- C:\swebench-run\argus-run\chartjs__Chart.js-10157\images\01.png
+
+Fix the issue by editing the repository.
