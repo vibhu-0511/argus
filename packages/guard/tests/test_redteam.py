@@ -65,6 +65,15 @@ def test_attack_text_is_planted_in_one_place_per_case():
         run_case("ticket", "gpt-4o")
 
 
+@pytest.mark.parametrize("case", CASES)
+def test_hardened_loop_stops_what_the_obedient_stub_does(case):
+    """The scripted model is as obedient as before; the loop's filter and allowlist are what change (P7-T09)."""
+    report = run_case(case, "stub-obedient", hardened=True)
+    assert all(report["attempted"].values())
+    assert report["effective"]["canary_leak"] is False and report["verdict"] == "blocked"
+    assert "send_report" not in [call["tool"] for call in report["tool_calls"]]
+
+
 def test_summarize_counts_errors_apart_from_blocked(tmp_path):
     ok = run_case("ticket", "stub")
     bad = run_case("ticket", "stub-obedient")
