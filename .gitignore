@@ -12,3 +12,6 @@ node_modules/
 .local/
 test-results/
 playwright-report/
+packages/eval/runs/
+packages/eval/swarm/replies/*
+!packages/eval/swarm/replies/.gitkeep
