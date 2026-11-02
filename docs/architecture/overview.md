@@ -81,6 +81,7 @@ flowchart LR
 
   subgraph S55 ["P5.5 skills (NEW IN THIS PR)"]
     SPLIT["train and held-out split<br/>check: no shared task or file-operator pair"]:::p55
+    SKLOAD["skill loader<br/>catalog in prompt, load_skill returns a body"]:::p55
   end
 
   BUGSMITH --> FILTER
@@ -163,6 +164,8 @@ flowchart LR
   MMRUN --> RUNNER
   SEEDED -- "held-out set" --> SPLIT
   MUTANTS -- "train pool" --> SPLIT
+  SKLOAD -- "catalog and load_skill tool" --> FIX
+  SKLOAD -.-> TRAJ
 
   classDef p0 fill:#dbeafe,stroke:#1d4ed8,stroke-width:1.5px,color:#111827
   style S0 fill:none,stroke:#1d4ed8,stroke-width:1.5px
@@ -179,7 +182,7 @@ flowchart LR
   classDef p55 fill:#ede9fe,stroke:#6d28d9,stroke-width:4px,color:#111827
   style S55 fill:none,stroke:#6d28d9,stroke-width:4px
   classDef ext fill:#ffffff,stroke:#6b7280,color:#111827,stroke-dasharray: 4 3
-  linkStyle 78,79 stroke-width:3px
+  linkStyle 78,79,80,81 stroke-width:3px
 ```
 
 ## How to read it
@@ -197,6 +200,7 @@ Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink, P5.5 purple.
 ## What P5.5 adds (so far)
 
 - `packages/skills`: the train and held-out split (`python -m skills.split split|check`). Held-out is the 30 seeded tasks (29 runnable); train is 40 mutants. The check fails on a shared task id or a shared (mutated file, operator) pair. All mutants are `font-size` or `missing-style` and easy, so train covers 2 of the 6 archetypes.
+- `fix_loop.skills`: reads `packages/skills/skills/<name>/SKILL.md`, checks the format (six spec fields, body at most 8,000 characters) and gives `run_fix` a `skills` argument. The system message lists names and descriptions only; the `load_skill` tool returns one body. Twenty skills add 880 estimated tokens against 23,280 for their bodies in the test. Loads are read back from the trajectory (no schema change). One function, `trust_refusal`, is where T10 adds the trust checks; it refuses nothing today.
 - Docs: re-checked versions and the Agent Skills spec notes, including the one limit Argus enforces (body at most 8,000 characters) and where the three trust controls live.
 - Per-task detail: `docs/architecture/p5.5.md`.
 
