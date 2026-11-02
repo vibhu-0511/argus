@@ -278,7 +278,7 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 
 ## Week 24 — P6, P7 (20 h scheduled)
 
-- [ ] P6-T20 Add CI job for flow tests with a Postgres service container, no LLM [CLAUDE] 2h
+- [x] P6-T20 Add CI job for flow tests with a Postgres service container, no LLM [CLAUDE] 2h
 - [x] P6-T21 Break it: kill the worker after the PR is opened but before state is saved [ME] 2h
 - [x] P6-T22 Break it: deliver the same webhook twice [ME] 2h
 - [ ] P6-T23 Break it: let Render sleep and drop a webhook [ME] 2h
