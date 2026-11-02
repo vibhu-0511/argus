@@ -1,6 +1,6 @@
-# Architecture overview (P0 to P6)
+# Architecture overview (P0 to P7)
 
-As-built view of Argus after phases P5.5 and P6 (so far). Later phases are not drawn. This file grows by one phase in each stacked pull request; the diagram source is the same text the PR description shows.
+As-built view of Argus after phases P5.5, P6 and P7 (so far). Later phases are not drawn. This file grows by one phase in each stacked pull request; the diagram source is the same text the PR description shows.
 
 ```mermaid
 flowchart LR
@@ -93,6 +93,8 @@ flowchart LR
     SELECT["selection test<br/>catalog only, 7 of 10 right"]:::p55
     SABL["with vs without skills<br/>29 held-out tasks, no gain seen"]:::p55
     BREAKS["break-it tests<br/>poisoned, always-matching, stale"]:::p55
+  end
+
   subgraph S6 ["P6 flow"]
     STATES["workflow state machine<br/>10 states, 12 transitions, idempotency keys"]:::p6
     WEBHOOK["webhook endpoint<br/>HMAC-SHA256, fail closed"]:::p6
@@ -115,6 +117,12 @@ flowchart LR
     FLOWCI["flow.yml<br/>Postgres service container, green on GitHub"]:::p6
     COLD["cold-start timer<br/>signed ping, 10 s verdict, not run"]:::p6
     NEONUSE["Neon usage probe<br/>CU-hours against polling, not run"]:::p6
+  end
+
+  subgraph S7 ["P7 guard (NEW IN THIS PR)"]
+    VERS["version re-check<br/>promptfoo, gVisor, Firecracker, App token, 2026-11-03"]:::p7
+    OWASPN["OWASP ASI01 to ASI10 and Firecracker notes<br/>names from the launch post, PDF not read"]:::p7
+    TM["threat model<br/>assets, trust boundaries, data flow, 10 ASI rows"]:::p7
   end
 
   BUGSMITH --> FILTER
@@ -252,6 +260,16 @@ flowchart LR
   COLD -. "times the 202" .-> WEBHOOK
   NEONUSE -. "reads usage of" .-> FPG
 
+  %% P7 links
+  VERS -. "versions" .-> TM
+  OWASPN --> TM
+  TM -. "injection paths" .-> TICKET
+  TM -. "boundaries, tool abuse" .-> FIX
+  TM -. "sandbox boundary" .-> WT
+  TM -. "skill injection path" .-> SKLOAD
+  TM -. "webhook and token" .-> WEBHOOK
+  TM -. "workflow and Actions" .-> WF
+
   classDef p0 fill:#dbeafe,stroke:#1d4ed8,stroke-width:1.5px,color:#111827
   style S0 fill:none,stroke:#1d4ed8,stroke-width:1.5px
   classDef p1 fill:#cffafe,stroke:#0e7490,stroke-width:1.5px,color:#111827
@@ -266,10 +284,12 @@ flowchart LR
   style S5 fill:none,stroke:#be185d,stroke-width:1.5px
   classDef p55 fill:#ede9fe,stroke:#6d28d9,stroke-width:1.5px,color:#111827
   style S55 fill:none,stroke:#6d28d9,stroke-width:1.5px
-  classDef ext fill:#ffffff,stroke:#6b7280,color:#111827,stroke-dasharray: 4 3
   classDef p6 fill:#ccfbf1,stroke:#0f766e,stroke-width:1.5px,color:#111827
   style S6 fill:none,stroke:#0f766e,stroke-width:1.5px
+  classDef p7 fill:#fee2e2,stroke:#b91c1c,stroke-width:4px,color:#111827
+  style S7 fill:none,stroke:#b91c1c,stroke-width:4px
   classDef ext fill:#ffffff,stroke:#6b7280,color:#111827,stroke-dasharray: 4 3
+  linkStyle 134,135,136,137,138,139,140,141 stroke-width:3px
 ```
 
 ## How to read it
@@ -282,7 +302,7 @@ flowchart LR
 | Dotted arrow | a stored input (`fixture`), a test-only link or an advisory link, not a live call |
 | Thick arrow | a link added in this phase |
 
-Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink, P5.5 purple, P6 teal.
+Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink, P5.5 purple, P6 teal, P7 red.
 
 ## What P5.5 adds
 
@@ -311,6 +331,13 @@ Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink, P5.5 purple,
 - ADR-021 (webhooks as hints with reconciliation) and ADR-022 (free-tier topology) are written and marked proposed. `packages/flow/README.md` and the phase report hold the status; the P5 cells stay as dashes.
 - Version re-check and DBOS and MRTR notes (`docs/notes/p6-t00-versions.md`, `p6-t01-dbos-mrtr.md`). Per-task detail: `docs/architecture/p6.md`.
 - P6 was started before P5.5 and before P5 finished, by the owner's choice (`docs/notes/p6-waves.md`).
+
+## What P7 adds
+
+- Wave 1 (docs): `docs/notes/p7-t00-versions.md` re-checks the promptfoo, gVisor, Firecracker, App token and runner rows (the claim that hosted Linux runners expose `/dev/kvm` is not supported by any source read; T11 must prove it). `docs/notes/p7-t01-owasp-firecracker.md` lists ASI01 to ASI10 as the OWASP launch post names them (the PDF itself could not be read) and the isolation claims of the Firecracker paper.
+- `packages/guard/threat-model.md`: assets, ten trust boundaries, a data-flow diagram of the pipeline as built, ten ASI rows with threat, control and residual risk (each control marked as existing today or planned for a P7 task), the injection paths, and gaps no P7 task covers.
+- `packages/guard` is scaffolded (the `guard` command has no sub-command yet).
+- Per-task detail: `docs/architecture/p7.md`.
 
 ## What P5 added
 
