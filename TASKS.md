@@ -284,7 +284,7 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 - [ ] P6-T23 Break it: let Render sleep and drop a webhook [ME] 2h
 - [x] P6-T24 Break it: suspend Neon mid-run [ME] 2h
 - [ ] P6-T25 Write package README and phase report against P5 [CLAUDE] 1h
-- [ ] P7-T00 Re-verify pinned versions via web search [CLAUDE] 1h
+- [x] P7-T00 Re-verify pinned versions via web search [CLAUDE] 1h
 - [ ] P7-T01 Read the OWASP agentic top 10 and the Firecracker paper, write notes [ME] 1h
 - [ ] P7-T02 Write the threat model: assets, trust boundaries, data flows and ASI01 to ASI10 mapping [ME] 3h
 - [ ] P7-T03 Inventory secrets, keep them out of prompts, logs and trajectories, and scan CI for leaks [PAIR] 2h
