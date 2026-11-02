@@ -546,22 +546,28 @@ name = "flow"
 version = "0.1.0"
 source = { editable = "packages/flow" }
 dependencies = [
+    { name = "argus-bench" },
     { name = "argus-core" },
     { name = "dbos" },
     { name = "fastapi" },
+    { name = "fix-loop" },
     { name = "httpx" },
     { name = "mcp" },
     { name = "pydantic" },
+    { name = "repro-agent" },
 ]
 
 [package.metadata]
 requires-dist = [
+    { name = "argus-bench", editable = "packages/bench" },
     { name = "argus-core", editable = "packages/argus-core" },
     { name = "dbos", specifier = "==3.4.0" },
     { name = "fastapi", specifier = ">=0.115" },
+    { name = "fix-loop", editable = "packages/fix-loop" },
     { name = "httpx", specifier = ">=0.27" },
     { name = "mcp", specifier = "==2.3.0" },
     { name = "pydantic", specifier = ">=2.14.1" },
+    { name = "repro-agent", editable = "packages/repro-agent" },
 ]
 
 [[package]]

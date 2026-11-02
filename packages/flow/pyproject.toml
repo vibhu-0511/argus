@@ -4,10 +4,13 @@ version = "0.1.0"
 description = "Durable ticket-to-fix workflow, webhook endpoint and reconciliation poller."
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = ["argus-core", "pydantic>=2.14.1", "fastapi>=0.115", "httpx>=0.27", "dbos==3.4.0", "mcp==2.3.0"]
+dependencies = ["argus-core", "argus-bench", "fix-loop", "repro-agent", "pydantic>=2.14.1", "fastapi>=0.115", "httpx>=0.27", "dbos==3.4.0", "mcp==2.3.0"]
 
 [tool.uv.sources]
 argus-core = { workspace = true }
+argus-bench = { workspace = true }
+fix-loop = { workspace = true }
+repro-agent = { workspace = true }
 
 [build-system]
 requires = ["uv_build>=0.12.2,<0.13.0"]
