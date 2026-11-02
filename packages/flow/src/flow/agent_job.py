@@ -24,7 +24,7 @@ header, replaced by `***`. The exit code is 0 when the step succeeded and 1 when
 `result.json` is written.
 
 ponytail: the defaults are wired from the code and have not run on a runner. They need the platform checkout and the
-Docker rig, which `agent-job.yml` does not set up yet (see docs/notes/p6-t04.md). Verify uses the bench scorer
+Docker rig, which `agent-job.yml` sets up but nobody has seen run (see docs/notes/p6-t04.md). Verify uses the bench scorer
 (deterministic checks of the seeded task), not `verify.pipeline.run`, which needs screenshots and DOM reports that
 nothing produces for a ticket yet.
 ponytail: a success `output` is written as the step made it (a patch must stay byte-exact); only failure reasons are scrubbed.

@@ -12,7 +12,7 @@ What is not finished, and why (state of `TASKS.md` when this README was written)
 
 | Task | Unticked because |
 |---|---|
-| T04 GitHub Actions dispatch | The runner (`flow.actions`), `.github/workflows/agent-job.yml` and the entry point `python -m flow.agent_job` (`src/flow/agent_job.py`) exist and are tested against a fake Actions API with fake steps. The default steps (the real repro, fix and verify) have never run. The workflow does not yet check out the platform repository or start the Docker repro rig on the runner, so they cannot succeed there yet, and `agent-job.yml` has never run on GitHub. The acceptance run (a real dispatch returning patch and trajectory) was not seen. [p6-t04.md](../../docs/notes/p6-t04.md) |
+| T04 GitHub Actions dispatch | The runner (`flow.actions`), `.github/workflows/agent-job.yml` and the entry point `python -m flow.agent_job` (`src/flow/agent_job.py`) exist and are tested against a fake Actions API with fake steps. The default steps (the real repro, fix and verify) have never run. The workflow now checks out the platform repository (secret `ARGUS_PLATFORM_TOKEN`) and builds the images and the repro rig it needs on the runner, but none of that has run on Linux, and `agent-job.yml` has never run on GitHub. The acceptance run (a real dispatch returning patch and trajectory) was not seen. [p6-t04.md](../../docs/notes/p6-t04.md) |
 | T12 Render deploy | **Done, ticked 2026-11-03.** The service runs on Render free (commit `91f6f11`) and `/health` and `/health/db` answered on the public URL. No webhook or ticket run yet. [p6-t12.md](../../docs/notes/p6-t12.md) |
 | T13 Render cold start | The T12 deploy now exists; not measured yet. Note: `docs/notes/p6-t13.md` (another session's task) |
 | T14 Neon CU-hours over 48 hours | Needs the deploy and a 48-hour wait; not measured. Note: `docs/notes/p6-t14.md` |
@@ -112,7 +112,7 @@ Copied from [p6-t11.md](../../docs/notes/p6-t11.md) section 4, [p6-t12.md](../..
 2. Write token: same page, same repository only; permissions **Contents, Pull requests and Issues: Read and write**; expiry 30 days. This is `GITHUB_WRITE_TOKEN` (the workflow pushes the branch, opens and updates the PR, comments and labels with it).
 3. Poller token (only when polling is on): read-only on issues, pull requests, contents and actions of that repository. This is `GITHUB_TOKEN`.
 4. Model key for the job: repository Settings, Secrets and variables, Actions, secret `ARGUS_MODEL_API_KEY` (or `gh secret set ARGUS_MODEL_API_KEY`, which prompts).
-5. `agent-job.yml` must be on the repository's default branch for GitHub to list a `workflow_dispatch` workflow. This needs a push and merge. The job's entry point `flow.agent_job` exists, but its default steps are unrun and the workflow does not yet check out the platform repository or start the Docker rig (Status above), so a dispatched run is expected to end in a failure `result.json`.
+5. `agent-job.yml` must be on the repository's default branch for GitHub to list a `workflow_dispatch` workflow. This needs a push and merge. The job's entry point `flow.agent_job` exists, but its default steps are unrun. The workflow now checks out the platform repository and starts the rig (needs the secrets `ARGUS_PLATFORM_TOKEN` and `ARGUS_MODEL_API_KEY`; owner steps in [p6-t04.md](../../docs/notes/p6-t04.md)), so a dispatched `seed-*` task is expected to get further, but this has not been seen; a live issue id still ends in a failure `result.json`.
 
 ### 3. Render
 
