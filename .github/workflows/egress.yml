@@ -1,0 +1,41 @@
+name: egress
+
+# P7-T05. No model call, no secrets, no tokens. Runs the same no-egress probe that was run locally
+# (`python -m guard.egress`) inside the fix-loop sandbox on a hosted runner and stores the result as an artifact.
+# The job fails when the sandbox reaches the outside. The result file is packages/guard/results/egress-actions.json:
+# download the artifact `egress-actions` and commit it (owner steps are in docs/notes/p7-t05.md).
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "packages/guard/src/guard/egress.py"
+      - "packages/fix-loop/src/fix_loop/sandbox.py"
+      - "packages/fix-loop/docker/**"
+      - ".github/workflows/egress.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+      - run: uv sync --all-packages --locked
+      - name: Run the egress probe (sandbox, then a control with network on)
+        run: uv run --all-packages python -m guard.egress --context actions --control --out packages/guard/results/egress-actions.json
+      - name: Show the result
+        if: always()
+        run: |
+          echo '```json' >> "$GITHUB_STEP_SUMMARY"
+          cat packages/guard/results/egress-actions.json >> "$GITHUB_STEP_SUMMARY" || true
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: egress-actions
+          path: packages/guard/results/egress-actions.json
