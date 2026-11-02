@@ -4,5 +4,9 @@ import sys
 
 def main(argv: list[str] | None = None) -> int:
     args = sys.argv[1:] if argv is None else argv
+    if args[:1] == ["escape"]:
+        from guard.escape import main as escape_main
+
+        return escape_main(args[1:])
     print("guard: no sub-command yet" if not args else f"guard: unknown sub-command {args[0]!r}")
     return 2

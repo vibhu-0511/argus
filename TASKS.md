@@ -302,7 +302,7 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 - [ ] P7-T09 Add mitigations from the red-team: data and instruction separation, tool allowlist, output filter [ME] 2h
 - [ ] P7-T10 Run the sandbox under gVisor [PAIR] 2h
 - [ ] P7-T11 Run the sandbox as a Firecracker microVM on the Actions KVM runner [PAIR] 3h
-- [ ] P7-T12 Build the escape-test suite: network, host filesystem, docker socket, metadata address, fork bomb, symlink [ME] 3h
+- [x] P7-T12 Build the escape-test suite: network, host filesystem, docker socket, metadata address, fork bomb, symlink [ME] 3h Docker tier run locally: 12 of 12 probes blocked (`packages/guard/results/escape-docker.txt`); gVisor and Firecracker print "tier not available here" and did not run. See `docs/notes/p7-t12.md`.
 - [ ] P7-T13 Run ablation: Docker vs gVisor vs Firecracker on cold start and escape tests [ME] 3h
 
 ## Week 27 — P7, P8 (19 h scheduled)

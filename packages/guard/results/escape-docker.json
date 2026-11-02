@@ -1,0 +1,107 @@
+{
+  "suite": "escape",
+  "tier": "docker",
+  "runtime": "default",
+  "ran_at": "2026-11-02T21:04:18+00:00",
+  "docker_server": "29.5.3",
+  "image": "argus-fix-sandbox:p3",
+  "flags": {
+    "network": "none",
+    "cpus": "1",
+    "memory": "512m",
+    "pids_limit": 128,
+    "checks": "ro",
+    "added_by_suite": "pids_limit"
+  },
+  "probes": [
+    {
+      "id": "network-tcp",
+      "what": "TCP connect to an external IP",
+      "expected": "blocked",
+      "status": "pass",
+      "detail": "tcp could not connect"
+    },
+    {
+      "id": "network-https",
+      "what": "HTTPS request to an external IP",
+      "expected": "blocked",
+      "status": "pass",
+      "detail": "https could not connect"
+    },
+    {
+      "id": "dns-lookup",
+      "what": "DNS lookup of an external name",
+      "expected": "blocked",
+      "status": "pass",
+      "detail": "dns could not connect"
+    },
+    {
+      "id": "metadata-address",
+      "what": "HTTP to the cloud metadata address 169.254.169.254",
+      "expected": "blocked",
+      "status": "pass",
+      "detail": "metadata address unreachable"
+    },
+    {
+      "id": "host-fs-read",
+      "what": "read a host file outside the mounts, by its host path and the usual host-mount spellings",
+      "expected": "blocked",
+      "status": "pass",
+      "detail": "host file not readable at 6 paths"
+    },
+    {
+      "id": "readonly-mount-write",
+      "what": "write, create and delete in the read-only /checks mount",
+      "expected": "blocked",
+      "status": "pass",
+      "detail": "/checks is read-only and unchanged"
+    },
+    {
+      "id": "docker-socket",
+      "what": "docker socket reachable inside the container",
+      "expected": "blocked",
+      "status": "pass",
+      "detail": "no docker socket"
+    },
+    {
+      "id": "fork-bomb",
+      "what": "bounded fork loop (300 processes) against a pids limit of 128",
+      "expected": "blocked",
+      "status": "pass",
+      "detail": "fork stopped at 127 processes"
+    },
+    {
+      "id": "symlink-escape",
+      "what": "symlink in the rw mount pointing at the host folder, then read through it",
+      "expected": "blocked",
+      "status": "pass",
+      "detail": "6 symlinks to the host folder lead nowhere"
+    },
+    {
+      "id": "env-no-secrets",
+      "what": "environment of the process holds no secret (the launcher had a fake key set)",
+      "expected": "blocked",
+      "status": "pass",
+      "detail": "no secret in env"
+    },
+    {
+      "id": "host-proc",
+      "what": "see host processes through /proc (own pid namespace expected)",
+      "expected": "blocked",
+      "status": "pass",
+      "detail": "own pid namespace, 3 processes, pid 1 is the probe shell"
+    },
+    {
+      "id": "mount-syscall",
+      "what": "mount a filesystem (needs CAP_SYS_ADMIN)",
+      "expected": "blocked",
+      "status": "pass",
+      "detail": "mount refused"
+    }
+  ],
+  "summary": {
+    "pass": 12,
+    "fail": 0,
+    "error": 0
+  }
+}
