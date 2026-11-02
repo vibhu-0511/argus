@@ -231,7 +231,7 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 - [x] P5.5-T00 Re-verify pinned versions via web search [CLAUDE] 1h
 - [x] P5.5-T01 Read the Agent Skills spec and the Anthropic post, write notes [ME] 1h (notes written by Claude, owner to read)
 - [ ] P5.5-T02 Build the skill loader with progressive disclosure inside fix-loop [ME] 2h
-- [ ] P5.5-T03 Define the train and held-out split [ME] 1h
+- [x] P5.5-T03 Define the train and held-out split [ME] 1h
 - [ ] P5.5-T04 Collect successful trajectories on the training tasks [ME] 2h
 - [ ] P5.5-T05 Draft candidate skills from successful trajectories with the cheap-tier model [PAIR] 1h
 
