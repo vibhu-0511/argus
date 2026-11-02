@@ -23,6 +23,7 @@ from argus_core.types import StopReason, Trajectory, TrajectoryMeta, TrajectoryS
 from fix_loop.budget import StepUsage, apply_budget
 from fix_loop.gates import GateResult, gate_message
 from fix_loop.prompt import system_message
+from fix_loop.skills import LOAD_SKILL, catalog, load_skill, load_skills
 from fix_loop.strategies import SummaryDidNotShrink
 from fix_loop.tools import ToolError, ToolResult, call
 
@@ -62,6 +63,7 @@ def run_fix(
     strategy: Strategy | None = None,
     gates: Callable[[], list[GateResult]] | None = None,
     verify: Callable[[], object] | None = None,
+    skills: Path | None = None,
 ) -> LoopResult:
     if step_cap < 1 or token_cap < 1:
         raise ValueError("step_cap and token_cap must be at least 1")
@@ -69,8 +71,13 @@ def run_fix(
         raise ValueError("pass ledger and complete, or a router")
     out_dir.mkdir(parents=True, exist_ok=True)
     act = execute or (lambda name, payload: call(name, payload, worktree))
+    loadable = load_skills(skills)[0] if skills is not None else []
+    loaded: set[str] = set()
+    system_text = system_message(system)
+    if loadable:
+        system_text += "\n\n" + catalog(loadable)  # last, so the prefix bytes are unchanged when no skill is loadable
     messages: list[dict] = [
-        {"role": "system", "content": system_message(system)},
+        {"role": "system", "content": system_text},
         {"role": "user", "content": user},
     ]
     steps: list[TrajectoryStep] = []
@@ -138,7 +145,7 @@ def run_fix(
         key = name + "\n" + json.dumps(payload, sort_keys=True)
         recent.append(key)
         with tool_span(name, run_id=run_id, step=index) as tool:
-            result = act(name, payload)
+            result = load_skill(loadable, payload, loaded) if loadable and name == LOAD_SKILL else act(name, payload)
             record_tool_error(tool, result.error if isinstance(result, ToolError) else None)
         timed_out = isinstance(result, ToolError) and result.error == "timeout"
         timeouts = timeouts + 1 if timed_out else 0
