@@ -1,0 +1,16 @@
+---
+name: fix-css-font-size-on-selector
+description: "Fixes a wrong font-size on a CSS class in the Canvas app stylesheet when a ticket says a font-size changed from an old value. Use for tickets that name a font-size on a selector such as an ops row or count badge."
+allowed-tools: read_file list_dir search ast_grep edit submit
+metadata:
+  argus-status: "unreviewed"
+  argus-archetype: "font-size"
+  argus-sources: "mut-0206,mut-0212,mut-0217"
+---
+1. Use search with the selector from the ticket (for example .ops-horizon-count) under apps/canvas to find the rule that defines it.
+2. Use read_file on the matched stylesheet and find the rule for that exact selector.
+3. Confirm the rule sets font-size to the value the ticket says is wrong. If another rule for the same selector also sets font-size, use the one that applies to the element and check the file for the ticket's old value.
+4. Use edit to change only the font-size declaration in that rule to the value the ticket asks for. Match the old text exactly, including the declarations next to it.
+5. Leave every other declaration in the rule unchanged, such as font-weight, color, padding and border-radius.
+6. If the ticket names a different property (for example border-radius), change only the property the ticket names.
+7. Use submit when the edit is done.

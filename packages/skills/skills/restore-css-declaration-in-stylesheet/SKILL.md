@@ -1,0 +1,17 @@
+---
+name: restore-css-declaration-in-stylesheet
+description: "Fixes a CSS property or custom property that is missing or has the wrong value on a class or selector, such as transform-box on an animated SVG element or a surface color token like --desk-bg. Use when a ticket says a style changed from a named value."
+allowed-tools: read_file list_dir search ast_grep edit submit
+metadata:
+  argus-status: "unreviewed"
+  argus-archetype: "missing-style"
+  argus-sources: "mut-0001,mut-0003,mut-0004"
+---
+1. Use search for the selector or property name from the ticket (for example the class name or the custom property name) across the repo.
+2. Use read_file on the stylesheet that owns the selector. Find the rule that sets the property, and any @keyframes or @media block that uses it.
+3. Check for theme or scope overrides. A token can be set in a base rule and overridden under a theme selector such as html[data-theme=...], so read the whole block before you edit.
+4. Compare the current value with the value the ticket names. If the declaration is missing, add it to the existing rule for that selector. If the value is wrong, change only that value.
+5. Keep the fix in the stylesheet that already owns the selector. Do not add new selectors or move rules.
+6. Use edit with an exact old string copied from the file, including the whole line. If edit reports not-found, read the file again and match the current text.
+7. If the property drives an animation, keep any prefers-reduced-motion rule that stops that animation.
+8. Call submit after the declaration is in place for the selector the ticket names.

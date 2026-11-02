@@ -1,0 +1,102 @@
+{
+  "token_source": "chars/4 of the prompt and reply files; excludes each subagent's harness overhead; no provider usage exists for Claude sessions",
+  "model": "claude-haiku-5-5 (subagent model haiku), one fresh subagent per group (retries are new subagents)",
+  "groups": [
+    {
+      "group": "g01",
+      "archetype": "font-size",
+      "sources": [
+        "mut-0190",
+        "mut-0195",
+        "mut-0201"
+      ],
+      "tokens_in": 735,
+      "result": "written",
+      "path": "css-declaration-value-revert",
+      "tokens_out": 237
+    },
+    {
+      "group": "g02",
+      "archetype": "font-size",
+      "sources": [
+        "mut-0206",
+        "mut-0212",
+        "mut-0217"
+      ],
+      "tokens_in": 789,
+      "result": "written",
+      "path": "fix-css-font-size-on-selector",
+      "tokens_out": 290
+    },
+    {
+      "group": "g03",
+      "archetype": "font-size",
+      "sources": [
+        "mut-0223",
+        "mut-0228",
+        "mut-0234"
+      ],
+      "tokens_in": 792,
+      "result": "written",
+      "path": "css-numeric-value-revert",
+      "tokens_out": 353
+    },
+    {
+      "group": "g04",
+      "archetype": "font-size",
+      "sources": [
+        "mut-0239",
+        "mut-0245"
+      ],
+      "tokens_in": 573,
+      "result": "written",
+      "path": "css-length-value-revert",
+      "tokens_out": 226
+    },
+    {
+      "group": "g05",
+      "archetype": "missing-style",
+      "sources": [
+        "mut-0001",
+        "mut-0003",
+        "mut-0004"
+      ],
+      "tokens_in": 1462,
+      "result": "written",
+      "path": "restore-css-declaration-in-stylesheet",
+      "tokens_out": 360
+    },
+    {
+      "group": "g06",
+      "archetype": "missing-style",
+      "sources": [
+        "mut-0005",
+        "mut-0006",
+        "mut-0018"
+      ],
+      "tokens_in": 1448,
+      "result": "written",
+      "path": "restore-missing-css-property",
+      "tokens_out": 376
+    },
+    {
+      "group": "g07",
+      "archetype": "missing-style",
+      "sources": [
+        "mut-0030",
+        "mut-0042",
+        "mut-0055"
+      ],
+      "tokens_in": 2110,
+      "result": "written",
+      "path": "restore-changed-css-property-value",
+      "tokens_out": 450
+    }
+  ],
+  "totals": {
+    "groups": 7,
+    "written": 7,
+    "tokens_in": 7909,
+    "tokens_out": 2292
+  }
+}
