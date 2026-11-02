@@ -25,7 +25,7 @@ uv run pytest packages/eval/tests -q
 
 ## Traces and dashboard
 
-- Dashboard: <https://vibhu-0511.github.io/argus/> (**live after PR #11 is merged**: the Pages deploy only runs from `main`).
+- Dashboard: no public URL (GitHub Pages is not available on this private repo). Run `python packages/dashboard/build.py`, then open `packages/dashboard/index.html` from disk; or download the `dashboard` artifact of the `dashboard` workflow run (Actions tab) and open its `index.html`.
 - Langfuse project: <https://us.cloud.langfuse.com/project/cmvyts5v0011iad0eetwj6t2a/traces> (**sign-in required**). The trace there is a replay of a stored run, marked `argus.replay=true` on every span, not a live run. Session id: `argus-replay-B-seed-e01`.
 
 The two commands the owner runs, from the repo root in PowerShell. Put your own keys in the placeholders; they stay in this shell and are never written to a file.
@@ -44,7 +44,7 @@ It replays the stored run as spans, prints `export=SUCCESS` or `FAILURE`, then a
 
 - Measured: resolve rate with a Wilson interval, tokens and list-price dollars per bug, five trajectory metrics, a gate against a stored baseline, the routing ablation on 29 seeded tasks (`docs/notes/p5-t14-results.md`).
 - Not measured: quota share (Claude sessions have only a self-imposed cap), cached-token savings (cached tokens are 0 everywhere), a real provider tier split, latency that is comparable across runs.
-- Not yet seen: a trace in Langfuse (needs your keys), the dashboard on GitHub Pages and the `eval-gate` workflow on GitHub (need a push and Pages switched on). See `docs/notes/p5-t07.md`, `p5-t17.md` and `p5-t22.md`.
+- Not yet seen: a trace in Langfuse (needs your keys), a public dashboard URL (there is none); the `eval-gate` workflow has been seen on GitHub, green and red. See `docs/notes/p5-t07.md`, `p5-t17.md` and `p5-t22.md`.
 
 ## Inputs of `run`
 

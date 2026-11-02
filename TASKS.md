@@ -218,7 +218,7 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 - [x] P5-T19 Build the SWE-bench Multimodal subset adapter (10 to 20 tasks) into the Task format [PAIR] 3h
 - [ ] P5-T20 Run argus on the multimodal subset and report results and exclusions [ME] 3h. Done with one Claude subagent per task, not the argus pipeline: 7 solved, 5 unsolved, 1 excluded, 2 patch produced but not scored (packages/eval/results/p5-t20-multimodal.json, docs/notes/p5-t20.md section 9).
 - [x] P5-T21 Build static dashboard from results JSON (resolve rate, tokens, latency, trajectory metrics) [CLAUDE] 3h
-- [ ] P5-T22 Deploy the dashboard to GitHub Pages from an Action [CLAUDE] 2h
+- [x] P5-T22 Deploy the dashboard to GitHub Pages from an Action [CLAUDE] 2h. Skipped on the owner's decision (2026-11-02): GitHub Pages is not available on a private repo on this plan, and the repo must stay private. `dashboard.yml` builds the page and attaches it to the run as a download instead; the page also opens from disk.
 
 ## Week 20 — P5, P5.5 (19 h scheduled)
 

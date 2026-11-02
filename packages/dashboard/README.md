@@ -16,4 +16,4 @@ Then open `packages/dashboard/index.html` in a browser. It works straight from d
 - Made-up runs are drawn dashed and lighter, with "(made up)" in the name; a note says so.
 - `screenshot-desktop.png`: the page opened from disk at 1280 px wide (Edge, dark scheme).
 
-`.github/workflows/dashboard.yml` builds this folder and publishes it to GitHub Pages (T22). It has not run yet; see `docs/notes/p5-t22.md`.
+`.github/workflows/dashboard.yml` builds this folder on every push that changes it (and on demand) and attaches the page to the run as the `dashboard` download (30 days). There is no GitHub Pages deploy: Pages is not available on this private repo (`docs/notes/p5-t22.md`).
