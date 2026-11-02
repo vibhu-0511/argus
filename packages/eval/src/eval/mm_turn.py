@@ -64,6 +64,14 @@ Tools (paths are relative to the repository checkout):
 - submit {}: finish. Call it once the issue is fixed.
 The issue text says where its screenshots are; they are local image files. Fix the issue with the smallest change."""
 
+# fix_loop.prompt prepends AGENTS.md, which maps the dcortex Canvas platform: wrong for these repositories. The loop reads it from a module global,
+# so the run points that at this neutral map (nothing in packages/fix-loop is changed).
+MAP = """# Repository checkout
+
+This is a checkout of an open-source JavaScript repository at the commit the issue was filed against. It has no node_modules, so its tests cannot run here;
+the fix is graded afterwards by the project's own tests, which you cannot see. Change the source files (not the tests) and keep the change small.
+"""
+
 READ_ONLY_GIT = {"diff", "status", "log", "show", "ls-files", "grep"}
 GIT_BAD = ("--output", "--open-files-in-pager", "-O", "--ext-diff", "--textconv", "--exec")  # flags that write files or run programs
 
@@ -168,6 +176,10 @@ def _replay(task: MultimodalTask, root: Path, quiet: bool = False) -> int:
     answers = [json.loads(line) for line in (work / "answers.jsonl").read_text(encoding="utf-8").splitlines() if line]
     prompt = (work / "prompt.txt").read_bytes().decode("utf-8")
     _reset(tree)
+    from fix_loop import prompt as fl_prompt
+
+    (work / "agents-map.md").write_text(MAP, encoding="utf-8", newline="\n")
+    fl_prompt._AGENTS = work / "agents-map.md"
     with tempfile.TemporaryDirectory() as scratch:
         try:
             result = run_fix(
