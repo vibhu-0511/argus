@@ -23,7 +23,7 @@ from argus_core.types import StopReason, Trajectory, TrajectoryMeta, TrajectoryS
 from fix_loop.budget import StepUsage, apply_budget
 from fix_loop.gates import GateResult, gate_message
 from fix_loop.prompt import system_message
-from fix_loop.skills import LOAD_SKILL, catalog, load_skill, load_skills
+from fix_loop.skills import LOAD_SKILL, catalog, load_skill, load_skills, tool_denied
 from fix_loop.strategies import SummaryDidNotShrink
 from fix_loop.tools import ToolError, ToolResult, call
 
@@ -145,7 +145,10 @@ def run_fix(
         key = name + "\n" + json.dumps(payload, sort_keys=True)
         recent.append(key)
         with tool_span(name, run_id=run_id, step=index) as tool:
-            result = load_skill(loadable, payload, loaded) if loadable and name == LOAD_SKILL else act(name, payload)
+            if loadable and name == LOAD_SKILL:
+                result = load_skill(loadable, payload, loaded)
+            else:
+                result = tool_denied(loadable, loaded, name) or act(name, payload)  # a skill narrows the tools, never widens
             record_tool_error(tool, result.error if isinstance(result, ToolError) else None)
         timed_out = isinstance(result, ToolError) and result.error == "timeout"
         timeouts = timeouts + 1 if timed_out else 0
