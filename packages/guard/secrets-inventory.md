@@ -17,6 +17,8 @@ P7-T03. Names and places only: **no value is written in this file, in any other 
 | `ARGUS_PLATFORM_TOKEN` | GitHub Actions repository secret | The platform checkout step in `agent-job.yml` only (`persist-credentials: false`) | Same as above; the checkout step |
 | `PLATFORM_REPO_TOKEN` | GitHub Actions repository secret | The platform checkout step in `golden.yml` (manual dispatch only) | Same as above; the checkout step |
 | `GITHUB_TOKEN` (the Actions job token, read only by `permissions: contents: read`) | Issued by GitHub per job; `actions/checkout` keeps none (`persist-credentials: false` in `secret-scan.yml`) | `actions/checkout` | The job's steps; expires with the job |
+| `ARGUS_GITHUB_APP_PRIVATE_KEY` (planned: P7-T04; the App does not exist yet) | Render env var | `flow.app_token`: signs the App JWT, then mints a one-hour installation token per use | Owner; the Render service. Whoever holds it can mint tokens until the key is deleted in the App settings |
+| `ARGUS_GITHUB_APP_ID`, `ARGUS_GITHUB_APP_INSTALLATION_ID` (not secret, identifiers) | Render env var | `flow.app_token` | Owner; the Render service |
 | Provider keys for local runs (`MISTRAL_API_KEY`, `GROQ_API_KEY`) | The developer's local environment | The judge, the ablation, local fix runs | The owner's user account and any process it starts |
 | Trace keys (`LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY`, `OTEL_EXPORTER_OTLP_HEADERS`, `OTEL_EXPORTER_OTLP_TRACES_HEADERS`) | The developer's local environment; read by `argus_core.telemetry` only | The trace exporter (the Basic header is built from them and sent, never stored) | The owner's user account |
 
@@ -42,6 +44,6 @@ What is masked (`argus_core.redact`, also `guard.redact`): the value of every en
 
 ## Gaps
 
-- The failure scrub in `flow.agent_job.scrub` is a separate copy of the same idea. It was not changed (outside this task). Its regex does not mask the `ghs_<APPID>_<JWT>` shape; see `docs/notes/p7-t03.md`.
+- `flow.agent_job.scrub` now runs `argus_core.redact` first (P7-T04), so it masks the `ghs_<APPID>_<JWT>` shape; it keeps its own looser `Bearer` rule on top.
 - A success `output` (a patch) and the `argus-result` artifact are written as the step made them and are **not** redacted. The trajectory in the artifact is.
 - Environment values shorter than six characters, and secrets in an unusual shape that are not in a secret-named variable, are not masked.

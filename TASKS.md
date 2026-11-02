@@ -288,7 +288,7 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 - [x] P7-T01 Read the OWASP agentic top 10 and the Firecracker paper, write notes [ME] 1h (notes written by Claude, owner to read)
 - [x] P7-T02 Write the threat model: assets, trust boundaries, data flows and ASI01 to ASI10 mapping [ME] 3h (written by Claude, owner to read)
 - [ ] P7-T03 Inventory secrets, keep them out of prompts, logs and trajectories, and scan CI for leaks [PAIR] 2h
-- [ ] P7-T04 Make the GitHub App token least-privilege and short-lived [PAIR] 2h
+- [x] P7-T04 Make the GitHub App token least-privilege and short-lived [PAIR] 2h
 
 ## Week 25 — Buffer week (no scheduled tasks; catch up, or finish quota-bound eval runs)
 

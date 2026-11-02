@@ -560,6 +560,7 @@ dependencies = [
     { name = "httpx" },
     { name = "mcp" },
     { name = "pydantic" },
+    { name = "pyjwt", extra = ["crypto"] },
     { name = "repro-agent" },
 ]
 
@@ -573,6 +574,7 @@ requires-dist = [
     { name = "httpx", specifier = ">=0.27" },
     { name = "mcp", specifier = "==2.3.0" },
     { name = "pydantic", specifier = ">=2.14.1" },
+    { name = "pyjwt", extras = ["crypto"], specifier = ">=2.8" },
     { name = "repro-agent", editable = "packages/repro-agent" },
 ]
 
