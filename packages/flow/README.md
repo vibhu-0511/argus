@@ -6,15 +6,15 @@ Architecture, one section per task: [docs/architecture/p6.md](../../docs/archite
 
 ## Status (read this first)
 
-**Nothing is deployed.** There is no Render service, no Neon project and no public URL. Everything below was built and tested with a throwaway Postgres and fakes (on a local machine, and the flow tests also on GitHub Actions, see T20). No model was called.
+**Deployed in part (2026-11-03).** The service runs on Render free at `https://argus-flow.onrender.com` against a Neon project, and `/health` and `/health/db` answered on the public URL. No webhook is registered, no ticket has run, and nothing below the service has been seen on real GitHub or Actions. Everything else below was built and tested with a throwaway Postgres and fakes (on a local machine, and the flow tests also on GitHub Actions, see T20). No model was called.
 
 What is not finished, and why (state of `TASKS.md` when this README was written):
 
 | Task | Unticked because |
 |---|---|
 | T04 GitHub Actions dispatch | The runner (`flow.actions`), `.github/workflows/agent-job.yml` and the entry point `python -m flow.agent_job` (`src/flow/agent_job.py`) exist and are tested against a fake Actions API with fake steps. The default steps (the real repro, fix and verify) have never run. The workflow does not yet check out the platform repository or start the Docker repro rig on the runner, so they cannot succeed there yet, and `agent-job.yml` has never run on GitHub. The acceptance run (a real dispatch returning patch and trajectory) was not seen. [p6-t04.md](../../docs/notes/p6-t04.md) |
-| T12 Render deploy | The service and `render.yaml` are built; no service was created, so `/health` has not answered on a public URL. The Render build and start commands are untested on Render. [p6-t12.md](../../docs/notes/p6-t12.md) |
-| T13 Render cold start | Needs the T12 deploy; not measured. Note: `docs/notes/p6-t13.md` (another session's task) |
+| T12 Render deploy | **Done, ticked 2026-11-03.** The service runs on Render free (commit `91f6f11`) and `/health` and `/health/db` answered on the public URL. No webhook or ticket run yet. [p6-t12.md](../../docs/notes/p6-t12.md) |
+| T13 Render cold start | The T12 deploy now exists; not measured yet. Note: `docs/notes/p6-t13.md` (another session's task) |
 | T14 Neon CU-hours over 48 hours | Needs the deploy and a 48-hour wait; not measured. Note: `docs/notes/p6-t14.md` |
 | T23 Render sleeps, webhook lost | Only a local stand-in ran. It found a design gap: a sleeping Render service runs no poller, so the in-process poller alone does not recover a lost webhook. Open. [p6-t23-break-it.md](../../docs/notes/p6-t23-break-it.md) |
 | T16, T17 ADR-021, ADR-022 | Written by another session in `docs/adr/` (`0021-*`, `0022-*`); they need the T13 and T14 measurements as evidence. |
