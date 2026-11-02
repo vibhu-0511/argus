@@ -6,24 +6,24 @@ Architecture, one section per task: [docs/architecture/p6.md](../../docs/archite
 
 ## Status (read this first)
 
-**Nothing is deployed.** There is no Render service, no Neon project and no public URL. Everything below was built and tested on a local machine with a throwaway Postgres and fakes. No model was called.
+**Nothing is deployed.** There is no Render service, no Neon project and no public URL. Everything below was built and tested with a throwaway Postgres and fakes (on a local machine, and the flow tests also on GitHub Actions, see T20). No model was called.
 
 What is not finished, and why (state of `TASKS.md` when this README was written):
 
 | Task | Unticked because |
 |---|---|
-| T04 GitHub Actions dispatch | The runner (`flow.actions`) and `.github/workflows/agent-job.yml` exist and are tested against a fake Actions API. The workflow's entry point, `python -m flow.agent_job`, **is not written**, and the workflow has never run on GitHub. The acceptance run (a real dispatch returning patch and trajectory) was not seen. [p6-t04.md](../../docs/notes/p6-t04.md) |
+| T04 GitHub Actions dispatch | The runner (`flow.actions`), `.github/workflows/agent-job.yml` and the entry point `python -m flow.agent_job` (`src/flow/agent_job.py`) exist and are tested against a fake Actions API with fake steps. The default steps (the real repro, fix and verify) have never run. The workflow does not yet check out the platform repository or start the Docker repro rig on the runner, so they cannot succeed there yet, and `agent-job.yml` has never run on GitHub. The acceptance run (a real dispatch returning patch and trajectory) was not seen. [p6-t04.md](../../docs/notes/p6-t04.md) |
 | T12 Render deploy | The service and `render.yaml` are built; no service was created, so `/health` has not answered on a public URL. The Render build and start commands are untested on Render. [p6-t12.md](../../docs/notes/p6-t12.md) |
 | T13 Render cold start | Needs the T12 deploy; not measured. Note: `docs/notes/p6-t13.md` (another session's task) |
 | T14 Neon CU-hours over 48 hours | Needs the deploy and a 48-hour wait; not measured. Note: `docs/notes/p6-t14.md` |
-| T20 CI job | `.github/workflows/flow.yml` exists; it has not run on GitHub, so "workflow green" was not seen. [p6-t20.md](../../docs/notes/p6-t20.md) |
 | T23 Render sleeps, webhook lost | Only a local stand-in ran. It found a design gap: a sleeping Render service runs no poller, so the in-process poller alone does not recover a lost webhook. Open. [p6-t23-break-it.md](../../docs/notes/p6-t23-break-it.md) |
 | T16, T17 ADR-021, ADR-022 | Written by another session in `docs/adr/` (`0021-*`, `0022-*`); they need the T13 and T14 measurements as evidence. |
-| T25 this README and the phase report | See the end of this file and [p6-t25.md](../../docs/notes/p6-t25.md). |
+| T25 this README and the phase report | The P5 row is filled; the P6 row and the delta are dashes because P6 ran no model. See the end of this file and [p6-t25.md](../../docs/notes/p6-t25.md). |
 
 Other limits that matter:
 
-- **The workflow's GitHub write client (`github_write.HttpGitHubClient`) is built and wired into the service, but has never talked to the real GitHub.** It covers the seven `GitHubClient` methods (push by git data API, find-or-create draft PR, ready, close, comment with a hidden marker, label) and is tested only against a fake GitHub over `httpx.MockTransport`, including one whole `ticket_workflow` run on a local Postgres. Not seen: the real API's answers, the 422 race, the token's permissions. It needs its own token `GITHUB_WRITE_TOKEN`. Because `flow.agent_job` is still missing, a real ticket still fails at the repro dispatch. `render.yaml` therefore keeps `ARGUS_FLOW_POLL_ENABLED=false`, and the webhook should not be registered on a real repository yet.
+- **The workflow's GitHub write client (`github_write.HttpGitHubClient`) is built and wired into the service, but has never talked to the real GitHub.** It covers the seven `GitHubClient` methods (push by git data API, find-or-create draft PR, ready, close, comment with a hidden marker, label) and is tested only against a fake GitHub over `httpx.MockTransport`, including one whole `ticket_workflow` run on a local Postgres. Not seen: the real API's answers, the 422 race, the token's permissions. It needs its own token `GITHUB_WRITE_TOKEN`. The dispatched job's default steps have never run and the workflow cannot yet check out the platform repository or start the Docker rig, so a real ticket would still fail at the repro dispatch. `render.yaml` therefore keeps `ARGUS_FLOW_POLL_ENABLED=false`, and the webhook should not be registered on a real repository yet.
+- T20 (the flow CI job) is done: `.github/workflows/flow.yml` ran green on GitHub on 2026-11-02, on the push and on the pull request: 364 passed, 5 skipped against a `postgres:16` service container, no model call, no repository secret. [p6-t20.md](../../docs/notes/p6-t20.md).
 - T11 (Neon config, TLS, reconnect) and T24 (suspend break-it) were checked **on a local Postgres only**, with `pg_terminate_backend` and a stopped container standing in for a Neon suspend. A real Neon suspend, its wake-up time and its certificate chain were not seen. [p6-t11.md](../../docs/notes/p6-t11.md) section 6, [p6-t24-break-it.md](../../docs/notes/p6-t24-break-it.md).
 - The MCP QA tool (`flow.qa_mcp`) is not mounted in the service; QA approval in the service works through the review-comment path.
 - The crash-recovery experiment (T19) ran on fakes with a hard process kill, not on Render. Details: [p6-t19.md](../../docs/notes/p6-t19.md).
@@ -74,7 +74,7 @@ Wait until `docker exec argus-flow-test-pg pg_isready -U postgres` says it accep
 
 The stop/start and TLS tests need more: `ARGUS_FLOW_TEST_CONTAINER` (a container whose name starts with `argus-p6-pg-`) and, for TLS, a server with `ssl=on` and `?sslmode=require` in the URL. Without them they skip. Commands: [p6-t11.md](../../docs/notes/p6-t11.md) "Run it". The crash-recovery experiment and its fast subset: [p6-t19.md](../../docs/notes/p6-t19.md) "Run it".
 
-Recorded counts (from the task notes, not re-run for this README): 298 passed and 37 skipped without a database (T12, 2026-11-01); 315 passed and 5 skipped with a local Postgres (T20, 2026-11-01).
+Recorded counts (from the task notes, not re-run for this README): 298 passed and 37 skipped without a database (T12, 2026-11-01); 315 passed and 5 skipped with a local Postgres (T20, 2026-11-01); 364 passed and 5 skipped on GitHub Actions with a `postgres:16` service container (T20, 2026-11-02).
 
 ## Environment variables the service needs
 
@@ -112,7 +112,7 @@ Copied from [p6-t11.md](../../docs/notes/p6-t11.md) section 4, [p6-t12.md](../..
 2. Write token: same page, same repository only; permissions **Contents, Pull requests and Issues: Read and write**; expiry 30 days. This is `GITHUB_WRITE_TOKEN` (the workflow pushes the branch, opens and updates the PR, comments and labels with it).
 3. Poller token (only when polling is on): read-only on issues, pull requests, contents and actions of that repository. This is `GITHUB_TOKEN`.
 4. Model key for the job: repository Settings, Secrets and variables, Actions, secret `ARGUS_MODEL_API_KEY` (or `gh secret set ARGUS_MODEL_API_KEY`, which prompts).
-5. `agent-job.yml` must be on the repository's default branch for GitHub to list a `workflow_dispatch` workflow. This needs a push and merge. The job's entry point `flow.agent_job` does not exist yet (Status above).
+5. `agent-job.yml` must be on the repository's default branch for GitHub to list a `workflow_dispatch` workflow. This needs a push and merge. The job's entry point `flow.agent_job` exists, but its default steps are unrun and the workflow does not yet check out the platform repository or start the Docker rig (Status above), so a dispatched run is expected to end in a failure `result.json`.
 
 ### 3. Render
 
@@ -137,8 +137,8 @@ gh workflow run agent-job.yml -f ticket_id='OWNER/REPO#1' -f step=repro -f run_k
 gh run list --workflow agent-job.yml --limit 3
 ```
 
-The run's TITLE must equal the `run_key`. Until `flow.agent_job` exists the run fails at that step and uploads a failure `result.json`.
+The run's TITLE must equal the `run_key`. Until the workflow checks out the platform repository and starts the Docker rig, expect the run to fail at that step and upload a failure `result.json`.
 
 ## Phase report
 
-The ablation and the phase report against the previous phase are in [phases/P06-argus-flow.md](../../phases/P06-argus-flow.md). P5's final numbers did not exist in this branch when the report was written, so the previous-phase cells are dashes and so is the delta. Reasons and what would close it: [p6-t25.md](../../docs/notes/p6-t25.md).
+The ablation and the phase report against the previous phase are in [phases/P06-argus-flow.md](../../phases/P06-argus-flow.md). The previous-phase (P5) row holds P5's final numbers: resolve rate 71.4% (20/28), 34,940 tokens/bug, $0.0694, p50 1617.0 s, p95 5097.5 s, from `packages/eval/results/ablation-B.json`. The P6 row and the delta are dashes: P6 ran no model (its crash-recovery experiment used fakes), so there is nothing honest to put next to P5's numbers on a real model. What would fill the row and why T25 is still open: [p6-t25.md](../../docs/notes/p6-t25.md).

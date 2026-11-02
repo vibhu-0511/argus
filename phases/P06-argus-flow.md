@@ -81,16 +81,22 @@ Run the pipeline as a durable workflow, deployed free on Render and Neon, with G
 
 | Report | Resolve rate | Tokens/bug | $-equivalent | p50 latency | p95 latency |
 |---|---|---|---|---|---|
-| Previous phase (P5) | — | — | — | — | — |
-| This phase (P6) | — | — | — | 4.92 s (recovery, see note) | 6.05 s (recovery, see note) |
+| Previous phase (P5) | 71.4% (20/28) [52.9%, 84.7%] | 34,940 | $0.0694 | 1617.0 s | 5097.5 s |
+| This phase (P6) | — | — | — | — | — |
 | Delta | — | — | — | — | — |
 
-*Filled on 2026-11-02 (P6-T25). Not complete, on purpose.*
-- **Previous phase (P5): all dashes.** P5's final numbers did not exist in this branch when this was written (the P5 routing ablation was still running when P6 started early; `docs/notes/p6-waves.md`). Nothing was copied from P5 drafts or estimated. Fill the row from the P5 report when P5 is final.
-- **This phase (P6): resolve rate, tokens/bug and $-equivalent are dashes** because no model was run in P6: the crash-recovery experiment used fake runners (`docs/notes/p6-t19.md`). Those columns belong to the P5 ablation.
-- **The two latency cells are not a per-bug latency.** They are the DBOS variant's (B) recovery time after a hard kill, nearest-rank p50 and p95 over 150 kills, from `packages/flow/results/p6-t19/results-B.json` and `docs/notes/p6-t19.md`: it is the time from starting the second process to its `DONE` line, so it includes interpreter start and imports and was not measured on a quiet machine. Plain function (A) for reference: 3.03 s and 6.01 s. Do not subtract P5's latency from these when it exists; they measure a different thing.
-- **Delta: dashes** wherever either side is a dash, which is every cell here.
-- Not measured in P6, so not in the table: Render cold start (T13), Neon CU-hours (T14), any real GitHub round trip. Nothing is deployed (`packages/flow/README.md`, Status).
+*Previous-phase row filled on 2026-11-03 (P6-T25) from P5's final numbers. This-phase and delta rows are dashes on purpose.*
+- **Previous phase (P5) = the routed pipeline of the P5 ablation, variant B** (Claude sessions, sonnet strong tier and haiku cheap tier, one run per task on 29 seeded Canvas tasks, 20 of 28 scored; `seed-h09` excluded by the scorer). It is the row P5's own report calls "This phase" in `phases/P05-argus-eval.md`. Each cell, and where it comes from:
+  - Resolve rate 71.4% (20/28) [52.9%, 84.7%]: `packages/eval/results/ablation-B.json`, `resolve_rate` (`rate` 0.714286, `ci_low` 0.529404, `ci_high` 0.847462, Wilson 95%).
+  - Tokens/bug 34,940 = tokens in 34,471 + tokens out 468 per task: `ablation-B.json`, `tokens.per_task` (34471.071 and 468.429; cached 0). They are chars/4 estimates of the messages, not a bill.
+  - $-equivalent $0.0694: `ablation-B.json`, `$_equivalent` 1.944574 over 28 scored runs.
+  - p50 1617.0 s and p95 5097.5 s: `ablation-B.json`, `latency_s` (1617.05 and 5097.535, n = 28). P5's note says these are not comparable between its own rows (live repro scripts, several runs on one machine, reruns after Docker trouble): `docs/notes/p5-t14-results.md`.
+  - The same numbers are in the P5 phase report in `phases/P05-argus-eval.md` and in `docs/notes/p5-t14-results.md`.
+- **This phase (P6): every cell is a dash.** No model ran in P6. The crash-recovery experiment used fake runners (`docs/notes/p6-t19.md`) and nothing has been deployed, so P6 has no resolve rate, no tokens/bug and no $-equivalent. It has no per-bug latency either: the DBOS recovery p50 of 4.92 s and p95 of 6.05 s (variant B above; plain function A: 3.03 s and 6.01 s) are the time from restarting a killed process to its `DONE` line, over 150 kills, on fakes. They answer a different question from P5's time per bug on a real model, so they are not put in this row. They stay in the experiment table above.
+- **Delta: dashes**, because the P6 cell is a dash in every column. P5 measured routing on a real model; P6 measured crash recovery on fakes with no model. Subtracting one from the other would be a number about nothing.
+- Not measured in P6, so not in the table: Render cold start (T13), Neon CU-hours (T14), any real GitHub round trip, any ticket run through `flow.agent_job` on Actions. Nothing is deployed (`packages/flow/README.md`, Status).
+- **What would fill the P6 row:** a real ticket run end to end through the deployed pipeline (T04 acceptance run, T12 deploy), counted as resolved by the bench scorer, with tokens and wall time recorded. P6-T25 is ticked on the owner's decision of 2026-11-03 that dashes with a reason per cell count as filled: [docs/notes/p6-t25.md](../docs/notes/p6-t25.md).
+- P5 also ran the 15-task SWE-bench Multimodal dev subset (argus fix loop, 7 of 14 solved, `packages/eval/results/p5-t20-multimodal-argus.json`). That is a different benchmark from the seeded Canvas tasks of the ablation, so it is not in this table.
 
 ## ADRs to write
 All [ME].
