@@ -1,0 +1,19 @@
+---
+name: restore-changed-css-property-value
+description: "Fixes a UI bug where one CSS property (such as border-radius, width or height) on a class no longer matches its expected value, so the element looks different. Use when a ticket says a property on a class name changed from a stated value."
+allowed-tools: read_file list_dir search ast_grep edit submit
+metadata:
+  argus-status: "unreviewed"
+  argus-archetype: "missing-style"
+  argus-sources: "mut-0030,mut-0042,mut-0055"
+---
+1. Read the ticket. Note the class name, the CSS property, and the old value it changed from.
+2. Use search for the class name without the leading dot across the app source. If it appears only in a TSX file, the styling is in a stylesheet, so keep going. If it does not appear at all, try a shorter part of the name.
+3. Use search for the selector (the class name followed by a space, comma, colon or brace) inside the app's stylesheet folders to find every rule that targets the class.
+4. Use read_file on each stylesheet that holds a rule for the class. Check all rules for that class, including repeated declarations, pseudo-class and focus rules, and media queries.
+5. Compare the current value of the property with the value named in the ticket. If the value is a var(...) reference, use search to find the token in the design tokens file and check that it still matches the expected value.
+6. If the property is set in more than one rule, decide which rule the ticket's element really matches, using specificity and source order, before you edit.
+7. Use edit to restore the property to the value named in the ticket. Change only that declaration, and leave the other declarations on the rule as they are.
+8. Use search for the same class again to confirm no later rule overrides the restored value with a different one.
+9. If the class is set only in an inline style prop, use ast_grep on the component to find the element and fix the value there instead.
+10. Use submit.
