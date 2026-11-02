@@ -1,0 +1,13 @@
+{
+  "task_id": "markedjs__marked-1435",
+  "stop_reason": "submit",
+  "verdict": "patch-captured",
+  "patch_lines": 13,
+  "model_turns": 7,
+  "model": "claude-sonnet-5-5",
+  "worker_model": "sonnet",
+  "token_source": "chars/4 estimate",
+  "started_at": 1793599607.2294028,
+  "finished_at": 1793600398.4699118,
+  "wall_s": 791.2
+}

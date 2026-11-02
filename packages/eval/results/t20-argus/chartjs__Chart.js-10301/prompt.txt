@@ -1,0 +1,56 @@
+Repository: chartjs/Chart.js at commit 5c3dc932b615afa61580d06950712f79cfc7c4ef
+
+Issue:
+Legend event onLeave
+### Expected behavior
+
+When I place the mouse outside the legend I expect the onLeave event to be called all the time.
+
+### Current behavior
+
+In the example at https://www.chartjs.org/docs/latest/samples/legend/events.html you can hover over a legend. If you quickly place the mouse outside the chart, content sometimes are highlight anyway due to onLeave isn't called.
+
+On this image you can see that red are still highlighted, although the cursor are outside:
+![image](https://user-images.githubusercontent.com/58777964/157239796-95ccabbb-7ac1-4e58-89ca-c902b1df0dfe.png)
+
+I added a console.log to the onHover and onLeave handler in the example and received this when the cursor is outside the the chart but the color are still highlighted:
+![image](https://user-images.githubusercontent.com/58777964/157240018-395c6e62-d8e3-431f-8926-7644d5441078.png)
+
+### Reproducible sample
+
+https://codesandbox.io/s/react-chartjs-2-chart-js-issue-template-forked-3kw5p0?file=/src/App.tsx
+
+### Optional extra steps/info to reproduce
+
+Drag the mouse between one of the legends and then up to the next. The problem occurs perhaps 1/10 times
+
+![image](https://user-images.githubusercontent.com/58777964/157241538-f55bf466-916f-4763-b0ea-ef78ef847127.png)
+
+
+### Possible solution
+
+While trying to find a fix for this, I played around with attaching a mouseout event, it worked better but I had problem cleaning up the eventlistener.
+
+### Context
+
+_No response_
+
+### chart.js version
+
+v3.7.1
+
+### Browser name and version
+
+_No response_
+
+### Link to your project
+
+_No response_
+
+
+Screenshots attached to the issue:
+- C:\swebench-run\argus-run\chartjs__Chart.js-10301\images\01.png
+- C:\swebench-run\argus-run\chartjs__Chart.js-10301\images\02.png
+- C:\swebench-run\argus-run\chartjs__Chart.js-10301\images\03.png
+
+Fix the issue by editing the repository.

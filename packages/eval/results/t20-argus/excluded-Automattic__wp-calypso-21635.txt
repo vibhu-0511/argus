@@ -1,0 +1,1 @@
+The ticket asks to rename showEmailSettings to showNotificationSettings, but that rename is already in the base commit (checked 2026-11-01); the gold patch changes Brazilian CPF validation in client/lib/credit-card-details instead. The ticket does not describe the fix, so no agent can solve this from it. The worker made no edits.

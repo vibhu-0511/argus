@@ -74,7 +74,7 @@ flowchart LR
     NORM["attribute normalizer<br/>langfuse and phoenix profiles"]:::p5
     EGATE["eval-gate.yml<br/>stored results, no model"]:::p5
     DASH["static dashboard<br/>opens from disk"]:::p5
-    PAGES["dashboard.yml<br/>GitHub Pages deploy"]:::p5
+    PAGES["dashboard.yml<br/>builds the page as a CI download"]:::p5
     ABLH["ablation harness<br/>strong-only vs routed policy"]:::p5
     DRIVER["Claude-session driver<br/>one subagent per step, tier per stage"]:::p5
     TREES["repro tree runner<br/>buggy and golden tree, internal network"]:::p5
@@ -278,7 +278,7 @@ Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink, P6 violet.
 - The fix prompt has a byte-stable prefix, and the ledger keeps cached and fresh tokens apart.
 - Spans go through an attribute normalizer (profiles for Langfuse and Phoenix; unknown names pass through and are counted), then an OTLP exporter chosen from environment variables with a bounded queue. The swap to a second backend was shown with a local Phoenix and two local receivers. The Langfuse export is built but no trace has been seen there.
 - The fix loop and the repro agent can take a router and record the tier, host and model on each step. The ablation harness holds the two policies (all strong, or routed) and the table script. A Claude-session driver ran the 29 seeded tasks under both policies (and a third, fix on the cheap model) through a repro tree runner; the results are in `packages/eval/results/`.
-- `dashboard.yml` builds the page and deploys it to GitHub Pages (never run on GitHub yet). The normalizer has a strict switch that raises on a renamed attribute, and a dead trace backend costs one bounded timeout.
+- `dashboard.yml` builds the page and attaches it to the run as a download (Pages is not available on this private repo). The normalizer has a strict switch that raises on a renamed attribute, and a dead trace backend costs one bounded timeout.
 - `eval-gate.yml` runs the gate on a stored results pair, and `packages/dashboard` builds a static page from the results files. ADR-015 and ADR-017 record the choices.
 - `eval multimodal` also grades agent patches locally with the SWE-bench harness (15 tasks, 7 solved, 5 unsolved, 3 excluded or not scored, none dropped).
 - `eval multimodal`: the SWE-bench Multimodal `dev` subset, with the dropped rows and reasons listed.
@@ -289,7 +289,7 @@ Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink, P6 violet.
 - `packages/verify`: four fixed checks in a fixed order (pixel, overflow, axe, console); a hard failure returns one verdict and stops.
 - A vision judge that is advisory only and never overrides a passing check run.
 - Best-of-k selection (default k = 1, cap 5), the Krippendorff-alpha code and a CI gate on a stored before/after pair (`verify.yml`).
-- 100 calibration pairs of real Canvas screenshots with blank human labels, and the best-of-k runs `packages/fix-loop/runs/p4-t20-*`.
+- 100 calibration pairs of real Canvas screenshots with labels that are Claude's drafts adopted by the owner (not independent human labels), and the best-of-k runs `packages/fix-loop/runs/p4-t20-*`.
 
 ## Earlier phases
 

@@ -1,0 +1,72 @@
+Repository: diegomura/react-pdf at commit 721113e72e73b308caa7dd82b0776418e76c491b
+
+Issue:
+Type for Image SourceObject doesn't match documentation
+**Describe the bug**
+The documentation states that an Image source object can be a function that returns a string or promise string. 
+
+() => String | Promise<String>
+
+However, the type definition in `@react-pdf/types/image.d.ts` does not support a promise
+
+```
+export type SourceObject =
+  | string
+  | { data: Buffer; format: 'png' | 'jpg' }
+  | { uri: string; method: HTTPMethod; body: any; headers: any }
+```
+
+so I am getting a compilation error of
+```
+ Overload 1 of 2, '(props: Readonly<ImageWithSrcProp> | Readonly<ImageWithSourceProp>): Image', gave the following error.
+    Type '() => Promise<string>' is not assignable to type 'SourceObject'.
+ ```
+ 
+ the type should be something like 
+ 
+ ```
+ type HTTPMethod = 'GET' | 'HEAD' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+
+export type SourceObject =
+  | string
+  | { data: Buffer; format: 'png' | 'jpg' }
+  | { uri: string; method: HTTPMethod; body: any; headers: any }
+  | {(): Promise<string>};
+ ```
+
+**To Reproduce**
+Steps to reproduce the behavior including code snippet (if applies):
+
+```
+<Image src={async (): Promise<string> => (await getDataUrl())} />
+```
+
+_You can make use of [react-pdf REPL](https://react-pdf/repl) to share the snippet_
+
+**Expected behavior**
+A clear and concise description of what you expected to happen.
+
+It should not throw a compilation error. 
+
+**Screenshots**
+If applicable, add screenshots to help explain your problem.
+
+![image](https://user-images.githubusercontent.com/51760107/114592075-8bb6cc00-9c58-11eb-9afc-dbc5c0e7a387.png)
+![image](https://user-images.githubusercontent.com/51760107/114592085-8fe2e980-9c58-11eb-8721-9703759129b3.png)
+
+**Desktop (please complete the following information):**
+ - OS: [e.g. MacOS, Windows]
+ - Browser [e.g. chrome, safari]
+ - React-pdf version [e.g. v1.1.0]
+ 
+ MacOS, chrome, v2.0.4
+
+
+
+
+
+Screenshots attached to the issue:
+- C:\swebench-run\argus-run\diegomura__react-pdf-1306\images\01.png
+- C:\swebench-run\argus-run\diegomura__react-pdf-1306\images\02.png
+
+Fix the issue by editing the repository.

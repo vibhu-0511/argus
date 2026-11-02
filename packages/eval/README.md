@@ -11,6 +11,7 @@ uv run --all-packages python -m eval.ablation tasks --out tasks.json
 uv run --all-packages python -m eval.ablation table A.json B.json
 uv run --package eval python packages/eval/scripts/run_noise.py
 uv run --package eval python -m eval multimodal prepare|finish|predictions|results ...
+uv run --package eval python -m eval.trace_replay <run folder>
 uv run pytest packages/eval/tests -q
 ```
 
@@ -22,11 +23,28 @@ uv run pytest packages/eval/tests -q
 - `multimodal`: the SWE-bench Multimodal dev-subset adapter (T19) and the T20 run pieces: checkout + prompt, patch capture, harness predictions file, results table. A patch no harness has graded is `excluded: patch produced, not scored`, never solved. Findings and owner steps: `docs/notes/p5-t20.md`.
 - `schema`: prints the results JSON Schema (committed at `schemas/results.schema.json`; a test fails if the file and the models drift).
 
+## Traces and dashboard
+
+- Dashboard: no public URL (GitHub Pages is not available on this private repo). Run `python packages/dashboard/build.py`, then open `packages/dashboard/index.html` from disk; or download the `dashboard` artifact of the `dashboard` workflow run (Actions tab) and open its `index.html`.
+- Langfuse project: <https://us.cloud.langfuse.com/project/cmvyts5v0011iad0eetwj6t2a/traces> (**sign-in required**). The trace there is a replay of a stored run, marked `argus.replay=true` on every span, not a live run. Session id: `argus-replay-B-seed-e01`.
+
+The two commands the owner runs, from the repo root in PowerShell. Put your own keys in the placeholders; they stay in this shell and are never written to a file.
+
+```powershell
+$env:ARGUS_TRACE_BACKEND = "langfuse"; $env:LANGFUSE_PUBLIC_KEY = "<pk-lf-...>"; $env:LANGFUSE_SECRET_KEY = "<sk-lf-...>"; $env:LANGFUSE_BASE_URL = "https://us.cloud.langfuse.com"
+```
+
+```powershell
+uv run --all-packages python -m eval.trace_replay packages/eval/results/t14/B/seed-e01
+```
+
+It replays the stored run as spans, prints `export=SUCCESS` or `FAILURE`, then asks the Langfuse API for the session and writes `docs/notes/p5-t23-trace-evidence.md`. What is automated and what is not: `docs/notes/p5-t23.md`.
+
 ## What is measured and what is not
 
 - Measured: resolve rate with a Wilson interval, tokens and list-price dollars per bug, five trajectory metrics, a gate against a stored baseline, the routing ablation on 29 seeded tasks (`docs/notes/p5-t14-results.md`).
 - Not measured: quota share (Claude sessions have only a self-imposed cap), cached-token savings (cached tokens are 0 everywhere), a real provider tier split, latency that is comparable across runs.
-- Not yet seen: a trace in Langfuse (needs your keys), the dashboard on GitHub Pages and the `eval-gate` workflow on GitHub (need a push and Pages switched on). See `docs/notes/p5-t07.md`, `p5-t17.md` and `p5-t22.md`.
+- Not yet seen: a trace in Langfuse (needs your keys), a public dashboard URL (there is none); the `eval-gate` workflow has been seen on GitHub, green and red. See `docs/notes/p5-t07.md`, `p5-t17.md` and `p5-t22.md`.
 
 ## Inputs of `run`
 

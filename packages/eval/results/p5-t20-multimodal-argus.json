@@ -1,0 +1,318 @@
+{
+  "schema_version": 1,
+  "run_id": "t20-multimodal-argus",
+  "created_at": "2026-11-02T13:45:03Z",
+  "agent": {
+    "name": "argus-fix-loop-claude-session",
+    "model": "claude-sonnet-5-5",
+    "host": "claude-session",
+    "params": {
+      "claude_session": true,
+      "worker_model": "sonnet",
+      "tools": [
+        "read_file",
+        "list_dir",
+        "search",
+        "ast_grep",
+        "edit",
+        "run_cmd",
+        "submit"
+      ],
+      "run_cmd": "read-only git and node --check only, no Docker",
+      "fix_context": {
+        "strategy": "cap",
+        "budget": 32000
+      },
+      "step_cap": 20,
+      "token_cap": 400000,
+      "token_source": "chars/4 estimate of the messages; excludes subagent harness overhead"
+    }
+  },
+  "counts": {
+    "resolved": 7,
+    "unresolved": 7,
+    "excluded": 1,
+    "error": 0
+  },
+  "resolve_rate": {
+    "successes": 7,
+    "total": 14,
+    "rate": 0.5,
+    "ci_low": 0.267989,
+    "ci_high": 0.732011,
+    "interval": "wilson95"
+  },
+  "tokens": {
+    "total": {
+      "tokens_in": 328981,
+      "tokens_out": 3130,
+      "tokens_cached": 0
+    },
+    "per_task": {
+      "tokens_in": 23498.643,
+      "tokens_out": 223.571,
+      "tokens_cached": 0.0
+    }
+  },
+  "latency_s": {
+    "p50": 945.25,
+    "p95": 1604.86,
+    "n": 14
+  },
+  "trajectory_metrics": {
+    "trajectories": 14,
+    "steps": {
+      "total": 96,
+      "mean": 6.857143,
+      "median": 6.5
+    },
+    "tool_error_rate": {
+      "value": 0.083333,
+      "num": 8,
+      "den": 96
+    },
+    "redundant_call_rate": {
+      "value": 0.0,
+      "num": 0,
+      "den": 83
+    },
+    "stuck_rate": {
+      "value": 0.071429,
+      "num": 1,
+      "den": 14
+    },
+    "recover_after_gate_failure_rate": {
+      "value": null,
+      "num": 0,
+      "den": 0
+    }
+  },
+  "$_equivalent": 0.689262,
+  "tasks": [
+    {
+      "task_id": "Automattic__wp-calypso-21492",
+      "tier": null,
+      "verdict": "unresolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 7,
+      "tokens": {
+        "tokens_in": 27631,
+        "tokens_out": 211,
+        "tokens_cached": 0
+      },
+      "latency_s": 610.2,
+      "trajectory": "C:\\swebench-run\\argus-run\\Automattic__wp-calypso-21492\\fix\\trajectory.jsonl"
+    },
+    {
+      "task_id": "Automattic__wp-calypso-21635",
+      "tier": null,
+      "verdict": "excluded",
+      "reason": "invalid task: The ticket asks to rename showEmailSettings to showNotificationSettings, but that rename is already in the base commit (checked 2026-11-01); the gold patch changes Brazilian CPF validation in client/lib/credit-card-details instead. The ticket does not describe the fix, so no agent can solve this from it. The worker made no edits.",
+      "stop_reason": null,
+      "steps": null,
+      "tokens": {
+        "tokens_in": 0,
+        "tokens_out": 0,
+        "tokens_cached": 0
+      },
+      "latency_s": null,
+      "trajectory": null
+    },
+    {
+      "task_id": "Automattic__wp-calypso-21964",
+      "tier": null,
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 11,
+      "tokens": {
+        "tokens_in": 77109,
+        "tokens_out": 430,
+        "tokens_cached": 0
+      },
+      "latency_s": 1095.2,
+      "trajectory": "C:\\swebench-run\\argus-run\\Automattic__wp-calypso-21964\\fix\\trajectory.jsonl"
+    },
+    {
+      "task_id": "chartjs__Chart.js-10157",
+      "tier": null,
+      "verdict": "unresolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 5,
+      "tokens": {
+        "tokens_in": 20305,
+        "tokens_out": 185,
+        "tokens_cached": 0
+      },
+      "latency_s": 589.3,
+      "trajectory": "C:\\swebench-run\\argus-run\\chartjs__Chart.js-10157\\fix\\trajectory.jsonl"
+    },
+    {
+      "task_id": "chartjs__Chart.js-10301",
+      "tier": null,
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 5,
+      "tokens": {
+        "tokens_in": 21320,
+        "tokens_out": 162,
+        "tokens_cached": 0
+      },
+      "latency_s": 678.9,
+      "trajectory": "C:\\swebench-run\\argus-run\\chartjs__Chart.js-10301\\fix\\trajectory.jsonl"
+    },
+    {
+      "task_id": "chartjs__Chart.js-11116",
+      "tier": null,
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 4,
+      "tokens": {
+        "tokens_in": 11533,
+        "tokens_out": 140,
+        "tokens_cached": 0
+      },
+      "latency_s": 810.1,
+      "trajectory": "C:\\swebench-run\\argus-run\\chartjs__Chart.js-11116\\fix\\trajectory.jsonl"
+    },
+    {
+      "task_id": "diegomura__react-pdf-1178",
+      "tier": null,
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 8,
+      "tokens": {
+        "tokens_in": 14712,
+        "tokens_out": 171,
+        "tokens_cached": 0
+      },
+      "latency_s": 1080.4,
+      "trajectory": "C:\\swebench-run\\argus-run\\diegomura__react-pdf-1178\\fix\\trajectory.jsonl"
+    },
+    {
+      "task_id": "diegomura__react-pdf-1280",
+      "tier": null,
+      "verdict": "unresolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 5,
+      "tokens": {
+        "tokens_in": 8734,
+        "tokens_out": 128,
+        "tokens_cached": 0
+      },
+      "latency_s": 1254.0,
+      "trajectory": "C:\\swebench-run\\argus-run\\diegomura__react-pdf-1280\\fix\\trajectory.jsonl"
+    },
+    {
+      "task_id": "diegomura__react-pdf-1306",
+      "tier": null,
+      "verdict": "unresolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 3,
+      "tokens": {
+        "tokens_in": 3078,
+        "tokens_out": 93,
+        "tokens_cached": 0
+      },
+      "latency_s": 397.7,
+      "trajectory": "C:\\swebench-run\\argus-run\\diegomura__react-pdf-1306\\fix\\trajectory.jsonl"
+    },
+    {
+      "task_id": "markedjs__marked-1262",
+      "tier": null,
+      "verdict": "unresolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 7,
+      "tokens": {
+        "tokens_in": 20828,
+        "tokens_out": 408,
+        "tokens_cached": 0
+      },
+      "latency_s": 1101.0,
+      "trajectory": "C:\\swebench-run\\argus-run\\markedjs__marked-1262\\fix\\trajectory.jsonl"
+    },
+    {
+      "task_id": "markedjs__marked-1435",
+      "tier": null,
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 7,
+      "tokens": {
+        "tokens_in": 9559,
+        "tokens_out": 188,
+        "tokens_cached": 0
+      },
+      "latency_s": 791.2,
+      "trajectory": "C:\\swebench-run\\argus-run\\markedjs__marked-1435\\fix\\trajectory.jsonl"
+    },
+    {
+      "task_id": "markedjs__marked-1535",
+      "tier": null,
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 8,
+      "tokens": {
+        "tokens_in": 18486,
+        "tokens_out": 248,
+        "tokens_cached": 0
+      },
+      "latency_s": 1387.4,
+      "trajectory": "C:\\swebench-run\\argus-run\\markedjs__marked-1535\\fix\\trajectory.jsonl"
+    },
+    {
+      "task_id": "processing__p5.js-3068",
+      "tier": null,
+      "verdict": "unresolved",
+      "reason": "empty patch (the agent changed nothing; not run through the harness)",
+      "stop_reason": "stuck",
+      "steps": 6,
+      "tokens": {
+        "tokens_in": 14070,
+        "tokens_out": 201,
+        "tokens_cached": 0
+      },
+      "latency_s": 1455.9,
+      "trajectory": "C:\\swebench-run\\argus-run\\processing__p5.js-3068\\fix\\trajectory.jsonl"
+    },
+    {
+      "task_id": "processing__p5.js-3709",
+      "tier": null,
+      "verdict": "unresolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 16,
+      "tokens": {
+        "tokens_in": 73058,
+        "tokens_out": 481,
+        "tokens_cached": 0
+      },
+      "latency_s": 1881.5,
+      "trajectory": "C:\\swebench-run\\argus-run\\processing__p5.js-3709\\fix\\trajectory.jsonl"
+    },
+    {
+      "task_id": "processing__p5.js-5555",
+      "tier": null,
+      "verdict": "resolved",
+      "reason": null,
+      "stop_reason": "submit",
+      "steps": 4,
+      "tokens": {
+        "tokens_in": 8558,
+        "tokens_out": 84,
+        "tokens_cached": 0
+      },
+      "latency_s": 476.7,
+      "trajectory": "C:\\swebench-run\\argus-run\\processing__p5.js-5555\\fix\\trajectory.jsonl"
+    }
+  ]
+}
