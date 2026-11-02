@@ -243,7 +243,7 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 - [x] P5.5-T09 Write ADR-018: Skill format and distillation criteria [ME] 1h (drafted by Claude, status proposed: owner to review. See `docs/adr/0018-skill-format-and-distillation-criteria.md`)
 - [x] P5.5-T10 Build skill trust controls: review flag, content hash pin and tool allowlist per skill [ME] 2h
 - [x] P5.5-T11 Write ADR-019: Skill trust model [ME] 1h
-- [ ] P5.5-T12 Add CI job to lint skill files (frontmatter, size limit, hash file), no LLM [CLAUDE] 1h
+- [x] P5.5-T12 Add CI job to lint skill files (frontmatter, size limit, hash file), no LLM [CLAUDE] 1h. Green on GitHub on PR #14 (push run 41509388038 and pull-request run 41509383525, commit 52493d5); the lint fails on a bad skill in the tests.
 - [x] P5.5-T13 Break it: activate a skill that tells the agent to edit the bench checks [ME] 2h
 - [x] P5.5-T14 Break it: activate a skill that tries to send data out over the network [ME] 2h
 - [x] P5.5-T15 Break it: write a skill whose description matches every ticket [ME] 2h
