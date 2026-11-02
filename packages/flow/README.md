@@ -23,7 +23,7 @@ What is not finished, and why (state of `TASKS.md` when this README was written)
 
 Other limits that matter:
 
-- **The workflow's GitHub write client is `UnwiredGitHub`.** Its seven methods (`push_branch`, `find_pr`, `create_draft_pr`, `ready_pr`, `close_pr`, `post_comment`, `set_label`) all raise `NotImplementedError`. No real implementation of the `GitHubClient` protocol exists (tests use `FakeGitHub`; `HttpGitHubReader` is read-only). A real ticket would dispatch repro, fix and verify, then fail at the PR step. `render.yaml` therefore sets `ARGUS_FLOW_POLL_ENABLED=false`, and the webhook should not be registered on a real repository yet.
+- **The workflow's GitHub write client (`github_write.HttpGitHubClient`) is built and wired into the service, but has never talked to the real GitHub.** It covers the seven `GitHubClient` methods (push by git data API, find-or-create draft PR, ready, close, comment with a hidden marker, label) and is tested only against a fake GitHub over `httpx.MockTransport`, including one whole `ticket_workflow` run on a local Postgres. Not seen: the real API's answers, the 422 race, the token's permissions. It needs its own token `GITHUB_WRITE_TOKEN`. Because `flow.agent_job` is still missing, a real ticket still fails at the repro dispatch. `render.yaml` therefore keeps `ARGUS_FLOW_POLL_ENABLED=false`, and the webhook should not be registered on a real repository yet.
 - T11 (Neon config, TLS, reconnect) and T24 (suspend break-it) were checked **on a local Postgres only**, with `pg_terminate_backend` and a stopped container standing in for a Neon suspend. A real Neon suspend, its wake-up time and its certificate chain were not seen. [p6-t11.md](../../docs/notes/p6-t11.md) section 6, [p6-t24-break-it.md](../../docs/notes/p6-t24-break-it.md).
 - The MCP QA tool (`flow.qa_mcp`) is not mounted in the service; QA approval in the service works through the review-comment path.
 - The crash-recovery experiment (T19) ran on fakes with a hard process kill, not on Render. Details: [p6-t19.md](../../docs/notes/p6-t19.md).
@@ -44,6 +44,8 @@ All under `src/flow/`.
 | `actions` | `ActionsRunner`: runs a step by dispatching `agent-job.yml`, finding the run by its key, waiting, downloading the `argus-result` artifact. | T04 |
 | `reconcile` | The poller: rebuilds a ticket's state from GitHub alone and starts or finds its workflow. `poll_once`, `poll_forever`. | T07 |
 | `github_read` | Read-only GitHub REST reader for the poller (GET only). | T07 |
+| `github_write` | The workflow's GitHub write client over REST: keyed branch push, find-or-create draft PR, ready, close, marker comment, label. Every call finds before it acts. | P6 write client |
+| `diff_apply` | Applies a unified diff to file texts in memory, so `github_write` can push a patch through the git data API. Text files only. | P6 write client |
 | `qa` | The QA signal: one message to the ticket's workflow, deduplicated by an idempotency key. | T08 |
 | `review_comment` | QA approval by a review comment (`/argus approve`, `/argus reject`) from an allowed reviewer; no MCP needed. | T10 |
 | `qa_mcp` | QA approval as an MCP tool that asks through MRTR elicitation (`input_required` / `inputResponses`). Not mounted in the service. | T09 |
@@ -83,6 +85,7 @@ Names only. Never put a value in a file, a log or a commit. `render.yaml` marks 
 | `ARGUS_FLOW_DATABASE_URL` | yes | Neon **direct** (not pooled) URL with `sslmode=require` (or `verify-ca`, `verify-full`). A remote URL without TLS is refused. |
 | `GITHUB_WEBHOOK_SECRET` | yes | The secret shared with the GitHub webhook; the HMAC key. |
 | `GITHUB_DISPATCH_TOKEN` | yes | Fine-grained token, Actions read and write on the one repository. |
+| `GITHUB_WRITE_TOKEN` | yes | Fine-grained token, Contents, Pull requests and Issues read and write on the one repository. Used by the workflow's write client. |
 | `ARGUS_FLOW_REPO` | yes | `owner/name` of the repository whose issues are tickets. |
 | `GITHUB_TOKEN` | when polling is on | Fine-grained token, read-only (issues, pull requests, contents, actions) on that repository. |
 | `ARGUS_FLOW_QA_REVIEWERS` | for QA | Comma-separated GitHub logins allowed to approve; empty allows nobody. |
@@ -106,9 +109,10 @@ Copied from [p6-t11.md](../../docs/notes/p6-t11.md) section 4, [p6-t12.md](../..
 ### 2. GitHub tokens
 
 1. Dispatch token: GitHub, Settings, Developer settings, Fine-grained tokens. Resource owner is the repository owner; **only select repositories**, the one repository; permission **Actions: Read and write**; nothing else; expiry 30 days, then rotate. This is `GITHUB_DISPATCH_TOKEN`.
-2. Poller token (only when polling is on): read-only on issues, pull requests, contents and actions of that repository. This is `GITHUB_TOKEN`.
-3. Model key for the job: repository Settings, Secrets and variables, Actions, secret `ARGUS_MODEL_API_KEY` (or `gh secret set ARGUS_MODEL_API_KEY`, which prompts).
-4. `agent-job.yml` must be on the repository's default branch for GitHub to list a `workflow_dispatch` workflow. This needs a push and merge. The job's entry point `flow.agent_job` does not exist yet (Status above).
+2. Write token: same page, same repository only; permissions **Contents, Pull requests and Issues: Read and write**; expiry 30 days. This is `GITHUB_WRITE_TOKEN` (the workflow pushes the branch, opens and updates the PR, comments and labels with it).
+3. Poller token (only when polling is on): read-only on issues, pull requests, contents and actions of that repository. This is `GITHUB_TOKEN`.
+4. Model key for the job: repository Settings, Secrets and variables, Actions, secret `ARGUS_MODEL_API_KEY` (or `gh secret set ARGUS_MODEL_API_KEY`, which prompts).
+5. `agent-job.yml` must be on the repository's default branch for GitHub to list a `workflow_dispatch` workflow. This needs a push and merge. The job's entry point `flow.agent_job` does not exist yet (Status above).
 
 ### 3. Render
 
@@ -123,7 +127,7 @@ Copied from [p6-t11.md](../../docs/notes/p6-t11.md) section 4, [p6-t12.md](../..
    ```
 
    Expected once the engine is up: `{"status":"ok","engine":"ready"} HTTP 200`. Only then may T12 be ticked. `/health/db` runs `select 1` and wakes Neon, so do not use it as the Render health check.
-6. Webhook, **after** the GitHub write client is wired (see Status): repository Settings, Webhooks, Add webhook. Payload URL `https://<your-service>.onrender.com/webhook`; content type `application/json` (the HMAC is over the raw JSON body); secret the same string as `GITHUB_WEBHOOK_SECRET`; events Issues, Pull requests, Pull request reviews, Pull request review comments. A first `ping` is answered 202 `ignored`; a wrong secret gets 401.
+6. Webhook, **after** a dispatched run can succeed (see Status): repository Settings, Webhooks, Add webhook. Payload URL `https://<your-service>.onrender.com/webhook`; content type `application/json` (the HMAC is over the raw JSON body); secret the same string as `GITHUB_WEBHOOK_SECRET`; events Issues, Pull requests, Pull request reviews, Pull request review comments. A first `ping` is answered 202 `ignored`; a wrong secret gets 401.
 7. Poll loop, later: set `ARGUS_FLOW_POLL_ENABLED` to `true` and `ARGUS_FLOW_TICKET_LABEL` to a label. It runs only while the instance is awake, and a poll more often than every 5 minutes keeps the Neon compute awake (T14 is meant to measure that).
 
 ### Check the dispatch by hand (once `agent-job.yml` is on the default branch)
