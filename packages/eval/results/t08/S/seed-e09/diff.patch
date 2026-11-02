@@ -1,0 +1,13 @@
+diff --git a/apps/canvas/src/styles/landing.css b/apps/canvas/src/styles/landing.css
+index c8e628662..16cafdce2 100644
+--- a/apps/canvas/src/styles/landing.css
++++ b/apps/canvas/src/styles/landing.css
+@@ -5,7 +5,7 @@
+ .landing {
+   position: fixed;
+   inset: 0;
+-  overflow: visible;
++  overflow: hidden;
+   color: #fff;
+   font-family: var(--font-sans);
+   /* cinematic near-black: a cool radial glow off the upper-right over a black base,
