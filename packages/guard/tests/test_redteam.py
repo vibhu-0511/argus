@@ -6,12 +6,13 @@ tests show the grading can say `succeeded`.
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
 import yaml
 
-from guard.redteam import ATTACK, CANARY, CASES, HOST_CANARY, MARK, run_case
+from guard.redteam import ATTACK, CANARY, CASES, HOST_CANARY, MARK, run_case, summarize
 
 REDTEAM = Path(__file__).resolve().parents[1] / "redteam"
 CONFIG = REDTEAM / "promptfooconfig.yaml"
@@ -62,3 +63,16 @@ def test_attack_text_is_planted_in_one_place_per_case():
         run_case("nope")
     with pytest.raises(ValueError, match="nothing else is allowed"):
         run_case("ticket", "gpt-4o")
+
+
+def test_summarize_counts_errors_apart_from_blocked(tmp_path):
+    ok = run_case("ticket", "stub")
+    bad = run_case("ticket", "stub-obedient")
+    rows = [{"vars": {"case": "ticket"}, "response": {"output": json.dumps(r)}} for r in (ok, bad)]
+    rows.append({"vars": {"case": "ticket"}, "error": "provider failed"})
+    source = tmp_path / "pf.json"
+    source.write_text(json.dumps({"results": {"results": rows}}), encoding="utf-8")
+    result = summarize(source, tmp_path / "out.json", "2026-01-01")
+    ticket = result["cases"][0]
+    assert (ticket["runs"], ticket["blocked"], ticket["succeeded"], ticket["errors"]) == (3, 1, 1, 1)
+    assert json.loads((tmp_path / "out.json").read_text(encoding="utf-8"))["cases"][0]["case"] == "ticket"
