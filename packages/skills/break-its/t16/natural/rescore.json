@@ -1,0 +1,2 @@
+{"note": "The stored verdict.json says excluded (scorer exit 2) because this worktree had no node_modules, so the scorer could not import @playwright/test. After linking node_modules the same diff.patch was applied to a fresh HEAD + bug.patch tree and scored again (python -m argus_bench.cli score packages/bench/tasks/mutated/mut-0003 --tree <tree>): exit 0.",
+ "task_id": "mut-0003", "ok": true, "checks": [{"type": "computed_style", "ok": true, "reason": "--desk-bg=#0a0f1a"}], "log": "--desk-bg=#0a0f1a"}
