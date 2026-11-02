@@ -1,0 +1,13 @@
+diff --git a/apps/canvas/src/ops/radar.css b/apps/canvas/src/ops/radar.css
+index 0a1514628..f2869186c 100644
+--- a/apps/canvas/src/ops/radar.css
++++ b/apps/canvas/src/ops/radar.css
+@@ -93,7 +93,7 @@
+ @media (max-width: 1040px) { .radar-main { grid-template-columns: minmax(0, 1fr); gap: 28px; padding: 18px 16px 20px; } }
+ 
+ /* The feed. */
+-.radar-feed { display: flex; flex-direction: row; gap: 16px; min-width: 0; }
++.radar-feed { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+ .radar-feed-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+ .radar-eyebrow { display: block; font-family: var(--radar-mono); font-size: 11px; letter-spacing: 3px; color: var(--radar-dim); }
+ .radar-feed-head h1 { margin: 4px 0 0; font-size: 24px; font-weight: 600; letter-spacing: 1px; }

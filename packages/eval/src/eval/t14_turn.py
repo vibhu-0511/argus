@@ -5,7 +5,7 @@ the fix loop alone): `run_repro` (stage `repro`), then `run_fix` (stage `fix`), 
 policy. The first model call with no stored answer ends the call and prints what that turn's model must see. Every
 stored answer records its stage, tier and model, and every trajectory step carries the same tier, host and model.
 
-    python -m eval.t14_turn start <A|B|T> <task id>      e.g. start B seed-h05   (run id: B-seed-h05)
+    python -m eval.t14_turn start <A|B|S|T> <task id>    e.g. start B seed-h05   (run id: B-seed-h05)
     python -m eval.t14_turn show <run id>                print the pending turn (stage, tier, worker model, messages)
     python -m eval.t14_turn answer <run id> < reply      store one reply; prints one status line, not the next turn
     python -m eval.t14_turn status <run id>              the status line again (what the coordinator needs), or the verdict
@@ -13,7 +13,8 @@ stored answer records its stage, tier and model, and every trajectory step carri
 
 The status line says which subagent model the next worker must run on (`worker_model=sonnet|haiku`), or is the verdict.
 Variant A: every stage on sonnet. Variant B: repro on haiku, fix on sonnet (policies/claude-*.yaml). Variant T (P5.5-T04): a
-train mutant from packages/bench/tasks/mutated, fix stage only on sonnet (no repro stage), runs under runs/p55-t04/<task id>. Tokens are chars/4
+train mutant from packages/bench/tasks/mutated, fix stage only on sonnet (no repro stage), runs under runs/p55-t04/<task id>. Variant S (P5.5-T08): a seeded task, fix stage only on sonnet, with the reviewed skills
+loaded (`skills=packages/skills/skills`), runs under runs/p55-t08/<task id>. Tokens are chars/4
 estimates of the messages, not provider usage, and exclude the harness overhead of each subagent.
 
 ponytail: the repro tree runner needs the rig up (`python -m repro_agent.trees up`) and ARGUS_PLATFORM_REPO. A replay runs the
@@ -44,10 +45,14 @@ from eval.runner import AgentConfig, Outcome, load_tasks, run_eval
 HOST = "claude-session"
 RUNS = Path(os.environ.get("T14_RUNS") or Path(__file__).resolve().parents[2] / "runs" / "t14")
 TRAIN_RUNS = Path(__file__).resolve().parents[2] / "runs" / "p55-t04"  # variant T: no <variant> folder, the task ids are mut-NNNN
+SKILL_RUNS = Path(__file__).resolve().parents[2] / "runs" / "p55-t08"  # variant S: no <variant> folder, the task ids are seed-xNN
+SKILLS = Path(__file__).resolve().parents[2].parent / "skills" / "skills"  # variant S: the T06 reviewed skills, pinned in ../skills.lock.json
+NO_REPRO = frozenset({"S", "T"})  # fix stage only; the repro stage found a script in 0 of 29 variant A runs, so A's fix prompt said `Repro: not-run` too
 MUTATED = SEEDED.parent / "mutated"
 VARIANTS = {"A": ("ablation-A-claude-strong-only", POLICIES / "claude-strong-only.yaml"), "B": ("ablation-B-claude-routed", POLICIES / "claude-routed.yaml"),
             "C": ("breakit-C-claude-cheap-fix", POLICIES / "claude-cheap-fix.yaml"),  # C: P5-T27 break-it, fix on the cheap tier
-            "T": ("p55-t04-train-fix-only", POLICIES / "claude-strong-only.yaml")}  # T: P5.5-T04, train mutants, fix stage only
+            "T": ("p55-t04-train-fix-only", POLICIES / "claude-strong-only.yaml"),  # T: P5.5-T04, train mutants, fix stage only
+            "S": ("p55-t08-skills-fix-only", POLICIES / "claude-strong-only.yaml")}  # S: P5.5-T08, seeded tasks, fix stage only, skills on
 WORKER_MODEL = {"claude-sonnet-5-5": "sonnet", "claude-haiku-5-5": "haiku"}  # the Agent tool's `model` parameter
 STRATEGY, BUDGET_TOKENS = "cap", 32_000  # the fix loop's context strategy and budget, the P3/P4 harness defaults
 REPRO_CAP = 3
@@ -101,7 +106,7 @@ class _StageRouter(Router):
 
 
 def _variant_dir(variant: str) -> Path:
-    return TRAIN_RUNS if variant == "T" else RUNS / variant
+    return {"T": TRAIN_RUNS, "S": SKILL_RUNS}.get(variant, RUNS / variant)
 
 
 def _run_dir(run_id: str) -> Path:
@@ -117,7 +122,7 @@ def start(variant: str, task_id: str) -> int:
 
     task = (MUTATED if variant == "T" else SEEDED) / task_id
     if variant not in VARIANTS or not (task / "ticket.json").is_file():
-        raise SystemExit(f"usage: start <A|B|T> <task id>; {task} not found")
+        raise SystemExit(f"usage: start <A|B|S|T> <task id>; {task} not found")
     out = _variant_dir(variant) / task_id
     out.mkdir(parents=True, exist_ok=False)
     (out / "checks").mkdir()
@@ -181,13 +186,13 @@ def _replay(out: Path, quiet: bool = False) -> int:
     run_id = f"{variant}-{ticket.id}"
     _reset(tree, (task / "bug.patch").read_text(encoding="utf-8"))
     # T: the tree is HEAD plus the bug, so a fix that undoes the bug exactly diffs to nothing against HEAD; diff against the bug state
-    bug_state = _git(tree, "stash", "create").stdout.strip() if variant == "T" else ""
-    if variant == "T" and not bug_state:
+    bug_state = _git(tree, "stash", "create").stdout.strip() if variant in NO_REPRO else ""
+    if variant in NO_REPRO and not bug_state:
         raise RuntimeError("git stash create gave no commit; a diff against HEAD would be empty for an exact revert")
     with tempfile.TemporaryDirectory() as scratch:
         router = _StageRouter(policy, Ledger(Path(scratch) / "ledger.json", BUDGET), {HOST: _Replay(answers)})
         try:
-            repro = None if variant == "T" else run_repro(  # T: fix stage only (repro found a script in 1 of 58 runs in P5-T14)
+            repro = None if variant in NO_REPRO else run_repro(  # S, T: fix stage only (repro found a script in 1 of 58 runs in P5-T14)
                 ticket=ticket.model_copy(update={"text": ticket.text + BRIEF}), task_dir=task, model=strong, out_dir=out / "repro", cap=REPRO_CAP,
                 run_trees=trees_for(task, out / "trees-cache"), run_id=run_id, host=HOST, git_commit=_head(), router=router, stage="repro",
                 tool_timeout=TOOL_TIMEOUT,
@@ -196,7 +201,7 @@ def _replay(out: Path, quiet: bool = False) -> int:
                 worktree=tree, model=strong, host=HOST, router=router, stage="fix", out_dir=out / "fix", step_cap=STEP_CAP, token_cap=TOKEN_CAP,
                 run_id=run_id, git_commit=_head(), task_id=ticket.id, system=PROTOCOL, execute=_execute(tree, out / "checks"),
                 user=f"Ticket:\n{ticket.text}\n\nRepro: {(repro and repro.script) or 'not-run'}\nLocate: none\n",
-                context_budget=BUDGET_TOKENS, strategy=cap_strategy,
+                context_budget=BUDGET_TOKENS, strategy=cap_strategy, skills=SKILLS if variant == "S" else None,
             )
         except NeedTurn as need:
             worker = WORKER_MODEL[need.model]

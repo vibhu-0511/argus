@@ -1,0 +1,13 @@
+diff --git a/apps/canvas/src/styles/landing.css b/apps/canvas/src/styles/landing.css
+index 672630e89..16cafdce2 100644
+--- a/apps/canvas/src/styles/landing.css
++++ b/apps/canvas/src/styles/landing.css
+@@ -385,7 +385,7 @@ html[data-theme="light"] .landing-powered {
+ .auth-backdrop {
+   position: fixed;
+   inset: 0;
+-  z-index: 1;
++  z-index: 100;
+   display: grid;
+   place-items: center;
+   padding: 16px;

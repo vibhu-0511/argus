@@ -153,3 +153,34 @@ def test_variant_t_starts_a_mutated_task_fix_stage_only(tmp_path: Path, monkeypa
     assert "recorded 1 answers; next: stage=fix" in capsys.readouterr().out
     assert "99px" in (Path(json.loads((out / "task.json").read_text(encoding="utf-8"))["tree"]) / "a.css").read_text(encoding="utf-8")
     assert t14_turn._run_dir("T-mut-9999") == out
+
+
+def test_variant_s_runs_a_seeded_task_fix_stage_only_with_the_skill_catalog(tmp_path: Path, monkeypatch, capsys):
+    """P5.5-T08: variant S is variant A's task and policy with the repro stage off and the reviewed skills on."""
+    repo = tmp_path / "platform"
+    repo.mkdir()
+    (repo / "a.css").write_text(".x {\n  font-size: 13px;\n}\n", encoding="utf-8", newline="\n")
+    _git(repo, "init", "-q")
+    _git(repo, "add", ".")
+    _git(repo, "commit", "-qm", "init")
+    seeded = tmp_path / "seeded" / "seed-x01"
+    seeded.mkdir(parents=True)
+    (seeded / "ticket.json").write_text(json.dumps({"id": "seed-x01", "text": "font-size on .x changed from 13px."}), encoding="utf-8")
+    (seeded / "checks.json").write_text("[]", encoding="utf-8")
+    (seeded / "bug.patch").write_bytes(b"--- a/a.css\n+++ b/a.css\n@@ -1,3 +1,3 @@\n .x {\n-  font-size: 13px;\n+  font-size: 99px;\n }\n")
+    monkeypatch.setenv("ARGUS_PLATFORM_REPO", str(repo))
+    monkeypatch.setattr(t14_turn, "SEEDED", tmp_path / "seeded")
+    monkeypatch.setattr(t14_turn, "SKILL_RUNS", tmp_path / "p55-t08")
+    monkeypatch.setattr(t14_turn, "_head", lambda: "stub")
+
+    assert t14_turn.start("S", "seed-x01") == 0
+    assert "next: stage=fix tier=strong worker_model=sonnet" in capsys.readouterr().out
+    out = tmp_path / "p55-t08" / "seed-x01"
+    assert t14_turn._run_dir("S-seed-x01") == out and not (out / "repro").exists()
+    assert t14_turn.SKILLS.is_dir() and sorted(p.name for p in t14_turn.SKILLS.iterdir()) and "load_skill" in _shown(out, capsys)
+    assert "Repro: not-run" in _shown(out, capsys)  # the same fix prompt variant A had when its repro stage found nothing
+
+
+def _shown(out: Path, capsys) -> str:
+    t14_turn._replay(out)
+    return capsys.readouterr().out
