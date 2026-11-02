@@ -1,0 +1,12 @@
+diff --git a/packages/types/image.d.ts b/packages/types/image.d.ts
+index 9024db7..4d593c3 100644
+--- a/packages/types/image.d.ts
++++ b/packages/types/image.d.ts
+@@ -3,4 +3,6 @@ type HTTPMethod = 'GET' | 'HEAD' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+ export type SourceObject =
+   | string
+   | { data: Buffer; format: 'png' | 'jpg' }
+-  | { uri: string; method: HTTPMethod; body: any; headers: any };
++  | { uri: string; method: HTTPMethod; body: any; headers: any }
++  | (() => string)
++  | (() => Promise<string>);

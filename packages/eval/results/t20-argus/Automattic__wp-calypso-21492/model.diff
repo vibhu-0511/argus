@@ -1,0 +1,19 @@
+diff --git a/client/jetpack-connect/plans.jsx b/client/jetpack-connect/plans.jsx
+index f024c92..23a4be0 100644
+--- a/client/jetpack-connect/plans.jsx
++++ b/client/jetpack-connect/plans.jsx
+@@ -79,8 +79,12 @@ class Plans extends Component {
+ 			this.redirect( CALYPSO_PLANS_PAGE );
+ 		}
+ 		if ( ! this.props.selectedSite && this.props.isSitesInitialized ) {
+-			// Invalid site
+-			this.redirect( '/jetpack/connect/plans' );
++			// Invalid site (e.g. a subscriber who cannot see the site): go back to wp-admin if we know where
++			if ( this.props.queryRedirect ) {
++				this.redirectToWpAdmin();
++			} else {
++				this.redirect( '/jetpack/connect/plans' );
++			}
+ 		}
+ 		if ( ! this.props.canPurchasePlans ) {
+ 			if ( this.props.calypsoStartedConnection ) {

@@ -1,0 +1,34 @@
+{
+    "Automattic__wp-calypso-21492": {
+        "patch_is_None": false,
+        "patch_exists": true,
+        "patch_successfully_applied": true,
+        "resolved": false,
+        "infra_failure": false,
+        "tests_status": {
+            "FAIL_TO_PASS": {
+                "success": [],
+                "failure": [
+                    "getRoleFromScope - should return null if scope is malformed",
+                    "getRoleFromScope - should return role from scope",
+                    "getRoleFromScope - should return null if no role is found",
+                    "getRoleFromScope - should return null if no hash is found"
+                ]
+            },
+            "PASS_TO_PASS": {
+                "success": [
+                    "addCalypsoEnvQueryArg - should add config env_id as calypso_env"
+                ],
+                "failure": []
+            },
+            "FAIL_TO_FAIL": {
+                "success": [],
+                "failure": []
+            },
+            "PASS_TO_FAIL": {
+                "success": [],
+                "failure": []
+            }
+        }
+    }
+}

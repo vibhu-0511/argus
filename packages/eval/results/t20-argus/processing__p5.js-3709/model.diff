@@ -1,0 +1,53 @@
+diff --git a/src/webgl/p5.RendererGL.js b/src/webgl/p5.RendererGL.js
+index fa87490..e215826 100755
+--- a/src/webgl/p5.RendererGL.js
++++ b/src/webgl/p5.RendererGL.js
+@@ -1088,6 +1088,7 @@ p5.RendererGL.prototype._setFillUniforms = function(fillShader) {
+   // TODO: optimize
+   fillShader.setUniform('uMaterialColor', this.curFillColor);
+   fillShader.setUniform('isTexture', !!this._tex);
++  fillShader.setUniform('uTint', this._tint || [255, 255, 255, 255]);
+   if (this._tex) {
+     fillShader.setUniform('uSampler', this._tex);
+   }
+diff --git a/src/webgl/shaders/light_texture.frag b/src/webgl/shaders/light_texture.frag
+index d439945..82fc2b7 100644
+--- a/src/webgl/shaders/light_texture.frag
++++ b/src/webgl/shaders/light_texture.frag
+@@ -3,12 +3,13 @@ precision mediump float;
+ uniform vec4 uMaterialColor;
+ uniform sampler2D uSampler;
+ uniform bool isTexture;
++uniform vec4 uTint;
+ 
+ varying highp vec2 vVertTexCoord;
+ varying vec3 vDiffuseColor;
+ varying vec3 vSpecularColor;
+ 
+ void main(void) {
+-  gl_FragColor = isTexture ? texture2D(uSampler, vVertTexCoord) : uMaterialColor;
++  gl_FragColor = isTexture ? texture2D(uSampler, vVertTexCoord) * (uTint/255.) : uMaterialColor;
+   gl_FragColor.rgb = gl_FragColor.rgb * vDiffuseColor + vSpecularColor;
+ }
+\ No newline at end of file
+diff --git a/src/webgl/shaders/phong.frag b/src/webgl/shaders/phong.frag
+index c188fa2..024d839 100644
+--- a/src/webgl/shaders/phong.frag
++++ b/src/webgl/shaders/phong.frag
+@@ -3,6 +3,7 @@
+ uniform vec4 uMaterialColor;
+ uniform sampler2D uSampler;
+ uniform bool isTexture;
++uniform vec4 uTint;
+ 
+ varying vec3 vNormal;
+ varying vec2 vTexCoord;
+@@ -15,6 +16,6 @@ void main(void) {
+   vec3 specular;
+   totalLight(vViewPosition, normalize(vNormal), diffuse, specular);
+ 
+-  gl_FragColor = isTexture ? texture2D(uSampler, vTexCoord) : uMaterialColor;
++  gl_FragColor = isTexture ? texture2D(uSampler, vTexCoord) * (uTint/255.) : uMaterialColor;
+   gl_FragColor.rgb = gl_FragColor.rgb * (diffuse + vAmbientColor) + specular;
+ }
+\ No newline at end of file

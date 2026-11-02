@@ -13,6 +13,5 @@ node_modules/
 test-results/
 playwright-report/
 packages/eval/runs/
-packages/eval/swarm/replies/*.txt
-packages/eval/swarm/t16/replies/
-packages/eval/swarm/t16/active
+packages/eval/swarm/replies/*
+!packages/eval/swarm/replies/.gitkeep

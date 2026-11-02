@@ -1,0 +1,13 @@
+{
+  "task_id": "chartjs__Chart.js-11116",
+  "stop_reason": "submit",
+  "verdict": "patch-captured",
+  "patch_lines": 17,
+  "model_turns": 4,
+  "model": "claude-sonnet-5-5",
+  "worker_model": "sonnet",
+  "token_source": "chars/4 estimate",
+  "started_at": 1793599749.0886989,
+  "finished_at": 1793600559.1832647,
+  "wall_s": 810.1
+}
