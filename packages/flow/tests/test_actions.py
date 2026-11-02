@@ -288,8 +288,14 @@ def test_agent_job_workflow_is_valid_and_keeps_the_contract():
     assert doc["run-name"] == "${{ inputs.run_key }}"  # how the runner finds the run
     assert doc["concurrency"]["group"] == "argus-${{ inputs.run_key }}"
     assert triggers["workflow_dispatch"]["inputs"]["step"]["options"] == ["repro", "fix", "verify"]
-    # the only secret is the model key, as a reference; inputs never sit inside a script
-    assert text.count("secrets.") == 1 and "ARGUS_MODEL_API_KEY: ${{ secrets.ARGUS_MODEL_API_KEY }}" in text
+    # the only two secrets are the model key (env of the model step) and the platform read token (the checkout's
+    # `token:`), as references; inputs never sit inside a script; the token is not kept after checkout
+    assert text.count("secrets.") == 2 and "ARGUS_MODEL_API_KEY: ${{ secrets.ARGUS_MODEL_API_KEY }}" in text
+    assert doc["permissions"] == {"contents": "read"}
+    checkout = next(s for s in doc["jobs"]["run"]["steps"] if s.get("with", {}).get("repository") == "dcortex-ai/dcortex-platform")
+    assert checkout["with"]["token"] == "${{ secrets.ARGUS_PLATFORM_TOKEN }}" and checkout["with"]["persist-credentials"] is False
+    assert doc["jobs"]["run"]["env"]["ARGUS_PLATFORM_REPO"] == "${{ github.workspace }}/" + checkout["with"]["path"]
     for job in doc["jobs"].values():
         for step in job["steps"]:
             assert "inputs." not in step.get("run", "")
+            assert "ARGUS_PLATFORM_TOKEN" not in step.get("run", "") and "ARGUS_PLATFORM_TOKEN" not in str(step.get("env", ""))
