@@ -16,5 +16,6 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           python-version: "3.12"
+      - run: uv sync --all-packages --locked
       - run: uv run pytest packages/eval/tests -q
       - run: uv run --package eval python -m eval gate packages/eval/results/current.json --baseline packages/eval/results/baseline.json
