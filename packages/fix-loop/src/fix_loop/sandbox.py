@@ -15,6 +15,7 @@ MEMORY = "512m"
 # ponytail: the container reports a blocked route or a write to the read-only mount only as text on stderr, so the policy
 # event is found by those message strings (busybox/musl wording). A different image or tool may word them differently.
 _BLOCKED = {
+    "network-blocked": ("bad address", "Network unreachable", "Network is unreachable", "Temporary failure in name resolution"),
     "checks-write-blocked": ("Read-only file system",),
 }
 
