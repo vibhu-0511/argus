@@ -1896,6 +1896,12 @@ wheels = [
 name = "skills"
 version = "0.1.0"
 source = { editable = "packages/skills" }
+dependencies = [
+    { name = "fix-loop" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "fix-loop", editable = "packages/fix-loop" }]
 
 [[package]]
 name = "sse-starlette"
