@@ -3,7 +3,7 @@ name: css-rule-missing-for-class
 description: "Use when a ticket says a CSS property on a class changed from a stated value, but no stylesheet has a rule for that class any more: it appears only as a className in TSX. The fix adds one small rule. Not when a rule for the class exists, not for a class named inside a grouped selector list, not for SVG animation or CSS variables."
 allowed-tools: search read_file edit submit
 metadata:
-  argus-status: "unreviewed"
+  argus-status: "reviewed"
   argus-archetype: "css-rule-deleted"
   argus-sources: "mut-0018,mut-0030,mut-0042,mut-0055"
 ---

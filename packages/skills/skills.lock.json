@@ -1,4 +1,35 @@
 {
-  "skills": {},
+  "skills": {
+    "css-custom-property-missing-from-base-rule": {
+      "reviewed": true,
+      "reviewed_by": "claude, delegated by vibhu-0511",
+      "reviewed_on": "2026-11-02",
+      "sha256": "7771c86d6c5ec40b9b9e09c7f911f43ca8b7dfb788f48a7e5fb004e8e1305061"
+    },
+    "css-property-missing-from-grouped-rule": {
+      "reviewed": true,
+      "reviewed_by": "claude, delegated by vibhu-0511",
+      "reviewed_on": "2026-11-02",
+      "sha256": "0c330cf40e466c96cf59f92278ad5ea02b57254fc98d57e6b6d19aef6d4a2429"
+    },
+    "css-rule-missing-for-class": {
+      "reviewed": true,
+      "reviewed_by": "claude, delegated by vibhu-0511",
+      "reviewed_on": "2026-11-02",
+      "sha256": "252337317db2d2ec0f858bf2d76d740b568ca825d11e9d6c66ffae252e04f5c9"
+    },
+    "css-value-changed-in-existing-rule": {
+      "reviewed": true,
+      "reviewed_by": "claude, delegated by vibhu-0511",
+      "reviewed_on": "2026-11-02",
+      "sha256": "636cbc4705f887025e72872d97dc166a4c7e8d59dfd46536f9fc9576c4655976"
+    },
+    "svg-transform-box-missing": {
+      "reviewed": true,
+      "reviewed_by": "claude, delegated by vibhu-0511",
+      "reviewed_on": "2026-11-02",
+      "sha256": "8d126a644371023e0b3eeacc8261eaf71342bc4af59c8a661848f645d9446808"
+    }
+  },
   "version": 1
 }

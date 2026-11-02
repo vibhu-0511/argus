@@ -237,7 +237,7 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 
 ## Week 21 — P5.5 (20 h scheduled)
 
-- [ ] P5.5-T06 Review, edit and keep at least 5 skills [ME] 2h
+- [x] P5.5-T06 Review, edit and keep at least 5 skills [ME] 2h. Done on 2026-11-02 by Claude at the owner's request, and the owner confirmed the 5 pins in chat: 3 skills backed by 11, 3 and 4 runs, 2 thin ones (1 run each); drafts deleted. See `docs/notes/p5.5-t06.md`.
 - [ ] P5.5-T07 Test skill selection: does the description trigger the right skill [PAIR] 1h
 - [ ] P5.5-T08 Run ablation: with vs without skills on the held-out set [ME] 3h
 - [ ] P5.5-T09 Write ADR-018: Skill format and distillation criteria [ME] 1h

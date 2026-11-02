@@ -3,7 +3,7 @@ name: svg-transform-box-missing
 description: "Use when a ticket says transform-box on a class changed from fill-box and the class is on an animated SVG element (a keyframes animation on a circle, path or rect). Not for other CSS properties."
 allowed-tools: search read_file edit submit
 metadata:
-  argus-status: "unreviewed"
+  argus-status: "reviewed"
   argus-archetype: "svg-transform-box"
   argus-sources: "mut-0001,mut-0004,mut-0005"
 ---

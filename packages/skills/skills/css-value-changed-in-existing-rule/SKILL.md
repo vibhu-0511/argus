@@ -3,7 +3,7 @@ name: css-value-changed-in-existing-rule
 description: "Use when a ticket says a CSS property on a class (font-size, gap, height, margin-top, border-radius) changed from a stated value, and the stylesheet still has a rule for that class with a different value for that property. Not for a class with no rule, a property missing from the rule, an SVG animation or a CSS variable."
 allowed-tools: search edit submit
 metadata:
-  argus-status: "unreviewed"
+  argus-status: "reviewed"
   argus-archetype: "css-wrong-value"
   argus-sources: "mut-0190,mut-0195,mut-0201,mut-0206,mut-0212,mut-0217,mut-0223,mut-0228,mut-0234,mut-0239,mut-0245"
 ---
