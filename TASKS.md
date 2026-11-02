@@ -200,7 +200,7 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 ## Week 18 — P5 (22 h scheduled)
 
 - [x] P5-T06 Instrument the loop and tools with OTel spans using GenAI attributes [ME] 3h
-- [ ] P5-T07 Configure OTLP export to Langfuse Cloud Hobby [CLAUDE] 2h
+- [x] P5-T07 Configure OTLP export to Langfuse Cloud Hobby [CLAUDE] 2h
 - [x] P5-T08 Build the attribute normalizer between argus spans and backend conventions [ME] 3h
 - [x] P5-T09 Prove the backend swap with a second local OTLP backend [PAIR] 1h
 - [x] P5-T10 Write ADR-015: Trace backend and normalizer [ME] 1h
@@ -211,12 +211,12 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 
 ## Week 19 — P5 (18 h scheduled)
 
-- [ ] P5-T15 Write ADR-016: Routing policy [ME] 1h
+- [x] P5-T15 Write ADR-016: Routing policy [ME] 1h
 - [x] P5-T16 Build CI regression gate: compare a results file to the stored baseline with intervals [PAIR] 3h
-- [ ] P5-T17 Wire the regression gate into GitHub Actions on stored results, no LLM calls [CLAUDE] 2h
+- [x] P5-T17 Wire the regression gate into GitHub Actions on stored results, no LLM calls [CLAUDE] 2h
 - [x] P5-T18 Write ADR-017: CI gate thresholds [ME] 1h
 - [x] P5-T19 Build the SWE-bench Multimodal subset adapter (10 to 20 tasks) into the Task format [PAIR] 3h
-- [ ] P5-T20 Run argus on the multimodal subset and report results and exclusions [ME] 3h
+- [ ] P5-T20 Run argus on the multimodal subset and report results and exclusions [ME] 3h. Done with one Claude subagent per task, not the argus pipeline: 7 solved, 5 unsolved, 1 excluded, 2 patch produced but not scored (packages/eval/results/p5-t20-multimodal.json, docs/notes/p5-t20.md section 9).
 - [x] P5-T21 Build static dashboard from results JSON (resolve rate, tokens, latency, trajectory metrics) [CLAUDE] 3h
 - [ ] P5-T22 Deploy the dashboard to GitHub Pages from an Action [CLAUDE] 2h
 
@@ -226,7 +226,7 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 - [x] P5-T24 Break it: rename a span attribute as a semconv update would [ME] 2h
 - [x] P5-T25 Break it: make the trace backend unreachable [ME] 2h
 - [x] P5-T26 Break it: put a timestamp at the top of the system prompt [ME] 2h
-- [ ] P5-T27 Break it: route a hard fix step to the cheap tier [ME] 2h
+- [x] P5-T27 Break it: route a hard fix step to the cheap tier [ME] 2h
 - [ ] P5-T28 Write package README and phase report against P4 [CLAUDE] 1h
 - [ ] P5.5-T00 Re-verify pinned versions via web search [CLAUDE] 1h
 - [ ] P5.5-T01 Read the Agent Skills spec and the Anthropic post, write notes [ME] 1h

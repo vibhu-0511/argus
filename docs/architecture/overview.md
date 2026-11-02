@@ -76,6 +76,9 @@ flowchart LR
     DASH["static dashboard<br/>opens from disk"]:::p5
     PAGES["dashboard.yml<br/>GitHub Pages deploy"]:::p5
     ABLH["ablation harness<br/>strong-only vs routed policy"]:::p5
+    DRIVER["Claude-session driver<br/>one subagent per step, tier per stage"]:::p5
+    TREES["repro tree runner<br/>buggy and golden tree, internal network"]:::p5
+    MMRUN["multimodal run<br/>local SWE-bench grading, none dropped"]:::p5
   end
 
   subgraph S6 ["P6 flow (NEW IN THIS PR)"]
@@ -174,6 +177,11 @@ flowchart LR
   ABLH --> RUNNER
   ROUTER -- "stage per call" --> FIX
   ROUTER -- "stage per call" --> REPRO
+  DRIVER --> ABLH
+  DRIVER --> TREES
+  TREES --> RVERIFY
+  MM --> MMRUN
+  MMRUN --> RUNNER
   GITHUB --> WEBHOOK
   WEBHOOK --> HINT
   HINT --> ENQ
@@ -223,7 +231,7 @@ flowchart LR
   classDef p6 fill:#ede9fe,stroke:#6d28d9,stroke-width:4px,color:#111827
   style S6 fill:none,stroke:#6d28d9,stroke-width:4px
   classDef ext fill:#ffffff,stroke:#6b7280,color:#111827,stroke-dasharray: 4 3
-  linkStyle 73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105 stroke-width:3px
+  linkStyle 78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110 stroke-width:3px
 ```
 
 ## How to read it
@@ -264,9 +272,10 @@ Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink, P6 violet.
 - `argus_core.router` and `routing.yaml`: repro and localize go to the cheap tier, fix to the strong tier, with a fallback to the other host. The loop does not use it yet (T14).
 - The fix prompt has a byte-stable prefix, and the ledger keeps cached and fresh tokens apart.
 - Spans go through an attribute normalizer (profiles for Langfuse and Phoenix; unknown names pass through and are counted), then an OTLP exporter chosen from environment variables with a bounded queue. The swap to a second backend was shown with a local Phoenix and two local receivers. The Langfuse export is built but no trace has been seen there.
-- The fix loop and the repro agent can take a router and record the tier, host and model on each step. The ablation harness holds the two policies (all strong, or routed) and the table script. No real run has been made.
+- The fix loop and the repro agent can take a router and record the tier, host and model on each step. The ablation harness holds the two policies (all strong, or routed) and the table script. A Claude-session driver ran the 29 seeded tasks under both policies (and a third, fix on the cheap model) through a repro tree runner; the results are in `packages/eval/results/`.
 - `dashboard.yml` builds the page and deploys it to GitHub Pages (never run on GitHub yet). The normalizer has a strict switch that raises on a renamed attribute, and a dead trace backend costs one bounded timeout.
 - `eval-gate.yml` runs the gate on a stored results pair, and `packages/dashboard` builds a static page from the results files. ADR-015 and ADR-017 record the choices.
+- `eval multimodal` also grades agent patches locally with the SWE-bench harness (15 tasks, 7 solved, 5 unsolved, 3 excluded or not scored, none dropped).
 - `eval multimodal`: the SWE-bench Multimodal `dev` subset, with the dropped rows and reasons listed.
 - Per-task detail: `docs/architecture/p5.md`.
 

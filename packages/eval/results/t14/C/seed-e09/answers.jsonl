@@ -1,0 +1,6 @@
+{"stage": "repro", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "```js\nawait page.goto('/login');\nconst main = page.getByRole('main');\nawait expect(main).toBeVisible();\nawait expect(main).toHaveCSS('overflow', 'visible');\nawait expect(main).toHaveCSS('overflow-y', 'visible');\n```"}
+{"stage": "repro", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "```js\n// Landing page (/login) must clip overflow on its main region.\nconst main = page.getByRole('main');\nawait expect(main).toBeVisible();\nawait expect(main).toHaveCSS('overflow', 'hidden');\n```"}
+{"stage": "repro", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "```js\nawait page.goto('/login');\nconst landing = page.getByRole('main');\nawait expect(landing).toBeVisible();\nawait expect(landing).toHaveCSS('overflow', 'hidden');\n```"}
+{"stage": "fix", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "{\"tool\": \"search\", \"arguments\": {\"query\": \"overflow\", \"path\": \"apps/canvas\"}}"}
+{"stage": "fix", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "{\"tool\": \"edit\", \"arguments\": {\"path\": \"apps/canvas/src/styles/landing.css\", \"old\": \"overflow: visible;\", \"new\": \"overflow: hidden;\"}}"}
+{"stage": "fix", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "{\"tool\": \"submit\", \"arguments\": {}}"}

@@ -28,7 +28,7 @@ def test_grade_records_resolved_unresolved_and_error_and_skips_resolved(tmp_path
             raise g.subprocess.CalledProcessError(1, cmd, stderr=b"boom")
         d = kw["cwd"] / "logs" / "run_evaluation" / run_id / "gold" / iid
         d.mkdir(parents=True, exist_ok=True)
-        (d / "report.json").write_text(json.dumps({iid: {"resolved": iid.endswith("1435"), "patch_successfully_applied": True, "infra_failure": False}}), encoding="utf-8")
+        (d / "report.json").write_text(json.dumps({iid: {"resolved": iid.endswith("1435"), "patch_successfully_applied": True, "infra_failure": False, "tests_status": {}}}), encoding="utf-8")
 
     monkeypatch.setattr(g.subprocess, "run", fake_run)
     monkeypatch.setattr(g, "windows_fix_missing", lambda py: False)
@@ -42,3 +42,19 @@ def test_grade_records_resolved_unresolved_and_error_and_skips_resolved(tmp_path
     g.grade(args)  # second pass: the resolved one is skipped, the other two run again
     assert len(calls) == n + 4
     assert "already resolved, skipped" in capsys.readouterr().out
+
+
+def test_ids_come_from_a_predictions_file(tmp_path, monkeypatch):
+    preds = tmp_path / "preds.jsonl"
+    preds.write_text(json.dumps({"instance_id": "markedjs__marked-1435", "model_name_or_path": "m", "model_patch": "x"}) + "\n", encoding="utf-8")
+    cmds = []
+    monkeypatch.setattr(g.subprocess, "run", lambda cmd, **kw: cmds.append(cmd))
+    monkeypatch.setattr(g, "windows_fix_missing", lambda py: False)
+    args = Namespace(swebench_python="py", predictions=str(preds), ids=None, run_prefix="t", cwd=tmp_path, force=False, remove_images=False, dry_run=False)
+    g.grade(args)
+    assert [c[c.index("--instance_ids") + 1] for c in cmds if c[0] == "py"] == ["markedjs__marked-1435"]
+
+
+def test_a_bare_report_without_test_results_is_an_error_not_unresolved():
+    assert g.summarize({"resolved": False, "patch_successfully_applied": False})["status"] == "error"
+    assert g.summarize({"resolved": False, "infra_failure": False, "tests_status": {}})["status"] == "unresolved"

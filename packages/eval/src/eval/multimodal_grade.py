@@ -44,6 +44,8 @@ def newest_report(logs: Path, run_id: str, instance_id: str) -> dict | None:
 def summarize(report: dict | None, note: str = "") -> dict:
     if report is None:
         return {"status": "error", "resolved": False, "note": note or "no report.json"}
+    if "tests_status" not in report:  # the harness writes a bare report when the run itself failed (e.g. test timeout); that is not a verdict
+        return {"status": "error", "resolved": False, "note": note or "report without test results"}
     status = "resolved" if report["resolved"] else "infra_failure" if report.get("infra_failure") else "unresolved"
     return {"status": status, "resolved": bool(report["resolved"]), "patch_applied": report.get("patch_successfully_applied"), "note": note}
 
@@ -53,7 +55,7 @@ def grade(args) -> int:
     out.mkdir(parents=True, exist_ok=True)
     if windows_fix_missing(py):
         raise SystemExit('the swebench harness on Windows needs `newline=""` on its eval.sh/patch.diff write_text calls (docs/notes/p5-t20.md); not applied in ' + py)
-    ids = args.ids or ([json.loads(line)["instance_id"] for line in args.predictions.read_text(encoding="utf-8").splitlines() if line.strip()]
+    ids = args.ids or ([json.loads(line)["instance_id"] for line in Path(args.predictions).read_text(encoding="utf-8").splitlines() if line.strip()]
                        if args.predictions != "gold" and Path(args.predictions).exists() else [t.id for t in load_subset()])
     summary_path = out / f"summary-{args.run_prefix}.json"
     summary = json.loads(summary_path.read_text(encoding="utf-8")) if summary_path.exists() else {}

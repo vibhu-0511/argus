@@ -22,6 +22,12 @@ uv run pytest packages/eval/tests -q
 - `multimodal`: the SWE-bench Multimodal dev-subset adapter (T19) and the T20 run pieces: checkout + prompt, patch capture, harness predictions file, results table. A patch no harness has graded is `excluded: patch produced, not scored`, never solved. Findings and owner steps: `docs/notes/p5-t20.md`.
 - `schema`: prints the results JSON Schema (committed at `schemas/results.schema.json`; a test fails if the file and the models drift).
 
+## What is measured and what is not
+
+- Measured: resolve rate with a Wilson interval, tokens and list-price dollars per bug, five trajectory metrics, a gate against a stored baseline, the routing ablation on 29 seeded tasks (`docs/notes/p5-t14-results.md`).
+- Not measured: quota share (Claude sessions have only a self-imposed cap), cached-token savings (cached tokens are 0 everywhere), a real provider tier split, latency that is comparable across runs.
+- Not yet seen: a trace in Langfuse (needs your keys), the dashboard on GitHub Pages and the `eval-gate` workflow on GitHub (need a push and Pages switched on). See `docs/notes/p5-t07.md`, `p5-t17.md` and `p5-t22.md`.
+
 ## Inputs of `run`
 
 - `tasks.json`: a JSON array of `argus_core` `Task` objects. The runner hands the whole `Task` to the agent, so an agent adapter must keep `golden_patch` out of the model prompt.

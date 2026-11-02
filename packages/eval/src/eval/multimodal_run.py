@@ -9,7 +9,7 @@ A patch only counts as resolved or unresolved when the SWE-bench harness has gra
 logs/evaluation/<run_id>/<model> folder) or it is empty. Any other produced patch is `excluded` with the reason
 "patch produced, not scored": never resolved, never in the resolve-rate denominator.
 
-Layout under --root: <id>/checkout/, <id>/images/, <id>/prompt.txt, <id>/model.diff, <id>/setup_error.txt (a task that could not be set up).
+Layout under --root: <id>/checkout/, <id>/images/, <id>/prompt.txt, <id>/model.diff, <id>/setup_error.txt (a task that could not be set up), <id>/excluded.txt (a task found invalid; its text is the reason), <id>/not_graded.txt (why a produced patch has no harness report).
 """
 
 from __future__ import annotations
@@ -42,7 +42,7 @@ def _git(cwd: Path, *args: str) -> str:
 
 
 def _download(url: str, dest: Path) -> None:
-    with urllib.request.urlopen(url, timeout=60) as resp:
+    with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"}), timeout=60) as resp:  # some hosts 403 the default Python agent
         dest.write_bytes(resp.read())
 
 
@@ -68,6 +68,7 @@ def prepare(
     except (SetupError, OSError) as exc:
         (work / "setup_error.txt").write_text(f"{type(exc).__name__}: {exc}", encoding="utf-8")
         raise SetupError(str(exc)) from exc
+    (work / "setup_error.txt").unlink(missing_ok=True)  # a retry that worked
     prompt = build_prompt(task.model_copy(update={"image_urls": [str(p) for p in paths]}))
     (work / "prompt.txt").write_text(prompt, encoding="utf-8", newline="")  # the issue text has CRLFs; keep them as they are
     return prompt
@@ -117,14 +118,17 @@ def _graded(reports: Path | None, task_id: str) -> bool | None:
 def task_row(task: MultimodalTask, root: Path, reports: Path | None = None) -> TaskRow:
     work = root / task.id
     verdict, reason = "excluded", None
-    if (work / "setup_error.txt").exists():
+    if (work / "excluded.txt").exists():  # written by hand when the task itself is invalid (e.g. ticket and gold patch disagree)
+        reason = f"invalid task: {(work / 'excluded.txt').read_text(encoding='utf-8').strip()}"
+    elif (work / "setup_error.txt").exists():
         reason = f"setup failed: {(work / 'setup_error.txt').read_text(encoding='utf-8')}"
     elif not (work / "model.diff").exists():
         reason = "not run: no patch captured yet"
     elif not (work / "model.diff").read_text(encoding="utf-8").strip():
         verdict, reason = "unresolved", "empty patch (the agent changed nothing; not run through the harness)"
     elif (graded := _graded(reports, task.id)) is None:
-        reason = f"{NOT_SCORED}: no harness report for it yet"
+        why = (work / "not_graded.txt").read_text(encoding="utf-8").strip() if (work / "not_graded.txt").exists() else "no harness report for it yet"
+        reason = f"{NOT_SCORED}: {why}"  # not_graded.txt: written by hand when grading failed for infrastructure reasons
     else:
         verdict = "resolved" if graded else "unresolved"
     return TaskRow(

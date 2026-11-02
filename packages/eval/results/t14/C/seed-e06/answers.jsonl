@@ -1,0 +1,21 @@
+{"stage": "repro", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "```js\n// Symptom: an admin label rendered as a span should get the 10px size from the admin label rule, but does not.\nawait page.goto('/ops/rules');\nconst adminLabel = page.getByRole('group', { name: 'Admin label' });\nawait expect(adminLabel).toHaveCSS('font-size', '10px');\n```"}
+{"stage": "repro", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "```js\n// Admin label rule: a span carrying the label class must keep the 10px size.\n// Assumed: the admin label renders on /ops/rules and is named \"Admin\" by its role.\nawait page.goto('/ops/rules');\nconst label = page.getByRole('status', { name: 'Admin' });\nawait expect(label).toBeVisible();\nawait expect(label).toHaveCSS('font-size', '10px');\n```"}
+{"stage": "repro", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "```js\n// Admin label must keep its 10px size when rendered as a span.\n// Assumes the admin label is exposed with the accessible name \"Admin label\".\nawait page.goto('/ops/rules');\nconst adminLabel = page.getByRole('note', { name: 'Admin label' });\nawait expect(adminLabel).toBeVisible();\nawait expect(adminLabel).toHaveCSS('font-size', '10px');\n```"}
+{"stage": "fix", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "{\"tool\": \"search\", \"arguments\": {\"query\": \"10px\", \"path\": \"apps/canvas\"}}"}
+{"stage": "fix", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "{\"tool\": \"search\", \"arguments\": {\"query\": \"admin-label\", \"path\": \"apps/canvas/src\"}}"}
+{"stage": "fix", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "{\"tool\": \"search\", \"arguments\": {\"query\": \"admin\", \"path\": \"apps/canvas/src\"}}"}
+{"stage": "fix", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "{\"tool\": \"search\", \"arguments\": {\"query\": \"AdminLabel\", \"path\": \"apps/canvas/src\"}}"}
+{"stage": "fix", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "{\"tool\": \"search\", \"arguments\": {\"query\": \"admin-\", \"path\": \"apps/canvas/src\"}}"}
+{"stage": "fix", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "{\"tool\": \"search\", \"arguments\": {\"query\": \"10px\", \"path\": \"apps/canvas/src\"}}"}
+{"stage": "fix", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "{\"tool\": \"search\", \"arguments\": {\"query\": \"admin-label\", \"path\": \"apps/canvas\"}}"}
+{"stage": "fix", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "{\"tool\": \"search\", \"arguments\": {\"query\": \"div.admin\", \"path\": \"apps/canvas\"}}"}
+{"stage": "fix", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "{\"tool\": \"search\", \"arguments\": {\"query\": \"admin_label\", \"path\": \"apps/canvas\"}}"}
+{"stage": "fix", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "{\"tool\": \"search\", \"arguments\": {\"query\": \"label\", \"path\": \"apps/canvas/src\"}}"}
+{"stage": "fix", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "{\"tool\": \"list_dir\", \"arguments\": {\"path\": \"apps/canvas/src\"}}"}
+{"stage": "fix", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "{\"tool\": \"search\", \"arguments\": {\"query\": \"admin\", \"path\": \"apps/canvas/src/styles\"}}"}
+{"stage": "fix", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "{\"tool\": \"search\", \"arguments\": {\"query\": \"10px\", \"path\": \"apps/canvas/src/styles\"}}"}
+{"stage": "fix", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "{\"tool\": \"read_file\", \"arguments\": {\"path\": \"apps/canvas/src/styles/tokens.css\"}}"}
+{"stage": "fix", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "{\"tool\": \"read_file\", \"arguments\": {\"path\": \"apps/canvas/src/styles/tokens.css\"}}"}
+{"stage": "fix", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "{\"tool\": \"search\", \"arguments\": {\"query\": \"label\", \"path\": \"apps/canvas/src/styles\"}}"}
+{"stage": "fix", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "{\"tool\": \"edit\", \"arguments\": {\"path\": \"apps/canvas/src/styles/tokens.css\", \"old\": \"div.glabel {\", \"new\": \".glabel {\"}}"}
+{"stage": "fix", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "{\"tool\": \"submit\", \"arguments\": {}}"}

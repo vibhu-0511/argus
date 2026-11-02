@@ -1,0 +1,12 @@
+{"stage": "repro", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "```js\nawait page.goto('/ops/radar');\nconst shell = page.getByRole('main');\nawait expect(shell).toBeVisible();\nawait expect(shell).toHaveCSS('flex-direction', 'column');\n```"}
+{"stage": "repro", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "```js\nawait page.goto('/ops/radar');\nconst shell = page.getByRole('main');\nawait expect(shell).toBeVisible();\nawait expect(shell).toHaveCSS('display', 'flex');\nawait expect(shell).toHaveCSS('flex-direction', 'column');\n```"}
+{"stage": "repro", "tier": "cheap", "model": "claude-haiku-5-5", "reply": "```js\nawait page.goto('/ops/radar');\nconst shell = page.getByRole('main');\nawait expect(shell).toBeVisible();\nawait expect(shell).toHaveCSS('flex-direction', 'column');\n```"}
+{"stage": "fix", "tier": "strong", "model": "claude-sonnet-5-5", "reply": "{\"tool\": \"search\", \"arguments\": {\"query\": \"flex-row\", \"path\": \"apps/canvas/src\"}}"}
+{"stage": "fix", "tier": "strong", "model": "claude-sonnet-5-5", "reply": "{\"tool\": \"search\", \"arguments\": {\"query\": \"OpsShell\", \"path\": \"apps/canvas/src\"}}"}
+{"stage": "fix", "tier": "strong", "model": "claude-sonnet-5-5", "reply": "{\"tool\": \"list_dir\", \"arguments\": {\"path\": \"apps/canvas/src\"}}"}
+{"stage": "fix", "tier": "strong", "model": "claude-sonnet-5-5", "reply": "{\"tool\": \"search\", \"arguments\": {\"query\": \"ops-shell\", \"path\": \"apps/canvas/src\"}}"}
+{"stage": "fix", "tier": "strong", "model": "claude-sonnet-5-5", "reply": "{\"tool\": \"search\", \"arguments\": {\"query\": \"shell\", \"path\": \"apps/canvas/src\"}}"}
+{"stage": "fix", "tier": "strong", "model": "claude-sonnet-5-5", "reply": "{\"tool\": \"read_file\", \"arguments\": {\"path\": \"apps/canvas/src/ops/OpsApp.tsx\"}}"}
+{"stage": "fix", "tier": "strong", "model": "claude-sonnet-5-5", "reply": "{\"tool\": \"search\", \"arguments\": {\"query\": \".ops-app\", \"path\": \"apps/canvas/src\"}}"}
+{"stage": "fix", "tier": "strong", "model": "claude-sonnet-5-5", "reply": "{\"tool\": \"edit\", \"arguments\": {\"path\": \"apps/canvas/src/ops/ops.css\", \"old\": \".ops-app { min-height: 100vh; display: flex; flex-direction: row; }\", \"new\": \".ops-app { min-height: 100vh; display: flex; flex-direction: column; }\"}}"}
+{"stage": "fix", "tier": "strong", "model": "claude-sonnet-5-5", "reply": "{\"tool\": \"submit\", \"arguments\": {}}"}
