@@ -17,16 +17,17 @@ from argus_core.client import Completion
 from argus_core.ledger import Ledger
 from argus_core.ledger import QuotaExceeded
 from argus_core.ledger import Usage as LedgerUsage
+from argus_core.redact import redact
 from argus_core.router import Router
 from argus_core.telemetry import chat_span, record_completion, record_tool_error, tool_span, traced_agent
 from argus_core.types import StopReason, Trajectory, TrajectoryMeta, TrajectoryStep
 
 from fix_loop.budget import StepUsage, apply_budget
 from fix_loop.gates import GateResult, gate_message
-from fix_loop.prompt import system_message
+from fix_loop.prompt import UNTRUSTED_RULE, system_message, untrusted
 from fix_loop.skills import LOAD_SKILL, catalog, load_skill, load_skills, tool_denied
 from fix_loop.strategies import SummaryDidNotShrink
-from fix_loop.tools import ToolError, ToolResult, call
+from fix_loop.tools import ALLOW, ToolError, ToolResult, call
 
 log = logging.getLogger("fix_loop.policy")
 
@@ -67,6 +68,7 @@ def run_fix(
     gates: Callable[[], list[GateResult]] | None = None,
     verify: Callable[[], object] | None = None,
     skills: Path | None = None,
+    harden: bool = False,
 ) -> LoopResult:
     if step_cap < 1 or token_cap < 1:
         raise ValueError("step_cap and token_cap must be at least 1")
@@ -77,11 +79,13 @@ def run_fix(
     loadable = load_skills(skills)[0] if skills is not None else []
     loaded: set[str] = set()
     system_text = system_message(system)
+    if harden:
+        system_text += "\n\n" + UNTRUSTED_RULE
     if loadable:
         system_text += "\n\n" + catalog(loadable)  # last, so the prefix bytes are unchanged when no skill is loadable
     messages: list[dict] = [
         {"role": "system", "content": system_text},
-        {"role": "user", "content": user},
+        {"role": "user", "content": untrusted("ticket", user) if harden else user},
     ]
     steps: list[TrajectoryStep] = []
     total_in = 0
@@ -148,13 +152,16 @@ def run_fix(
         key = name + "\n" + json.dumps(payload, sort_keys=True)
         recent.append(key)
         with tool_span(name, run_id=run_id, step=index) as tool:
-            if loadable and name == LOAD_SKILL:
+            if name not in ALLOW and not (loadable and name == LOAD_SKILL):
+                result = ToolError(error="not-allowed", message=f"{name} is not a fix-loop tool")  # P7-T09: no executor sees an unlisted name
+                log.warning("policy event: not-allowed: %s is not a fix-loop tool (run %s, step %d)", name, run_id, index)
+            elif loadable and name == LOAD_SKILL:
                 result = load_skill(loadable, payload, loaded)
             else:
                 denied = tool_denied(loadable, loaded, name)  # a skill narrows the tools, never widens
                 if denied is not None:
                     log.warning("policy event: %s (run %s, step %d)", denied.message, run_id, index)
-                result = denied or act(name, payload)
+                result = denied or act(name, _filtered(payload) if harden else payload)
                 if isinstance(result, ToolError) and result.error == "outside-worktree":
                     log.warning("policy event: outside-worktree: %s refused a path outside the worktree (run %s, step %d)", name, run_id, index)
             record_tool_error(tool, result.error if isinstance(result, ToolError) else None)
@@ -195,7 +202,7 @@ def run_fix(
             reason = stop
             break
         messages.append({"role": "assistant", "content": completion.content})
-        messages.append({"role": "user", "content": feedback if feedback is not None else _observation(result)})
+        messages.append({"role": "user", "content": feedback if feedback is not None else _observation(result, name if harden else None)})
         messages, summary_stop = _apply(messages, total_in + total_out + total_cached, context_budget, strategy)
         if summary_stop is not None:
             steps[-1] = steps[-1].model_copy(update={"stop_reason": summary_stop})
@@ -301,13 +308,25 @@ def _parse(completion: Completion) -> tuple[str, dict] | ToolError:
     return str(body["tool"]), body["arguments"]
 
 
-def _observation(result: ToolResult | ToolError) -> str:
+def _filtered(value):
+    """P7-T09 output filter: `argus_core.redact` over every string of a tool call, so a known secret or a token does not land in the patch."""
+    if isinstance(value, str):
+        return redact(value)
+    if isinstance(value, dict):
+        return {key: _filtered(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_filtered(item) for item in value]
+    return value
+
+
+def _observation(result: ToolResult | ToolError, hardened_tool: str | None = None) -> str:
+    """The text the model sees next. With `hardened_tool` (P7-T09) a tool result is redacted and wrapped as untrusted data."""
     if isinstance(result, ToolError):
         return f"{result.error}: {result.message}"
     text = result.text
     if result.returncode is not None:
-        return f"returncode {result.returncode}\n{text}"
-    return text
+        text = f"returncode {result.returncode}\n{text}"
+    return untrusted(f"tool:{hardened_tool}", redact(text)) if hardened_tool else text
 
 
 def _recorded(

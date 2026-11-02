@@ -162,7 +162,7 @@ Names are as the OWASP launch post writes them. Controls name the file or the P7
 
 | ID | Risk | Threat in Argus | Main controls | Residual risk |
 |---|---|---|---|---|
-| ASI01 | Agent Goal Hijack | Instructions in a ticket, a repo file, a skill or command output redirect the fix | Typed tools, read-only checks, reviewed skills, draft PR (exist today); separation, allowlist, output filter (planned: P7-T09) | The model still reads injected text as part of the prompt; a human reads the PR |
+| ASI01 | Agent Goal Hijack | Instructions in a ticket, a repo file, a skill or command output redirect the fix | Typed tools, read-only checks, reviewed skills, draft PR (exist today); tool allowlist (exists today); separation and output filter (exist today as `harden=True`, off by default) | The model still reads injected text as part of the prompt, and the separation rule is a prompt rule, not a guarantee; the flow does not switch it on; a human reads the PR |
 | ASI02 | Tool Misuse | `run_cmd` is a shell; `edit` rewrites any worktree file; `ast_grep` shells out to `npx` | Argument models, timeout, `--network none`, caps (exist today); escape probes (planned: P7-T12) | No pids limit or capability drop; `ast_grep` runs on the host with network |
 | ASI03 | Identity & Privilege Abuse | A leaked token writes to the repo, dispatches workflows or reads the private repo | Env-only secrets, one token per job, step-scoped keys, failure scrub (exist today); App token and redaction (planned: P7-T03, P7-T04) | Long-lived personal tokens until the App; the scrub probably misses the new token shape |
 | ASI04 | Agentic Supply Chain Vulnerabilities | A poisoned package, Action, image, MCP server or skill runs in the pipeline | Lockfiles, image digest, pinned `ast-grep`, skill hash pins (exist today); secret scan (planned: P7-T03) | Actions pinned by tag; `npx --yes` at run time |
@@ -170,7 +170,7 @@ Names are as the OWASP launch post writes them. Controls name the file or the P7
 | ASI06 | Memory & Context Poisoning | A poisoned trajectory becomes a skill; stored step results are altered | Review plus hash pin for skills, clean worktree per run (exist today); verifiable log (planned: P7-T06) | Anyone with the DB URL can change a stored step result |
 | ASI07 | Insecure Inter-Agent Communication | No agent-to-agent protocol; component messages (webhook, dispatch inputs, artifact, QA signal) can be forged | HMAC, run key, idempotency keys, reviewer allowlist (exist today) | The artifact is unsigned; the dedup set is in memory |
 | ASI08 | Cascading Failures | A bad step output spreads; a poisoned ticket burns quota; retries multiply side effects | State machine, find-before-act, caps, quota ledger, poller off (exist today) | A quota-wasting injection is bounded, not prevented |
-| ASI09 | Human-Agent Trust Exploitation | A convincing PR gets approved without reading | Draft PR, checks outside the model, reviewer allowlist (exist today); output filter (planned: P7-T09) | The reviewer is the last line |
+| ASI09 | Human-Agent Trust Exploitation | A convincing PR gets approved without reading | Draft PR, checks outside the model, reviewer allowlist (exist today); secret mask on tool calls and results (exists today as `harden=True`, off by default) | The reviewer is the last line |
 | ASI10 | Rogue Agents | The agent runs on, hides what it did or touches its own record | Stop reasons, trajectory, read-only checks, throwaway worktree (exist today); hash-chained log (planned: P7-T06) | The record is written by the process it records and is unsigned |
 
 ### ASI01 Agent Goal Hijack
@@ -181,9 +181,12 @@ Names are as the OWASP launch post writes them. Controls name the file or the P7
   - What counts as fixed is decided outside the agent: bench checks are mounted read-only at `/checks` and `golden.patch` is kept out of the mount (`fix_loop/sandbox.py`, `flow/agent_job.py: fix_step`). *exists today*
   - Skills load only if reviewed, hash-pinned and under 8,000 characters, and a loaded skill can only narrow the tools (`fix_loop/skills.py`, `skills.lock.json`). *exists today*
   - The result is a draft PR; approval is a human comment from an allowlisted login (`flow/github_write.py`, `flow/review_comment.py`). *exists today*
-  - Three static injection cases (ticket, repo file, skill file) with deterministic checks: *planned: P7-T07*, run in *planned: P7-T08*.
-  - Data and instruction separation in the prompt, a tool allowlist per run, an output filter: *planned: P7-T09*.
+  - Three static injection cases (ticket, repo file, skill file) with deterministic checks (`packages/guard/redteam`, `guard/redteam.py`). *exists today*
+  - Red-team run on 2026-11-03 with `gemma4:e4b` (a small local model, not the production model), 5 runs per case, results in `packages/guard/results/redteam-2026-11-03*.json`. Baseline: ticket case succeeded in 3 of 5 runs, repo-file in 1 of 5, skill in 0 of 5 (the skill was loaded in only 2 runs). Every success was a canary copied from a file in the worktree into the patch through `edit`. *exists today*
+  - Data and instruction separation (`harden=True` in `run_fix`: the ticket, each tool result and so each repo file, command output and skill body is wrapped in `<untrusted_data>` with a fixed rule in the system message), and an output filter (`argus_core.redact` on every tool call before it runs and on every result before the model sees it). *exists today, off by default* (`fix_loop/loop.py`, `fix_loop/prompt.py`).
+  - Re-run of the same 15 cases with `harden=True`: 0 of 5 runs succeeded in each case. Not attributable to one mitigation (the canary was also known to the filter as a secret-named environment value), and the skill case did not reach the model in any of the 5 runs. *exists today*
   - Record of what the agent did: *planned: P7-T06*.
+- **Residual risk.** (P7-T08, P7-T09) With `gemma4:e4b`, plain-text injection in a ticket or a repo file put a file's content into the patch in 4 of 10 baseline runs; with `harden=True` it did so in 0 of 10. That is a small sample on a small local model, not the production model, so it is neither a prediction nor a proof. The mitigations are off by default and the flow (`flow/agent_job.py`) does not turn them on; their effect on the fix rate was not measured. The filter masks only values the process knows as secret-named environment values and token shapes: a secret that sits in a repo file and is not in the environment is not masked. Accepted for now; ADR-024 decides whether to switch them on.
 - **Residual risk.** The ticket goes into the user message as plain text under "Ticket:" (`fix_loop/prompt.py`), so nothing stops the model from following an instruction in it. The defences are a small blast radius (worktree only, no network, no secrets in the container) and a human reading the draft PR. A patch that passes the checks and also contains an unwanted change can reach the draft PR; the reviewer is the only catch. Live issue text does not reach the agent yet, so today the exposure is the seeded and generated tickets and the repo files.
 
 ### ASI02 Tool Misuse
@@ -195,7 +198,7 @@ Names are as the OWASP launch post writes them. Controls name the file or the P7
   - Step cap, token cap and the quota ledger's hard stop before each request (`fix_loop/loop.py`, `argus_core/ledger.py`). *exists today*
   - Per-skill tool allowlist (`fix_loop/skills.py: tool_denied`). *exists today*
   - Tool calls and policy events in a tamper-evident log: *planned: P7-T06*.
-  - Tool allowlist enforced for each run: *planned: P7-T09*.
+  - Tool allowlist enforced for each run: a name outside `ALLOW` (and `load_skill` when skills are loaded) never reaches the executor (`fix_loop/loop.py`). *exists today*
   - Probes for network, host filesystem, docker socket, metadata address, fork bomb and symlink: *planned: P7-T12*.
 - **Residual risk.** `run_cmd` is a shell by design. The container has none of `--pids-limit`, `--cap-drop`, `--read-only`, `--user` or `--security-opt no-new-privileges` (`sandbox.py` lists its flags), so a fork bomb is limited only by the 30 s timeout and the memory cap; P7-T12 will show what happens. `ast_grep` runs `npx --yes` on the **host** with network access (`tools.py: _ast`), outside the no-egress rule; **no control**, see section 7. A patch that edits `.github/workflows/` would be pushed to a draft PR; whether the write token can push workflow files was not checked.
 
@@ -223,7 +226,7 @@ Names are as the OWASP launch post writes them. Controls name the file or the P7
   - `@ast-grep/cli` is pinned to 0.51.0 (`tools.py`). *exists today*
   - Skills are reviewed and hash-pinned, and `skills-lint.yml` checks them in CI. *exists today*
   - The MCP servers are in-repo packages (`dom2src-mcp`) or version-pinned (`@playwright/mcp`). *exists today*
-  - CI secret scan: *planned: P7-T03*. promptfoo pinned to 0.125.1: *planned: P7-T07*. gVisor and Firecracker installed from a release tarball with its checksum: *planned: P7-T10, P7-T11*.
+  - CI secret scan: *planned: P7-T03*. promptfoo pinned to 0.125.1: *exists today*. gVisor and Firecracker installed from a release tarball with its checksum: *planned: P7-T10, P7-T11*.
 - **Residual risk.** Actions are referenced by major tag (`@v4`, `@v5`), not by commit. `npx --yes` fetches from the npm registry at run time with no lockfile. Model host replies are untrusted input. No P7 task adds dependency-vulnerability scanning; accepted for now.
 
 ### ASI05 Unexpected Code Execution
@@ -267,7 +270,7 @@ Names are as the OWASP launch post writes them. Controls name the file or the P7
   - The quota ledger stops a request before it is sent (`argus_core/ledger.py`). *exists today*
   - The poller is off by default on Render (`render.yaml`). *exists today*
   - The CI regression gate on stored results (`eval-gate.yml`). *exists today*
-  - Red-team outcomes and mitigations: *planned: P7-T08, P7-T09*.
+  - Red-team outcomes and mitigations (`packages/guard/results/redteam-2026-11-03*`). *exists today*
 - **Residual risk.** A prompt injection that only wastes quota (denial of wallet) is bounded by the ledger and the caps, not prevented. A free-tier outage at the model host, Render or Neon stops the pipeline; availability is not a P7 goal.
 
 ### ASI09 Human-Agent Trust Exploitation
@@ -277,7 +280,7 @@ Names are as the OWASP launch post writes them. Controls name the file or the P7
   - The PR is a draft and is never linked to the issue with a closing keyword (`flow/github_write.py`). *exists today*
   - "Resolved" is decided by the bench checks and the verify package, not by the model; the vision judge is advisory and never overrides a passed check (`packages/verify`). *exists today*
   - Approval only from named logins (`flow/review_comment.py`). *exists today*
-  - A filter on the agent's text output: *planned: P7-T09*. A log that shows the reviewer the real tool calls: *planned: P7-T06*.
+  - A filter on tool calls and results: *exists today, off by default* (P7-T09). A log that shows the reviewer the real tool calls: *planned: P7-T06*.
   - Branch protection and required review on the default branch: an owner step in *planned: P7-T04* and break-it *planned: P7-T20*.
 - **Residual risk.** The reviewer is the owner and the last line. No technical control stops an approval without reading; the log (T06) and the checks make reading cheaper, not mandatory. This is the main reason the PR is a draft and not a merge.
 
@@ -298,9 +301,9 @@ Names are as the OWASP launch post writes them. Controls name the file or the P7
 
 | Path | Who writes it | Lands in | Reaches | Controls |
 |---|---|---|---|---|
-| Ticket title and body | Anyone who can open an issue on the tracked repository | Not the agent yet (section 1). The poller and webhook read only the issue number and labels to derive state. Once an adapter exists, it lands in the user message under "Ticket:" | Everything the fix loop can do: the seven tools, the worktree, the model's next patch | Fixed tool set, sandbox, read-only checks, draft PR *(exist today)*; separation, allowlist, output filter *(planned: P7-T09)*; static case *(planned: P7-T07)* |
-| Repo files | Anyone with a commit or merged PR in the platform repo; the model's own earlier edits | `read_file`, `search` and `ast_grep` results in the next prompt; sent on to the model host | The same as above, plus A1 leaves for the model host | Same as above. No filter on file text. Static case *(planned: P7-T07)* |
-| Skill files | The owner's reviewed skills; drafts from the draft script | The skill catalog in the system prompt and, on `load_skill`, the body | The tools the skill allows (narrowing only) | Review flag, hash pin and tool allowlist in `skills.lock.json`, size cap, lint *(exist today)*; poisoned-skill break-it test in `packages/skills` *(exists today)*; static case *(planned: P7-T07)* |
+| Ticket title and body | Anyone who can open an issue on the tracked repository | Not the agent yet (section 1). The poller and webhook read only the issue number and labels to derive state. Once an adapter exists, it lands in the user message under "Ticket:" | Everything the fix loop can do: the seven tools, the worktree, the model's next patch | Fixed tool set, sandbox, read-only checks, draft PR *(exist today)*; allowlist *(exists today)*; separation and output filter *(exist today, off by default: P7-T09)*; static case *(exists today: P7-T07, run in P7-T08)* |
+| Repo files | Anyone with a commit or merged PR in the platform repo; the model's own earlier edits | `read_file`, `search` and `ast_grep` results in the next prompt; sent on to the model host | The same as above, plus A1 leaves for the model host | Same as above. A filter on file text only with `harden=True` (off by default); it masks known secret values and token shapes, nothing else. Static case *(exists today)* |
+| Skill files | The owner's reviewed skills; drafts from the draft script | The skill catalog in the system prompt and, on `load_skill`, the body | The tools the skill allows (narrowing only) | Review flag, hash pin and tool allowlist in `skills.lock.json`, size cap, lint *(exist today)*; poisoned-skill break-it test in `packages/skills` *(exists today)*; static case *(exists today)*; the model loaded the skill in 2 of 5 baseline runs and 0 of 5 hardened runs, so the skill path is not shown safe |
 | Command output | Whatever a command in the sandbox prints, including files it reads | The next prompt | Same as repo files | Output is just text; 30 s timeout. No filter |
 | Webhook (headers, body) | Anyone who can reach the URL | `flow.webhook`: ticket id from the payload, event and delivery id from headers | Starts a reconcile for a ticket id; with a valid signature only | HMAC, fail closed, 202 with no GitHub call, dedup *(exist today)* |
 | PR review comment | Any GitHub user who can comment on the PR | `flow.review_comment.parse_review_event` | A QA approve or reject for that PR's ticket | Allowlisted login, Argus PR title and branch must match, one command per line, idempotency key *(exist today)* |
@@ -323,9 +326,10 @@ Names are as the OWASP launch post writes them. Controls name the file or the P7
 
 1. Patched code is executed outside any sandbox by the scorer (ASI05).
 2. A reviewer approves a bad patch (ASI09), made likelier by an injected persuasive description (ASI01).
-3. Long-lived personal tokens on Render until the App exists, and a redactor that probably misses the new token shape (ASI03).
-4. The container shares the host kernel; the stronger tiers are measured, not yet chosen (ASI05).
-5. The agent's own record is unsigned until the audit log head hash leaves the process (ASI10).
+3. An injection in a ticket or repo file can still copy file content into the patch: the mitigations are off by default, the filter masks only known secrets and token shapes, and the red-team ran 5 runs per case on a small local model (ASI01).
+4. Long-lived personal tokens on Render until the App exists, and a redactor that probably misses the new token shape (ASI03).
+5. The container shares the host kernel; the stronger tiers are measured, not yet chosen (ASI05).
+6. The agent's own record is unsigned until the audit log head hash leaves the process (ASI10).
 
 ## 9. Not checked
 
@@ -333,3 +337,4 @@ Names are as the OWASP launch post writes them. Controls name the file or the P7
 - The OWASP PDF's per-risk text (see `p7-t01-owasp-firecracker.md`); the ten names come from the launch post.
 - Whether the `scrub` regex matches the new `ghs_<APPID>_<JWT>` shape (reading only; P7-T03 tests it).
 - The repository's visibility: `docs/architecture/overview.md` says GitHub Pages is not available because the repo is private, while `PLAN.md` plans a public repo. If it becomes public, artifacts (trajectories, patches) become readable by any signed-in GitHub user, so redaction (P7-T03) must be done before that.
+- The red-team ran on `gemma4:e4b` only (Ollama reports 7.5B parameters, CPU), never on the production model; 5 runs per case; the skill case reached the model in 2 of 5 baseline and 0 of 5 hardened runs; live issue text was not tried (no adapter yet).
