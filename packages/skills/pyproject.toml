@@ -1,13 +1,17 @@
 [project]
 name = "skills"
 version = "0.1.0"
-description = "P5.5 skill tooling. Today: the train and held-out split."
+description = "P5.5 skill tooling: the train and held-out split, and the draft script."
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = ["argus-core", "fix-loop"]
 
 [project.scripts]
 skills = "skills.split:main"
+
+[tool.uv.sources]
+argus-core = { workspace = true }
+fix-loop = { workspace = true }
 
 [build-system]
 requires = ["uv_build>=0.12.2,<0.13.0"]
