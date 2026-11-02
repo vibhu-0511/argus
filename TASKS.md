@@ -297,7 +297,7 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 
 - [ ] P7-T05 Test the no-egress policy in every execution context [PAIR] 1h
 - [x] P7-T06 Build the append-only hash-chained audit log with a verify command [ME] 3h (written by Claude, owner to read)
-- [ ] P7-T07 Set up promptfoo red-team config for injection via ticket, repo file and skill [PAIR] 2h
+- [x] P7-T07 Set up promptfoo red-team config for injection via ticket, repo file and skill [PAIR] 2h Three static cases, deterministic assertions, no LLM rubric; the stub dry run passes 3 of 3 under promptfoo 0.125.1 and the obedient stub fails 3 of 3. See `docs/architecture/p7.md`.
 - [ ] P7-T08 Run the red-team against the fix-loop and record attack outcomes [ME] 2h
 - [ ] P7-T09 Add mitigations from the red-team: data and instruction separation, tool allowlist, output filter [ME] 2h
 - [ ] P7-T10 Run the sandbox under gVisor [PAIR] 2h

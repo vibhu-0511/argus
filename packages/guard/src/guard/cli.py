@@ -12,5 +12,9 @@ def main(argv: list[str] | None = None) -> int:
         from guard.escape import main as escape_main
 
         return escape_main(args[1:])
+    if args[:1] == ["redteam"]:
+        from guard.redteam import main as redteam_main
+
+        return redteam_main(args[1:])
     print("guard: no sub-command yet" if not args else f"guard: unknown sub-command {args[0]!r}")
     return 2
