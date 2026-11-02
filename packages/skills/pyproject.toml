@@ -1,0 +1,18 @@
+[project]
+name = "skills"
+version = "0.1.0"
+description = "P5.5 skill tooling: the train and held-out split, the draft script, the trust pin and the skill lint."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = ["argus-core", "fix-loop"]
+
+[project.scripts]
+skills = "skills.split:main"
+
+[tool.uv.sources]
+argus-core = { workspace = true }
+fix-loop = { workspace = true }
+
+[build-system]
+requires = ["uv_build>=0.12.2,<0.13.0"]
+build-backend = "uv_build"

@@ -1,0 +1,12 @@
+diff --git a/apps/canvas/src/ops/ops.css b/apps/canvas/src/ops/ops.css
+index 795038ca2..37a2d09e0 100644
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -419,6 +419,7 @@ html[data-theme="light"] .ops-show-chip--cancelled[aria-pressed="true"] { color:
+ .ops-horizon-stepper span { min-width: 48px; text-align: center; font-size: 13px; color: var(--text-secondary); }
+ .ops-horizon-expand { padding: 0 12px; background: var(--bg-primary); }
+ .ops-horizon-wire { display: flex; border-radius: 10px; background: var(--bg-primary); overflow: hidden; }
++.ops-horizon-gutter { position: relative; flex: 0 0 156px; width: 156px; }
+ 
+ .ops-horizon-lane-name { position: absolute; left: 12px; right: 8px; font-size: 13px; color: var(--text-secondary); }
+ .ops-horizon-scroll { flex: 1; min-width: 0; overflow-x: scroll; overflow-y: hidden; scrollbar-width: thin; scrollbar-color: var(--accent-primary) color-mix(in srgb, var(--accent-primary) 28%, transparent); }

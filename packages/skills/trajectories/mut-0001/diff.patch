@@ -1,0 +1,12 @@
+diff --git a/apps/canvas/src/insights/desk/assistant.css b/apps/canvas/src/insights/desk/assistant.css
+index d1679b439..36f8d6ec3 100644
+--- a/apps/canvas/src/insights/desk/assistant.css
++++ b/apps/canvas/src/insights/desk/assistant.css
+@@ -10,6 +10,7 @@
+ .busy-working { transform-origin: bottom center; animation: busy-bob .95s ease-in-out infinite; }
+ .busy-thinking { transform-origin: bottom center; animation: busy-sway 2.4s ease-in-out infinite; }
+ .busy-line { animation: busy-line .35s ease-out both; }
++.busy-orbit { transform-box: fill-box; transform-origin: center; animation: busy-orbit 6s linear infinite; }
+ @media (prefers-reduced-motion: reduce) { .busy-orbit, .busy-working, .busy-thinking, .busy-line { animation: none } }
+ 
+ /* ---- the ask thread ---- */

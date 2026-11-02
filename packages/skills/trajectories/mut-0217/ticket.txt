@@ -1,0 +1,1 @@
+font-size on .ops-horizon-count changed from 12px.

@@ -1,0 +1,24 @@
+diff --git a/apps/canvas/src/ops/ops.css b/apps/canvas/src/ops/ops.css
+index 6894a2f10..bc6c4864b 100644
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -1,5 +1,5 @@
+ /* Operations Control Panel (knowledge-base/features/ops-control-panel.md §5). Design tokens come from tokens.css. */
+-.ops-app { min-height: 100vh; display: flex; flex-direction: row; }
++.ops-app { min-height: 100vh; display: flex; flex-direction: column; }
+ /* The panel's plain controls in the Radar's outlined style. Each selector is wholly inside :where() so it weighs
+    nothing: an attribute or :hover left outside would outrank a screen's own class (it boxed the radar's blips). */
+ :where(.ops-app :is(button, select, input[type="datetime-local"])) { padding: 6px 12px; border: 1px solid var(--border-secondary); border-radius: 6px; background: transparent; color: var(--text-secondary); font: inherit; font-size: 13px; line-height: 1.25; cursor: pointer; }
+diff --git a/apps/canvas/src/ops/radar.css b/apps/canvas/src/ops/radar.css
+index 0a1514628..f2869186c 100644
+--- a/apps/canvas/src/ops/radar.css
++++ b/apps/canvas/src/ops/radar.css
+@@ -93,7 +93,7 @@
+ @media (max-width: 1040px) { .radar-main { grid-template-columns: minmax(0, 1fr); gap: 28px; padding: 18px 16px 20px; } }
+ 
+ /* The feed. */
+-.radar-feed { display: flex; flex-direction: row; gap: 16px; min-width: 0; }
++.radar-feed { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+ .radar-feed-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+ .radar-eyebrow { display: block; font-family: var(--radar-mono); font-size: 11px; letter-spacing: 3px; color: var(--radar-dim); }
+ .radar-feed-head h1 { margin: 4px 0 0; font-size: 24px; font-weight: 600; letter-spacing: 1px; }
