@@ -14,10 +14,11 @@ What is not finished, and why (state of `TASKS.md` when this README was written)
 |---|---|
 | T04 GitHub Actions dispatch | The runner (`flow.actions`), `.github/workflows/agent-job.yml` and the entry point `python -m flow.agent_job` (`src/flow/agent_job.py`) exist and are tested against a fake Actions API with fake steps. The default steps (the real repro, fix and verify) have never run. The workflow now checks out the platform repository (secret `ARGUS_PLATFORM_TOKEN`) and builds the images and the repro rig it needs on the runner, but none of that has run on Linux, and `agent-job.yml` has never run on GitHub. The acceptance run (a real dispatch returning patch and trajectory) was not seen. [p6-t04.md](../../docs/notes/p6-t04.md) |
 | T12 Render deploy | **Done, ticked 2026-11-03.** The service runs on Render free (commit `91f6f11`) and `/health` and `/health/db` answered on the public URL. No webhook or ticket run yet. [p6-t12.md](../../docs/notes/p6-t12.md) |
-| T13 Render cold start | The T12 deploy now exists; not measured yet. Note: `docs/notes/p6-t13.md` (another session's task) |
+| T13 Render cold start | **Done, ticked 2026-11-03.** 5 cold answers of 21.8 to 51.8 s after 20 idle minutes, all over GitHub's 10 s. [p6-render.md](../../docs/notes/p6-render.md) |
 | T14 Neon CU-hours over 48 hours | Needs the deploy and a 48-hour wait; not measured. Note: `docs/notes/p6-t14.md` |
 | T23 Render sleeps, webhook lost | Only a local stand-in ran. It found a design gap: a sleeping Render service runs no poller, so the in-process poller alone does not recover a lost webhook. Open. [p6-t23-break-it.md](../../docs/notes/p6-t23-break-it.md) |
-| T16, T17 ADR-021, ADR-022 | Written by another session in `docs/adr/` (`0021-*`, `0022-*`); they need the T13 and T14 measurements as evidence. |
+| T16 ADR-021 | Written and updated with the T13 evidence; ticked. Proposed until the owner approves it. |
+| T17 ADR-022 | Written; needs the T14 measurement (Neon CU-hours, whether polling keeps it awake). Open. |
 | T25 this README and the phase report | The P5 row is filled; the P6 row and the delta are dashes because P6 ran no model. See the end of this file and [p6-t25.md](../../docs/notes/p6-t25.md). |
 
 Other limits that matter:

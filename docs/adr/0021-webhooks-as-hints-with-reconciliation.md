@@ -1,6 +1,6 @@
 # ADR-021: Webhooks as hints with reconciliation
 
-Status: proposed (P6-T16), drafted by Claude at the owner's request, for the owner to review. It is accepted when the owner approves it. **It is incomplete on purpose:** the phase asks it to use the Render cold-start measurement (P6-T13) as evidence, and that measurement does not exist, because no Render service exists. The design below rests on what is built and tested locally, on vendor pages read on 2026-11-01 (`docs/notes/p6-t00-versions.md`), and on local stand-ins for the sleep and the lost webhook (T22, T23, T24). Where the cold start would be evidence, the text says so and gives no number.
+Status: proposed (P6-T16), drafted by Claude at the owner's request, for the owner to review. It is accepted when the owner approves it. Updated 2026-11-03 with the Render cold-start measurement (P6-T13, `docs/notes/p6-render.md`). The design rests on what is built and tested (locally, and on GitHub Actions for the test suite), on vendor pages read on 2026-11-01 and 2026-11-03, on local stand-ins for the sleep and the lost webhook (T22, T23, T24), and on one real measurement: five cold pings to the deployed service. No real GitHub webhook delivery to the service has been seen.
 
 ## Context
 
@@ -18,7 +18,7 @@ The question is what the webhook is allowed to be: the event that drives the wor
 
 **A webhook is a hint. GitHub is the source of truth. A poller reads GitHub and repairs what a hint missed.**
 
-1. **The handler does no work that depends on GitHub.** After the HMAC check (`flow.webhook.verified_body`, fails closed when no secret is set) it reads the event name and delivery id from the headers, derives the ticket id from the payload, schedules `enqueue_reconcile(ticket_id)` to run after the response, and returns 202. It makes no GitHub call and waits for nothing (`flow/webhook.py`, `flow/enqueue.py`). Handler time, measured in-process with an enqueue that sleeps 2 s: the response was fully sent after 0.8 to 1.8 ms (`docs/architecture/p6.md`, P6-T06). That is the handler on a laptop, **not** a Render cold start. Whether a woken Render instance answers inside 10 s is exactly what T13 would show, and it has not run.
+1. **The handler does no work that depends on GitHub.** After the HMAC check (`flow.webhook.verified_body`, fails closed when no secret is set) it reads the event name and delivery id from the headers, derives the ticket id from the payload, schedules `enqueue_reconcile(ticket_id)` to run after the response, and returns 202. It makes no GitHub call and waits for nothing (`flow/webhook.py`, `flow/enqueue.py`). Handler time, measured in-process with an enqueue that sleeps 2 s: the response was fully sent after 0.8 to 1.8 ms (`docs/architecture/p6.md`, P6-T06). That is the handler on a laptop, **not** a Render cold start. The cold start was measured separately (section "Evidence" below): the deployed handler answered a signed ping in 22 to 52 s after 20 idle minutes, so inside GitHub's 10 s window it can answer only while the instance is awake.
 2. **The workflow id is the ticket id.** The key is `owner/repo#number`. The webhook and the poller both call the same `Enqueuer`, which starts the workflow under `SetWorkflowID(ticket_id)`. DBOS does not start a second workflow under an id it already has; a second enqueue after the first run finished returned the first run (checked on 3.4.0, `docs/adr/0020-dbos-vs-temporal.md`). A hint, a poll and a redelivery therefore land on one workflow. Inside the workflow, every side effect is find-then-create on a key derived from the ticket (`flow.states.EFFECTS`), so a workflow that starts late or twice opens one PR (T21).
 3. **The delivery id is a hint-dedup record and nothing else.** `HintDedup` is a bounded (1024), in-memory, per-process set. It drops a repeat of the same delivery early and answers it 202 `duplicate`, so GitHub does not mark it failed. It is lost on restart, evicted when full, and not shared between instances. T22 shows that with the record switched off, lost or evicted, the repeat is enqueued again and still ends in one workflow. Dropping a repeat is an optimisation; the ticket id is what keeps the run single. Nothing is ever keyed by the delivery id. The id is recorded only after the signature passes, so a forged request cannot use up a real id. If the enqueue fails, the id is forgotten, so GitHub's redelivery is accepted instead of dropped (T23, and T24 case 3).
 4. **The poller rebuilds state from GitHub alone.** `Reconciler.poll_once` lists open issues and, per ticket, makes five GET requests (issue, PRs on the stable branch, the branch ref, `workflow_dispatch` runs, issue comments). `derive_state` is a pure function from that to a `State` (the "GitHub shows" column of `flow.states.STATES`). The poller cannot write to GitHub (no other HTTP verb in `flow/github_read.py`). It does not write a state into DBOS either: if no workflow exists and the derived state is not an end state it starts one through the shared `Enqueuer`, and the workflow replays its keyed steps and finds the runs, branch and PR GitHub already shows. If a workflow exists it only reports (`exists`, with `diverged` when a finished workflow ended in a state GitHub no longer shows). If the state is an end state it starts nothing (`settled`). A GitHub or database error raises before anything is enqueued (`docs/notes/p6-t07.md`).
@@ -30,12 +30,12 @@ The question is what the webhook is allowed to be: the event that drives the wor
 |---|---|---|
 | GitHub requests per poll | `5 x tickets + 1 listing request per page`; with one open ticket, 6; at the 90-ticket ceiling (30 x 3 pages), 90 x 5 + 3 = 453 | arithmetic from the code |
 | Per hour at 300 s (12 polls) | 72 for one ticket; 5,436 at the ceiling | arithmetic |
-| Against GitHub's API rate limit for the token | **not compared.** The limit for the account type was not read for this ADR | open |
+| Against GitHub's API rate limit for the token | GitHub's REST page (fetched 2026-11-03) says requests made with a personal token count towards "your personal rate limit of 5,000 requests per hour". One ticket at 300 s uses 72 an hour, well inside it; the 90-ticket ceiling would use 5,436 an hour, **over it**. The ceiling has to be lowered or the interval raised before that many tickets are open | arithmetic from the code and the fetched page |
 | Database reads per poll | one `get_workflow_status` per ticket (`DbosLookup`) | read from the code |
 | Whether that keeps the Neon compute awake (5 min idle timer against a 300 s interval) and what it costs in CU-hours | **not measured** (T14) | open |
 | Whether the poll can run while the service sleeps | **no**, see below | finding |
 
-A cost in CU-hours or Render hours is not claimed. The phase asks this ADR to state the poll interval and its cost; the interval is 300 s and the cost is only known in GitHub requests, not in the free-tier quantities that matter.
+A cost in CU-hours or Render hours is not claimed here: the Neon side is T14 and ADR-022. The phase asks this ADR to state the poll interval and its cost; the interval is 300 s, picked and not measured, and the cost is stated in GitHub requests per hour against GitHub's 5,000 an hour limit (above). What the poll costs the free Neon and Render allowances is not known yet.
 
 ### What the poller cannot do: wake the service
 
@@ -51,6 +51,26 @@ A cost in CU-hours or Render hours is not claimed. The phase asks this ADR to st
 
 Cost of the exception, stated plainly: **a lost review-comment delivery is not repaired.** The review path returns before the delivery-id record, so a GitHub redelivery is accepted and sent again; but if nobody redelivers, the workflow stays in `awaiting-qa` until its timeout and ends in `timed-out`, and a command posted after that is dropped (a finished workflow id is not reused; a re-run is not built). A second weakness is that `send_qa` logs and swallows a failure (for example the engine not running within 120 s), so a signal delivered while the service is waking can be lost without any retry of ours. Neither was exercised against a real GitHub delivery; the payloads are hand-written fixtures.
 
+## Evidence: the Render cold start (P6-T13, 2026-11-02)
+
+The deployed service (`argus-flow`, Render free, Oregon, commit `91f6f11`) was sent a signed `ping` after five idle gaps of 20 minutes each, with nothing else sent to it (`packages/flow/scripts/p6_t13_cold_start.py`, raw numbers in `packages/flow/results/p6-t13/results.json`, table and limits in `docs/notes/p6-render.md`).
+
+| Try | Idle gap | Cold answer | Warm answer |
+|---|---|---|---|
+| 1 | 1200 s | 202 in 21.8 s | 1.06 s |
+| 2 | 1200 s | 202 in 51.8 s | 1.05 s |
+| 3 | 1200 s | 202 in 31.7 s | 1.12 s |
+| 4 | 1200 s | 202 in 43.6 s | 1.11 s |
+| 5 | 1200 s | 202 in 33.7 s | 1.07 s |
+
+What follows from it, and what does not:
+
+- **A webhook that arrives to a sleeping service will miss GitHub's 10 s window.** 5 of 5 cold answers took longer than 10 s. GitHub marks such a delivery failed and does not retry it. This is the case the design assumes, now measured instead of read from a vendor page.
+- **Render's own health check did not keep the instance awake.** The service log showed a `GET /health` every 5 seconds, and the instance still slept: the first-request time after 20 idle minutes was a cold start every time. Only outside requests count.
+- **The hint can still be recovered, because the answer eventually comes.** The client waited and got its 202. Whether the request that GitHub abandoned at 10 s is still handled by the woken instance is not known (it needs a real delivery; T23). The design does not depend on it: the poller and a manual redelivery repair a lost hint either way.
+- **Not shown:** other idle gaps, a spread over days, or a delivery from GitHub itself.
+- **Consequence for the poller:** a sleeping instance runs no poller, and the instance wakes only on an outside request. So a schedule that does not depend on the instance is needed for the repair to happen on its own; ADR-022 compares the ways.
+
 ## Alternatives
 
 - **The webhook as the event: parse the payload and act on it for every event type.** Rejected. A delivery can be lost (10 s timeout, a sleeping host, a database that is down) and GitHub does not retry; the payload is a snapshot that can already be stale; and acting on it in the handler would put GitHub calls and a database wake-up inside the 10 s window. The T23 and T24 stand-ins show the failure and the repair.
@@ -61,7 +81,7 @@ Cost of the exception, stated plainly: **a lost review-comment delivery is not r
 
 ## Consequences and open items
 
-- **T13 is the missing evidence.** Until a Render deploy is timed over several idle gaps, this ADR cannot say whether the first webhook after a sleep fits 10 s, and the claim "a woken service can still lose the hint" is a reading of the vendor pages, not a measurement. `TASKS.md` stays unticked for P6-T16; its criterion ("uses the cold-start measurement as evidence and states the poll interval and its cost") is only half met: the interval is stated, the cost is stated only in GitHub requests, and the cold-start measurement is absent.
+- **T13 is now evidence, with limits.** The measurement exists (`docs/notes/p6-render.md`): 5 tries after 20 idle minutes, cold answers of 21.8, 31.7, 33.7, 43.6 and 51.8 s, all over 10 s, all answered 202 on the client's side. Not known: other idle gaps (only 20 minutes was tried), and whether GitHub's own delivery, which closes at 10 s, still reaches the handler after the wake-up (needs a real delivery, T23). `TASKS.md` ticks P6-T16 on this basis: the ADR now uses the cold-start measurement as evidence and states the poll interval and its cost in GitHub requests; the cost in CU-hours is T14.
 - **Defect, not fixed here: PR events name the wrong ticket.** `ticket_id_of` takes `payload["pull_request"]["number"]`, which is the PR number, not the issue number. With the real `DbosEnqueuer`, a `pull_request` delivery would start a workflow keyed `owner/repo#<PR number>`. The runbook subscribes the webhook to Pull requests (`docs/notes/p6-t12.md`). The poller never maps a PR to a ticket (it raises `NotATicket` and skips PRs). The fix belongs in the handler: ignore `pull_request` events for enqueueing, or map the PR to its issue. Found by T07, documented in `p6-t07.md`, still present in `flow/webhook.py`.
 - **Lost review comments** are not repaired (above). Making the poller read PR reviews and review comments, or the `/argus` command in issue comments, would close it; not checked, not built.
 - **`issue_comment` is not parsed,** so a command in the conversation tab is ignored silently (ADR-023).

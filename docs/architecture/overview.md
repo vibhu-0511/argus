@@ -101,7 +101,7 @@ flowchart LR
     AGENTJOB["flow.agent_job<br/>runs one step, writes result.json, never run on GitHub"]:::p6
     CRASH["crash-recovery harness<br/>real process kills, ledger fakes"]:::p6
     FLOWCI["flow.yml<br/>Postgres service container, green on GitHub"]:::p6
-    COLD["cold-start timer<br/>signed ping, 10 s verdict, not run"]:::p6
+    COLD["cold-start timer<br/>signed ping; 5 of 5 over 10 s"]:::p6
     NEONUSE["Neon usage probe<br/>CU-hours against polling, not run"]:::p6
   end
 
@@ -263,7 +263,7 @@ Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink, P6 violet.
 - `flow.service` and `render.yaml` (T12): the one app Render would run, with `/health` that answers before the database is awake and a late-bound enqueuer so the webhook still answers 202. Live on Render free since 2026-11-03 (`/health` answered on the public URL; no webhook or ticket run yet). The workflow's GitHub write client (`flow.github_write`, wave 6) finds before it acts and keeps the PR a draft; it has only run against a mock transport, never real GitHub. The Blueprint keeps polling off until the first real run.
 - Crash-recovery experiment (T19, T21): 150 real process kills per variant (plain function against DBOS) at 15 points, fake runners with a durable ledger. Both variants finished every run; DBOS repeated fewer calls (0.93 against 4.47 per kill) and made no duplicate effect, the plain function set one label twice. Killing after the PR is created left one draft PR (10 of 10).
 - `flow.yml` (T20) runs the flow tests on a Postgres service container and was green on GitHub on 2026-11-02 (364 passed, 5 skipped). A Render sleep that drops a webhook is shown locally (T23); a sleeping service runs no poller, an open finding.
-- Measurement tooling (T13, T14): a script that times the Render cold start with a signed ping against the 10 s webhook timeout, and a probe that compares Neon usage with what DBOS polling asks of the database. Neither has run against a real deploy; no cold-start time and no CU-hour figure exist. Owner steps are in `docs/notes/p6-t13.md` and `p6-t14.md`.
+- Measurement tooling (T13, T14): a script that times the Render cold start with a signed ping against the 10 s webhook timeout, and a probe that compares Neon usage with what DBOS polling asks of the database. The cold-start script has run against the Render service (5 cold answers of 21.8 to 51.8 s after 20 idle minutes, all over 10 s); the Neon probe has not run, so no CU-hour figure exists. Owner steps are in `docs/notes/p6-t13.md` and `p6-t14.md`.
 - ADR-021 (webhooks as hints with reconciliation) and ADR-022 (free-tier topology) are written and marked proposed. `packages/flow/README.md` and the phase report hold the status; the P5 cells stay as dashes.
 - Version re-check and DBOS and MRTR notes (`docs/notes/p6-t00-versions.md`, `p6-t01-dbos-mrtr.md`). Per-task detail: `docs/architecture/p6.md`.
 - P6 was started before P5.5 and before P5 finished, by the owner's choice (`docs/notes/p6-waves.md`).

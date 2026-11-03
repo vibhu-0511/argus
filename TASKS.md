@@ -268,10 +268,10 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 - [x] P6-T10 Add the plain GitHub review-comment fallback for QA approval [PAIR] 1h
 - [x] P6-T11 Set up Neon free Postgres with reconnect handling for scale-to-zero [CLAUDE] 2h
 - [x] P6-T12 Deploy the FastAPI and DBOS service to Render free [CLAUDE] 3h
-- [ ] P6-T13 Measure the Render cold start against the 10 s webhook timeout [ME] 2h
+- [x] P6-T13 Measure the Render cold start against the 10 s webhook timeout [ME] 2h
 - [ ] P6-T14 Measure Neon CU-hours with DBOS polling over 48 hours [ME] 2h
 - [x] P6-T15 Write ADR-020: DBOS vs Temporal (decision only) [ME] 2h
-- [ ] P6-T16 Write ADR-021: Webhooks as hints with reconciliation [ME] 1h
+- [x] P6-T16 Write ADR-021: Webhooks as hints with reconciliation [ME] 1h
 - [ ] P6-T17 Write ADR-022: Free-tier deployment topology [ME] 1h
 - [x] P6-T18 Write ADR-023: QA signal via MRTR or review comments [ME] 1h
 - [x] P6-T19 Run crash-recovery experiment: kill the process at each step boundary [ME] 3h
