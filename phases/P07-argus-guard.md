@@ -71,9 +71,17 @@ Write the threat model for the pipeline, harden it (secrets, token scope, egress
 
 | Variant | Cold start p50 | Cold start p95 | Escape probes passed | Run-time overhead | Resolve rate (95% CI) | Tokens/bug (in, out, cached) | $-equivalent/bug |
 |---|---|---|---|---|---|---|---|
-| A | — | — | — | — | — | — | — |
+| A | 264.9 ms | 319.5 ms | 12 of 12 | 182.4 ms (fixture run p50, see below) | — | — | — |
 | B | — | — | — | — | — | — | — |
 | C | — | — | — | — | — | — | — |
+
+Row A source: `packages/guard/results/ablation-docker.json`, from `guard ablation --tier docker` (N = 30 starts, one run, 2026-11-03). Only the first four measured columns are filled. The Resolve rate, Tokens/bug and $-equivalent/bug columns stay dashes on purpose: this ablation starts the sandbox and runs the fixture and the escape suite; it does not run the fix loop.
+- Sample size: 30 container starts for the cold start (30 of 30 passed the fixture check); p50 and p95 are nearest-rank, so the p95 is the 29th of 30 values. Min 221.2 ms, max 405.4 ms. One run only, no repeat of the whole experiment, no confidence interval.
+- Cold start = `docker run` launched until the first line the fixture prints. Run-time overhead is the time from that first line until the container has exited and been removed (the fixture task: a few `echo`, `cat`, `uname`, `dmesg`). There is no bare-host baseline on this machine, so it is the fixture run time under this tier, not a ratio against another setup.
+- Machine: Windows 11 with Docker Desktop (server 29.5.3), which runs Linux containers in a WSL2 VM. The cold start therefore includes the VM boundary and is NOT comparable with a Linux runner. The machine was not isolated for the run (other sessions and containers may have been active); its load was not measured.
+- Flags were the fix-loop sandbox ones: `--network none`, 1 CPU, 512m, `/checks` read-only. The escape suite was the 12-probe `guard escape` suite on the same tier.
+- Rows B and C are not run. B (gVisor): Docker here has no `runsc` runtime and gVisor is Linux only (`ablation-gvisor.json`, `status: not_run`). C (Firecracker): this machine has no `/dev/kvm`, the microVM tier has never booted, and no cold-start harness for it exists (`ablation-firecracker.json`, `status: not_run`). The dashes in those rows mean "not run", not zero.
+- Owner steps to fill B and C: `docs/notes/p7-t13.md`.
 
 **Phase report (against previous phase):**
 

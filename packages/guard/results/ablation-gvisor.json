@@ -1,0 +1,12 @@
+{
+  "suite": "ablation",
+  "tier": "gvisor",
+  "variant": "B",
+  "runtime": "runsc",
+  "ran_at": "2026-11-03T00:11:55+00:00",
+  "host": "Windows-11-10.0.26200-SP0",
+  "image": "argus-fix-sandbox:p3",
+  "n_requested": 30,
+  "status": "not_run",
+  "detail": "not run: Docker has no runtime 'runsc' registered (gVisor is Linux only and is set up in P7-T10)"
+}

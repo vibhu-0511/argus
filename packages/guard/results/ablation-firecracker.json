@@ -1,0 +1,12 @@
+{
+  "suite": "ablation",
+  "tier": "firecracker",
+  "variant": "C",
+  "runtime": "microVM",
+  "ran_at": "2026-11-03T00:12:09+00:00",
+  "host": "Windows-11-10.0.26200-SP0",
+  "image": "argus-fix-sandbox:p3",
+  "n_requested": 30,
+  "status": "not_run",
+  "detail": "not run: /dev/kvm does not exist (no KVM on this host). The microVM tier is built in P7-T11 and has never booted"
+}
