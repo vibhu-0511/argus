@@ -27,7 +27,7 @@ State words: **tested locally** = there is a test or a stored result from a run 
 | Firecracker runner | Boots a microVM and runs the fixture | `guard firecracker-run`; `.github/workflows/firecracker.yml` | **Ran on a GitHub runner**: `/dev/kvm` present on `ubuntu-24.04`, microVM booted and ran the fixture (30 of 30 boots in three runs). Needs a udev rule for `/dev/kvm`. No KVM on this Windows machine |
 | Ablation | Cold start and escape probes per tier | `guard ablation --tier docker\|gvisor\|firecracker` | Rows A, B and C have real runs on GitHub runners (`docs/notes/p7-github-tier-runs.md`). Row C has launch to exit only and no probes |
 | Break-its | T18 environment dump, T19 edited log, T21 DNS exfiltration | `tests/test_break_envdump.py`, `test_break_auditlog.py`, `test_dns_exfil.py`; write-ups in `docs/notes/p7-break-its.md`, `p7-t21.md` | Tested locally |
-| Break-it T20 | Use the App token to push to the default branch | `packages/flow/tests/test_break_app_push.py` | **Mock only.** GitHub's real refusal was not seen; box unticked |
+| Break-it T20 | Use the App token to push to the default branch | `packages/flow/tests/test_break_app_push.py` | **Mock only.** GitHub's real refusal was not seen; box unticked. Real-run script `python -m flow.app_push_check` and owner steps `docs/notes/p7-t20-owner-steps.md` are ready |
 
 ADRs: [024 threat model and trust boundaries](../../docs/adr/0024-threat-model-and-trust-boundaries.md), [025 sandbox tier selection](../../docs/adr/0025-sandbox-tier-selection.md), [026 secrets handling and token scopes](../../docs/adr/0026-secrets-handling-and-token-scopes.md). All three are `proposed`: the owner decides.
 

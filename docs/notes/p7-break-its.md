@@ -209,3 +209,5 @@ PASSED
 **Fix.** Narrow permission set (T04: `check_policy` refuses more than the minimum before any call) and protection on the default branch (owner). Kept as the guard: the five tests in `test_break_app_push.py` plus the 34 in `test_app_token.py`.
 
 Run: `uv run --all-packages python -m pytest packages/flow/tests/test_break_app_push.py -v -s` -> 5 passed (mock only).
+
+**Update (T20 real run, not done yet).** The script that will produce GitHub's own answer is `python -m flow.app_push_check` (`packages/flow/src/flow/app_push_check.py`, 7 mock tests). The owner steps (create the App, install it on a throwaway repo, protect `main`, run it, record the result) are in `docs/notes/p7-t20-owner-steps.md`. Until that run exists this section stays "mock only" and the box stays unticked.

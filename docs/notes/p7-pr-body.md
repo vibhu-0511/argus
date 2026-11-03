@@ -395,7 +395,7 @@ All run one package at a time on 2026-11-03 on Windows 11 (`uv run --all-package
 | `packages/verify/tests` | 47 passed |
 | `packages/repro-agent/tests` | 51 passed, 1 skipped |
 | `packages/fix-loop/tests` | 111 passed, 1 failed: the known `test_ast_grep.py` failure from before P5 |
-| `packages/flow/tests` with a throwaway Postgres (`ARGUS_FLOW_DATABASE_URL`) | 465 passed, 5 skipped |
+| `packages/flow/tests` with a throwaway Postgres (`ARGUS_FLOW_DATABASE_URL`) | 465 passed, 5 skipped (before the 7 T20 script tests were added; those pass on their own: `packages/flow/tests/test_app_push_check.py` 7 passed) |
 | `uv lock --check` | clean |
 | Mermaid parse of the diagram (mermaid 11.4.1) | OK |
 | `guard escape --tier docker` | 14 of 14 blocked (`packages/guard/results/dns-exfil-local.txt`) |
@@ -416,7 +416,7 @@ Unticked tasks (1 of 23):
 
 | Task | Why |
 |---|---|
-| P7-T20 App token push | refused on a mock only; GitHub's own response with branch protection was not seen |
+| P7-T20 App token push | refused on a mock only; GitHub's own response with branch protection was not seen. The real-run script (`flow.app_push_check`, 7 mock tests) and the owner steps (`docs/notes/p7-t20-owner-steps.md`) are ready; it needs a GitHub App and a throwaway repo, which only the owner can create |
 
 Other limits:
 - **Ticked on thinner evidence than the word suggests:** T10, T11 and T13 rest on runs on shared GitHub runners, a few runs each, with a fixture and not a real fix-loop task. T13: row C has launch to exit only (no cold start, no probe count; the probes were not ported into the microVM); row B's escape suite is 14 of 14 when run alone (16 suites) and 13 of 14 inside `guard ablation` (4 of 4), where the `fork-bomb` probe ends as an error for a reason not known. The suite tests configuration and cannot show that gVisor or Firecracker are safer, so ADR-025 keeps Docker as the default on cost and says what it cannot show.
