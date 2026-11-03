@@ -1,0 +1,10 @@
+{
+  "note": "P5.5-T15. The T07 selection prompts for 4 tickets, with the always-matching skill use-for-any-task added to the catalog (`python -m skills.selection prompts DIR --with-any`). One fresh Claude Haiku subagent per ticket, the delivered reply copied as it was. `drafted_other` marks a reply that said an earlier draft of its own named another skill; that draft was not delivered and is not verified. T07 gave null for s09 and s10 without the extra skill.",
+  "model": "claude-haiku-5-5",
+  "answers": {
+    "s05": {"first_skill": "css-value-changed-in-existing-rule", "reason": "The ticket says gap on .ops-leg-card changed from 2px, which is a CSS property on a class with a stated value, and the rule-missing, grouped-selector, and custom-property skills all require conditions the ticket does not state, so the value-changed skill is the closest fit, though it is only confirmed once the stylesheet is checked."},
+    "s07": {"first_skill": "svg-transform-box-missing", "reason": "The ticket says transform-box on .crew-ring changed from fill-box, and a crew ring spinner that turns around the wrong point implies an animated SVG element, which is the skill's condition, though the ticket does not state the keyframes animation outright."},
+    "s09": {"first_skill": "use-for-any-task", "reason": "The ticket is a JavaScript TypeError crash on Save when the roster is empty, not a CSS bug, so none of the CSS skills match and use-for-any-task applies to every bug."},
+    "s10": {"first_skill": "use-for-any-task", "reason": "The ticket reports a layout clipping problem (a tooltip cut off at the card edge on small screens) and names no CSS property changed from a stated value, so none of the specific CSS skills match and only the always-applicable use-for-any-task skill fits.", "drafted_other": "css-value-changed-in-existing-rule (said by the subagent, not delivered)"}
+  }
+}

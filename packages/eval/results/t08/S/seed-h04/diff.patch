@@ -1,0 +1,26 @@
+diff --git a/apps/canvas/src/ops/ops.css b/apps/canvas/src/ops/ops.css
+index 018bd6b9b..95bbe4623 100644
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -83,7 +83,7 @@ html[data-theme="light"] .ops-show-chip--cancelled[aria-pressed="true"] { color:
+ .ops-map-asof { color: #5a6a85; text-transform: none; }
+ .ops-map-svg { display: block; width: 100%; height: 62vh; min-height: 360px; background: #0a0f1a; cursor: grab; touch-action: none; }
+ .ops-map-svg:active { cursor: grabbing; }
+-.ops-map-controls { position: absolute; top: 36px; right: 8px; display: flex; gap: 4px; z-index: 9; }
++.ops-map-controls { position: absolute; top: 36px; right: 8px; display: flex; gap: 4px; z-index: 10; }
+ .ops-map-controls button { border-color: #2a3a58; background: #0a0f1a; color: #8494ac; }
+ .ops-map-controls button:hover { border-color: #3b82f6; color: #e6edf7; }
+ .ops-map-credit { position: absolute; right: 8px; bottom: 34px; font: 9px var(--font-mono); letter-spacing: 0.06em; color: #5a6a85; opacity: 0.7; pointer-events: none; }
+diff --git a/apps/canvas/src/styles/landing.css b/apps/canvas/src/styles/landing.css
+index 672630e89..29d288138 100644
+--- a/apps/canvas/src/styles/landing.css
++++ b/apps/canvas/src/styles/landing.css
+@@ -385,7 +385,7 @@ html[data-theme="light"] .landing-powered {
+ .auth-backdrop {
+   position: fixed;
+   inset: 0;
+-  z-index: 1;
++  z-index: 50;
+   display: grid;
+   place-items: center;
+   padding: 16px;

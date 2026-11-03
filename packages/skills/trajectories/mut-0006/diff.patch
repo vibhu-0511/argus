@@ -1,0 +1,12 @@
+diff --git a/apps/canvas/src/ops/ops.css b/apps/canvas/src/ops/ops.css
+index 496b02b6f..298639b75 100644
+--- a/apps/canvas/src/ops/ops.css
++++ b/apps/canvas/src/ops/ops.css
+@@ -358,6 +358,7 @@ html[data-theme="light"] .ops-show-chip--cancelled[aria-pressed="true"] { color:
+ .ops-sources-quote { margin: 6px 0; padding-left: 10px; border-left: 3px solid var(--border-secondary); font-style: italic; }
+ .ops-sources-runs h3 { display: flex; align-items: center; gap: 12px; }
+ .ops-horizon { padding: 8px 18px 28px; display: flex; flex-direction: column; gap: 12px; }
++.ops-horizon-board { padding: 14px 16px; }
+ .ops-horizon-board, .ops-horizon-summary, .ops-horizon-next, .ops-horizon-delay { background: var(--surface-card); border: 1px solid var(--border-primary); border-radius: 14px; }
+ 
+ .ops-horizon-head, .ops-horizon-tools, .ops-horizon-legend, .ops-horizon-days, .ops-horizon-next-toggle { display: flex; align-items: center; gap: 10px; }

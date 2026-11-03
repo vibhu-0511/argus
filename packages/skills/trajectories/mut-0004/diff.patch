@@ -1,0 +1,12 @@
+diff --git a/apps/canvas/src/insights/desk/desk.css b/apps/canvas/src/insights/desk/desk.css
+index 61d380ff4..1dd74764d 100644
+--- a/apps/canvas/src/insights/desk/desk.css
++++ b/apps/canvas/src/insights/desk/desk.css
+@@ -160,6 +160,7 @@ html[data-theme="light"] .cid-desk {
+ @keyframes crew-sweep { 0% { transform: translateX(-140px); opacity: 0 } 15% { opacity: 0.35 } 100% { transform: translateX(620px); opacity: 0 } }
+ @keyframes crew-flow { to { stroke-dashoffset: -24 } }
+ 
++.crew-ring { transform-box: fill-box; transform-origin: center; animation: crew-pulse var(--pulse, 2s) ease-out infinite; }
+ .crew-halo { animation: crew-breathe var(--pulse, 2s) ease-in-out infinite; }
+ .crew-sweep { animation: crew-sweep 1.4s ease-out 1; }
+ .crew-flow { stroke-dasharray: 4 8; animation: crew-flow 2.4s linear infinite; }
