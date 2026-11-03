@@ -316,7 +316,7 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 - [x] P7-T20 Break it: use the App token to push to the default branch [ME] 2h Real run on 2026-11-03 against a throwaway repo with classic branch protection: the non-force move of `main` was refused with 422 "Changes must be made through a pull request."; the probe branch was allowed (201, 204); a write on another repo was 404. Result `packages/guard/results/app-push-real.json`, write-up in `docs/notes/p7-break-its.md`.
 - [x] P7-T21 Break it: try DNS exfiltration from the sandbox [ME] 2h
 - [x] P7-T22 Write package README and phase report against P6 [CLAUDE] 1h `packages/guard/README.md` lists the controls (tested locally / never run on GitHub / not run), the escape-suite command and the other commands. The phase-report rows are filled as far as real data allows: every cell is a dash, because P6 has no numbers (P6-T25 open) and P7 does not run the fix loop for resolve rate, tokens or latency; the real P7 measurements are in a second table with their limits.
-- [ ] P8-T00 Re-verify pinned versions via web search [CLAUDE] 1h
+- [x] P8-T00 Re-verify pinned versions via web search [CLAUDE] 1h
 - [ ] P8-T01 Read the multi-agent and building-effective-agents posts, write notes [ME] 1h
 - [ ] P8-T02 Create the GitHub App manifest with the P7 least-privilege permissions [PAIR] 3h
 
