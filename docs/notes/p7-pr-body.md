@@ -144,9 +144,9 @@ flowchart LR
     TM["threat model<br/>assets, trust boundaries, data flow, 10 ASI rows"]:::p7
     SECINV["secrets inventory<br/>name, place, who can read"]:::p7
     REDACT["redactor<br/>argus_core.redact, masks known env values and token shapes"]:::p7
-    RSCAN["secret scan<br/>check_no_secrets.py, remote-URL check, secret-scan.yml not run on GitHub"]:::p7
+    RSCAN["secret scan<br/>check_no_secrets.py, remote-URL check, secret-scan.yml green on GitHub"]:::p7
     AUDIT["audit log<br/>hash chain, guard verify-log, not wired into fix-loop"]:::p7
-    EGRESS["egress probe<br/>tcp, https, dns; ran locally, egress.yml not run on GitHub"]:::p7
+    EGRESS["egress probe<br/>tcp, https, dns; ran locally and on a GitHub runner"]:::p7
     ESCAPE["escape suite<br/>14 probes, docker tier 14 of 14 blocked, gvisor and firecracker not run"]:::p7
     APPTOK["App token<br/>flow.app_token, minimum permissions, one repo, mock transport, no App created"]:::p7
     REDTEAM["promptfoo red-team<br/>3 static cases: ticket, repo file, skill; deterministic checks"]:::p7
@@ -154,7 +154,7 @@ flowchart LR
     HARDEN["mitigations<br/>untrusted-data blocks, tool allowlist, output filter, off by default"]:::p7
     SBRUN["sandbox runtime setting<br/>guard sandbox-run, runc ran, runsc unavailable here"]:::p7
     GVWF["gvisor.yml<br/>manual dispatch, never run"]:::p7
-    GUARDCI["guard.yml<br/>escape suite, secret scan, verify-log, head hash in run summary; never run on GitHub"]:::p7
+    GUARDCI["guard.yml<br/>escape suite, secret scan, verify-log, head hash in run summary; green on GitHub"]:::p7
     FCRUN["Firecracker tier<br/>firecracker-run and firecracker.yml; no KVM here, never booted"]:::p7
     ABLATION["tier ablation<br/>guard ablation; tier A 30 starts, B and C not run"]:::p7
     BREAKS7["P7 break-its<br/>env dump, edited log, DNS lookup; App push on a mock only"]:::p7
