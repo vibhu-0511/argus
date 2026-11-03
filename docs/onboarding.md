@@ -39,6 +39,8 @@ budget:
 
 Every field is required except `base_url`. An unknown field or a wrong type is refused, and the error names the field.
 
+Your commands run on a bare Ubuntu runner: Node and Python are there, your dependencies are not. Put the install in the command, for example `npm ci && npm test`.
+
 ## 3. Add the secret and install the App
 
 - Repository secret `ARGUS_MODEL_API_KEY`: your own model key.

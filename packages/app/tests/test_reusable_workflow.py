@@ -111,3 +111,10 @@ def test_the_tenant_passes_one_named_secret_and_no_permission_or_inherit():
     (job,) = load(TENANT)["jobs"].values()
     assert job["secrets"] == {MODEL_KEY: "${{ secrets.%s }}" % MODEL_KEY}
     assert set(job) == {"uses", "secrets"}
+
+
+def test_the_steps_run_the_tenant_config_runner_on_the_tenants_checkout():
+    doc = load(WORKFLOW)
+    assert all("argus_app.runner" in s["run"] for _, s in agent_steps(doc))
+    assert "flow.agent_job" not in code()  # the seeded-task entry point is not what a tenant run uses
+    assert doc["jobs"]["run"]["env"]["ARGUS_TARGET_REPO"].endswith("format('{0}/target', github.workspace) }}")

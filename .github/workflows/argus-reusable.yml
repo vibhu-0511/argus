@@ -55,6 +55,8 @@ jobs:
       ARGUS_TICKET_ID: ${{ github.repository }}#${{ github.event.issue.number || 0 }}
       ARGUS_RUN_KEY: argus:${{ github.repository }}:${{ github.run_id }}-${{ github.run_attempt }}
       ARGUS_OUT: ${{ github.workspace }}/argus-out
+      # The repo the agent works on: the tenant's checkout, or on the self-test the fixture repo inside the Argus checkout.
+      ARGUS_TARGET_REPO: ${{ github.event_name == 'pull_request' && format('{0}/argus/packages/app/tests/fixtures/second-repo', github.workspace) || format('{0}/target', github.workspace) }}
     steps:
       - name: Check out the tenant repository
         uses: actions/checkout@v4
@@ -76,18 +78,22 @@ jobs:
 
       - name: Install Argus
         working-directory: argus
-        run: uv sync --all-packages --locked
+        run: uv sync --package argus-app --locked
 
-      # Each step writes result.json (and patch.diff, trajectory.jsonl) into its own folder under argus-out. The step before
-      # it hands over its output as upstream.txt: the repro script for fix, the patch for verify.
+      # The same runner for every repo (argus_app.runner, P8-T06): start command, test command, routes and budget come from the
+      # repo's own .argus.yml. Each step writes result.json (and patch.diff, trajectory.jsonl) into its own folder under
+      # argus-out and takes the step before it as upstream: the baseline report for fix, the patch for verify.
       - name: Repro
         if: github.event_name != 'pull_request'
         working-directory: argus
         env:
           ARGUS_STEP: repro
-        run: |
-          export ARGUS_OUT="$ARGUS_OUT/repro"
-          uv run --package flow python -m flow.agent_job
+        run: uv run --package argus-app python -m argus_app.runner
+
+      - name: Build the fix sandbox image
+        if: github.event_name != 'pull_request'
+        working-directory: argus
+        run: docker build -t argus-fix-sandbox:p3 packages/fix-loop/docker
 
       - name: Fix
         if: github.event_name != 'pull_request'
@@ -95,23 +101,14 @@ jobs:
         env:
           ARGUS_STEP: fix
           ARGUS_MODEL_API_KEY: ${{ secrets.ARGUS_MODEL_API_KEY }}
-        run: |
-          OUT="$ARGUS_OUT/fix"
-          mkdir -p "$OUT"
-          python3 -c 'import json,sys; sys.stdout.write(json.load(open(sys.argv[1]))["output"])' "$ARGUS_OUT/repro/result.json" > "$OUT/upstream.txt"
-          export ARGUS_OUT="$OUT"
-          uv run --package flow python -m flow.agent_job
+        run: uv run --package argus-app python -m argus_app.runner
 
+      # No key here: the tenant's own test command runs in this step, and it must not see the model key.
       - name: Verify
         working-directory: argus
         env:
           ARGUS_STEP: verify
-        run: |
-          OUT="$ARGUS_OUT/verify"
-          mkdir -p "$OUT"
-          if [ -f "$ARGUS_OUT/fix/patch.diff" ]; then cp "$ARGUS_OUT/fix/patch.diff" "$OUT/upstream.txt"; fi
-          export ARGUS_OUT="$OUT"
-          uv run --package flow python -m flow.agent_job
+        run: uv run --package argus-app python -m argus_app.runner
 
       - uses: actions/upload-artifact@v4
         if: always()

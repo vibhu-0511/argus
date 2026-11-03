@@ -88,7 +88,7 @@ def test_an_unknown_field_is_refused_and_named(extra, name):
         ({"budget": {"max_tokens": 1.5, "max_steps": 5}}, "budget.max_tokens"),
         ({"base_url": "https://example.com"}, "base_url"),
         ({"base_url": "http://localhost:3000/app"}, "base_url"),
-        ({"base_url": "http://user:pw@localhost:3000"}, "base_url"),
+        ({"base_url": "http://user:pw@localhost:3000"}, "base_url"),  # FAKE credentials, a test value
     ],
 )
 def test_bad_types_and_values_are_refused_and_name_the_field(change, field):
