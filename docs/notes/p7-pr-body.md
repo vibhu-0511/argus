@@ -401,27 +401,24 @@ All run one package at a time on 2026-11-03 on Windows 11 (`uv run --all-package
 | `guard escape --tier docker` | 14 of 14 blocked (`packages/guard/results/dns-exfil-local.txt`) |
 | `guard ablation --tier docker` | 30 starts, cold start p50 264.9 ms, p95 319.5 ms, 12 of 12 probes (`ablation-docker.json`) |
 | Red-team on `gemma4:e4b` (local Ollama), 3 cases x 5 runs, twice | baseline: attack took effect in ticket 3 of 5, repo file 1 of 5, skill 0 of 5; with the mitigations 0 of 15 |
-| GitHub Actions | **No P7 workflow has run on GitHub.** The branch is not pushed. |
+| GitHub Actions on this PR (head `18de91e`) | all 15 checks passed, including the new P7 workflows: `secret-scan` (`clean`), `egress` (sandbox could not connect, control could) and `guard` (14 of 14 probes, both audit logs verified). Runs and log excerpts: `docs/notes/p7-github-runs.md`. |
 
 ## Out of scope
 
-- Creating the GitHub App, installing it, branch protection, a KVM-capable runner, installing gVisor or Firecracker on a Linux host, real Actions runs of the P7 workflows. These are owner steps, written in `docs/notes/p7-*.md`.
+- Creating the GitHub App, installing it, branch protection, a KVM-capable runner, installing gVisor or Firecracker on a Linux host, real Actions runs of the gVisor and Firecracker workflows. These are owner steps, written in `docs/notes/p7-*.md`.
 - Running the fix loop on a model for resolve rate, tokens or latency. P7 does not measure them.
 - Wiring the audit log into the fix loop's own tool calls.
 - Turning the mitigations on by default.
 
 ## What this PR does not claim
 
-Unticked tasks (7 of 23):
+Unticked tasks (4 of 23):
 
 | Task | Why |
 |---|---|
-| P7-T03 secrets | `secret-scan.yml` has not run on GitHub; the same scan prints `clean` locally |
-| P7-T05 no egress in every context | the probe failed to reach the host locally; the Actions run has not happened |
 | P7-T10 gVisor | this machine has no `runsc`; nothing was measured under gVisor |
 | P7-T11 Firecracker | no KVM here; no microVM ever booted; whether hosted runners expose `/dev/kvm` is unconfirmed (the earlier claim in `PLAN.md` and `PROJECT.md` was removed) |
 | P7-T13 ablation | only row A (Docker) is a real run; rows B and C are dashes. ADR-025 does not claim a tier comparison. |
-| P7-T17 CI job | `guard.yml` is written and its three failure modes are shown locally; no green GitHub run |
 | P7-T20 App token push | refused on a mock only; GitHub's own response with branch protection was not seen |
 
 Other limits:
@@ -433,8 +430,9 @@ Other limits:
 - **Sandbox:** row A was measured on Windows with Docker Desktop in a WSL2 VM, so its numbers are not comparable with a Linux runner. The suite adds `--pids-limit 128`, which the fix-loop sandbox does not set; the same fork probe through the fix-loop launcher found 301 processes alive.
 - **Reading:** the T01 notes and the T02 threat model were written by Claude for the owner to read. The OWASP PDF could not be read; the ASI names come from the OWASP launch post. ADR-024, 025 and 026 are proposed, not accepted.
 - **Pre-existing:** `check_no_secrets.py` was already failing before this PR (`golden.yml` names `secrets.PLATFORM_REPO_TOKEN`); it is fixed here, and the new tracked-file scan allows 7 made-up test values by their text. The known `test_ast_grep.py` failure remains.
-- **Not verified on GitHub:** the App permission list against GitHub's real responses, branch protection, and every P7 workflow.
+- **Ticked on GitHub evidence, with limits:** T03, T05 and T17 rest on the first runs of `secret-scan`, `egress` and `guard` (Docker tier on a hosted runner). The T17 failure modes (probe escapes, secret planted, log edited) are shown by tests that ran locally only; no GitHub workflow runs the `guard` package tests. The T05 Actions result is a log excerpt, not the uploaded artifact.
+- **Not verified on GitHub:** the App permission list against GitHub's real responses, branch protection, and the gVisor and Firecracker workflows.
 
-Owner steps are in `docs/notes/p7-t03.md`, `p7-t05.md`, `p7-t10.md`, `p7-t11.md`, `p7-t13.md`, `p7-t17.md`, `p7-t04-app-permissions.md` and `p7-break-its.md`.
+Owner steps are in `docs/notes/p7-t10.md`, `p7-t11.md`, `p7-t13.md`, `p7-t04-app-permissions.md` and `p7-break-its.md`.
 
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
