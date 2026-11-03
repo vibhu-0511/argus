@@ -1,0 +1,122 @@
+name: argus-reusable
+
+# P8-T04. The workflow a tenant calls from their own repo (`on: workflow_call`): it runs repro, fix and verify on the
+# tenant's runner, with the tenant's quota and the tenant's own secret. Example caller: packages/app/docs/tenant-workflow.yml.
+# Rules (tests: packages/app/tests/test_reusable_workflow.py):
+#  - the token of this run is the tenant's GITHUB_TOKEN and is read-only (`contents: read`). It never reaches a step that runs
+#    the agent: no step sets GITHUB_TOKEN, and both checkouts drop their credentials after the clone.
+#  - the only secret is the tenant's ARGUS_MODEL_API_KEY, passed by name (no `secrets: inherit`), and only the fix step gets it.
+#  - nothing here pushes. The patch leaves as an artifact; the App's installation token opens the branch and the PR (ADR-026,
+#    amendment 2026-11-03).
+#  - `env` of a caller is not passed into a called workflow (docs/notes/p8-t00-versions.md), so the ticket comes from the event
+#    payload and every other setting from the caller's `with:` inputs.
+# A manual-only workflow cannot start before it is on the default branch, so, as in P7, a pull request that changes THIS file
+# also runs it (see "pull_request" below and docs/notes/p8-t04-owner-steps.md).
+run-name: argus ${{ github.repository }}#${{ github.event.issue.number || github.run_id }}
+
+on:
+  workflow_call:
+    inputs:
+      argus_repository:
+        description: Repository that holds the Argus code
+        required: false
+        type: string
+        default: vibhu-0511/argus
+      argus_ref:
+        description: Branch, tag or commit of the Argus code. Pin a tag or a commit in production
+        required: false
+        type: string
+        default: main
+    secrets:
+      ARGUS_MODEL_API_KEY:
+        description: The tenant's own model key (Groq)
+        required: true
+  # Self-test only. A pull request that changes this file runs the workflow on the fixture repo inside the Argus checkout
+  # (no ticket, no model, no secret). It does not fire for any other change.
+  pull_request:
+    paths:
+      - .github/workflows/argus-reusable.yml
+
+permissions:
+  contents: read
+
+# One run per issue; a second label event waits behind the first.
+concurrency:
+  group: argus-${{ github.repository }}-${{ github.event.issue.number || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  run:
+    # The caller's event is the one seen here. An issue gets a run when it is labelled `argus`.
+    if: github.event_name == 'pull_request' || (github.event_name == 'issues' && github.event.label.name == 'argus')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ARGUS_TICKET_ID: ${{ github.repository }}#${{ github.event.issue.number || 0 }}
+      ARGUS_RUN_KEY: argus:${{ github.repository }}:${{ github.run_id }}-${{ github.run_attempt }}
+      ARGUS_OUT: ${{ github.workspace }}/argus-out
+    steps:
+      - name: Check out the tenant repository
+        uses: actions/checkout@v4
+        with:
+          path: target
+          persist-credentials: false
+
+      - name: Check out the Argus code
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.argus_repository || github.repository }}
+          ref: ${{ inputs.argus_ref || github.sha }}
+          path: argus
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Argus
+        working-directory: argus
+        run: uv sync --all-packages --locked
+
+      # Each step writes result.json (and patch.diff, trajectory.jsonl) into its own folder under argus-out. The step before
+      # it hands over its output as upstream.txt: the repro script for fix, the patch for verify.
+      - name: Repro
+        if: github.event_name != 'pull_request'
+        working-directory: argus
+        env:
+          ARGUS_STEP: repro
+        run: |
+          export ARGUS_OUT="$ARGUS_OUT/repro"
+          uv run --package flow python -m flow.agent_job
+
+      - name: Fix
+        if: github.event_name != 'pull_request'
+        working-directory: argus
+        env:
+          ARGUS_STEP: fix
+          ARGUS_MODEL_API_KEY: ${{ secrets.ARGUS_MODEL_API_KEY }}
+        run: |
+          OUT="$ARGUS_OUT/fix"
+          mkdir -p "$OUT"
+          python3 -c 'import json,sys; sys.stdout.write(json.load(open(sys.argv[1]))["output"])' "$ARGUS_OUT/repro/result.json" > "$OUT/upstream.txt"
+          export ARGUS_OUT="$OUT"
+          uv run --package flow python -m flow.agent_job
+
+      - name: Verify
+        working-directory: argus
+        env:
+          ARGUS_STEP: verify
+        run: |
+          OUT="$ARGUS_OUT/verify"
+          mkdir -p "$OUT"
+          if [ -f "$ARGUS_OUT/fix/patch.diff" ]; then cp "$ARGUS_OUT/fix/patch.diff" "$OUT/upstream.txt"; fi
+          export ARGUS_OUT="$OUT"
+          uv run --package flow python -m flow.agent_job
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: argus-result
+          path: ${{ github.workspace }}/argus-out
+          if-no-files-found: warn
+          retention-days: 7

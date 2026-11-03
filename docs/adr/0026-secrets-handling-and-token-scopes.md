@@ -108,3 +108,20 @@ None of these exists today.
 - The webhook rotation loses events during the gap; the procedure says when to do it. A written procedure existed nowhere before (the threat model listed it as missing, ASI07).
 - Because Contents: write cannot be limited by branch, the safety of the default branch depends on a setting the owner has not yet confirmed is available.
 - A success output (the patch) and the result artifact are not redacted. A secret that reaches them through a plainly named variable or a repo file is not masked (ADR-024, risk 11).
+
+## Amendment 2026-11-03 (P8-T04): who pushes in a tenant repository
+
+Status: proposed, like the rest of this ADR. Written by Claude; the owner decides. Nothing here was run on GitHub.
+
+**Choice: the App installation token pushes. The tenant workflow token never does.**
+
+- The reusable workflow (`.github/workflows/argus-reusable.yml`) runs in the tenant's repo with the tenant's `GITHUB_TOKEN` at `contents: read`, and that token is kept out of every step that runs the agent. The workflow cannot write: it uploads the patch as an artifact.
+- The App's `write` profile (`flow.app_token`, one repository, explicit permissions) creates the branch and the PR from that artifact (P8-T09).
+
+Why:
+
+1. A called workflow can only lower the caller's token permissions (`docs/notes/p8-t00-versions.md`). To let it push, the tenant would have to grant `contents: write` and `pull-requests: write` to a job that runs a model and the tenant's own test command.
+2. A push or PR made with `GITHUB_TOKEN` does not start other workflows (same note, with the pull-request case not settled), so the tenant's CI would not run on the PR.
+3. The installation token lives one hour, is minted per use, and goes through `check_policy`, `guard` and the audit log. The tenant token has none of that.
+
+What it costs: the tenant must install the App on their repo (the permission list above stays the same, but the "one repository, the Argus repo" line now means one repository per installation), and a service of ours must read the artifact (P6 `flow.actions` already does). If the App is down, nothing is pushed. This changes owner step 1 above from one installation to one per tenant repo; it does not change the permission table.
