@@ -161,3 +161,9 @@ def test_each_microvm_boot_gets_its_own_copy_of_the_rootfs(monkeypatch, tmp_path
     r = ablation.measure_microvm(3, {"firecracker": "fc", "kernel": "k", "rootfs": str(base), "checks": "c"})
     assert r["starts_ok"] == 3 and len(set(seen)) == 3 and base.read_bytes() == b"pristine"
 
+
+def test_start_once_keeps_every_line_when_they_arrive_together():
+    """Regression: readline() buffers the lines that arrive with the first one, and communicate() never saw them (1 start in 30 lost its checks lines on the Linux runner)."""
+    code = "import sys,time; sys.stdout.write('one' + chr(10) + 'two' + chr(10) + 'three' + chr(10)); sys.stdout.flush(); time.sleep(0.3)"
+    r = ablation.start_once([sys.executable, "-c", code], None, 30)
+    assert r["stdout"].splitlines() == ["one", "two", "three"] and r["cold_s"] is not None

@@ -62,7 +62,10 @@ def start_once(argv: list[str], name: str | None, timeout: int) -> dict:
     try:
         first = proc.stdout.readline()
         t1 = time.perf_counter()
-        rest, err = proc.communicate()
+        # read() goes through the buffer that readline() filled; communicate() on POSIX reads the raw pipe and lost the lines that arrived with the first one (2 of 200 starts on the runner)
+        rest = proc.stdout.read()
+        err = proc.stderr.read()
+        proc.wait()
         t2 = time.perf_counter()
     finally:
         timer.cancel()
