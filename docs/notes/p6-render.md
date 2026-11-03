@@ -21,7 +21,7 @@ Verdict `slow` = answered 202 in 10 s or more (GitHub gives up on a delivery aft
 - A free Render service that has been idle for 20 minutes answers a webhook ping after 22 to 52 s, never inside GitHub's 10 s window. A delivery that arrives to a sleeping service will be marked failed by GitHub, and GitHub does not retry it on its own (ADR-021).
 - Render's own health check, which asked `/health` every 5 seconds in the service log, did **not** keep the service awake: five of five tries were slow. (I infer that it was asleep from the delay; Render's dashboard was not consulted for each try.)
 - The range matches Render's banner ("can delay requests by 50 seconds or more") and its page ("about one minute"); the measured times are shorter than a minute in 5 of 5 tries and one reached 51.8 s.
-- Every cold request still got its 202 from the client's point of view: the connection was held until the instance was up. Whether GitHub's own request, which closes after 10 s, still reaches the handler after the wake-up was **not** tested (it needs a real delivery: P6-T23).
+- Every cold request still got its 202 from the client's point of view: the connection was held until the instance was up. Whether GitHub's own request, which closes after 10 s, still reaches the handler after the wake-up was tested later with a real delivery (P6-T23, `p6-t23-break-it.md`): it did, twice.
 
 ## What this does not show
 

@@ -1,5 +1,7 @@
 # P6-T23 break it: let Render sleep and drop a webhook
 
+**Update 2026-11-03: the real run happened; see the section "Real run" at the end.** The text below is the local stand-in that came first.
+
 **This is a local stand-in. The real Render sleep was NOT run** (no Render service exists yet: T12 and T13 are owner-only). Nothing here measured a cold start, a GitHub delivery timeout or a real Render poll. Owner steps for the real version are at the end.
 
 Test: `packages/flow/tests/test_render_sleep_break_it.py`; the story and the script are in `packages/flow/tests/render_sleep_demo.py`. It drives the real FastAPI app (`flow.webhook.create_app`) with a signed `issues` webhook for a new ticket, the real `Reconciler.poll_once` over the recorded GitHub JSON (`fixtures/reconcile/new_ticket.json` through an `httpx.MockTransport`, plus the open-issue listing), and the enqueuer. Two runs of the same story:
@@ -47,3 +49,48 @@ The same assertions hold on the real DBOS workflow (`2 passed` for the test file
 6. Then use Redeliver on the failed delivery and check that the ticket still has exactly one workflow.
 
 Run: `uv run --all-packages python -m pytest packages/flow/tests/test_render_sleep_break_it.py -q` (the DBOS case needs `ARGUS_FLOW_DATABASE_URL`; commands for a throwaway Postgres are in [p6-t07.md](p6-t07.md)). Script: `uv run --all-packages python packages/flow/tests/render_sleep_demo.py`.
+
+## Real run (2026-11-03)
+
+**Setup.** Render free service `argus-flow` (Oregon), commit `c63e2a6` (the first with INFO logging), `ARGUS_FLOW_POLL_ENABLED=true`, `ARGUS_FLOW_TICKET_LABEL=argus-t23`, poll interval 300 s. A webhook on `vibhu-0511/argus` for the **Issues** event only, content type JSON, the same secret as the service. A label `argus-t23` on the repository. The agent workflow is not on `main` and its secrets are not set, so the pipeline is expected to fail at the agent dispatch.
+
+**The service slept.** The instance `l7zdh` started at 09:05:57 IST and logged `poll: 0 tickets listed` at 09:05:59, 09:10:59 and 09:16:00. There is no line after that: nothing polled for 30 minutes. (The spin-down itself is inferred from the missing lines; the Render Events page was not consulted.)
+
+**Induced failure.** Issue #16 `T23 Test` created with the label `argus-t23` at 09:46:19 IST (04:16:19Z). GitHub sent `issues opened` and `issues labeled`; both ended as `500` with `context deadline exceeded (Client.Timeout exceeded while awaiting headers)` after 10 s (recorded 04:16:31Z).
+
+**Observed** (Render application log in IST, the GitHub delivery list, and the issue; the Render logs were read from screenshots the owner sent):
+
+| Time | What |
+|---|---|
+| 09:46:19 | issue created |
+| 09:46:21 to 09:46:31 | both deliveries sent and abandoned by GitHub at 10 s |
+| 09:46:50 | `DBOS launched` on a new instance `6ztwx` (about 30 s after the request) |
+| 09:46:52 | `workflow engine started; poll loop on` |
+| 09:46:52 and 09:46:53 | `POST /webhook` answered `202 Accepted` twice: the two requests GitHub had given up on |
+| 09:46:54 | `poll: 1 tickets listed, started 1, exists 0, settled 0, errors 0` |
+| 09:47:00 | comment on the issue: `Argus: failed. reproducing: repro_step failed after 3 attempts`, with the hidden key `argus-key: argus:vibhu-0511/argus#16:comment-failed:1` |
+| 09:47:01 | label `argus:failed` set |
+| 09:47:02 | `POST /webhook` 202 in 0.28 s: the `labeled` event of the service's own label |
+| 09:51:56, 09:56:58 | `poll: 1 tickets listed, started 0, exists 1` |
+| 09:55:14 | the owner redelivered the `opened` event: 202 in 0.12 s, marked as a redelivery; the issue still had one comment and the same two label events |
+
+The comment and the label are the first real writes by `flow.github_write` to GitHub. The pipeline failed where expected (no agent job could run); the point of the run is the path around it.
+
+**Reading.**
+
+- The webhook failed at GitHub exactly as T13 predicted: a cold start of about 30 s against a 10 s window.
+- Render did not drop the abandoned requests: the woken instance answered both 202 about 31 s after the issue was created. One observation.
+- The poller's first poll, two seconds after the engine started, found the ticket and reported `started 1`. The webhook handler's own enqueue is not visible in the logs; the workflow id (the ticket id) absorbs a second enqueue, and there was one workflow outcome, one comment and one label.
+- A redelivery after the workflow had finished changed nothing.
+- The expected signal "no immediate reaction, then the poller starts the workflow" was seen in this form: no reaction for 30 s, then the workflow started 2 s after the service came up.
+
+**Not shown.**
+
+- The poller recovering a hint that **never** reached the service. Here the webhook itself woke the instance and its requests were served, so both paths were alive. A lost hint with the service down or crashed was not tried.
+- Who started the workflow, strictly: the poller reported `started 1`, so it enqueued it; whether the webhook's enqueue ran first, second or not at all is not in the logs.
+- A sleeping service polling: it does not, and nothing wakes it on a schedule. If no request arrives, a ticket waits. That is the open item of ADR-022.
+- One run, one evening, one idle length (about 30 minutes). The idle gap was not timed against the 15 minute rule; the missing poll lines suggest the instance was gone by 09:21.
+- A real agent run: the dispatch failed three times, so repro, fix and verify did not run (T04).
+
+The owner closed issue #16 afterwards, so it is no longer polled.
+
