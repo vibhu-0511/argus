@@ -134,3 +134,78 @@ OK 12 records, head 9a2d50f5cd8a3dbff263870597f06a8959cd4336d8b199882092c3424904
 **Fix.** Keep the chain (T06), and ship the head hash from the process that wrote the log to a place the log's writer cannot edit (the workflow run summary, T17). Added: nothing in `src`. Kept as the guard: the six tests in `test_break_auditlog.py`.
 
 Run: `uv run --all-packages python -m pytest packages/guard/tests/test_break_auditlog.py -v -s` -> 6 passed.
+
+## P7-T20 App token used to push to the default branch (MOCK ONLY, NOT TICKED)
+
+Test: `packages/flow/tests/test_break_app_push.py` (5 tests, no network, no database, no real App, no real repository). It reuses the mock GitHub of `test_app_token.py` (T04): an RS256-checked token endpoint, token scoping, and branch protection modelled as a status on the ref update. **The real refusal, GitHub's own answer with branch protection on, was NOT seen.** There is no GitHub App and no repository to push to (only the owner can create them), so this note proves that our code asks for the minimum and that our client reports a refusal. It does not prove that GitHub refuses.
+
+**Induced failure.** Someone holds a `write` installation token (stolen from the runner or the Render service) and uses it to move the default branch `main` directly instead of the one draft-PR branch.
+
+**Expected signal.** The ref update is refused with 403 or a protection error (422), and `main` does not move. Over-broad token requests are refused before any HTTP call.
+
+**What the docs say (read 2026-11-03; a subagent fetched the pages and reported them, I did not read them myself).**
+
+- [REST, Git references](https://docs.github.com/en/rest/git/refs): update a reference documents 200, 409 and 422 ("Validation failed, or the endpoint has been spammed"); it has a `force` parameter (false keeps it a fast-forward). The page does **not** mention branch protection or rulesets and does not say what status a protected ref gets. So "403 or 422" in the mock is not taken from this page.
+- [About protected branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches): collaborators can only push to a protected branch through an approved pull request; the only error text on the page is the git-push message `remote: error: GH006: Protected branch update failed for refs/heads/main.`, shown for the required-reviews case. People and apps **with admin permissions** are always able to push to a protected branch; by default the rules do not apply to admins and to roles with the bypass permission; "Do not allow bypassing the above settings" applies them to admins too; bypass lists can hold actors only when the repository belongs to an organization; "Restrict who can push" can name installed GitHub Apps with write access.
+- [Permissions required for GitHub Apps](https://docs.github.com/en/rest/authentication/permissions-required-for-github-apps): the first 39k of 103k characters were read verbatim, the rest only as a summary; nothing there says protection limits a Contents: write token.
+
+The mock's message `Protected branch update failed for refs/heads/main.` is the GH006 wording without the `remote: error:` prefix. Which HTTP status the REST ref update really gives for a protected branch (403, 422 or something else), and what a ruleset says instead of GH006, is **not documented on the pages read and was not checked**; the test therefore runs both 403 and 422.
+
+**What happened.**
+
+```
+$ uv run --all-packages python -m pytest packages/flow/tests/test_break_app_push.py -v -s
+test_the_token_is_requested_with_the_minimum_list
+POST /app/installations/<id>/access_tokens body: {'permissions': {'metadata': 'read', 'contents': 'write', 'pull_requests': 'write', 'issues': 'write'}, 'repositories': ['shop']}
+token permissions (as answered): {'metadata': 'read', 'contents': 'write', 'pull_requests': 'write', 'issues': 'write'}
+PASSED
+test_a_push_to_the_default_branch_is_refused_by_protection[403]
+[protection modelled as 403] the real client, branch=main:
+  GitHubWriteError: PATCH /repos/acme/shop/git/refs/heads/main -> 403 Protected branch update failed for refs/heads/main.
+  raw ref update with the same token, then the control branch:
+  PATCH /repos/acme/shop/git/refs/heads/main -> 403 Protected branch update failed for refs/heads/main.
+  PATCH /repos/acme/shop/git/refs/heads/argus/acme-shop-7 -> 200
+PASSED
+test_a_push_to_the_default_branch_is_refused_by_protection[422]
+(the same lines with 422)
+PASSED
+test_control_without_protection_the_same_token_moves_main
+[control: protection off]
+  main moved: c0 -> c1
+PASSED
+test_an_over_broad_request_is_refused_before_http
+  {'administration': 'write'} -> PolicyError: permission 'administration' is not in the committed minimum
+  {'metadata': 'read', ..., 'workflows': 'write'} -> PolicyError: permission 'workflows' is not in the committed minimum
+  {'contents': 'admin'} -> PolicyError: permission 'contents' at level 'admin' is above the committed minimum 'write'
+PASSED
+5 passed
+```
+
+| Check | Result (mock) |
+|---|---|
+| Token requested with the minimum list: `metadata` read; `contents`, `pull_requests`, `issues` write; one repository `shop`; no `administration`, `workflows`, `secrets`, `environments` or `members` | yes, the request body is shown above |
+| Push to `main` with that token (real `HttpGitHubClient.push_branch`, then a raw ref update) | refused 403 / 422 (modelled), `main` stays at `c0` |
+| Same token, same call on a draft-PR branch | 200 |
+| Control: protection switched off in the mock | the same token moves `main` (`c0` -> `c1`) |
+| Over-broad token request (`administration`, `workflows`, `contents: admin`) | `PolicyError` before any HTTP call; the mock saw 0 requests |
+
+**What this means.** The control run is the point: **Contents: write covers every branch**, so the token itself cannot keep `main` safe. In this test only the (modelled) protection stops the push. The permission list limits what a stolen token can do (it cannot change settings or protection, nor touch workflows, secrets or other repositories) but not this. If the owner's plan does not allow branch protection on a private repository, nothing blocks it (T04 note, section 4).
+
+**Not verified.**
+
+- Everything about GitHub itself: the real status and text of the refusal, whether a ruleset or a classic rule is used, whether the App can be bypassed, and the plan limits for private repositories.
+- That the App gets exactly this permission list on the real GitHub screens (T04 note, section 6; screen names from memory).
+- The git-protocol path (`git push`): the pipeline uses the REST ref update, which is what the test models. A `git push` would show the GH006 text; not tried.
+- Workflow-file pushes (Workflows: write) are not part of this test.
+
+**Owner steps to close T20 (box left unticked).**
+
+1. Create the App and install it on the one Argus repository (`docs/notes/p7-t04-app-permissions.md`, section 6, steps 1 to 4). Store the key and ids as environment variables; do not paste them anywhere.
+2. Turn on protection for the default branch (same note, step 6): a ruleset or branch protection rule that requires a pull request before merging and blocks force pushes, enforcement Active, nobody and no App in the bypass list. If GitHub says the plan does not allow it for a private repository, record that: it is the answer for this task.
+3. Mint a `write` token with the code (`AppTokenMinter.from_env("<owner>/<repo>").mint("write")`) and try to move the default branch with a ref update, the same `PATCH /repos/<owner>/<repo>/git/refs/heads/<default>` the client sends, from a scratch shell where the token is only in an environment variable (never in a file, in shell history or in a pasted command).
+4. Record the exact status code and message GitHub returned (the token must not appear in it) in this file, and check that the default branch did not move (`git ls-remote`).
+5. Tick `P7-T20` in `TASKS.md` only if the push was refused with a 403 or a protection error.
+
+**Fix.** Narrow permission set (T04: `check_policy` refuses more than the minimum before any call) and protection on the default branch (owner). Kept as the guard: the five tests in `test_break_app_push.py` plus the 34 in `test_app_token.py`.
+
+Run: `uv run --all-packages python -m pytest packages/flow/tests/test_break_app_push.py -v -s` -> 5 passed (mock only).
