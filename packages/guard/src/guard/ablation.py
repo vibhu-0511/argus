@@ -108,24 +108,56 @@ def leftover_containers(tier: str) -> list[str]:
     return proc.stdout.split()
 
 
-def not_run_reason(tier: str) -> str | None:
-    """None when this tier can be measured here, else the reason."""
+def not_run_reason(tier: str, fc: dict | None = None) -> str | None:
+    """None when this tier can be measured here, else the reason. `fc` holds the microVM paths: firecracker, kernel, rootfs, checks."""
     if tier == "firecracker":
-        why = firecracker_run.unavailable("firecracker")
-        return (why or "no cold-start harness for the microVM tier exists; it has to be written and run on a KVM host") + \
-               ". The microVM tier is built in P7-T11 and has never booted"
+        fc = fc or {}
+        why = firecracker_run.unavailable(fc.get("firecracker") or "firecracker")
+        if why is None and not (fc.get("kernel") and fc.get("rootfs") and fc.get("checks")):
+            why = "--kernel, --rootfs and --checks are needed to boot a microVM (the workflow builds them)"
+        return why
     return escape.unavailable(tier, RUNTIME[tier], None)
 
 
-def run_ablation(tier: str, n: int) -> dict:
+def measure_microvm(n: int, fc: dict, timeout: int = 120) -> dict:
+    """N microVM boots. Only launch-to-exit is measured (the guest console has no timestamps), so cold start and fixture run are None."""
+    total, failures = [], []
+    with tempfile.TemporaryDirectory(prefix="guard-ablation-fc-", ignore_cleanup_errors=True) as tmp:
+        for i in range(n):
+            r = firecracker_run.run_microvm(fc["firecracker"], fc["kernel"], fc["rootfs"], fc["checks"], Path(tmp) / f"vm{i}", timeout)
+            if r.get("status") == "pass":
+                total.append(r["wall_seconds"])
+            else:
+                failures.append({"start": i + 1, "detail": r.get("detail")})
+    return {"starts_requested": n, "starts_ok": len(total), "starts_failed": failures, "cold_start_ms": None, "fixture_run_ms": None,
+            "total_ms": stats(total), "cold_start_samples_ms": []}
+
+
+def cpu_model() -> str | None:
+    try:
+        for line in Path("/proc/cpuinfo").read_text(encoding="utf-8").splitlines():
+            if line.startswith("model name"):
+                return line.split(":", 1)[1].strip()
+    except OSError:
+        return None
+    return None
+
+
+def run_ablation(tier: str, n: int, fc: dict | None = None) -> dict:
     report: dict = {
         "suite": "ablation", "tier": tier, "variant": VARIANT[tier], "runtime": RUNTIME.get(tier) or ("microVM" if tier == "firecracker" else "default"),
         "ran_at": datetime.now(timezone.utc).isoformat(timespec="seconds"), "host": platform.platform(),
-        "image": sandbox.IMAGE, "n_requested": n,
+        "image": sandbox.IMAGE, "n_requested": n, "cpu": cpu_model(),
     }
-    why = not_run_reason(tier)
+    why = not_run_reason(tier, fc)
     if why:
         report.update(status="not_run", detail=f"not run: {why}")
+        return report
+    if tier == "firecracker":
+        report["definitions"] = {"total": "firecracker launched -> process exited (boot, fixture, shutdown)", "percentile": "nearest-rank over the samples"}
+        report.update(measure_microvm(n, fc))
+        report["escape"] = {"not_run": "the escape probes run in containers; they have not been ported into the microVM"}
+        report.update(status="done" if report["starts_ok"] == n else "done_with_problems")
         return report
     if not egress._image_present():
         sandbox.build_image()
@@ -151,14 +183,18 @@ def run_ablation(tier: str, n: int) -> dict:
 def format_report(r: dict) -> str:
     if r["status"] == "not_run":
         return f"ablation: tier={r['tier']} (variant {r['variant']})\n{r['detail']}\nNo number was measured. This is not a pass."
-    c, f, e = r["cold_start_ms"], r["fixture_run_ms"], r["escape"]
+    c, f, e, t = r["cold_start_ms"], r["fixture_run_ms"], r["escape"], r.get("total_ms")
     lines = [f"ablation: tier={r['tier']} (variant {r['variant']}) status={r['status']}"]
     lines.append(f"starts: {r['starts_ok']} ok of {r['starts_requested']}")
     if c:
         lines.append(f"cold start ms: p50 {c['p50']}  p95 {c['p95']}  min {c['min']}  max {c['max']}")
         lines.append(f"fixture run ms: p50 {f['p50']}  p95 {f['p95']}")
-    lines.append(f"escape probes: {e['probes_passed']} of {e['probes_total']} passed")
-    lines.append(f"leftover containers: {r['leftover_containers'] or 'none'}")
+    if t:
+        lines.append(f"launch to exit ms: p50 {t['p50']}  p95 {t['p95']}  min {t['min']}  max {t['max']}")
+    if r.get("starts_failed"):
+        lines.append(f"failed starts: {r['starts_failed']}")
+    lines.append(f"escape probes: {e['not_run']}" if "not_run" in e else f"escape probes: {e['probes_passed']} of {e['probes_total']} passed")
+    lines.append(f"leftover containers: {r.get('leftover_containers') or 'none'}")
     return "\n".join(lines)
 
 
@@ -167,9 +203,13 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--tier", choices=tuple(VARIANT), required=True)
     ap.add_argument("--n", type=int, default=30, help="how many times to start the container (default 30)")
     ap.add_argument("--out", help="result JSON (default packages/guard/results/ablation-<tier>.json)")
+    ap.add_argument("--firecracker", default="firecracker", help="tier firecracker: the binary")
+    ap.add_argument("--kernel", help="tier firecracker: guest kernel")
+    ap.add_argument("--rootfs", help="tier firecracker: rootfs image")
+    ap.add_argument("--checks", help="tier firecracker: checks image")
     args = ap.parse_args(argv)
 
-    report = run_ablation(args.tier, args.n)
+    report = run_ablation(args.tier, args.n, {"firecracker": args.firecracker, "kernel": args.kernel, "rootfs": args.rootfs, "checks": args.checks})
     print(format_report(report))
     out = Path(args.out or f"packages/guard/results/ablation-{args.tier}.json")
     out.parent.mkdir(parents=True, exist_ok=True)

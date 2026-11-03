@@ -125,3 +125,21 @@ def test_failed_start_is_listed_and_not_counted(fake, monkeypatch, tmp_path):
     assert ablation.main(["--tier", "docker", "--n", "3", "--out", str(out)]) == 1
     r = json.loads(out.read_text(encoding="utf-8"))
     assert r["starts_ok"] == 2 and r["starts_failed"][0]["start"] == 2
+
+
+def test_microvm_tier_measures_launch_to_exit_and_does_not_claim_probes(monkeypatch):
+    monkeypatch.setattr(ablation.firecracker_run, "unavailable", lambda fc: None)
+    walls = iter([1.0, 1.2, 1.4])
+    monkeypatch.setattr(ablation.firecracker_run, "run_microvm",
+                        lambda *a, **k: {"status": "pass", "wall_seconds": next(walls)})
+    fc = {"firecracker": "fc", "kernel": "k", "rootfs": "r", "checks": "c"}
+    r = ablation.run_ablation("firecracker", 3, fc)
+    assert r["status"] == "done" and r["starts_ok"] == 3 and r["total_ms"]["p50"] == 1200.0
+    assert r["cold_start_ms"] is None and "not_run" in r["escape"]
+
+
+def test_microvm_tier_without_images_is_not_run(monkeypatch):
+    monkeypatch.setattr(ablation.firecracker_run, "unavailable", lambda fc: None)
+    r = ablation.run_ablation("firecracker", 3, {"firecracker": "fc"})
+    assert r["status"] == "not_run" and "--kernel" in r["detail"]
+

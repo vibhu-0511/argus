@@ -51,10 +51,19 @@ jobs:
         run: uv run --all-packages python -m guard.sandbox_run --runtime runsc --out packages/guard/results/sandbox-run-runsc.json
       - name: Run the escape suite on the gvisor tier
         run: uv run --all-packages python -m guard.escape --tier gvisor --out packages/guard/results/escape-gvisor.json
-      - name: Ablation rows on this runner, tier A then tier B (30 starts each)
+      - name: Ablation row A on this runner (Docker, 30 starts)
         run: |
-          uv run --all-packages python -m guard.ablation --tier docker --n 30 --out packages/guard/results/ablation-docker-actions.json
-          uv run --all-packages python -m guard.ablation --tier gvisor --n 30 --out packages/guard/results/ablation-gvisor-actions.json
+          rc=0
+          uv run --all-packages python -m guard.ablation --tier docker --n 30 --out packages/guard/results/ablation-docker-actions.json || rc=$?
+          cat packages/guard/results/ablation-docker-actions.json
+          exit $rc
+      - name: Ablation row B on this runner (gVisor, 30 starts)
+        if: always()
+        run: |
+          rc=0
+          uv run --all-packages python -m guard.ablation --tier gvisor --n 30 --out packages/guard/results/ablation-gvisor-actions.json || rc=$?
+          cat packages/guard/results/ablation-gvisor-actions.json
+          exit $rc
       - name: Show the results
         if: always()
         run: |

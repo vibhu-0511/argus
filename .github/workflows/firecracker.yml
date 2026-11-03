@@ -96,10 +96,22 @@ jobs:
           uv run --all-packages python -m guard.firecracker_run
           --firecracker ./firecracker --kernel "$KERNEL_NAME" --rootfs rootfs.ext4 --checks checks.ext4
           --out results/firecracker-run.json
+      - name: Ablation row C on this runner (microVM, 30 boots)
+        run: >
+          uv run --all-packages python -m guard.ablation --tier firecracker --n 30
+          --firecracker ./firecracker --kernel "$KERNEL_NAME" --rootfs rootfs.ext4 --checks checks.ext4
+          --out results/ablation-firecracker-actions.json
+      - name: Ablation row A on the same runner (Docker, 30 starts)
+        if: always()
+        run: |
+          rc=0
+          uv run --all-packages python -m guard.ablation --tier docker --n 30 --out results/ablation-docker-fc-runner.json || rc=$?
+          cat results/ablation-docker-fc-runner.json
+          exit $rc
       - name: Show the results
         if: always()
         run: |
-          for f in firecracker-kvm.txt firecracker-run.json; do
+          for f in firecracker-kvm.txt firecracker-run.json ablation-firecracker-actions.json ablation-docker-fc-runner.json; do
             echo "### $f" >> "$GITHUB_STEP_SUMMARY"
             echo '```' >> "$GITHUB_STEP_SUMMARY"
             cat "results/$f" >> "$GITHUB_STEP_SUMMARY" || true
