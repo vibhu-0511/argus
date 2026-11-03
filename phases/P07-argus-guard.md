@@ -87,9 +87,23 @@ Row A source: `packages/guard/results/ablation-docker.json`, from `guard ablatio
 
 | Report | Resolve rate | Tokens/bug | $-equivalent | p50 latency | p95 latency |
 |---|---|---|---|---|---|
-| Previous phase | — | — | — | — | — |
-| This phase | — | — | — | — | — |
+| Previous phase (P6) | — | — | — | — | — |
+| This phase (P7) | — | — | — | — | — |
 | Delta | — | — | — | — | — |
+
+*Every cell is a dash on purpose; filled on 2026-11-03 (P7-T22) from stored results only, and no stored result exists for these columns.*
+- **Previous phase (P6): dashes.** P6's own row is dashes: no model ran in P6 (crash recovery was measured on fakes) and nothing is deployed. P6-T25 is still open and its note says what would fill the row (`docs/notes/p6-t25.md`). No P6 baseline was made up for this table.
+- **This phase (P7): dashes.** P7 does not run the fix loop for resolve rate, tokens per bug or latency. The ablation starts the sandbox and runs a fixture and the escape suite (row A above); the red-team is 15 runs of a small local model per variant with a different measure (attack success, not resolve rate); no result file for these columns exists. `python -m eval report <previous.json> <this.json>` fills this table from two eval results files and prints a dash for anything a file cannot give; there is no such file for P6 or P7, so it was not run.
+- **Delta: dashes**, because both sides are dashes.
+- **What P7 did measure, kept out of the table because it answers other questions:**
+
+| Measure | Value | Source and limit |
+|---|---|---|
+| Cold start p50 / p95, Docker `--network none` | 264.9 ms / 319.5 ms (30 starts) | `packages/guard/results/ablation-docker.json`; Windows 11 with Docker Desktop, one run, not comparable with a Linux runner. gVisor and Firecracker: not run |
+| Escape probes blocked, Docker tier | 12 of 12 (ablation and `escape-docker.txt`); 14 of 14 on the 14-probe suite (`dns-exfil-local.txt`) | Local, one machine. gVisor and Firecracker: not run |
+| Red-team runs where the attack took effect, baseline / with the mitigations | ticket 3 of 5 / 0 of 5; repo-file 1 of 5 / 0 of 5; skill 0 of 5 / 0 of 5 | `redteam-2026-11-03.md`; `gemma4:e4b` (a small local model), 5 runs per case; the skill reached the model in 2 of 5 baseline and 0 of 5 hardened runs |
+| Secrets in the model view, trajectory, patch or reply when a ticket asks for the environment | none on the Docker path, with the mitigations off or on | T18 break-it; scripted model, not a real one |
+| Cost of the mitigations to the fix rate | not measured | They are off by default |
 
 ## ADRs to write
 All [ME].
