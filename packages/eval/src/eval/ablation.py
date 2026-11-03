@@ -13,7 +13,8 @@ Agent config `params`: `out_dir` (required), `stub` (no model call, no git, no s
 to resolve), `quotas`, `ledger`, `hosts` ({host: {base_url, key_env}}), `clients` (`module:function` returning
 {host: client}, to bring your own model host), `repro` (default true), `run_trees` (`module:function` returning a function
 task directory -> repro tree runner; `repro_agent.trees:live` is the live one, it needs `python -m repro_agent.trees up`), `step_cap`, `token_cap`, `repro_cap`, `context_budget`, `strategy`
-(`none` or `cap`).
+(`none` or `cap`), `variant` (`single`, the default, or `planner`: P8-T11, planner plus subagents; then `context` is the repo context
+the planner sees). Same config, same tasks, so P8-T12 flips one param.
 
 ponytail: `localize` is in both policies but nothing in the pipeline makes a chat call for it (dom2src locates with
 embeddings). Quota charge is recomputed from trajectories with the ledger's rule because the ledger file resets each
@@ -86,6 +87,8 @@ class StubClient:
         system = str(messages[0]["content"])
         if "Write one Playwright script" in system:
             content = self.SCRIPT
+        elif "split a bug ticket" in system:  # the planner variant's first call
+            content = json.dumps({"subtasks": [{"title": "fix it", "instructions": "make the smallest change"}]})
         elif any(m["role"] == "assistant" for m in messages):
             content = json.dumps({"tool": "submit", "arguments": {}})
         else:
@@ -127,7 +130,7 @@ def _git_head() -> str:
 
 
 def _agent(config: AgentConfig, policy_path: Path):
-    from fix_loop.loop import run_fix
+    from fix_loop.planner import select
     from fix_loop.strategies import cap_strategy
     from fix_loop.turn import PROTOCOL, STEP_CAP, TOKEN_CAP
     from repro_agent.loop import TreeRun, run_repro
@@ -149,6 +152,8 @@ def _agent(config: AgentConfig, policy_path: Path):
     budget = int(p["context_budget"]) if p.get("context_budget") else None
     strategy = cap_strategy if p.get("strategy") == "cap" else None
     commit = _git_head()
+    run_fix = select(p.get("variant", "single"))
+    extra = {"context": str(p.get("context", ""))} if p.get("variant") == "planner" else {}
 
     def agent(task: Task) -> Outcome:
         work = out_dir / task.id
@@ -176,7 +181,7 @@ def _agent(config: AgentConfig, policy_path: Path):
                 step_cap=int(p.get("step_cap", STEP_CAP)), token_cap=int(p.get("token_cap", TOKEN_CAP)), run_id=task.id,
                 git_commit=commit, task_id=task.id, system=PROTOCOL, execute=execute,
                 user=f"Ticket:\n{task.ticket.text}\n\nRepro: {script or 'not-run'}\nLocate: none\n",
-                context_budget=budget, strategy=strategy if budget else None,
+                context_budget=budget, strategy=strategy if budget else None, **extra,
             )
             paths.append(fix.trajectory_path)
             verdict = _stub_score(task, p) if stub else _live_score(task, tree)
