@@ -27,8 +27,8 @@ A wave is a set of sessions that run at the same time. The next wave starts when
 | 1 | A: T00, T01, T02 (docs; T02 needs T01) | Everything else needs the threat model (T02). |
 | 2 | A: T03 secrets · B: T06 audit log · C: T05, T12 egress probe, then escape-test suite | Different folders: redaction and CI scan, `packages/guard` audit log, sandbox probes. |
 | 3 | A: T04 App token · B: T07, T08, T09 red-team (promptfoo) · C: T10 gVisor | T04 in `flow`, red-team in `packages/guard` and `fix-loop`, gVisor in the sandbox runner. |
-| 4 | A: T11, T13 Firecracker, then ablation · B: T17 CI job | T13 needs T11 and T12; T17 needs T12 and T06. |
-| 5 | ADRs T14, T15, T16 · break-its T18 to T21 · T22 README and phase report · final diagram · the PR | Needs everything. |
+| 4 | A: T11, T13 Firecracker, then ablation · B: T17 CI job, then T21 DNS break-it · C: T18, T19, T20 break-its | T13 needs T11 and T12; T17 needs T12 and T06; break-its T18 to T20 only need T09, T06, T04 (all merged), so they moved up from wave 5 to use the third slot; T21 needs the audit wiring T17 adds. |
+| 5 | ADRs T14, T15, T16 · T22 README and phase report · final diagram · the PR | Needs everything. |
 
 ### What cannot be finished locally
 
