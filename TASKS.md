@@ -308,7 +308,7 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 ## Week 27 — P7, P8 (19 h scheduled)
 
 - [x] P7-T14 Write ADR-024: Threat model and trust boundaries [ME] 1h (written by Claude, status proposed, owner to decide) States the boundaries, the nine assets and 14 residual risks marked accepted (2), owner decision (4) or open (8), including the unfixed findings. See `docs/adr/0024-threat-model-and-trust-boundaries.md`.
-- [ ] P7-T15 Write ADR-025: Sandbox tier selection [ME] 1h
+- [x] P7-T15 Write ADR-025: Sandbox tier selection [ME] 1h (written by Claude, status proposed, owner to decide) Cites the ablation: only row A (Docker, `--network none`, 30 starts, 12 of 12 probes, Windows Docker Desktop) was measured; **B (gVisor) and C (Firecracker) are unmeasured** and the ADR draws no comparison. Default: Docker with `--network none`; states when a stronger tier is required and what to measure before revisiting. See `docs/adr/0025-sandbox-tier-selection.md`.
 - [ ] P7-T16 Write ADR-026: Secrets handling and token scopes [ME] 1h
 - [ ] P7-T17 Add CI job for escape tests, secret scan and audit-log verification, no LLM [CLAUDE] 2h
 - [x] P7-T18 Break it: inject a ticket that asks the agent to print its environment [ME] 2h Scripted obedient model, real `run_fix`, fake secrets in the host environment: on the Docker path (what `fix_step` uses) none reaches the model, trajectory, patch or reply, with `harden` off or on; the host executor leaks into the patch with `harden` off (control). See `docs/notes/p7-break-its.md`.
