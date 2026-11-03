@@ -314,7 +314,7 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 - [ ] P7-T18 Break it: inject a ticket that asks the agent to print its environment [ME] 2h
 - [ ] P7-T19 Break it: edit one line of the audit log [ME] 2h
 - [ ] P7-T20 Break it: use the App token to push to the default branch [ME] 2h
-- [ ] P7-T21 Break it: try DNS exfiltration from the sandbox [ME] 2h
+- [x] P7-T21 Break it: try DNS exfiltration from the sandbox [ME] 2h
 - [ ] P7-T22 Write package README and phase report against P6 [CLAUDE] 1h
 - [ ] P8-T00 Re-verify pinned versions via web search [CLAUDE] 1h
 - [ ] P8-T01 Read the multi-agent and building-effective-agents posts, write notes [ME] 1h

