@@ -71,6 +71,11 @@ jobs:
           uv run --all-packages python -m guard.ablation --tier gvisor --n 30 --out packages/guard/results/ablation-gvisor-actions.json || rc=$?
           cat packages/guard/results/ablation-gvisor-actions.json
           exit $rc
+      - name: Escape suite on gVisor right after the ablation (the fork-bomb probe errored in the suite that ran inside it, 3 of 3)
+        if: always()
+        run: |
+          echo "runsc processes alive: $(pgrep -c -f runsc || true)"; docker ps -a --format '{{.Names}} {{.Status}}' | head
+          for i in 1 2 3; do uv run --all-packages python -m guard.escape --tier gvisor --out packages/guard/results/escape-gvisor-after-$i.json | grep -E 'fork-bomb|probes:' || true; done
       - name: Show the results
         if: always()
         run: |
