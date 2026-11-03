@@ -339,10 +339,10 @@ flowchart LR
   style S4 fill:none,stroke:#c2410c,stroke-width:1.5px
   classDef p5 fill:#fce7f3,stroke:#be185d,stroke-width:1.5px,color:#111827
   style S5 fill:none,stroke:#be185d,stroke-width:1.5px
-  classDef p55 fill:#ede9fe,stroke:#6d28d9,stroke-width:1.5px,color:#111827
-  style S55 fill:none,stroke:#6d28d9,stroke-width:1.5px
-  classDef p6 fill:#ccfbf1,stroke:#0f766e,stroke-width:1.5px,color:#111827
-  style S6 fill:none,stroke:#0f766e,stroke-width:1.5px
+  classDef p55 fill:#e7e5e4,stroke:#57534e,stroke-width:1.5px,color:#111827
+  style S55 fill:none,stroke:#57534e,stroke-width:1.5px
+  classDef p6 fill:#ede9fe,stroke:#6d28d9,stroke-width:1.5px,color:#111827
+  style S6 fill:none,stroke:#6d28d9,stroke-width:1.5px
   classDef p7 fill:#fee2e2,stroke:#b91c1c,stroke-width:4px,color:#111827
   style S7 fill:none,stroke:#b91c1c,stroke-width:4px
   classDef ext fill:#ffffff,stroke:#6b7280,color:#111827,stroke-dasharray: 4 3
@@ -359,7 +359,7 @@ flowchart LR
 | Dotted arrow | a stored input (`fixture`), a test-only link or an advisory link, not a live call |
 | Thick arrow | a link added in this phase |
 
-Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink, P5.5 purple, P6 teal, P7 red.
+Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink, P5.5 stone, P6 violet, P7 red.
 
 ## What P5.5 adds
 
