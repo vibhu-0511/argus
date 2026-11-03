@@ -96,3 +96,29 @@ def test_live_run_without_a_tree_runner_is_refused_before_any_task(tmp_path: Pat
     config = AgentConfig(name="B", model=STRONG, host="groq", factory="eval.ablation:routed", params={"out_dir": str(tmp_path)})
     with pytest.raises(ValueError, match="no live repro tree runner"):
         routed(config)
+
+
+def test_the_planner_variant_runs_from_the_same_config_and_every_agent_is_counted(tmp_path: Path):
+    """P8-T11: `params.variant = planner` switches the fix stage to planner plus subagents; the results file still sums every call."""
+    tasks = tmp_path / "tasks.json"
+    tasks.write_text(json.dumps([_task(i).model_dump(mode="json") for i in range(2)]), encoding="utf-8")
+    out = tmp_path / "P"
+    agent = tmp_path / "P.json"
+    agent.write_text(json.dumps({
+        "name": "P", "model": STRONG, "host": "groq", "factory": "eval.ablation:strong_only",
+        "params": {"stub": True, "out_dir": str(out), "resolve": ["t0"], "variant": "planner"},
+    }), encoding="utf-8")
+    assert main(["run", "--tasks", str(tasks), "--agent", str(agent), "--out", str(out / "results.json")]) == 0
+    results = Results.model_validate_json((out / "results.json").read_text(encoding="utf-8"))
+    assert (results.counts.resolved, results.resolve_rate.total) == (1, 2)
+    seen_in = seen_cached = 0
+    for row in results.tasks:
+        agents = json.loads((Path(row.trajectory).parent / "agents.json").read_text(encoding="utf-8"))
+        assert [a["agent"] for a in agents] == ["planner", "sub-1"]
+        assert agents[1]["calls"] == 2  # list_dir, then submit
+        repro = Trajectory.from_jsonl((Path(row.trajectory).parent.parent / "repro" / "trajectory.jsonl").read_text(encoding="utf-8")).steps
+        seen_in += sum(a["tokens_in"] for a in agents) + sum(s.tokens_in for s in repro)
+        seen_cached += sum(a["tokens_cached"] for a in agents) + sum(s.tokens_cached for s in repro)
+    assert (results.tokens.total.tokens_in, results.tokens.total.tokens_cached) == (seen_in, seen_cached)
+    ledger = json.loads((out / "ledger.json").read_text(encoding="utf-8"))["models"][STRONG]
+    assert ledger["cached"] == seen_cached
