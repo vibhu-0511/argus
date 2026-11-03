@@ -9,6 +9,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
 
+from argus_core.redact import redact
+
 
 class _Model(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -122,7 +124,7 @@ class Trajectory(_Model):
         lines.extend(
             step.model_dump_json() for step in self.steps
         )
-        return "\n".join(lines) + "\n"
+        return redact("\n".join(lines) + "\n")  # P7-T03: the one place every trajectory file is serialised
 
     @classmethod
     def from_jsonl(cls, text: str) -> Trajectory:

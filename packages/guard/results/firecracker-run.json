@@ -1,0 +1,9 @@
+{
+  "task": "firecracker-run",
+  "tier": "firecracker",
+  "ran_at": "2026-11-03T00:07:45+00:00",
+  "host": "Windows-11-10.0.26200-SP0",
+  "kvm_present": false,
+  "status": "unavailable",
+  "detail": "/dev/kvm does not exist (no KVM on this host). The microVM did not boot."
+}

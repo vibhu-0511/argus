@@ -1,0 +1,68 @@
+# P7-T21 evidence, 2026-11-03T00:12:54Z, Docker server 29.5.3
+
+## A. inside the sandbox (fix-loop flags: --network none), lookup of CANARY-NOT-A-SECRET.exfil.invalid
+nslookup: can't connect to remote host (192.168.65.7): Network unreachable
+nslookup exit=1
+--- /proc/net/dev (interfaces)
+Inter-|   Receive                                                |  Transmit
+ face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed
+    lo:       0       0    0    0    0     0          0         0        0       0    0    0    0     0       0          0
+--- /proc/net/route (routing table; header only = no route)
+Iface	Destination	Gateway 	Flags	RefCnt	Use	Metric	Mask		MTU	Window	IRTT                                                       
+--- ip addr
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+--- ip route (empty = no route)
+--- nc to 1.1.1.1:443
+nc exit=1
+
+## B. control: same image, Docker default bridge network, same lookup
+Server:		192.168.65.7
+Address:	192.168.65.7:53
+
+Non-authoritative answer:
+
+** server can't find CANARY-NOT-A-SECRET.exfil.invalid: NXDOMAIN
+
+nslookup exit=1
+--- /proc/net/dev
+    lo
+  eth0
+--- /proc/net/route
+Iface	Destination	Gateway 	Flags	RefCnt	Use	Metric	Mask		MTU	Window	IRTT                                                       
+eth0	00000000	010011AC	0003	0	0	0	00000000	0	0	0                                                                               
+eth0	000011AC	00000000	0001	0	0	0	0000FFFF	0	0	0                                                                               
+
+## C. escape suite, docker tier, with audit log
+escape suite: tier=docker runtime=default
+PASS  network-tcp            tcp could not connect
+PASS  network-https          https could not connect
+PASS  dns-lookup             dns could not connect
+PASS  metadata-address       metadata address unreachable
+PASS  host-fs-read           host file not readable at 6 paths
+PASS  readonly-mount-write   /checks is read-only and unchanged
+PASS  docker-socket          no docker socket
+PASS  fork-bomb              fork stopped at 127 processes
+PASS  symlink-escape         6 symlinks to the host folder lead nowhere
+PASS  env-no-secrets         no secret in env
+PASS  host-proc              own pid namespace, 4 processes, pid 1 is the probe shell
+PASS  mount-syscall          mount refused
+PASS  dns-exfil              3 lookups never reached a resolver
+PASS  no-net-route           only lo, 0 routes
+14 probes: 14 pass, 0 fail, 0 error
+exit=0
+
+## D. guard verify-log
+OK 14 records, head 96e1a549bdbe270826701480378cc87af5fb73ae99146217a83d7f8d9112fb5b
+exit=0
+
+## E. the dns-exfil record in the log
+{"hash":"406990ec7b5538c91977fc38e0ec6fd26d0f6b407036b88d14c40abbcb7a5204","kind":"policy_event","payload":{"detail":"3 lookups never reached a resolver","expected":"blocked","probe":"dns-exfil","queries":["exfil.invalid","CANARY-NOT-A-SECRET.exfil.invalid","67756172642d66616b652d7365637265742d6e6f742d7265616c.exfil.invalid"],"source":"escape","status":"pass","tier":"docker"},"prev":"f22758fe692f502e8f016bbd863ca234d444862b799bba58a59b6cd16266ea3e","seq":12,"ts":"2026-11-03T00:13:04.549732+00:00"}
+
+## F. edit the queried name in the record, verify again
+BAD line 13: edited content (hash does not match the record)
+exit=1

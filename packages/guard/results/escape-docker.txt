@@ -1,0 +1,14 @@
+escape suite: tier=docker runtime=default
+PASS  network-tcp            tcp could not connect
+PASS  network-https          https could not connect
+PASS  dns-lookup             dns could not connect
+PASS  metadata-address       metadata address unreachable
+PASS  host-fs-read           host file not readable at 6 paths
+PASS  readonly-mount-write   /checks is read-only and unchanged
+PASS  docker-socket          no docker socket
+PASS  fork-bomb              fork stopped at 127 processes
+PASS  symlink-escape         6 symlinks to the host folder lead nowhere
+PASS  env-no-secrets         no secret in env
+PASS  host-proc              own pid namespace, 3 processes, pid 1 is the probe shell
+PASS  mount-syscall          mount refused
+12 probes: 12 pass, 0 fail, 0 error

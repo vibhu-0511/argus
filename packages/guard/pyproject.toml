@@ -1,0 +1,18 @@
+[project]
+name = "guard"
+version = "0.1.0"
+description = "P7 argus-guard: threat model, audit log, escape-test suite and red-team configs."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = ["argus-core", "fix-loop"]
+
+[project.scripts]
+guard = "guard.cli:main"
+
+[tool.uv.sources]
+argus-core = { workspace = true }
+fix-loop = { workspace = true }
+
+[build-system]
+requires = ["uv_build>=0.12.2,<0.13.0"]
+build-backend = "uv_build"

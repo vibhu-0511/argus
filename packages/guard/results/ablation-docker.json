@@ -1,0 +1,140 @@
+{
+  "suite": "ablation",
+  "tier": "docker",
+  "variant": "A",
+  "runtime": "default",
+  "ran_at": "2026-11-03T00:11:13+00:00",
+  "host": "Windows-11-10.0.26200-SP0",
+  "image": "argus-fix-sandbox:p3",
+  "n_requested": 30,
+  "docker_server": "29.5.3",
+  "flags": {
+    "network": "none",
+    "cpus": "1",
+    "memory": "512m",
+    "checks": "ro",
+    "fixture": "guard.sandbox_run.FIXTURE"
+  },
+  "definitions": {
+    "cold_start": "docker run launched -> first line printed by the fixture",
+    "fixture_run": "first line printed -> container exited and removed (--rm)",
+    "percentile": "nearest-rank over the samples"
+  },
+  "starts_requested": 30,
+  "starts_ok": 30,
+  "starts_failed": [],
+  "cold_start_ms": {
+    "n": 30,
+    "p50": 264.9,
+    "p95": 319.5,
+    "min": 221.2,
+    "max": 405.4
+  },
+  "fixture_run_ms": {
+    "n": 30,
+    "p50": 182.4,
+    "p95": 228.9,
+    "min": 161.3,
+    "max": 249.0
+  },
+  "total_ms": {
+    "n": 30,
+    "p50": 452.9,
+    "p95": 523.3,
+    "min": 394.0,
+    "max": 634.2
+  },
+  "cold_start_samples_ms": [
+    228.6,
+    263.9,
+    319.5,
+    280.6,
+    299.3,
+    315.5,
+    262.6,
+    238.1,
+    241.2,
+    302.0,
+    308.2,
+    405.4,
+    315.2,
+    308.7,
+    303.0,
+    299.7,
+    272.6,
+    254.2,
+    294.3,
+    277.5,
+    264.9,
+    253.7,
+    226.7,
+    222.5,
+    266.8,
+    226.1,
+    232.8,
+    261.5,
+    221.2,
+    232.3
+  ],
+  "escape": {
+    "probes_passed": 12,
+    "probes_total": 12,
+    "summary": {
+      "pass": 12,
+      "fail": 0,
+      "error": 0
+    },
+    "probes": [
+      {
+        "id": "network-tcp",
+        "status": "pass"
+      },
+      {
+        "id": "network-https",
+        "status": "pass"
+      },
+      {
+        "id": "dns-lookup",
+        "status": "pass"
+      },
+      {
+        "id": "metadata-address",
+        "status": "pass"
+      },
+      {
+        "id": "host-fs-read",
+        "status": "pass"
+      },
+      {
+        "id": "readonly-mount-write",
+        "status": "pass"
+      },
+      {
+        "id": "docker-socket",
+        "status": "pass"
+      },
+      {
+        "id": "fork-bomb",
+        "status": "pass"
+      },
+      {
+        "id": "symlink-escape",
+        "status": "pass"
+      },
+      {
+        "id": "env-no-secrets",
+        "status": "pass"
+      },
+      {
+        "id": "host-proc",
+        "status": "pass"
+      },
+      {
+        "id": "mount-syscall",
+        "status": "pass"
+      }
+    ]
+  },
+  "leftover_containers": [],
+  "status": "done"
+}

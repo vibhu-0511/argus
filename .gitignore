@@ -15,3 +15,6 @@ playwright-report/
 packages/eval/runs/
 packages/eval/swarm/replies/*
 !packages/eval/swarm/replies/.gitkeep
+packages/eval/swarm/replies/*.txt
+packages/eval/swarm/t16/replies/
+packages/eval/swarm/t16/active

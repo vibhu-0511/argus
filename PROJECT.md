@@ -103,13 +103,13 @@ Mistral no longer publishes its free-tier numbers. **P0-T06 measures every limit
 
 | Concern | Choice |
 |---|---|
-| CI and execution plane | GitHub Actions on a public repo. Standard minutes are free, Docker is available, and Linux runners have exposed `/dev/kvm` since October 2025, which allows Firecracker and gVisor measurements at no cost |
+| CI and execution plane | GitHub Actions on a public repo. Standard minutes are free, Docker is available, and `/dev/kvm` on hosted runners is not confirmed (GitHub: nested virtualization is not officially supported; checked 2026-11-03), so the Firecracker tier starts with a probe step |
 | Control plane (P6) | Render free web service running FastAPI with DBOS in-process, plus Neon free Postgres. Render's free Postgres expires after 30 days, so it is not used |
 | Traces | OTLP to Langfuse Cloud Hobby (free, 50k units/month). MIT is not stated on the pricing page. The pricing page says Langfuse is open source and can be self-hosted for free. Phoenix stays an alternative; its ELv2 licence is noted in ADR-015 |
 | Dashboard | GitHub Pages, static |
 | Sandboxes | Docker `--network none` locally and on Actions, then gVisor, then Firecracker on the Actions KVM runner. Each tier is measured in P7 and written up in ADR-025 |
 
-### Versions checked on 2026-11-01 (tracing rows, and the DBOS, MCP, Render, Neon and GitHub rows) and 2026-10-30 (the rest)
+### Versions checked on 2026-11-03 (promptfoo, gVisor, Firecracker, App token and OWASP rows), 2026-11-01 (tracing rows, and the DBOS, MCP, Render, Neon and GitHub rows) and 2026-10-30 (the rest)
 
 Each phase's T00 task re-checks this table before work starts. The source table is in [`PLAN.md`](PLAN.md).
 
@@ -123,6 +123,11 @@ Each phase's T00 task re-checks this table before work starts. The source table 
 | MCP spec | **2026-07-28**: stateless core, MRTR `input_required` / `inputResponses`, Tasks moved to the `io.modelcontextprotocol/tasks` extension |
 | MCP Python SDK | 2.3.0 |
 | DBOS Python | 3.x (PyPI `dbos` 3.4.0, checked 2026-11-01) |
+| promptfoo | 0.125.1 (npm `latest`, MIT, published 2026-10-25, needs Node >= 22.22.0; checked 2026-11-03) |
+| gVisor (`runsc`) | release 20261026.0 (GitHub, published 2026-10-28; needs Linux 5.6+, x86_64 or ARM64; checked 2026-11-03) |
+| Firecracker | v1.17.0 (GitHub, published 2026-09-10, Apache 2.0; needs read/write on `/dev/kvm`; checked 2026-11-03) |
+| GitHub App installation token | Expires after one hour; can be narrowed with `repositories` and `permissions`; new tokens may use the `ghs_APPID_JWT` format, not 40 characters (checked 2026-11-03) |
+| OWASP agentic top 10 | OWASP Top 10 for Agentic Applications for 2026, dated 2025-12-09, ids ASI01 to ASI10 (checked 2026-11-03) |
 | OTel GenAI semconv | `model/manifest.yaml` stability: development. Manifest `schema_url`: `https://opentelemetry.io/schemas/gen-ai-dev/1.42.0-dev`. README schema URL: TODO. Core semconv dependency: v1.44.0. Core semconv v1.42.0 (2026-06-12) moved `gen_ai.*` to this repo. README: "This repository extends the OpenTelemetry Semantic Conventions with GenAI-specific conventions." |
 | `opentelemetry-api`, `opentelemetry-sdk`, `opentelemetry-exporter-otlp-proto-http` | 1.45.2 each (PyPI, uploaded 2026-10-29) |
 | `langfuse` (Python) | 5.1.0 (PyPI, MIT, uploaded 2026-10-30) |
@@ -135,6 +140,8 @@ Each phase's T00 task re-checks this table before work starts. The source table 
 2026-11-01, P5-T00: tracing rows re-checked; React, Vite, Tailwind, Playwright, MCP and DBOS were not in this task's scope and keep their 2026-10-30 check. OTel GenAI is still `stability: development`, in `open-telemetry/semantic-conventions-genai` (the `opentelemetry.io` GenAI pages now only say "Moved"). Schema URL, dependency v1.44.0 and README `TODO` are unchanged, and the GitHub releases list is empty. Langfuse Cloud Hobby is 50k units/month, 30 days of data access, 2 users; what happens after 50k is not confirmed. Langfuse takes OTLP over HTTP only (no gRPC). Phoenix is ELv2 and runs locally with `phoenix serve` on port 6006. Groq's table for `openai/gpt-oss-20b`, `openai/gpt-oss-120b` and `qwen/qwen3.8-27b` is still 30 RPM, 1K RPD, 8K TPM, 200K TPD under the Developer-plan wording, and whether the Free tab differs is not confirmed. Sources and the full table: `docs/notes/p5-t00-versions.md`.
 
 2026-11-01, P6-T00: DBOS, MCP, Render, Neon and GitHub rows re-checked. DBOS Python stays 3.x (PyPI `dbos` 3.4.0, MIT, uploaded 2026-10-28; Postgres recommended, SQLite allowed; `use_listen_notify` defaults to True and must not change after the system database is created; recovery needs a stable executor id and a pinned application version; Conductor is optional and off without a `conductor_key`). MCP spec is still 2026-07-28 and the Python SDK is still 2.3.0. Render Free web service: spins down after 15 minutes idle, cold start "about one minute" ("30 to 60" is not stated), 750 free instance hours per workspace per month. Neon Free: 100 CU-hours/project, scale to zero after 5 minutes and cannot be disabled; the Compute section of the plans page says "/project/month", the table does not. GitHub webhook: respond with a 2XX within 10 seconds. P6-T00's dependency P5.5-T17 is waived. Sources and the full tables: `docs/notes/p6-t00-versions.md`.
+
+2026-11-03, P7-T00: promptfoo 0.125.1, gVisor release 20261026.0, Firecracker v1.17.0, the GitHub App token facts and the OWASP edition checked. Hosted-runner KVM is not confirmed: GitHub says nested virtualization on its runners is not officially supported, and the claim that Linux runners have exposed `/dev/kvm` since October 2025 was not found in any source, so it is removed. The T11 workflow must print `ls -l /dev/kvm` and the Firecracker tier is cut if it is absent. P7-T00's dependency P6-T25 is waived. Sources and the full tables: `docs/notes/p7-t00-versions.md`.
 
 Re-check the React 19.2 removal of `source` and `self` from `jsxDEV` against React 19.3.1. The build-time `data-src` attribute remains the P2 route (ADR-006). Checked 2026-10-29: Babel's jsx-development docs still say those arguments were removed in React 19.2, and the React 19.3 changelog index lists no reversal. Checked again 2026-10-30 for P2-T00: Babel's `sourceSelf` option still says those arguments were removed since React 19.2. The React 19.3 blog's notable-changes list does not mention `jsxDEV` or `_debugSource`.
 

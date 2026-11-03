@@ -71,17 +71,43 @@ Write the threat model for the pipeline, harden it (secrets, token scope, egress
 
 | Variant | Cold start p50 | Cold start p95 | Escape probes passed | Run-time overhead | Resolve rate (95% CI) | Tokens/bug (in, out, cached) | $-equivalent/bug |
 |---|---|---|---|---|---|---|---|
-| A | — | — | — | — | — | — | — |
-| B | — | — | — | — | — | — | — |
-| C | — | — | — | — | — | — | — |
+| A | 103.8 ms | 111.9 ms | 14 of 14 | launch to exit 143.2 ms (fixture run 39.0 ms) | — | — | — |
+| B | 112.6 ms | 120.7 ms | 14 of 14 run alone (16 of 16 suites); 13 of 14 inside `guard ablation` (4 of 4 runs: the fork-bomb probe errored) | launch to exit 183.3 ms (fixture run 69.2 ms) | — | — | — |
+| C | — (no timestamps in the guest console) | — | — (probes not ported into the microVM) | launch to exit 1056 ms, p95 1121 ms (30 of 30 boots) | — | — | — |
+
+Rows A and B: run 41572865817 of the `gvisor` workflow on a GitHub-hosted `ubuntu-24.04` runner (AMD EPYC 7763), 30 starts each, on the same runner in the same job. Row C: run 41572547937 of the `firecracker` workflow (AMD EPYC 9V74), 30 boots; on that runner Docker's launch to exit p50 was 119.9 ms, so the microVM run took about 9 times as long for the fixture. The Resolve rate, Tokens/bug and $-equivalent/bug columns stay dashes on purpose: this ablation starts the sandbox, runs a fixture and the escape suite, and does not run the fix loop on a model.
+
+- Spread: A against B was run four times (runs in `docs/notes/p7-github-tier-runs.md`). B was slower than A on the same runner by 8.8 to 11.4 ms of cold start p50 and by 29.1 to 40.4 ms of launch to exit p50 every time. The level of both moves by about 20 ms from run to run. C was run three times: launch to exit p50 1013 to 1061 ms.
+- Sample size: 30 starts (or boots) per row per run; nearest-rank percentiles; no confidence interval. Docker was also started 400 times in one run (400 of 400 passed).
+- Cold start = `docker run` launched until the first line the fixture prints. Launch to exit = the whole run including the fixture and removal. For C only launch to exit exists: firecracker launched until the process exited (a guest kernel boot, the fixture and shutdown), so it is not the same quantity as the container cold start and the two are not compared.
+- Machine: shared GitHub-hosted runners; the CPU differs between jobs and sometimes between runs of the same job (EPYC 7763, EPYC 9V74, Xeon 8370C). Only rows from the same job are compared. The earlier Windows 11 / Docker Desktop run (cold start p50 264.9 ms, 12 of 12 probes, `ablation-docker.json`) is a different machine class and is not used.
+- Flags were the fix-loop sandbox ones: `--network none`, 1 CPU, 512m, `/checks` read-only; the escape suite adds `--pids-limit 128`.
+- Row C probes: not run. The escape probes run in containers and were not ported into the microVM. The guest was seen to run the fixture with `/checks` read-only; that is not the suite.
+- Row B probes: the `fork-bomb` probe ended as an `error` ("no verdict line (exit 2)") in the suite that runs inside `guard ablation --tier gvisor` in 4 of 4 runs, and passed in 16 of 16 suites run as separate processes (3 of them straight after an ablation, with no `runsc` process left). Cause not known.
+- The suite tests how a sandbox is configured. It does not separate A from B (both pass what can run), so these rows show cost, not a difference in safety. No conclusion about the best tier is drawn here; see ADR-025.
+- Notes on the runs, including the harness bugs found along the way: `docs/notes/p7-github-tier-runs.md`.
 
 **Phase report (against previous phase):**
 
 | Report | Resolve rate | Tokens/bug | $-equivalent | p50 latency | p95 latency |
 |---|---|---|---|---|---|
-| Previous phase | — | — | — | — | — |
-| This phase | — | — | — | — | — |
+| Previous phase (P6) | — | — | — | — | — |
+| This phase (P7) | — | — | — | — | — |
 | Delta | — | — | — | — | — |
+
+*Every cell is a dash on purpose; filled on 2026-11-03 (P7-T22) from stored results only, and no stored result exists for these columns.*
+- **Previous phase (P6): dashes.** P6's own row is dashes: no model ran in P6 (crash recovery was measured on fakes) and nothing is deployed. P6-T25 is still open and its note says what would fill the row (`docs/notes/p6-t25.md`). No P6 baseline was made up for this table.
+- **This phase (P7): dashes.** P7 does not run the fix loop for resolve rate, tokens per bug or latency. The ablation starts the sandbox and runs a fixture and the escape suite (row A above); the red-team is 15 runs of a small local model per variant with a different measure (attack success, not resolve rate); no result file for these columns exists. `python -m eval report <previous.json> <this.json>` fills this table from two eval results files and prints a dash for anything a file cannot give; there is no such file for P6 or P7, so it was not run.
+- **Delta: dashes**, because both sides are dashes.
+- **What P7 did measure, kept out of the table because it answers other questions:**
+
+| Measure | Value | Source and limit |
+|---|---|---|
+| Cold start p50 / p95, Docker `--network none` | 264.9 ms / 319.5 ms (30 starts) | `packages/guard/results/ablation-docker.json`; Windows 11 with Docker Desktop, one run, not comparable with a Linux runner. gVisor and Firecracker: not run |
+| Escape probes blocked, Docker tier | 12 of 12 (ablation and `escape-docker.txt`); 14 of 14 on the 14-probe suite (`dns-exfil-local.txt`) | Local, one machine. gVisor and Firecracker: not run |
+| Red-team runs where the attack took effect, baseline / with the mitigations | ticket 3 of 5 / 0 of 5; repo-file 1 of 5 / 0 of 5; skill 0 of 5 / 0 of 5 | `redteam-2026-11-03.md`; `gemma4:e4b` (a small local model), 5 runs per case; the skill reached the model in 2 of 5 baseline and 0 of 5 hardened runs |
+| Secrets in the model view, trajectory, patch or reply when a ticket asks for the environment | none on the Docker path, with the mitigations off or on | T18 break-it; scripted model, not a real one |
+| Cost of the mitigations to the fix rate | not measured | They are off by default |
 
 ## ADRs to write
 All [ME].

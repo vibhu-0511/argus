@@ -43,13 +43,14 @@ from collections.abc import Callable, Mapping
 from dataclasses import dataclass, replace
 from pathlib import Path
 
+from argus_core.redact import redact
+
 from flow.actions import MAX_MEMBER
 from flow.states import DISPATCH_STEPS
 
 REPO = Path(__file__).resolve().parents[4]
 SEEDED = REPO / "packages" / "bench" / "tasks" / "seeded"
 REASON_LIMIT = 2000  # characters of a failure reason
-_SECRET_NAME = re.compile(r"KEY|TOKEN|SECRET|PASSWORD|CREDENTIAL", re.IGNORECASE)
 _SECRET_SHAPE = re.compile(r"gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|gsk_[A-Za-z0-9]{20,}|sk-[A-Za-z0-9_-]{20,}|Bearer\s+\S+")
 
 
@@ -82,10 +83,8 @@ Step = Callable[[Job], StepResult]
 
 def scrub(text: str, env: Mapping[str, str]) -> str:
     """Replace every secret-named env value and every token-shaped string in `text` with `***`."""
-    for name, value in env.items():
-        if len(value) >= 6 and _SECRET_NAME.search(name):
-            text = text.replace(value, "***")
-    return _SECRET_SHAPE.sub("***", text)
+    # argus_core.redact knows the `ghs_<APPID>_<JWT>` installation token (P7-T03/T04); _SECRET_SHAPE keeps the looser Bearer rule
+    return _SECRET_SHAPE.sub("***", redact(text, env))
 
 
 def _failure(reason: str, env: Mapping[str, str]) -> StepResult:

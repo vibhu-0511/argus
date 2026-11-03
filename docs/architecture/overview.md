@@ -1,6 +1,6 @@
-# Architecture overview (P0 to P6)
+# Architecture overview (P0 to P7)
 
-As-built view of Argus after phase P6 (so far). Later phases are not drawn. This file grows by one phase in each stacked pull request; the diagram source is the same text the PR description shows.
+As-built view of Argus after phases P5.5, P6 and P7 (so far). Later phases are not drawn. This file grows by one phase in each stacked pull request; the diagram source is the same text the PR description shows.
 
 ```mermaid
 flowchart LR
@@ -95,7 +95,7 @@ flowchart LR
     BREAKS["break-it tests<br/>poisoned, always-matching, stale"]:::p55
   end
 
-  subgraph S6 ["P6 flow (NEW IN THIS PR)"]
+  subgraph S6 ["P6 flow"]
     STATES["workflow state machine<br/>10 states, 12 transitions, idempotency keys"]:::p6
     WEBHOOK["webhook endpoint<br/>HMAC-SHA256, fail closed"]:::p6
     HINT["hint handler<br/>202, no GitHub read, delivery-id dedup"]:::p6
@@ -117,6 +117,30 @@ flowchart LR
     FLOWCI["flow.yml<br/>Postgres service container, green on GitHub"]:::p6
     COLD["cold-start timer<br/>signed ping; 5 of 5 over 10 s"]:::p6
     NEONUSE["Neon usage probe<br/>CU-hours against polling, not run"]:::p6
+  end
+
+  subgraph S7 ["P7 guard (NEW IN THIS PR)"]
+    VERS["version re-check<br/>promptfoo, gVisor, Firecracker, App token, 2026-11-03"]:::p7
+    OWASPN["OWASP ASI01 to ASI10 and Firecracker notes<br/>names from the launch post, PDF not read"]:::p7
+    TM["threat model<br/>assets, trust boundaries, data flow, 10 ASI rows"]:::p7
+    SECINV["secrets inventory<br/>name, place, who can read"]:::p7
+    REDACT["redactor<br/>argus_core.redact, masks known env values and token shapes"]:::p7
+    RSCAN["secret scan<br/>check_no_secrets.py, remote-URL check, secret-scan.yml green on GitHub"]:::p7
+    AUDIT["audit log<br/>hash chain, guard verify-log, not wired into fix-loop"]:::p7
+    EGRESS["egress probe<br/>tcp, https, dns; ran locally and on a GitHub runner"]:::p7
+    ESCAPE["escape suite<br/>14 probes, docker 14 of 14, gvisor 14 of 14 alone, firecracker probes not ported"]:::p7
+    APPTOK["App token<br/>flow.app_token, minimum permissions, one repo, mock transport, no App created"]:::p7
+    REDTEAM["promptfoo red-team<br/>3 static cases: ticket, repo file, skill; deterministic checks"]:::p7
+    RTRES["red-team results<br/>gemma4:e4b local, 15 runs each way, not the production model"]:::p7
+    HARDEN["mitigations<br/>untrusted-data blocks, tool allowlist, output filter, off by default"]:::p7
+    SBRUN["sandbox runtime setting<br/>guard sandbox-run; runsc ran on a GitHub runner"]:::p7
+    GVWF["gvisor.yml<br/>ran on a GitHub runner"]:::p7
+    GUARDCI["guard.yml<br/>escape suite, secret scan, verify-log, head hash in run summary; green on GitHub"]:::p7
+    FCRUN["Firecracker tier<br/>firecracker-run and firecracker.yml; booted on a GitHub runner, 30 of 30, probes not ported"]:::p7
+    ABLATION["tier ablation<br/>guard ablation; A, B and C run on GitHub runners, C has no probes"]:::p7
+    BREAKS7["P7 break-its<br/>env dump, edited log, DNS lookup; App push refused 422 on a real throwaway repo"]:::p7
+    ADRS7["ADR-024, 025, 026<br/>proposed: threat model, sandbox tier (only Docker measured), secrets and token scopes"]:::p7
+    GREADME["guard README and phase report<br/>controls listed, state of each; report cells are dashes"]:::p7
   end
 
   BUGSMITH --> FILTER
@@ -254,6 +278,55 @@ flowchart LR
   COLD -. "times the 202" .-> WEBHOOK
   NEONUSE -. "reads usage of" .-> FPG
 
+  %% P7 links
+  VERS -. "versions" .-> TM
+  OWASPN --> TM
+  TM -. "injection paths" .-> TICKET
+  TM -. "boundaries, tool abuse" .-> FIX
+  TM -. "sandbox boundary" .-> WT
+  TM -. "skill injection path" .-> SKLOAD
+  TM -. "webhook and token" .-> WEBHOOK
+  TM -. "workflow and Actions" .-> WF
+  SECINV -. "lists" .-> REDACT
+  REDACT -- "masks every trajectory file" --> TRAJ
+  REDACT -- "masks span attributes" --> OTEL
+  RSCAN -. "scans tracked files" .-> CORE
+  AUDIT -. "will record tool calls" .-> TOOLS
+  EGRESS -- "same probe as the sandbox" --> WT
+  ESCAPE -- "14 probes" --> WT
+  ESCAPE -. "extends" .-> EGRESS
+  TM -. "ASI10 control" .-> AUDIT
+  TM -. "ASI05 control" .-> ESCAPE
+  APPTOK -. "mints the token for" .-> GHWRITE
+  APPTOK -- "installation token, one repo" --> GITHUB
+  REDACT -- "scrub now uses it" --> AGENTJOB
+  REDTEAM -- "attack in the ticket and repo file" --> FIX
+  REDTEAM -. "attack in a skill file" .-> SKLOAD
+  REDTEAM --> RTRES
+  HARDEN -- "wraps untrusted text" --> FIX
+  HARDEN -- "filters output" --> REDACT
+  RTRES -. "baseline against hardened" .-> HARDEN
+  SBRUN -- "runtime flag" --> WT
+  GVWF -. "ran on a runner" .-> SBRUN
+  ESCAPE -. "gvisor tier" .-> SBRUN
+  TM -. "ASI03 control" .-> APPTOK
+  TM -. "ASI01 control" .-> HARDEN
+  GUARDCI -- "runs" --> ESCAPE
+  GUARDCI -. "runs" .-> RSCAN
+  GUARDCI -- "verifies" --> AUDIT
+  ESCAPE -- "each probe is a record" --> AUDIT
+  FCRUN -. "tier C, booted on a runner" .-> SBRUN
+  ABLATION -- "cold start and probes" --> ESCAPE
+  ABLATION -. "all tiers ran on a runner" .-> SBRUN
+  BREAKS7 -- "env dump" --> HARDEN
+  BREAKS7 -- "edited line" --> AUDIT
+  BREAKS7 -- "DNS lookup" --> EGRESS
+  BREAKS7 -. "real run, 422" .-> APPTOK
+  ADRS7 -. "decides" .-> TM
+  ADRS7 -. "default tier" .-> SBRUN
+  ADRS7 -. "token scopes" .-> APPTOK
+  GREADME -. "lists the controls" .-> ESCAPE
+
   classDef p0 fill:#dbeafe,stroke:#1d4ed8,stroke-width:1.5px,color:#111827
   style S0 fill:none,stroke:#1d4ed8,stroke-width:1.5px
   classDef p1 fill:#cffafe,stroke:#0e7490,stroke-width:1.5px,color:#111827
@@ -268,10 +341,12 @@ flowchart LR
   style S5 fill:none,stroke:#be185d,stroke-width:1.5px
   classDef p55 fill:#e7e5e4,stroke:#57534e,stroke-width:1.5px,color:#111827
   style S55 fill:none,stroke:#57534e,stroke-width:1.5px
-  classDef p6 fill:#ede9fe,stroke:#6d28d9,stroke-width:4px,color:#111827
-  style S6 fill:none,stroke:#6d28d9,stroke-width:4px
+  classDef p6 fill:#ede9fe,stroke:#6d28d9,stroke-width:1.5px,color:#111827
+  style S6 fill:none,stroke:#6d28d9,stroke-width:1.5px
+  classDef p7 fill:#fee2e2,stroke:#b91c1c,stroke-width:4px,color:#111827
+  style S7 fill:none,stroke:#b91c1c,stroke-width:4px
   classDef ext fill:#ffffff,stroke:#6b7280,color:#111827,stroke-dasharray: 4 3
-  linkStyle 97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133 stroke-width:3px
+  linkStyle 134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180 stroke-width:3px
 ```
 
 ## How to read it
@@ -284,7 +359,18 @@ flowchart LR
 | Dotted arrow | a stored input (`fixture`), a test-only link or an advisory link, not a live call |
 | Thick arrow | a link added in this phase |
 
-Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink, P5.5 stone, P6 violet.
+Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink, P5.5 stone, P6 violet, P7 red.
+
+## What P5.5 adds
+
+- `packages/skills`: five reviewed skills (`SKILL.md` only, one per bug archetype) and the tools around them. `skills.split` builds and checks the train and held-out split (held-out is the 30 seeded tasks, 29 run; train is 40 mutants; the check fails on a shared task id or a shared (file, operator) pair). `skills.collect` and `skills.draft` turn resolved train runs into unreviewed drafts. `skills.pin` is the owner's sign-off. `skills.lint` is the CI check. `skills.selection` is the catalog-only selection test.
+- `fix_loop.skills`: reads `packages/skills/skills/<name>/SKILL.md` and gives `run_fix` a `skills` argument. The system message lists names and descriptions only; the `load_skill` tool returns one body, and at most 3 load per run. Twenty skills add 880 estimated tokens against 23,280 for their bodies in the test. Loads are read back from the trajectory (no schema change).
+- Trust controls: a skill is refused unless `skills.lock.json` holds a reviewed entry with the SHA-256 of the file, and the agent may call only the tools the loaded skills allow (a skill narrows the tools, never widens them). The review flag is read from the lock, never from the file. ADR-019 says what this trusts, checks and cannot check.
+- Measured: a catalog-only selection test (7 of 10 right, 3 misses that no wording can fix because the ticket text does not tell three CSS skills apart) and a with-vs-without run on the 29 held-out tasks (variant S of `eval.t14_turn`, `eval.skills_ablation`): 21 of 29 against 19 of 27, the same outcome on all 27 paired tasks, tokens in about 8% higher, a skill loaded in 14 of 29 runs and 2 of the 5 skills ever loaded. Skills did not help. They are off by default.
+- Break-its: a skill that edits the bench checks (refused, or the read-only mount rejects the write), one that sends data out (no route, logged), one whose description matches every ticket (lint and a cap of 3), one that names a moved file (a path lint).
+- ADR-018 (format and distillation criteria: what a run must show to feed a skill, at least 3 runs per skill, a selection check before a pin, who reviews, what must be shown before skills are on by default) and ADR-019 (trust model).
+- The phase report against P5 is in `phases/P05.5-argus-skills.md`, made with `python -m eval report`; the two T08 rows are results files in `packages/eval/results/t08/`.
+- Per-task detail: `docs/architecture/p5.5.md`.
 
 ## What P6 adds
 
@@ -303,16 +389,21 @@ Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink, P5.5 stone, 
 - Version re-check and DBOS and MRTR notes (`docs/notes/p6-t00-versions.md`, `p6-t01-dbos-mrtr.md`). Per-task detail: `docs/architecture/p6.md`.
 - P6 was started before P5.5 and before P5 finished, by the owner's choice (`docs/notes/p6-waves.md`).
 
-## What P5.5 adds
+## What P7 adds
 
-- `packages/skills`: five reviewed skills (`SKILL.md` only, one per bug archetype) and the tools around them. `skills.split` builds and checks the train and held-out split (held-out is the 30 seeded tasks, 29 run; train is 40 mutants; the check fails on a shared task id or a shared (file, operator) pair). `skills.collect` and `skills.draft` turn resolved train runs into unreviewed drafts. `skills.pin` is the owner's sign-off. `skills.lint` is the CI check. `skills.selection` is the catalog-only selection test.
-- `fix_loop.skills`: reads `packages/skills/skills/<name>/SKILL.md` and gives `run_fix` a `skills` argument. The system message lists names and descriptions only; the `load_skill` tool returns one body, and at most 3 load per run. Twenty skills add 880 estimated tokens against 23,280 for their bodies in the test. Loads are read back from the trajectory (no schema change).
-- Trust controls: a skill is refused unless `skills.lock.json` holds a reviewed entry with the SHA-256 of the file, and the agent may call only the tools the loaded skills allow (a skill narrows the tools, never widens them). The review flag is read from the lock, never from the file. ADR-019 says what this trusts, checks and cannot check.
-- Measured: a catalog-only selection test (7 of 10 right, 3 misses that no wording can fix because the ticket text does not tell three CSS skills apart) and a with-vs-without run on the 29 held-out tasks (variant S of `eval.t14_turn`, `eval.skills_ablation`): 21 of 29 against 19 of 27, the same outcome on all 27 paired tasks, tokens in about 8% higher, a skill loaded in 14 of 29 runs and 2 of the 5 skills ever loaded. Skills did not help. They are off by default.
-- Break-its: a skill that edits the bench checks (refused, or the read-only mount rejects the write), one that sends data out (no route, logged), one whose description matches every ticket (lint and a cap of 3), one that names a moved file (a path lint).
-- ADR-018 (format and distillation criteria: what a run must show to feed a skill, at least 3 runs per skill, a selection check before a pin, who reviews, what must be shown before skills are on by default) and ADR-019 (trust model).
-- The phase report against P5 is in `phases/P05.5-argus-skills.md`, made with `python -m eval report`; the two T08 rows are results files in `packages/eval/results/t08/`.
-- Per-task detail: `docs/architecture/p5.5.md`.
+- Wave 1 (docs): `docs/notes/p7-t00-versions.md` re-checks the promptfoo, gVisor, Firecracker, App token and runner rows (the claim that hosted Linux runners expose `/dev/kvm` is not supported by any source read; T11 must prove it). `docs/notes/p7-t01-owasp-firecracker.md` lists ASI01 to ASI10 as the OWASP launch post names them (the PDF itself could not be read) and the isolation claims of the Firecracker paper.
+- `packages/guard/threat-model.md`: assets, ten trust boundaries, a data-flow diagram of the pipeline as built, ten ASI rows with threat, control and residual risk (each control marked as existing today or planned for a P7 task), the injection paths, and gaps no P7 task covers.
+- `packages/guard` is scaffolded (the `guard` command has no sub-command yet).
+- Wave 2: `argus_core.redact` masks known secret values and token-shaped strings in every trajectory file (`Trajectory.to_jsonl`) and every span (`RedactingExporter`); `packages/guard/secrets-inventory.md` lists each secret, where it lives and who can read it; `check_no_secrets.py` also fails on a token in a git remote URL; `secret-scan.yml` ran green on GitHub on 2026-11-03.
+- `guard.auditlog` and `guard verify-log`: an append-only JSONL hash chain; verification names the first bad line (edited, deleted, swapped lines); a truncated tail is only caught by comparing a shipped head hash. It is not wired into the fix loop yet.
+- `guard.egress` and `guard.escape`: the no-egress probe ran locally against the fix-loop sandbox (the control container reached the host, the sandbox did not). `guard escape --tier docker` ran 12 probes, all blocked; the gVisor and Firecracker tiers print "not available" and never pass. `egress.yml` ran on a GitHub runner: the sandbox could not connect, the control could (Docker tier only).
+- Wave 3: `flow.app_token` mints a one-hour installation token for one repository with an explicit minimum permission list (`docs/notes/p7-t04-app-permissions.md`); a policy check refuses a broader request before any HTTP call. It runs on a mock transport only: no GitHub App exists, and GitHub's real refusals and branch protection were not checked. `flow.agent_job.scrub` now goes through the redactor.
+- The promptfoo red-team: three static cases (ticket, repo file, skill file) with deterministic checks. Real run on the local `gemma4:e4b` only (15 runs, 5 per case): at baseline the canary was copied into a file in 3 of 5 ticket runs and 1 of 5 repo-file runs, and 0 of 5 skill runs, but the skill text reached the model in only 2 of 5 runs, so the skill path is untested. With the T09 mitigations (untrusted-data blocks, tool allowlist, output filter) 0 of 15 runs. The gain cannot be credited to one mitigation, the sample is small, and the model is not the production model. The mitigations are off by default and no caller turns them on yet.
+- `ARGUS_SANDBOX_RUNTIME` and `guard sandbox-run`: a runtime setting in the fix-loop sandbox; a missing runtime is an error, never a silent run on runc. `runc` ran the fixture on this Windows machine, where `runsc` is not installed. On a GitHub-hosted runner `runsc` ran the fixture and the escape suite (P7-T10, ticked); `gvisor.yml` also runs on a pull request that changes it.
+- Wave 4 and after, on GitHub-hosted Linux runners: all three sandbox tiers ran. Docker and gVisor were compared on the same runner four times (30 starts each): gVisor was slower by 8.8 to 11.4 ms of cold start p50 and by 29.1 to 40.4 ms of launch to exit p50 every time, with 14 of 14 escape probes passed when the suite runs alone (13 of 14 inside `guard ablation`, where the `fork-bomb` probe errors for a reason not known). Firecracker booted a microVM 30 of 30 times in three runs (launch to exit p50 about 1 s, about 9 times a container run); `/dev/kvm` was present on `ubuntu-24.04` and needs a udev rule; its escape probes were not ported into the microVM. `secret-scan`, `egress` and `guard` also ran green. P7-T10, T11, T13, T03, T05 and T17 are ticked on this evidence, with the limits written in the phase doc and ADR-025. All 23 tasks are ticked.
+- Break-its: a scripted model obeys a ticket that asks it to print the environment; the sandbox holds no secrets, so none reached the model, the trajectory, the patch or the reply (T18). One edited line in a 10-record log is named by `guard verify-log`; a full consistent rewrite passes unless the head hash was shipped elsewhere (T19). A DNS lookup from the sandbox fails and the attempt is a record in the audit log (T21). The App-token push to the default branch was refused by GitHub itself with 422 "Changes must be made through a pull request." on a throwaway repository with classic branch protection (T20, real run 2026-11-03). Finding: `run_fix` without an `execute=` argument runs commands on the host with the host environment.
+- Wave 5 (docs): ADR-024 (threat model and trust boundaries, with the open residual risks: `run_fix` without `execute=` runs commands on the host; the mitigations are off by default), ADR-025 (sandbox tier: Docker with `--network none` is the default because it is the only tier measured; gVisor and Firecracker are not measured here) and ADR-026 (secret lifetimes, the App token permission list, rotation), all proposed. `packages/guard/README.md` lists each control with its state; the P7 phase report cells are dashes because P7 does not run the fix loop for resolve rate, tokens or latency and P6's row is also empty.
+- Per-task detail: `docs/architecture/p7.md`.
 
 ## What P5 added
 
