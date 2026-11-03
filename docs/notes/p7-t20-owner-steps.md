@@ -1,5 +1,7 @@
 # P7-T20 owner steps: use the App token to push to the default branch, for real
 
+> **Done 2026-11-03.** The owner ran these steps with a test App (App ID 5589921) on `vibhu-0511/argus-p7-t20-scratch`; result in `packages/guard/results/app-push-real.json` and in `docs/notes/p7-break-its.md`. Step 6 (delete the key and the App) is the owner's cleanup.
+
 Only you can do these. They create a GitHub App, which needs your GitHub login, and a private key, which must never go in a file in the repo, a chat or a commit. The script that does the actual test is built and tested against a mock (`packages/flow/src/flow/app_push_check.py`, `packages/flow/tests/test_app_push_check.py`, 6 tests). It has **not** been run against GitHub.
 
 The task is done when the real refusal is recorded: the push to the default branch is refused with a 403 or a protection error. Until then the box in `TASKS.md` stays unticked.

@@ -14,7 +14,7 @@ The pipeline runs model-written commands and reads text nobody trusts (a ticket,
 - A promptfoo red-team of the fix loop with three static cases (ticket, repo file, skill file), deterministic checks and no LLM judge. Mitigations behind a `harden` flag: untrusted text in marked blocks, a tool allowlist, an output filter.
 - Sandbox tiers: a runtime setting for the fix-loop sandbox, `guard sandbox-run`, a gVisor workflow, a Firecracker runner and workflow, and `guard ablation`. All three tiers ran on GitHub-hosted runners (Docker, gVisor, Firecracker). The workflows `gvisor.yml` and `firecracker.yml` also run on a pull request that changes them.
 - `guard.yml`: escape suite, secret scan and audit-log verification with no model, and the head hash written to the run summary.
-- Break-its: environment dump by ticket, an edited log line, a DNS lookup from the sandbox, and the App token pushing to the default branch (mock only).
+- Break-its: environment dump by ticket, an edited log line, a DNS lookup from the sandbox, and the App token pushing to the default branch (refused by GitHub itself with 422 on a throwaway repo with branch protection; the script `flow.app_push_check` did the real run).
 - ADR-024, ADR-025, ADR-026 (all proposed), the `guard` README, the phase report, and the P7 box in the architecture overview.
 
 ## Architecture (HLD)
@@ -157,7 +157,7 @@ flowchart LR
     GUARDCI["guard.yml<br/>escape suite, secret scan, verify-log, head hash in run summary; green on GitHub"]:::p7
     FCRUN["Firecracker tier<br/>firecracker-run and firecracker.yml; booted on a GitHub runner, 30 of 30, probes not ported"]:::p7
     ABLATION["tier ablation<br/>guard ablation; A, B and C run on GitHub runners, C has no probes"]:::p7
-    BREAKS7["P7 break-its<br/>env dump, edited log, DNS lookup; App push on a mock only"]:::p7
+    BREAKS7["P7 break-its<br/>env dump, edited log, DNS lookup; App push refused 422 on a real throwaway repo"]:::p7
     ADRS7["ADR-024, 025, 026<br/>proposed: threat model, sandbox tier (only Docker measured), secrets and token scopes"]:::p7
     GREADME["guard README and phase report<br/>controls listed, state of each; report cells are dashes"]:::p7
   end
@@ -340,7 +340,7 @@ flowchart LR
   BREAKS7 -- "env dump" --> HARDEN
   BREAKS7 -- "edited line" --> AUDIT
   BREAKS7 -- "DNS lookup" --> EGRESS
-  BREAKS7 -. "mock only" .-> APPTOK
+  BREAKS7 -. "real run, 422" .-> APPTOK
   ADRS7 -. "decides" .-> TM
   ADRS7 -. "default tier" .-> SBRUN
   ADRS7 -. "token scopes" .-> APPTOK
@@ -401,6 +401,7 @@ All run one package at a time on 2026-11-03 on Windows 11 (`uv run --all-package
 | `guard escape --tier docker` | 14 of 14 blocked (`packages/guard/results/dns-exfil-local.txt`) |
 | `guard ablation` on GitHub runners, 30 starts or boots per row | A Docker cold start p50 103.8 ms, B gVisor 112.6 ms (same runner, four runs: B slower by 8.8 to 11.4 ms cold start and 29.1 to 40.4 ms launch to exit every time); C Firecracker launch to exit p50 1056 ms, 30 of 30 boots, three runs. Table in `phases/P07-argus-guard.md`, run ids in `docs/notes/p7-github-tier-runs.md` |
 | Red-team on `gemma4:e4b` (local Ollama), 3 cases x 5 runs, twice | baseline: attack took effect in ticket 3 of 5, repo file 1 of 5, skill 0 of 5; with the mitigations 0 of 15 |
+| `python -m flow.app_push_check` against GitHub (throwaway repo, classic protection) | non-force move of `main`: 422 "Changes must be made through a pull request."; probe branch 201 and 204; write on another repo 404; verdict `as expected` (`packages/guard/results/app-push-real.json`) |
 | GitHub Actions on this PR | at head `18de91e` all 15 checks passed, including the new P7 workflows: `secret-scan` (`clean`), `egress` (sandbox could not connect, control could) and `guard` (14 of 14 probes, both audit logs verified). Runs and log excerpts: `docs/notes/p7-github-runs.md`. The `gvisor` and `firecracker` workflows ran later, with several red runs on the way (harness bugs, listed in `docs/notes/p7-github-tier-runs.md`) and then green or with only the gVisor in-ablation probe error. |
 
 ## Out of scope
@@ -412,14 +413,11 @@ All run one package at a time on 2026-11-03 on Windows 11 (`uv run --all-package
 
 ## What this PR does not claim
 
-Unticked tasks (1 of 23):
-
-| Task | Why |
-|---|---|
-| P7-T20 App token push | refused on a mock only; GitHub's own response with branch protection was not seen. The real-run script (`flow.app_push_check`, 7 mock tests) and the owner steps (`docs/notes/p7-t20-owner-steps.md`) are ready; it needs a GitHub App and a throwaway repo, which only the owner can create |
+All 23 tasks are ticked. The limits that sit behind some of the ticks are below.
 
 Other limits:
 - **Ticked on thinner evidence than the word suggests:** T10, T11 and T13 rest on runs on shared GitHub runners, a few runs each, with a fixture and not a real fix-loop task. T13: row C has launch to exit only (no cold start, no probe count; the probes were not ported into the microVM); row B's escape suite is 14 of 14 when run alone (16 suites) and 13 of 14 inside `guard ablation` (4 of 4), where the `fork-bomb` probe ends as an error for a reason not known. The suite tests configuration and cannot show that gVisor or Firecracker are safer, so ADR-025 keeps Docker as the default on cost and says what it cannot show.
+- **T20 real run:** one test App, one throwaway public repo, classic branch protection (require a pull request, `enforce_admins` on). GitHub refused the non-force move of `main` with 422 "Changes must be made through a pull request.", allowed a probe branch, and answered 404 for a write on a repo outside the installation (`packages/guard/results/app-push-real.json`). Not shown: a ruleset instead of classic protection, a private repo (protection there may need a paid plan; not checked), the production App, the token after its hour.
 - **Waived dependency:** P7-T00 depends on P6-T25, which is open (P6 has 7 open tasks). It was waived and the versions were re-checked on 2026-11-03.
 - **Phase report:** all cells are dashes. P7 does not run the fix loop for those columns, and P6's own row is empty. No baseline was made up.
 - **Red-team:** one small local model (not the production model), 5 runs per case, once without and once with the mitigations. The skill case is not evidence: the skill text reached the model in only 2 of 5 baseline runs and in 0 of 5 hardened runs. The gain cannot be credited to one mitigation (the output filter also hid the canary from the model). The mitigations are off by default and their cost to the fix rate was not measured.
@@ -429,8 +427,8 @@ Other limits:
 - **Reading:** the T01 notes and the T02 threat model were written by Claude for the owner to read. The OWASP PDF could not be read; the ASI names come from the OWASP launch post. ADR-024, 025 and 026 are proposed, not accepted.
 - **Pre-existing:** `check_no_secrets.py` was already failing before this PR (`golden.yml` names `secrets.PLATFORM_REPO_TOKEN`); it is fixed here, and the new tracked-file scan allows 7 made-up test values by their text. The known `test_ast_grep.py` failure remains.
 - **T03, T05, T17 on GitHub evidence, with limits:** they rest on the first runs of `secret-scan`, `egress` and `guard` (Docker tier on a hosted runner). The T17 failure modes (probe escapes, secret planted, log edited) are shown by tests that ran locally only; no GitHub workflow runs the `guard` package tests. The T05 Actions result is a log excerpt, not the uploaded artifact.
-- **Not verified on GitHub:** the App permission list against GitHub's real responses, and branch protection.
+- **Not verified on GitHub:** the production App (the test App used the same permission list and GitHub accepted the token request).
 
-The one open owner step (T20: create the App, install it on a throwaway repo, turn on branch protection, record GitHub's answer) is in `docs/notes/p7-t04-app-permissions.md` and `p7-break-its.md`.
+Owner cleanup after the T20 run: delete the test App's private key and the App, and the two scratch repos if not needed (`docs/notes/p7-t20-owner-steps.md`, step 6). To decide: accept ADR-024, 025, 026; whether the red-team mitigations should be on by default.
 
 🤖 Generated with [Claude Code](https://claude.com/claude-code)

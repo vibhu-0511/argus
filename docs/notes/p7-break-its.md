@@ -135,7 +135,7 @@ OK 12 records, head 9a2d50f5cd8a3dbff263870597f06a8959cd4336d8b199882092c3424904
 
 Run: `uv run --all-packages python -m pytest packages/guard/tests/test_break_auditlog.py -v -s` -> 6 passed.
 
-## P7-T20 App token used to push to the default branch (MOCK ONLY, NOT TICKED)
+## P7-T20 App token used to push to the default branch (mock first, then the real run)
 
 Test: `packages/flow/tests/test_break_app_push.py` (5 tests, no network, no database, no real App, no real repository). It reuses the mock GitHub of `test_app_token.py` (T04): an RS256-checked token endpoint, token scoping, and branch protection modelled as a status on the ref update. **The real refusal, GitHub's own answer with branch protection on, was NOT seen.** There is no GitHub App and no repository to push to (only the owner can create them), so this note proves that our code asks for the minimum and that our client reports a refusal. It does not prove that GitHub refuses.
 
@@ -210,4 +210,24 @@ PASSED
 
 Run: `uv run --all-packages python -m pytest packages/flow/tests/test_break_app_push.py -v -s` -> 5 passed (mock only).
 
-**Update (T20 real run, not done yet).** The script that will produce GitHub's own answer is `python -m flow.app_push_check` (`packages/flow/src/flow/app_push_check.py`, 7 mock tests). The owner steps (create the App, install it on a throwaway repo, protect `main`, run it, record the result) are in `docs/notes/p7-t20-owner-steps.md`. Until that run exists this section stays "mock only" and the box stays unticked.
+**Update: the real run (2026-11-03, 04:12 UTC).** The owner created a GitHub App (App ID 5589921) with the permission list of `docs/notes/p7-t04-app-permissions.md`, installed it on one throwaway public repository `vibhu-0511/argus-p7-t20-scratch`, turned on classic branch protection for `main` (require a pull request before merging, 0 approvals, `enforce_admins` on, no force pushes, no deletions), and ran `python -m flow.app_push_check` with a second private repository `vibhu-0511/argus-p7-t20-other` that the App is not installed on. Result file: `packages/guard/results/app-push-real.json` (no token in it; checked with grep). Verdict: `as expected: default branch refused, probe branch allowed, other repository refused`.
+
+| Step | Request | GitHub's answer |
+|---|---|---|
+| Repositories the token sees | `GET /installation/repositories` | 200, exactly `argus-p7-t20-scratch` |
+| Read `main` and its head commit | `GET .../git/ref/heads/main`, `.../git/commits/<sha>` | 200 |
+| Create an empty commit object | `POST .../git/commits` | 201 (a commit object is not a ref update) |
+| **Move `main`, non-force** | `PATCH .../git/refs/heads/main` | **422 "Changes must be made through a pull request."** |
+| Control: create a probe branch | `POST .../git/refs` | 201 |
+| Control: delete it | `DELETE .../git/refs/heads/argus-p7-t20-probe-9b8871` | 204 |
+| Write on the other repository | `POST /repos/vibhu-0511/argus-p7-t20-other/git/refs` | 404 "Not Found" |
+
+Checked afterwards from the owner's account: `main` of the scratch repo is still the initial commit `10803ca`, and the only branch is `main` (the probe branch is gone).
+
+What this shows, and what it does not:
+
+- The acceptance text ("refused with a 403 or a protection error") is met: the push to the default branch was refused with a 422 and GitHub's own protection message. The mock guessed 403 or 422 (and a different message, GH006 style); the real status was 422 with the text above.
+- The same token could create and delete a branch, so the refusal is about the branch (protection), not a bad token. As the mock control run said, only protection keeps `main` safe; the token's Contents: write covers every branch.
+- The token saw one repository only, and a write on a repository outside the installation was answered 404.
+- Side result for T04: the real token request (explicit `permissions` map of the `write` profile and one `repositories` entry) was accepted by GitHub, and the strict answer check in `flow.app_token` did not reject the real answer (the T04 note listed that as a risk).
+- Not shown: a ruleset instead of classic protection; the production App (this was a test App; the manifest and permission list are the same); the token after its hour; a protected default branch on a private repository (the scratch repo is public, because protection on private repositories may need a paid plan; not checked); what a repository admin could do (`enforce_admins` was on).

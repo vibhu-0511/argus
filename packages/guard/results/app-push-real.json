@@ -1,0 +1,95 @@
+{
+  "task": "P7-T20",
+  "ran_at": "2026-11-03T04:12:47+00:00",
+  "repo": "vibhu-0511/argus-p7-t20-scratch",
+  "other_repo": "vibhu-0511/argus-p7-t20-other",
+  "default_branch": "main",
+  "verdict": "as expected: default branch refused, probe branch allowed, other repository refused",
+  "steps": [
+    {
+      "step": "installation repositories",
+      "request": "GET /installation/repositories",
+      "status": 200,
+      "message": "",
+      "as_expected": true,
+      "expected": [
+        200
+      ],
+      "repositories": [
+        "vibhu-0511/argus-p7-t20-scratch"
+      ]
+    },
+    {
+      "step": "read default branch",
+      "request": "GET /repos/vibhu-0511/argus-p7-t20-scratch/git/ref/heads/main",
+      "status": 200,
+      "message": "",
+      "as_expected": true,
+      "expected": [
+        200
+      ]
+    },
+    {
+      "step": "read head commit",
+      "request": "GET /repos/vibhu-0511/argus-p7-t20-scratch/git/commits/10803cac94a828dbc0452a72facd134eb6a24677",
+      "status": 200,
+      "message": "Initial commit",
+      "as_expected": true,
+      "expected": [
+        200
+      ]
+    },
+    {
+      "step": "create an empty commit object",
+      "request": "POST /repos/vibhu-0511/argus-p7-t20-scratch/git/commits",
+      "status": 201,
+      "message": "Argus P7-T20 probe: empty commit, never merged",
+      "as_expected": true,
+      "expected": [
+        201
+      ]
+    },
+    {
+      "step": "move the default branch (non-force)",
+      "request": "PATCH /repos/vibhu-0511/argus-p7-t20-scratch/git/refs/heads/main",
+      "status": 422,
+      "message": "Changes must be made through a pull request.",
+      "as_expected": true,
+      "expected": [
+        403,
+        422
+      ]
+    },
+    {
+      "step": "control: create a probe branch",
+      "request": "POST /repos/vibhu-0511/argus-p7-t20-scratch/git/refs",
+      "status": 201,
+      "message": "",
+      "as_expected": true,
+      "expected": [
+        201
+      ]
+    },
+    {
+      "step": "control: delete the probe branch",
+      "request": "DELETE /repos/vibhu-0511/argus-p7-t20-scratch/git/refs/heads/argus-p7-t20-probe-9b8871",
+      "status": 204,
+      "message": "",
+      "as_expected": true,
+      "expected": [
+        204
+      ]
+    },
+    {
+      "step": "write on another repository",
+      "request": "POST /repos/vibhu-0511/argus-p7-t20-other/git/refs",
+      "status": 404,
+      "message": "Not Found",
+      "as_expected": true,
+      "expected": [
+        403,
+        404
+      ]
+    }
+  ]
+}

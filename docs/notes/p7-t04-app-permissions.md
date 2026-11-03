@@ -1,5 +1,7 @@
 # P7-T04 GitHub App: permissions, token life, owner steps
 
+> **Update 2026-11-03 (first real use):** a test App with this permission list was created and installed on one throwaway repository. GitHub accepted the token request (explicit `permissions` map of the `write` profile, one `repositories` entry), and the strict answer check in `flow.app_token` did not reject the real answer. See the T20 section of `docs/notes/p7-break-its.md`. The production App and the screen names in section 6 were not re-checked.
+
 Date: 2026-11-03. **The permission list below is stated before the first push and before the App exists.** Nothing in the code needs the App: `flow.app_token` runs against an httpx mock transport. The owner creates the App later (section 6). The real GitHub was **not** called in this task; every statement about what GitHub does is from the docs listed in section 8 or marked "from memory, not checked".
 
 Today the three clients use fine-grained personal tokens from Render env vars (`GITHUB_WRITE_TOKEN`, `GITHUB_DISPATCH_TOKEN`, `GITHUB_TOKEN`). The App replaces them. The clients were not changed to mint tokens themselves (section 7).
