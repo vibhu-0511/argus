@@ -307,7 +307,7 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 
 ## Week 27 — P7, P8 (19 h scheduled)
 
-- [ ] P7-T14 Write ADR-024: Threat model and trust boundaries [ME] 1h
+- [x] P7-T14 Write ADR-024: Threat model and trust boundaries [ME] 1h (written by Claude, status proposed, owner to decide) States the boundaries, the nine assets and 14 residual risks marked accepted (2), owner decision (4) or open (8), including the unfixed findings. See `docs/adr/0024-threat-model-and-trust-boundaries.md`.
 - [ ] P7-T15 Write ADR-025: Sandbox tier selection [ME] 1h
 - [ ] P7-T16 Write ADR-026: Secrets handling and token scopes [ME] 1h
 - [ ] P7-T17 Add CI job for escape tests, secret scan and audit-log verification, no LLM [CLAUDE] 2h
