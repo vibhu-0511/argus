@@ -217,6 +217,17 @@ def test_render_blueprint_is_a_free_web_service_with_secrets_as_keys_only():
     assert not [k for k in keys if k.startswith("DBOS") or "CONDUCTOR" in k.upper()]
 
 
+def test_our_info_lines_are_switched_on_once():
+    """Render showed no `poll loop on` line because nobody configured the `flow` logger; one handler, INFO level."""
+    from flow.service import _enable_logging
+
+    _enable_logging()
+    flow = logging.getLogger("flow")
+    handlers = len(flow.handlers)
+    _enable_logging()
+    assert len(flow.handlers) == handlers >= 1 and flow.level == logging.INFO
+
+
 @pytest.mark.postgres
 @pytest.mark.skipif(not REAL_URL, reason=f"{DATABASE_URL_ENV} is not set; needs a real Postgres")
 def test_the_whole_service_starts_against_a_real_postgres_and_stops(env, caplog):

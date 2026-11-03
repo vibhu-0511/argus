@@ -58,6 +58,17 @@ from flow.workflow import Deps
 
 log = logging.getLogger("flow.service")
 
+
+def _enable_logging() -> None:
+    """Show our own INFO lines (engine start, poll results) in the Render log. Python prints only warnings
+    and errors from a logger nobody configured, which hid `poll loop on` and every healthy poll."""
+    flow = logging.getLogger("flow")
+    flow.setLevel(logging.INFO)
+    if not flow.handlers:
+        handler = logging.StreamHandler()
+        handler.setFormatter(logging.Formatter("%(levelname)s %(name)s: %(message)s"))
+        flow.addHandler(handler)
+
 POLL_ENABLED_ENV = "ARGUS_FLOW_POLL_ENABLED"
 ENGINE_WAIT_SECONDS = 120.0  # how long a background enqueue waits for the engine: wake-up (about 60 s) plus DBOS launch
 _OFF = frozenset({"0", "false", "no", "off"})
@@ -118,6 +129,7 @@ def create_service_app(
     stop: Callable[[], None] = shutdown,
 ) -> FastAPI:
     """The app. `load`, `start` and `stop` are the seams the tests replace; production uses the defaults."""
+    _enable_logging()
     state = _State()
 
     class LateEnqueuer:  # the webhook is built before the engine exists

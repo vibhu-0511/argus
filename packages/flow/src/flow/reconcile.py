@@ -241,6 +241,8 @@ class Reconciler:
             except Exception as e:  # one ticket's error must not stop the others
                 errors[ticket_id] = str(e) if isinstance(e, (GitHubReadError, NotATicket)) else type(e).__name__
                 log.warning("reconcile of %s failed: %s", ticket_id, errors[ticket_id])
+        counts = {a: sum(r.action == a for r in reconciled) for a in ("started", "exists", "settled")}
+        log.info("poll: %d tickets listed, started %d, exists %d, settled %d, errors %d", len(tickets), counts["started"], counts["exists"], counts["settled"], len(errors))
         return PollResult(reconciled, errors)
 
 
