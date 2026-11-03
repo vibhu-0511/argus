@@ -307,15 +307,15 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 
 ## Week 27 — P7, P8 (19 h scheduled)
 
-- [ ] P7-T14 Write ADR-024: Threat model and trust boundaries [ME] 1h
-- [ ] P7-T15 Write ADR-025: Sandbox tier selection [ME] 1h
-- [ ] P7-T16 Write ADR-026: Secrets handling and token scopes [ME] 1h
+- [x] P7-T14 Write ADR-024: Threat model and trust boundaries [ME] 1h (written by Claude, status proposed, owner to decide) States the boundaries, the nine assets and 14 residual risks marked accepted (2), owner decision (4) or open (8), including the unfixed findings. See `docs/adr/0024-threat-model-and-trust-boundaries.md`.
+- [x] P7-T15 Write ADR-025: Sandbox tier selection [ME] 1h (written by Claude, status proposed, owner to decide) Cites the ablation: only row A (Docker, `--network none`, 30 starts, 12 of 12 probes, Windows Docker Desktop) was measured; **B (gVisor) and C (Firecracker) are unmeasured** and the ADR draws no comparison. Default: Docker with `--network none`; states when a stronger tier is required and what to measure before revisiting. See `docs/adr/0025-sandbox-tier-selection.md`.
+- [x] P7-T16 Write ADR-026: Secrets handling and token scopes [ME] 1h (written by Claude, status proposed, owner to decide) Lifetimes for every secret in the inventory, the App permission list unchanged from the T04 note, and a rotation procedure per secret (App key and webhook secret included). Nothing was checked on GitHub, Render or Neon; the owner must create the App and the stores. See `docs/adr/0026-secrets-handling-and-token-scopes.md`.
 - [ ] P7-T17 Add CI job for escape tests, secret scan and audit-log verification, no LLM [CLAUDE] 2h
 - [x] P7-T18 Break it: inject a ticket that asks the agent to print its environment [ME] 2h Scripted obedient model, real `run_fix`, fake secrets in the host environment: on the Docker path (what `fix_step` uses) none reaches the model, trajectory, patch or reply, with `harden` off or on; the host executor leaks into the patch with `harden` off (control). See `docs/notes/p7-break-its.md`.
 - [x] P7-T19 Break it: edit one line of the audit log [ME] 2h Real `guard verify-log` on a 12-record log: an edited record fails and names its line (exit 1); a consistent rewrite from the edit onward passes alone and fails only against a saved head hash (`--head`); no head hash is shipped anywhere yet. See `docs/notes/p7-break-its.md`.
 - [ ] P7-T20 Break it: use the App token to push to the default branch [ME] 2h UNTICKED: only the mock was run (`packages/flow/tests/test_break_app_push.py`: minimum permission list, over-broad request refused before HTTP, push to main refused as a modelled 403/422). GitHub's real refusal with branch protection on was NOT seen; no App or repository exists. Owner steps in `docs/notes/p7-break-its.md`.
 - [x] P7-T21 Break it: try DNS exfiltration from the sandbox [ME] 2h
-- [ ] P7-T22 Write package README and phase report against P6 [CLAUDE] 1h
+- [x] P7-T22 Write package README and phase report against P6 [CLAUDE] 1h `packages/guard/README.md` lists the controls (tested locally / never run on GitHub / not run), the escape-suite command and the other commands. The phase-report rows are filled as far as real data allows: every cell is a dash, because P6 has no numbers (P6-T25 open) and P7 does not run the fix loop for resolve rate, tokens or latency; the real P7 measurements are in a second table with their limits.
 - [ ] P8-T00 Re-verify pinned versions via web search [CLAUDE] 1h
 - [ ] P8-T01 Read the multi-agent and building-effective-agents posts, write notes [ME] 1h
 - [ ] P8-T02 Create the GitHub App manifest with the P7 least-privilege permissions [PAIR] 3h
