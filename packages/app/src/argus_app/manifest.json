@@ -1,0 +1,26 @@
+{
+  "name": "argus-fixer",
+  "url": "{{ARGUS_APP_HOMEPAGE_URL}}",
+  "description": "Turns a labelled UI bug issue into a verified fix and opens a pull request.",
+  "public": true,
+  "hook_attributes": {
+    "url": "{{ARGUS_FLOW_SERVICE_URL}}/webhook",
+    "active": true
+  },
+  "redirect_url": "{{ARGUS_APP_REDIRECT_URL}}",
+  "request_oauth_on_install": false,
+  "setup_on_update": false,
+  "default_events": [
+    "issues",
+    "pull_request",
+    "pull_request_review",
+    "pull_request_review_comment"
+  ],
+  "default_permissions": {
+    "actions": "write",
+    "contents": "write",
+    "issues": "write",
+    "metadata": "read",
+    "pull_requests": "write"
+  }
+}
