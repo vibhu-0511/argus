@@ -1,0 +1,20 @@
+[project]
+name = "argus-app"
+version = "0.1.0"
+description = "P8 argus-app: GitHub App manifest, reusable workflow, tenant config, intake, PR creation and backport bot."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = ["argus-core", "fix-loop", "flow", "guard", "pydantic>=2.14.1", "pyyaml>=6.0", "httpx>=0.28.1"]
+
+[project.scripts]
+argus-app = "argus_app.cli:main"
+
+[tool.uv.sources]
+argus-core = { workspace = true }
+fix-loop = { workspace = true }
+flow = { workspace = true }
+guard = { workspace = true }
+
+[build-system]
+requires = ["uv_build>=0.12.2,<0.13.0"]
+build-backend = "uv_build"

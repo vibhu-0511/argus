@@ -11,6 +11,7 @@ resolution-markers = [
 [manifest]
 members = [
     "argus",
+    "argus-app",
     "argus-bench",
     "argus-core",
     "dom2src-mcp",
@@ -78,6 +79,31 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [{ name = "pytest", specifier = ">=8" }]
+
+[[package]]
+name = "argus-app"
+version = "0.1.0"
+source = { editable = "packages/app" }
+dependencies = [
+    { name = "argus-core" },
+    { name = "fix-loop" },
+    { name = "flow" },
+    { name = "guard" },
+    { name = "httpx" },
+    { name = "pydantic" },
+    { name = "pyyaml" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "argus-core", editable = "packages/argus-core" },
+    { name = "fix-loop", editable = "packages/fix-loop" },
+    { name = "flow", editable = "packages/flow" },
+    { name = "guard", editable = "packages/guard" },
+    { name = "httpx", specifier = ">=0.28.1" },
+    { name = "pydantic", specifier = ">=2.14.1" },
+    { name = "pyyaml", specifier = ">=6.0" },
+]
 
 [[package]]
 name = "argus-bench"
