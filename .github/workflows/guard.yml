@@ -1,0 +1,61 @@
+name: guard
+
+# P7-T17. No model call, no secrets (only the default read-only GITHUB_TOKEN of the checkout). The job fails when
+#  - an escape probe does not print BLOCKED (the suite exits 1; a tier that cannot run exits 3),
+#  - the secret scan finds a token, a credentialed remote URL or a model-secret name in a workflow,
+#  - `guard verify-log` finds an edited line in the log this run wrote, or the committed sample log (checked against its pinned head).
+# The head hash of the run's log goes to the run summary: a second place, so a log rewritten end to end is still detectable.
+# The same commands run locally as `uv run --all-packages python -m guard ...`; see docs/notes/p7-t17.md.
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+      - run: uv sync --all-packages --locked
+      - name: Escape suite on the docker tier, one audit record per probe
+        run: |
+          mkdir -p guard-out
+          uv run --all-packages python -m guard escape --tier docker --out guard-out/escape.json --audit-log guard-out/escape-audit.jsonl
+      - name: Secret scan
+        if: always()
+        run: python3 .github/workflows/check_no_secrets.py
+      - name: Verify the audit logs (this run's log, then the committed sample against its pinned head)
+        if: always()
+        run: |
+          uv run --all-packages python -m guard verify-log guard-out/escape-audit.jsonl | tee guard-out/head.txt
+          uv run --all-packages python -m guard verify-log packages/guard/tests/fixtures/audit-sample.jsonl --head cbfd750d793c49e944e0ce8c91f39338282787d6360255db76bf240c864e4410
+      - name: Head hash to the run summary
+        if: always()
+        run: |
+          {
+            echo '### Escape audit log head hash'
+            echo
+            echo 'Copy this line somewhere else (a release note, a ticket). `guard verify-log <file> --head <hash>` then also catches a cut tail or a rewritten log.'
+            echo
+            echo '```'
+            cat guard-out/head.txt || echo 'no head: the log was not written or did not verify'
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: guard-audit
+          path: guard-out/

@@ -19,6 +19,8 @@ from pathlib import Path
 
 from fix_loop import sandbox
 
+from guard.auditlog import AuditLog
+
 HOST = "example.com"
 IP = "1.1.1.1"
 
@@ -86,6 +88,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--context", default="local", help="label stored in the result: local or actions")
     ap.add_argument("--control", action="store_true", help="also run the probe with network on, to prove it can see `reached`")
     ap.add_argument("--out", help="write the result JSON here")
+    ap.add_argument("--audit-log", help="append one hash-chained record per check to this file (P7-T17)")
     args = ap.parse_args(argv)
 
     if not _image_present():
@@ -109,6 +112,10 @@ def main(argv: list[str] | None = None) -> int:
         control, _ = run_control()
         report["control_results"] = control
         report["control_saw_reached"] = any(v == "reached" for v in control.values())
+    if args.audit_log:
+        audit = AuditLog(args.audit_log)
+        for name, result in results.items():
+            audit.append("policy_event", {"source": "egress", "check": name, "target": report["targets"][name], "result": result, "held": result == "connect-failed"})
     text = json.dumps(report, indent=2)
     print(text)
     if args.out:

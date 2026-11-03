@@ -105,19 +105,19 @@ def tracked_leaks(root: Path = ROOT) -> list[str]:
     return found
 
 
-def main() -> int:
+def main(root: Path = ROOT) -> int:
     if not self_check():
         print("self-check failed", file=sys.stderr)
         return 1
     failed = False
-    for hit in remote_leaks():
+    for hit in remote_leaks(root):
         failed = True
         print(f"git config {hit}: a remote URL must not carry a user or token", file=sys.stderr)
-    for hit in tracked_leaks():
+    for hit in tracked_leaks(root):
         failed = True
         print(hit, file=sys.stderr)
     for pattern in ("*.yml", "*.yaml"):
-        for path in sorted(DIR.glob(pattern)):
+        for path in sorted((root / ".github" / "workflows").glob(pattern)):
             hit = markers_in(path.read_text(encoding="utf-8"), path.name)
             if hit:
                 failed = True
@@ -129,4 +129,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main(Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT))  # an argument scans that repository (tests plant a secret in a temp one)
