@@ -172,7 +172,7 @@ def run_ablation(tier: str, n: int, fc: dict | None = None) -> dict:
     suite = escape.run_suite(tier, RUNTIME[tier], None)
     report["escape"] = {
         "probes_passed": suite["summary"]["pass"], "probes_total": len(suite["probes"]), "summary": suite["summary"],
-        "probes": [{"id": p["id"], "status": p["status"]} for p in suite["probes"]],
+        "probes": [{"id": p["id"], "status": p["status"], **({"detail": p.get("detail")} if p["status"] != "pass" else {})} for p in suite["probes"]],
     }
     report["leftover_containers"] = leftover_containers(tier)
     ok = report["starts_ok"] == n and suite["summary"]["fail"] == 0 and suite["summary"]["error"] == 0 and not report["leftover_containers"]

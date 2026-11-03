@@ -97,10 +97,12 @@ jobs:
           --firecracker ./firecracker --kernel "$KERNEL_NAME" --rootfs rootfs.ext4 --checks checks.ext4
           --out results/firecracker-run.json
       - name: Ablation row C on this runner (microVM, 30 boots)
-        run: >
-          uv run --all-packages python -m guard.ablation --tier firecracker --n 30
-          --firecracker ./firecracker --kernel "$KERNEL_NAME" --rootfs rootfs.ext4 --checks checks.ext4
-          --out results/ablation-firecracker-actions.json
+        run: |
+          # the first run of this step said /dev/kvm was not readable although the boot step had just used it: show and re-apply the ACL
+          ls -l /dev/kvm; getfacl /dev/kvm || true; id
+          sudo setfacl -m "u:${USER}:rw" /dev/kvm
+          ls -l /dev/kvm
+          uv run --all-packages python -m guard.ablation --tier firecracker --n 30 --firecracker ./firecracker --kernel "$KERNEL_NAME" --rootfs rootfs.ext4 --checks checks.ext4 --out results/ablation-firecracker-actions.json
       - name: Ablation row A on the same runner (Docker, 30 starts)
         if: always()
         run: |
