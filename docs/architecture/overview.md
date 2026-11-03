@@ -129,6 +129,12 @@ flowchart LR
     AUDIT["audit log<br/>hash chain, guard verify-log, not wired into fix-loop"]:::p7
     EGRESS["egress probe<br/>tcp, https, dns; ran locally, egress.yml not run on GitHub"]:::p7
     ESCAPE["escape suite<br/>12 probes, docker tier 12 of 12 blocked, gvisor and firecracker not run"]:::p7
+    APPTOK["App token<br/>flow.app_token, minimum permissions, one repo, mock transport, no App created"]:::p7
+    REDTEAM["promptfoo red-team<br/>3 static cases: ticket, repo file, skill; deterministic checks"]:::p7
+    RTRES["red-team results<br/>gemma4:e4b local, 15 runs each way, not the production model"]:::p7
+    HARDEN["mitigations<br/>untrusted-data blocks, tool allowlist, output filter, off by default"]:::p7
+    SBRUN["sandbox runtime setting<br/>guard sandbox-run, runc ran, runsc unavailable here"]:::p7
+    GVWF["gvisor.yml<br/>manual dispatch, never run"]:::p7
   end
 
   BUGSMITH --> FILTER
@@ -285,6 +291,20 @@ flowchart LR
   ESCAPE -. "extends" .-> EGRESS
   TM -. "ASI10 control" .-> AUDIT
   TM -. "ASI05 control" .-> ESCAPE
+  APPTOK -. "mints the token for" .-> GHWRITE
+  APPTOK -- "installation token, one repo" --> GITHUB
+  REDACT -- "scrub now uses it" --> AGENTJOB
+  REDTEAM -- "attack in the ticket and repo file" --> FIX
+  REDTEAM -. "attack in a skill file" .-> SKLOAD
+  REDTEAM --> RTRES
+  HARDEN -- "wraps untrusted text" --> FIX
+  HARDEN -- "filters output" --> REDACT
+  RTRES -. "baseline against hardened" .-> HARDEN
+  SBRUN -- "runtime flag" --> WT
+  GVWF -. "never run" .-> SBRUN
+  ESCAPE -. "gvisor tier" .-> SBRUN
+  TM -. "ASI03 control" .-> APPTOK
+  TM -. "ASI01 control" .-> HARDEN
 
   classDef p0 fill:#dbeafe,stroke:#1d4ed8,stroke-width:1.5px,color:#111827
   style S0 fill:none,stroke:#1d4ed8,stroke-width:1.5px
@@ -305,7 +325,7 @@ flowchart LR
   classDef p7 fill:#fee2e2,stroke:#b91c1c,stroke-width:4px,color:#111827
   style S7 fill:none,stroke:#b91c1c,stroke-width:4px
   classDef ext fill:#ffffff,stroke:#6b7280,color:#111827,stroke-dasharray: 4 3
-  linkStyle 134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151 stroke-width:3px
+  linkStyle 134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165 stroke-width:3px
 ```
 
 ## How to read it
@@ -356,6 +376,9 @@ Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink, P5.5 purple,
 - Wave 2: `argus_core.redact` masks known secret values and token-shaped strings in every trajectory file (`Trajectory.to_jsonl`) and every span (`RedactingExporter`); `packages/guard/secrets-inventory.md` lists each secret, where it lives and who can read it; `check_no_secrets.py` also fails on a token in a git remote URL; `secret-scan.yml` is written but has not run on GitHub (P7-T03 stays unticked).
 - `guard.auditlog` and `guard verify-log`: an append-only JSONL hash chain; verification names the first bad line (edited, deleted, swapped lines); a truncated tail is only caught by comparing a shipped head hash. It is not wired into the fix loop yet.
 - `guard.egress` and `guard.escape`: the no-egress probe ran locally against the fix-loop sandbox (the control container reached the host, the sandbox did not). `guard escape --tier docker` ran 12 probes, all blocked; the gVisor and Firecracker tiers print "not available" and never pass. `egress.yml` has not run on GitHub (P7-T05 stays unticked).
+- Wave 3: `flow.app_token` mints a one-hour installation token for one repository with an explicit minimum permission list (`docs/notes/p7-t04-app-permissions.md`); a policy check refuses a broader request before any HTTP call. It runs on a mock transport only: no GitHub App exists, and GitHub's real refusals and branch protection were not checked. `flow.agent_job.scrub` now goes through the redactor.
+- The promptfoo red-team: three static cases (ticket, repo file, skill file) with deterministic checks. Real run on the local `gemma4:e4b` only (15 runs, 5 per case): at baseline the canary was copied into a file in 3 of 5 ticket runs and 1 of 5 repo-file runs, and 0 of 5 skill runs, but the skill text reached the model in only 2 of 5 runs, so the skill path is untested. With the T09 mitigations (untrusted-data blocks, tool allowlist, output filter) 0 of 15 runs. The gain cannot be credited to one mitigation, the sample is small, and the model is not the production model. The mitigations are off by default and no caller turns them on yet.
+- `ARGUS_SANDBOX_RUNTIME` and `guard sandbox-run`: a runtime setting in the fix-loop sandbox; a missing runtime is an error, never a silent run on runc. `runc` ran the fixture here; `runsc` is not installed on this machine, so nothing was measured under gVisor (P7-T10 stays unticked); `gvisor.yml` is written and never run.
 - Per-task detail: `docs/architecture/p7.md`.
 
 ## What P5 added
