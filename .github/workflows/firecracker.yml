@@ -1,0 +1,111 @@
+name: firecracker
+
+# P7-T11. WRITTEN BUT NEVER RUN. Manual only. No model call, no secrets, no tokens.
+# Boots one Firecracker microVM, runs the fixture task from `guard sandbox-run` inside it and stores the result as the artifact
+# `firecracker`. The first step prints `ls -l /dev/kvm` and FAILS the job with a clear message when KVM is absent, so the log
+# either confirms or denies KVM. docs/notes/p7-t00-versions.md: /dev/kvm on a standard hosted runner is NOT confirmed, and GitHub
+# calls nested virtualization unsupported. If this fails at step 1, the runner has no KVM: use the `runner` input with a
+# KVM-capable label (larger or self-hosted runner). Owner steps: docs/notes/p7-t11.md.
+on:
+  workflow_dispatch:
+    inputs:
+      runner:
+        description: "runs-on label (ubuntu-24.04 is the plain hosted runner; give a KVM-capable larger or self-hosted label here)"
+        default: "ubuntu-24.04"
+
+permissions:
+  contents: read
+
+env:
+  # Firecracker release and the sha256 from its asset firecracker-v1.17.0-x86_64.tgz.sha256.txt (read 2026-11-03)
+  FC_VERSION: v1.17.0
+  FC_SHA256: 06094a1108ae9e82aa4c23a775aa92758f53f1175d422270d9d6162cb9ade558
+  # Guest kernel and rootfs: the bucket and layout named in the Firecracker quickstart (docs/getting-started.md, "Getting a rootfs
+  # and Guest Kernel Image"). The quickstart takes the newest dated folder; this is the newest one seen on 2026-11-03, pinned.
+  # Sizes are from the bucket listing. The bucket is Firecracker's CI store, so a folder may be removed later.
+  FC_S3: https://s3.amazonaws.com/spec.ccfc.min
+  FC_CI: firecracker-ci/20261028-84df49062576-0/x86_64
+  KERNEL_NAME: vmlinux-6.18.56
+  KERNEL_SIZE: "27893992"
+  ROOTFS_NAME: ubuntu-24.04.squashfs
+  ROOTFS_SIZE: "108503040"
+
+jobs:
+  firecracker:
+    runs-on: ${{ inputs.runner }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Is there a /dev/kvm?
+        run: |
+          mkdir -p results
+          {
+            echo "runner: ${{ inputs.runner }}"
+            echo "kernel: $(uname -r)  arch: $(uname -m)"
+            echo "cpu virtualization flags (vmx or svm) in /proc/cpuinfo: $(grep -c -w -E 'vmx|svm' /proc/cpuinfo || true)"
+            echo "kvm modules: $(lsmod | grep -E '^kvm' | tr '\n' ' ' || true)"
+            echo "ls -l /dev/kvm:"
+            ls -l /dev/kvm 2>&1 || true
+          } | tee results/firecracker-kvm.txt
+          if [ ! -e /dev/kvm ]; then
+            echo "::error title=No /dev/kvm on this runner::KVM is absent, so no microVM can boot here. Re-run with the runner input set to a KVM-capable runner label (see docs/notes/p7-t11.md). The Firecracker tier is NOT confirmed by this run."
+            echo "RESULT: /dev/kvm ABSENT" | tee -a results/firecracker-kvm.txt
+            exit 1
+          fi
+          echo "RESULT: /dev/kvm PRESENT" | tee -a results/firecracker-kvm.txt
+          # Firecracker docs: give the user read/write access to /dev/kvm
+          sudo setfacl -m "u:${USER}:rw" /dev/kvm
+          ls -l /dev/kvm
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+      - run: uv sync --all-packages --locked
+      - name: Install Firecracker and check its checksum
+        run: |
+          [ "$(uname -m)" = x86_64 ] || { echo "::error::the pinned checksum is for x86_64 only"; exit 1; }
+          curl -fsSL -o fc.tgz "https://github.com/firecracker-microvm/firecracker/releases/download/${FC_VERSION}/firecracker-${FC_VERSION}-x86_64.tgz"
+          echo "${FC_SHA256}  fc.tgz" | sha256sum -c -
+          tar -xzf fc.tgz
+          mv "release-${FC_VERSION}-x86_64/firecracker-${FC_VERSION}-x86_64" firecracker
+          chmod +x firecracker
+          ./firecracker --version
+      - name: Download the guest kernel and rootfs
+        run: |
+          curl -fsSL -o "$KERNEL_NAME" "$FC_S3/$FC_CI/$KERNEL_NAME"
+          curl -fsSL -o "$ROOTFS_NAME" "$FC_S3/$FC_CI/$ROOTFS_NAME"
+          [ "$(stat -c %s "$KERNEL_NAME")" = "$KERNEL_SIZE" ] || { echo "::error::kernel size differs from the pinned size"; exit 1; }
+          [ "$(stat -c %s "$ROOTFS_NAME")" = "$ROOTFS_SIZE" ] || { echo "::error::rootfs size differs from the pinned size"; exit 1; }
+          # not pinned (the bucket gives no sha256): printed so the owner can pin it after the first run
+          sha256sum "$KERNEL_NAME" "$ROOTFS_NAME" | tee results/firecracker-guest-sha256.txt
+      - name: Build the guest images (rootfs with the fixture init, read-only checks drive)
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq squashfs-tools
+          sudo unsquashfs -d squashfs-root "$ROOTFS_NAME"
+          uv run --all-packages python -m guard.firecracker_run --print-init | sudo tee squashfs-root/fixture-init >/dev/null
+          sudo chmod 755 squashfs-root/fixture-init
+          truncate -s 1G rootfs.ext4
+          sudo mkfs.ext4 -q -d squashfs-root -F rootfs.ext4
+          mkdir checks-src && printf 'same' > checks-src/keep.txt
+          truncate -s 16M checks.ext4
+          mkfs.ext4 -q -d checks-src -F checks.ext4
+          sudo chown "$USER" rootfs.ext4 checks.ext4
+      - name: Boot the microVM and run the fixture task
+        run: >
+          uv run --all-packages python -m guard.firecracker_run
+          --firecracker ./firecracker --kernel "$KERNEL_NAME" --rootfs rootfs.ext4 --checks checks.ext4
+          --out results/firecracker-run.json
+      - name: Show the results
+        if: always()
+        run: |
+          for f in firecracker-kvm.txt firecracker-run.json; do
+            echo "### $f" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            cat "results/$f" >> "$GITHUB_STEP_SUMMARY" || true
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: firecracker
+          path: results/
+          if-no-files-found: warn

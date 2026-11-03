@@ -20,5 +20,13 @@ def main(argv: list[str] | None = None) -> int:
         from guard.sandbox_run import main as sandbox_run_main
 
         return sandbox_run_main(args[1:])
+    if args[:1] == ["firecracker-run"]:
+        from guard.firecracker_run import main as firecracker_run_main
+
+        return firecracker_run_main(args[1:])
+    if args[:1] == ["ablation"]:
+        from guard.ablation import main as ablation_main
+
+        return ablation_main(args[1:])
     print("guard: no sub-command yet" if not args else f"guard: unknown sub-command {args[0]!r}")
     return 2
