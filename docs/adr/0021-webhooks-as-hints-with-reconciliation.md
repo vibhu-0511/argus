@@ -85,7 +85,7 @@ What follows from it, and what does not:
 - **Defect, not fixed here: PR events name the wrong ticket.** `ticket_id_of` takes `payload["pull_request"]["number"]`, which is the PR number, not the issue number. With the real `DbosEnqueuer`, a `pull_request` delivery would start a workflow keyed `owner/repo#<PR number>`. The runbook subscribes the webhook to Pull requests (`docs/notes/p6-t12.md`). The poller never maps a PR to a ticket (it raises `NotATicket` and skips PRs). The fix belongs in the handler: ignore `pull_request` events for enqueueing, or map the PR to its issue. Found by T07, documented in `p6-t07.md`, still present in `flow/webhook.py`.
 - **Lost review comments** are not repaired (above). Making the poller read PR reviews and review comments, or the `/argus` command in issue comments, would close it; not checked, not built.
 - **`issue_comment` is not parsed,** so a command in the conversation tab is ignored silently (ADR-023).
-- **The poller is off in the Blueprint** and its GitHub write counterpart is `UnwiredGitHub`, so on the deployed service nothing real is reconciled yet (ADR-022).
+- **The poller is off in the Blueprint** (`render.yaml`); on 2026-11-03 it was switched on in the deployed service for the T23 test, with a ticket label so only labelled issues are polled. The GitHub write client is `flow.github_write.HttpGitHubClient` (it replaced `UnwiredGitHub`, which raised on every call) and made its first real writes in T23.
 - Facts about GitHub's and Render's behaviour are dated 2026-11-01. The 300 s default is a choice for the owner to confirm or change after T13 and T14; the code takes it from `ARGUS_FLOW_POLL_INTERVAL_S`.
 
 ## Sources
@@ -104,4 +104,4 @@ Read on 2026-11-01 unless stated; repository facts are from the files named.
 | Dropped webhook while asleep (stand-in), and why the poller cannot run asleep | `docs/notes/p6-t23-break-it.md`, `packages/flow/tests/test_render_sleep_break_it.py` |
 | Webhook during a database outage, forgetting the id, redelivery accepted | `docs/notes/p6-t24-break-it.md`, `packages/flow/src/flow/db_wake.py` |
 | Restart opens no second PR | `docs/notes/p6-t21-break-it.md`, `docs/notes/p6-t19.md` |
-| Poller off in the Blueprint; `UnwiredGitHub`; webhook events and `qa_send` wiring | `render.yaml`, `packages/flow/src/flow/service.py`, `docs/notes/p6-t12.md` |
+| Poller off in the Blueprint; the write client that replaced `UnwiredGitHub`; webhook events and `qa_send` wiring | `render.yaml`, `packages/flow/src/flow/service.py`, `docs/notes/p6-t12.md` |

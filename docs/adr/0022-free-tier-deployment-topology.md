@@ -92,10 +92,10 @@ Place the parts as in the topology table: **one Render free web service holding 
 | Neon free: 100 CU-hours/project and the same split between table and Compute section; reactivation "within a few hundred milliseconds"; storage 1 GB per project | https://neon.com/docs/introduction/plans, https://neon.com/docs/introduction/scale-to-zero (`docs/notes/p6-t00-versions.md`) | 2026-11-01 |
 | Render free: 15 minutes idle, outbound and background work do not keep awake, "about one minute", 750 hours, ephemeral disk, one instance, free Postgres expires after 30 days | https://render.com/docs/free (same notes) | 2026-11-01 |
 | GitHub: 10 s to answer, no automatic retry, redeliver by hand or API | https://docs.github.com/en/webhooks/using-webhooks/best-practices-for-using-webhooks (same notes) | 2026-11-01 |
-| Service, Blueprint, `/health` versus `/health/db`, `UnwiredGitHub`, poll off, QA tool not mounted | `packages/flow/src/flow/service.py`, `render.yaml`, `docs/notes/p6-t12.md` | repository |
+| Service, Blueprint, `/health` versus `/health/db`, the write client that replaced `UnwiredGitHub`, poll off in the Blueprint, QA tool not mounted | `packages/flow/src/flow/service.py`, `render.yaml`, `docs/notes/p6-t12.md` | repository |
 | Wake-up probe (6 attempts, about 60 s), TLS guard, direct endpoint, pooled endpoint not tried | `packages/flow/src/flow/db_wake.py`, `docs/notes/p6-t11.md` | repository |
 | DBOS threads query the database on a timer (observed in a stand-in, interval not measured) | `docs/notes/p6-t24-break-it.md` | repository |
 | A sleeping service runs no poller; the local test cannot show it | `docs/notes/p6-t23-break-it.md` | repository |
-| `flow.agent_job` does not exist; a dispatched run fails at that step | `docs/notes/p6-t04.md`, `.github/workflows/agent-job.yml` | repository |
+| `flow.agent_job` exists but its default steps have never run; the workflow is not on the default branch and its secrets are not set, so a dispatch fails (T23: dispatch failed three times) | `docs/notes/p6-t04.md`, `.github/workflows/agent-job.yml` | repository |
 | Poll defaults (300 s, 30 per page, 3 pages) and request counts | `packages/flow/src/flow/reconcile.py`, `docs/notes/p6-t07.md` | repository |
 | T14 wording ("per month" is not stated) | `phases/P06-argus-flow.md`, task P6-T14 | repository |

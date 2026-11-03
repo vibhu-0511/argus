@@ -6,7 +6,7 @@ Architecture, one section per task: [docs/architecture/p6.md](../../docs/archite
 
 ## Status (read this first)
 
-**Deployed in part (2026-11-03).** The service runs on Render free at `https://argus-flow.onrender.com` against a Neon project, and `/health` and `/health/db` answered on the public URL. No webhook is registered, no ticket has run, and nothing below the service has been seen on real GitHub or Actions. Everything else below was built and tested with a throwaway Postgres and fakes (on a local machine, and the flow tests also on GitHub Actions, see T20). No model was called.
+**Deployed in part (2026-11-03).** The service runs on Render free at `https://argus-flow.onrender.com` against a Neon project, and `/health` and `/health/db` answered on the public URL. A webhook for the Issues event is registered and one test issue has gone through it (T23); no agent job has run, and nothing else below the service has been seen on real GitHub or Actions. Everything else below was built and tested with a throwaway Postgres and fakes (on a local machine, and the flow tests also on GitHub Actions, see T20). No model was called.
 
 What is not finished, and why (state of `TASKS.md` when this README was written):
 
@@ -19,7 +19,7 @@ What is not finished, and why (state of `TASKS.md` when this README was written)
 | T23 Render sleeps, webhook lost | **Done, ticked 2026-11-03.** Real run: both webhooks failed at GitHub after 10 s, the woken service still handled them, the poller started the workflow, a redelivery changed nothing. Still open: a sleeping service runs no poller, so something must wake it on a schedule (ADR-022). [p6-t23-break-it.md](../../docs/notes/p6-t23-break-it.md) |
 | T16 ADR-021 | Written and updated with the T13 evidence; ticked. Proposed until the owner approves it. |
 | T17 ADR-022 | Written; needs the T14 measurement (Neon CU-hours, whether polling keeps it awake). Open. |
-| T25 this README and the phase report | The P5 row is filled; the P6 row and the delta are dashes because P6 ran no model. See the end of this file and [p6-t25.md](../../docs/notes/p6-t25.md). |
+| T25 this README and the phase report | **Ticked on the owner's decision, 2026-11-03.** The P5 row is filled; the P6 row and the delta are dashes with a reason per cell, because P6 ran no model. See the end of this file and [p6-t25.md](../../docs/notes/p6-t25.md). |
 
 Other limits that matter:
 
