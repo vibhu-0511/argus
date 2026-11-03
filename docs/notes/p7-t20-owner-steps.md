@@ -21,7 +21,7 @@ GitHub, Settings, Developer settings, GitHub Apps, New GitHub App ([docs](https:
 | Name | anything unique, for example `argus-p7-t20-test` |
 | Homepage URL | any URL (the repo URL is fine) |
 | Webhook | untick Active (no webhook is needed for this test) |
-| Repository permissions | Metadata: Read-only (GitHub sets this itself). Contents: Read and write. Pull requests: Read and write. Issues: Read and write. **Nothing else.** This is the list in `docs/notes/p7-t04-app-permissions.md`, section 1 |
+| Repository permissions | Actions: Read and write. Contents: Read and write. Issues: Read and write. Pull requests: Read and write. Metadata: Read-only (GitHub sets this itself). **Nothing else.** This is the App's list (`MINIMUM` in `flow.app_token`, `docs/notes/p7-t04-app-permissions.md`, section 1). The token this test asks for is narrower: the `write` profile, without Actions |
 | Account and organization permissions | none |
 | Where can this GitHub App be installed | Only on this account |
 
