@@ -2,6 +2,7 @@
 (non-docker) child process."""
 
 import json
+from pathlib import Path
 import subprocess
 import sys
 
@@ -127,12 +128,13 @@ def test_failed_start_is_listed_and_not_counted(fake, monkeypatch, tmp_path):
     assert r["starts_ok"] == 2 and r["starts_failed"][0]["start"] == 2
 
 
-def test_microvm_tier_measures_launch_to_exit_and_does_not_claim_probes(monkeypatch):
+def test_microvm_tier_measures_launch_to_exit_and_does_not_claim_probes(monkeypatch, tmp_path):
     monkeypatch.setattr(ablation.firecracker_run, "unavailable", lambda fc: None)
     walls = iter([1.0, 1.2, 1.4])
     monkeypatch.setattr(ablation.firecracker_run, "run_microvm",
                         lambda *a, **k: {"status": "pass", "wall_seconds": next(walls)})
-    fc = {"firecracker": "fc", "kernel": "k", "rootfs": "r", "checks": "c"}
+    (tmp_path / "r").write_bytes(b"rootfs")
+    fc = {"firecracker": "fc", "kernel": "k", "rootfs": str(tmp_path / "r"), "checks": "c"}
     r = ablation.run_ablation("firecracker", 3, fc)
     assert r["status"] == "done" and r["starts_ok"] == 3 and r["total_ms"]["p50"] == 1200.0
     assert r["cold_start_ms"] is None and "not_run" in r["escape"]
@@ -142,4 +144,20 @@ def test_microvm_tier_without_images_is_not_run(monkeypatch):
     monkeypatch.setattr(ablation.firecracker_run, "unavailable", lambda fc: None)
     r = ablation.run_ablation("firecracker", 3, {"firecracker": "fc"})
     assert r["status"] == "not_run" and "--kernel" in r["detail"]
+
+
+def test_each_microvm_boot_gets_its_own_copy_of_the_rootfs(monkeypatch, tmp_path):
+    base = tmp_path / "rootfs.ext4"
+    base.write_bytes(b"pristine")
+    seen = []
+
+    def fake_boot(fcbin, kernel, rootfs, checks, workdir, timeout):
+        seen.append(rootfs)
+        assert Path(rootfs).read_bytes() == b"pristine"
+        Path(rootfs).write_bytes(b"dirty")  # the guest writes to its root drive
+        return {"status": "pass", "wall_seconds": 1.0}
+
+    monkeypatch.setattr(ablation.firecracker_run, "run_microvm", fake_boot)
+    r = ablation.measure_microvm(3, {"firecracker": "fc", "kernel": "k", "rootfs": str(base), "checks": "c"})
+    assert r["starts_ok"] == 3 and len(set(seen)) == 3 and base.read_bytes() == b"pristine"
 

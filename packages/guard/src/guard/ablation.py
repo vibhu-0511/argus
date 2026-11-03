@@ -19,6 +19,7 @@ import argparse
 import json
 import math
 import platform
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -119,12 +120,21 @@ def not_run_reason(tier: str, fc: dict | None = None) -> str | None:
     return escape.unavailable(tier, RUNTIME[tier], None)
 
 
+def fresh_copy(src: str, dst: Path) -> None:
+    """A private copy of the rootfs for one boot: the guest writes to its root drive, and a reused image made boots 2 to 30 fail (2026-11-03). `cp --sparse` keeps the 1 GiB image small."""
+    if subprocess.run(["cp", "--sparse=always", src, str(dst)], capture_output=True).returncode != 0:
+        shutil.copyfile(src, dst)
+
+
 def measure_microvm(n: int, fc: dict, timeout: int = 120) -> dict:
     """N microVM boots. Only launch-to-exit is measured (the guest console has no timestamps), so cold start and fixture run are None."""
     total, failures = [], []
     with tempfile.TemporaryDirectory(prefix="guard-ablation-fc-", ignore_cleanup_errors=True) as tmp:
         for i in range(n):
-            r = firecracker_run.run_microvm(fc["firecracker"], fc["kernel"], fc["rootfs"], fc["checks"], Path(tmp) / f"vm{i}", timeout)
+            rootfs = Path(tmp) / f"rootfs{i}.ext4"
+            fresh_copy(fc["rootfs"], rootfs)
+            r = firecracker_run.run_microvm(fc["firecracker"], fc["kernel"], str(rootfs), fc["checks"], Path(tmp) / f"vm{i}", timeout)
+            rootfs.unlink(missing_ok=True)
             if r.get("status") == "pass":
                 total.append(r["wall_seconds"])
             else:

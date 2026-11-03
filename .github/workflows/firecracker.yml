@@ -91,6 +91,8 @@ jobs:
           truncate -s 16M checks.ext4
           mkfs.ext4 -q -d checks-src -F checks.ext4
           sudo chown "$USER" rootfs.ext4 checks.ext4
+          # untouched copy for the ablation: the guest writes to its root drive, so every boot in the ablation gets a fresh copy of this
+          cp --sparse=always rootfs.ext4 rootfs.pristine.ext4
       - name: Boot the microVM and run the fixture task
         run: >
           uv run --all-packages python -m guard.firecracker_run
@@ -102,7 +104,7 @@ jobs:
           ls -l /dev/kvm; getfacl /dev/kvm || true; id
           sudo setfacl -m "u:${USER}:rw" /dev/kvm
           ls -l /dev/kvm
-          uv run --all-packages python -m guard.ablation --tier firecracker --n 30 --firecracker ./firecracker --kernel "$KERNEL_NAME" --rootfs rootfs.ext4 --checks checks.ext4 --out results/ablation-firecracker-actions.json
+          uv run --all-packages python -m guard.ablation --tier firecracker --n 30 --firecracker ./firecracker --kernel "$KERNEL_NAME" --rootfs rootfs.pristine.ext4 --checks checks.ext4 --out results/ablation-firecracker-actions.json
       - name: Ablation row A on the same runner (Docker, 30 starts)
         if: always()
         run: |

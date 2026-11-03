@@ -51,6 +51,13 @@ jobs:
         run: uv run --all-packages python -m guard.sandbox_run --runtime runsc --out packages/guard/results/sandbox-run-runsc.json
       - name: Run the escape suite on the gvisor tier
         run: uv run --all-packages python -m guard.escape --tier gvisor --out packages/guard/results/escape-gvisor.json
+      - name: Escape suite on gVisor, 5 repeats (the fork-bomb probe ended as an error in 2 of 3 ablation runs)
+        if: always()
+        run: |
+          for i in 1 2 3 4 5; do
+            echo "=== repeat $i"
+            uv run --all-packages python -m guard.escape --tier gvisor --out packages/guard/results/escape-gvisor-repeat-$i.json | grep -E 'fork-bomb|probes:' || true
+          done
       - name: Ablation row A on this runner (Docker, 30 starts)
         run: |
           rc=0
