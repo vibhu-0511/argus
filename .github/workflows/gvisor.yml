@@ -1,11 +1,13 @@
 name: gvisor
 
-# P7-T10. WRITTEN BUT NEVER RUN. Manual only. No model call, no secrets, no tokens.
+# P7-T10. Manual dispatch, and it also runs on a pull request that changes this file (2026-11-03: added so the first real run can happen before this file reaches main, where manual dispatch becomes possible). No model call, no secrets, no tokens.
 # Installs gVisor (runsc) on a hosted Linux runner, registers it as a Docker runtime, runs the fixture task and the escape
 # suite on the gvisor tier, and stores both result files as the artifact `gvisor`. Download it and commit the files into
 # packages/guard/results/ (owner steps: docs/notes/p7-t10.md). The job fails if the runtime did not register or a step fails.
 # Unproven: the tarball layout (found by name below), `runsc install` on a hosted runner, and the sandbox on the runner's kernel.
 on:
+  pull_request:
+    paths: ['.github/workflows/gvisor.yml']
   workflow_dispatch:
     inputs:
       release:
@@ -27,7 +29,7 @@ jobs:
       - run: uv sync --all-packages --locked
       - name: Install runsc from the release tarball and check its checksum
         env:
-          REL: ${{ inputs.release }}
+          REL: ${{ inputs.release || 'release-20261026.0' }}
         run: |
           ARCH="$(uname -m)"
           base="https://github.com/google/gvisor/releases/download/$REL"
@@ -49,10 +51,14 @@ jobs:
         run: uv run --all-packages python -m guard.sandbox_run --runtime runsc --out packages/guard/results/sandbox-run-runsc.json
       - name: Run the escape suite on the gvisor tier
         run: uv run --all-packages python -m guard.escape --tier gvisor --out packages/guard/results/escape-gvisor.json
+      - name: Ablation rows on this runner, tier A then tier B (30 starts each)
+        run: |
+          uv run --all-packages python -m guard.ablation --tier docker --n 30 --out packages/guard/results/ablation-docker-actions.json
+          uv run --all-packages python -m guard.ablation --tier gvisor --n 30 --out packages/guard/results/ablation-gvisor-actions.json
       - name: Show the results
         if: always()
         run: |
-          for f in sandbox-run-runsc escape-gvisor; do
+          for f in sandbox-run-runsc escape-gvisor ablation-docker-actions ablation-gvisor-actions; do
             echo "### $f" >> "$GITHUB_STEP_SUMMARY"
             echo '```json' >> "$GITHUB_STEP_SUMMARY"
             cat "packages/guard/results/$f.json" >> "$GITHUB_STEP_SUMMARY" || true
@@ -65,3 +71,5 @@ jobs:
           path: |
             packages/guard/results/sandbox-run-runsc.json
             packages/guard/results/escape-gvisor.json
+            packages/guard/results/ablation-docker-actions.json
+            packages/guard/results/ablation-gvisor-actions.json

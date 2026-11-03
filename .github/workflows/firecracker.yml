@@ -1,12 +1,14 @@
 name: firecracker
 
-# P7-T11. WRITTEN BUT NEVER RUN. Manual only. No model call, no secrets, no tokens.
+# P7-T11. Manual dispatch, and it also runs on a pull request that changes this file (added 2026-11-03 so the first real run, and the answer to the /dev/kvm question, can happen before this file reaches main). No model call, no secrets, no tokens.
 # Boots one Firecracker microVM, runs the fixture task from `guard sandbox-run` inside it and stores the result as the artifact
 # `firecracker`. The first step prints `ls -l /dev/kvm` and FAILS the job with a clear message when KVM is absent, so the log
 # either confirms or denies KVM. docs/notes/p7-t00-versions.md: /dev/kvm on a standard hosted runner is NOT confirmed, and GitHub
 # calls nested virtualization unsupported. If this fails at step 1, the runner has no KVM: use the `runner` input with a
 # KVM-capable label (larger or self-hosted runner). Owner steps: docs/notes/p7-t11.md.
 on:
+  pull_request:
+    paths: ['.github/workflows/firecracker.yml']
   workflow_dispatch:
     inputs:
       runner:
@@ -32,7 +34,7 @@ env:
 
 jobs:
   firecracker:
-    runs-on: ${{ inputs.runner }}
+    runs-on: ${{ inputs.runner || 'ubuntu-24.04' }}
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
@@ -40,7 +42,7 @@ jobs:
         run: |
           mkdir -p results
           {
-            echo "runner: ${{ inputs.runner }}"
+            echo "runner: ${{ inputs.runner || 'ubuntu-24.04' }}"
             echo "kernel: $(uname -r)  arch: $(uname -m)"
             echo "cpu virtualization flags (vmx or svm) in /proc/cpuinfo: $(grep -c -w -E 'vmx|svm' /proc/cpuinfo || true)"
             echo "kvm modules: $(lsmod | grep -E '^kvm' | tr '\n' ' ' || true)"
