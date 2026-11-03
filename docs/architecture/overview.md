@@ -1,14 +1,16 @@
-# Architecture overview (P0 to P5.5)
+# Architecture overview (P0 to P6)
 
-As-built view of Argus after phase P5.5. Later phases are not drawn. This file grows by one phase in each stacked pull request; the diagram source is the same text the PR description shows.
+As-built view of Argus after phase P6 (so far). Later phases are not drawn. This file grows by one phase in each stacked pull request; the diagram source is the same text the PR description shows.
 
 ```mermaid
 flowchart LR
   TICKET["Ticket<br/>text and optional screenshot"]:::ext
   CANVAS["dcortex Canvas<br/>system under test"]:::ext
   PG[("copa-local Postgres")]:::ext
+  FPG[("DBOS system database<br/>local Postgres now, Neon later")]:::ext
   HOSTS["Model hosts<br/>Groq, Mistral, Ollama"]:::ext
   TRACES["Trace backends<br/>Langfuse Cloud, Phoenix local"]:::ext
+  GITHUB["GitHub<br/>issues, PRs, Actions, webhooks"]:::ext
 
   subgraph S0 ["P0 bench and quota ledger"]
     CORE["argus-core<br/>Ticket, Task, Trajectory schemas"]:::p0
@@ -79,7 +81,7 @@ flowchart LR
     MMRUN["multimodal run<br/>local SWE-bench grading, none dropped"]:::p5
   end
 
-  subgraph S55 ["P5.5 skills (NEW IN THIS PR)"]
+  subgraph S55 ["P5.5 skills"]
     SPLIT["train and held-out split<br/>check: no shared task or file-operator pair"]:::p55
     SKLOAD["skill loader<br/>catalog in prompt, load_skill returns a body"]:::p55
     TRUST["trust checks<br/>review flag, hash pin, tool allowlist, cap of 3"]:::p55
@@ -91,6 +93,30 @@ flowchart LR
     SELECT["selection test<br/>catalog only, 7 of 10 right"]:::p55
     SABL["with vs without skills<br/>29 held-out tasks, no gain seen"]:::p55
     BREAKS["break-it tests<br/>poisoned, always-matching, stale"]:::p55
+  end
+
+  subgraph S6 ["P6 flow (NEW IN THIS PR)"]
+    STATES["workflow state machine<br/>10 states, 12 transitions, idempotency keys"]:::p6
+    WEBHOOK["webhook endpoint<br/>HMAC-SHA256, fail closed"]:::p6
+    HINT["hint handler<br/>202, no GitHub read, delivery-id dedup"]:::p6
+    ENQ["enqueue interface<br/>DbosEnqueuer, one workflow per ticket id"]:::p6
+    WF["DBOS ticket workflow<br/>five idempotent steps, stored results"]:::p6
+    CFG["flow config<br/>listen_notify off, pinned version and executor"]:::p6
+    ACTIONS["Actions runner<br/>dispatch, find before start, artifact"]:::p6
+    AJOB["agent-job.yml<br/>workflow_dispatch, never run on GitHub"]:::p6
+    GREAD["GitHub reader<br/>read-only: issue, branch, PR, run"]:::p6
+    RECON["reconciliation poller<br/>derive_state, poll_once"]:::p6
+    QA["QA signal wait<br/>approve, reject, timeout, idempotency key"]:::p6
+    RCOM["review-comment parser<br/>the QA path that ships"]:::p6
+    QMCP["MRTR elicitation tool<br/>input_required, inputResponses"]:::p6
+    DBWAKE["database wake-up<br/>bounded retry with backoff, TLS required"]:::p6
+    SERVICE["Render service<br/>flow.service, /health, live on Render free"]:::p6
+    GHWRITE["GitHub write client<br/>find before act, draft PR, mock transport only"]:::p6
+    AGENTJOB["flow.agent_job<br/>runs one step, writes result.json, never run on GitHub"]:::p6
+    CRASH["crash-recovery harness<br/>real process kills, ledger fakes"]:::p6
+    FLOWCI["flow.yml<br/>Postgres service container, green on GitHub"]:::p6
+    COLD["cold-start timer<br/>signed ping; 5 of 5 over 10 s"]:::p6
+    NEONUSE["Neon usage probe<br/>CU-hours against polling, not run"]:::p6
   end
 
   BUGSMITH --> FILTER
@@ -190,6 +216,43 @@ flowchart LR
   SABL -. "stored P5 variant A" .-> ABLH
   BREAKS --> TRUST
   BREAKS --> WT
+  GITHUB --> WEBHOOK
+  WEBHOOK --> HINT
+  HINT --> ENQ
+  STATES -. "workflow id key" .-> ENQ
+  STATES -. "step names, not imported" .-> REPRO
+  STATES -. "step names, not imported" .-> FIX
+  STATES -. "step names, not imported" .-> CHECKS
+  ENQ --> WF
+  WF -- "moves only via next_state" --> STATES
+  WF --> FPG
+  CFG --> WF
+  WF --> ACTIONS
+  ACTIONS -- "workflow_dispatch" --> AJOB
+  AJOB --> AGENTJOB
+  AGENTJOB --> REPRO
+  AGENTJOB --> FIX
+  AGENTJOB -. "scores the patch" .-> SCORER
+  ACTIONS --> GITHUB
+  GREAD --> GITHUB
+  RECON --> GREAD
+  RECON --> ENQ
+  RECON -. "derive_state" .-> STATES
+  WF --> QA
+  RCOM --> QA
+  WEBHOOK --> RCOM
+  QMCP --> QA
+  CFG --> DBWAKE
+  DBWAKE --> FPG
+  SERVICE --> WEBHOOK
+  SERVICE --> DBWAKE
+  SERVICE --> RECON
+  SERVICE --> GHWRITE
+  GHWRITE --> GITHUB
+  CRASH -. "hard-kills the worker" .-> WF
+  FLOWCI -. "flow test suite" .-> WF
+  COLD -. "times the 202" .-> WEBHOOK
+  NEONUSE -. "reads usage of" .-> FPG
 
   classDef p0 fill:#dbeafe,stroke:#1d4ed8,stroke-width:1.5px,color:#111827
   style S0 fill:none,stroke:#1d4ed8,stroke-width:1.5px
@@ -203,10 +266,12 @@ flowchart LR
   style S4 fill:none,stroke:#c2410c,stroke-width:1.5px
   classDef p5 fill:#fce7f3,stroke:#be185d,stroke-width:1.5px,color:#111827
   style S5 fill:none,stroke:#be185d,stroke-width:1.5px
-  classDef p55 fill:#ede9fe,stroke:#6d28d9,stroke-width:4px,color:#111827
-  style S55 fill:none,stroke:#6d28d9,stroke-width:4px
+  classDef p55 fill:#e7e5e4,stroke:#57534e,stroke-width:1.5px,color:#111827
+  style S55 fill:none,stroke:#57534e,stroke-width:1.5px
+  classDef p6 fill:#ede9fe,stroke:#6d28d9,stroke-width:4px,color:#111827
+  style S6 fill:none,stroke:#6d28d9,stroke-width:4px
   classDef ext fill:#ffffff,stroke:#6b7280,color:#111827,stroke-dasharray: 4 3
-  linkStyle 78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96 stroke-width:3px
+  linkStyle 97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133 stroke-width:3px
 ```
 
 ## How to read it
@@ -219,7 +284,24 @@ flowchart LR
 | Dotted arrow | a stored input (`fixture`), a test-only link or an advisory link, not a live call |
 | Thick arrow | a link added in this phase |
 
-Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink, P5.5 purple.
+Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink, P5.5 stone, P6 violet.
+
+## What P6 adds
+
+- `packages/flow`: the ticket workflow state machine (`flow.states`): ten states, 12 legal transitions, any other pair raises, and stable idempotency keys for each side effect. Pure Python, no DBOS yet.
+- A FastAPI webhook endpoint that checks GitHub's HMAC-SHA256 signature (secret from `GITHUB_WEBHOOK_SECRET`, fail closed) and a handler that treats the webhook as a hint: it enqueues a reconcile and returns 202 with no GitHub read. A repeated delivery id is a no-op. The enqueue is an interface; `DbosEnqueuer` starts the workflow under the ticket id.
+- `flow.workflow` (T03): the ticket workflow as a DBOS workflow with five idempotent steps (repro, fix, verify, open PR, hand-off), step results stored in Postgres, find-or-create PR on one stable draft branch. `flow.config` fixes `use_listen_notify` off, a pinned application version and executor id, and no conductor key. The repro, fix and verify runners and the GitHub client are injected fakes; nothing dispatches to Actions yet (T04) and the QA wait is a stub (T08).
+- `flow.actions` (T04): an Actions runner that dispatches a step as a `workflow_dispatch` run, finds an existing run by its run key before starting one, and reads the patch and trajectory artifact. `agent-job.yml` is written but has never run on GitHub, and its entry point `flow.agent_job` (wave 6) runs one step and writes `result.json`, but its default steps have not run and the workflow does not yet check out the platform repository or start the Docker rig, so T04 is unticked.
+- `flow.reconcile` and `flow.github_read` (T07): a read-only GitHub reader and a poller that maps issue, branch, PR and run onto the workflow states and enqueues under the same workflow id as the webhook. Tested on 11 recorded GitHub JSON fixtures.
+- QA wait (T08, T10, T09, T18): the workflow waits in `awaiting-qa` for an approve or reject signal with a timeout. A review comment (`/argus approve` or `/argus reject`) from an allowed reviewer ships as the QA path (ADR-023); the MRTR elicitation tool is built and tested in memory, with no real MCP client run.
+- `flow.db_wake` (T11, T24): a bounded wake-up with backoff before DBOS launches, and a rule that a non-local database URL must use TLS (`sslmode=require` or stronger). Tested against a local Postgres with TLS, by killing connections and by stopping and starting it; nothing ran against Neon. ADR-020 records DBOS over Temporal (decision only, nothing built for Temporal).
+- `flow.service` and `render.yaml` (T12): the one app Render would run, with `/health` that answers before the database is awake and a late-bound enqueuer so the webhook still answers 202. Live on Render free since 2026-11-03 (`/health` answered on the public URL; no webhook or ticket run yet). The workflow's GitHub write client (`flow.github_write`, wave 6) finds before it acts and keeps the PR a draft; it has only run against a mock transport, never real GitHub. The Blueprint keeps polling off until the first real run.
+- Crash-recovery experiment (T19, T21): 150 real process kills per variant (plain function against DBOS) at 15 points, fake runners with a durable ledger. Both variants finished every run; DBOS repeated fewer calls (0.93 against 4.47 per kill) and made no duplicate effect, the plain function set one label twice. Killing after the PR is created left one draft PR (10 of 10).
+- `flow.yml` (T20) runs the flow tests on a Postgres service container and was green on GitHub on 2026-11-02 (364 passed, 5 skipped). A Render sleep that drops a webhook is shown locally (T23); a sleeping service runs no poller, an open finding.
+- Measurement tooling (T13, T14): a script that times the Render cold start with a signed ping against the 10 s webhook timeout, and a probe that compares Neon usage with what DBOS polling asks of the database. The cold-start script has run against the Render service (5 cold answers of 21.8 to 51.8 s after 20 idle minutes, all over 10 s); the Neon probe has not run, so no CU-hour figure exists. Owner steps are in `docs/notes/p6-t13.md` and `p6-t14.md`.
+- ADR-021 (webhooks as hints with reconciliation) and ADR-022 (free-tier topology) are written and marked proposed. `packages/flow/README.md` and the phase report hold the status; the P5 cells stay as dashes.
+- Version re-check and DBOS and MRTR notes (`docs/notes/p6-t00-versions.md`, `p6-t01-dbos-mrtr.md`). Per-task detail: `docs/architecture/p6.md`.
+- P6 was started before P5.5 and before P5 finished, by the owner's choice (`docs/notes/p6-waves.md`).
 
 ## What P5.5 adds
 
@@ -232,7 +314,7 @@ Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink, P5.5 purple.
 - The phase report against P5 is in `phases/P05.5-argus-skills.md`, made with `python -m eval report`; the two T08 rows are results files in `packages/eval/results/t08/`.
 - Per-task detail: `docs/architecture/p5.5.md`.
 
-## What P5 adds (so far)
+## What P5 added
 
 - `packages/eval`: the five trajectory metrics (steps, tool-error rate, redundant-call rate, stuck rate, recover-after-gate-failure rate) over stored trajectory files, and a runner that writes one results JSON with a Wilson 95% interval. The results JSON is the file the report, gate and dashboard read.
 - `packages/argus-core/prices.json`: dated list prices per model and the dollar-equivalent function. The runner and the spans use it.

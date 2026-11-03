@@ -1,0 +1,30 @@
+{
+  "ticket": "acme/shop#12",
+  "expect": "reproducing",
+  "why": "A repro run is in progress.",
+  "issue": {
+    "number": 12,
+    "title": "Checkout total is wrong",
+    "state": "open",
+    "labels": [],
+    "html_url": "https://github.com/acme/shop/issues/12"
+  },
+  "pulls": [],
+  "ref": null,
+  "runs": {
+    "total_count": 1,
+    "workflow_runs": [
+      {
+        "id": 901,
+        "name": "argus-dispatch",
+        "display_title": "argus:acme/shop#12:dispatch-repro:1",
+        "event": "workflow_dispatch",
+        "status": "in_progress",
+        "conclusion": null,
+        "created_at": "2026-11-01T10:00:00Z",
+        "head_branch": "main"
+      }
+    ]
+  },
+  "comments": []
+}

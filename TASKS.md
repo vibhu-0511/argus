@@ -252,38 +252,38 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 
 ## Week 22 — P6 (20 h scheduled)
 
-- [ ] P6-T00 Re-verify pinned versions via web search [CLAUDE] 1h
-- [ ] P6-T01 Read the DBOS docs and the MRTR and Tasks sections of the MCP post, write notes [ME] 1h
-- [ ] P6-T02 Design the workflow state machine: states, transitions, idempotency keys [ME] 3h
-- [ ] P6-T03 Implement the workflow with DBOS durable steps against a local Postgres [ME] 4h
+- [x] P6-T00 Re-verify pinned versions via web search [CLAUDE] 1h
+- [x] P6-T01 Read the DBOS docs and the MRTR and Tasks sections of the MCP post, write notes [ME] 1h
+- [x] P6-T02 Design the workflow state machine: states, transitions, idempotency keys [ME] 3h
+- [x] P6-T03 Implement the workflow with DBOS durable steps against a local Postgres [ME] 4h
 - [ ] P6-T04 Dispatch agent jobs to GitHub Actions as the execution plane and collect artifacts [PAIR] 3h
-- [ ] P6-T05 Build the FastAPI webhook endpoint with HMAC signature verification [PAIR] 2h
-- [ ] P6-T06 Treat webhooks as hints: enqueue a reconcile and return immediately [ME] 1h
-- [ ] P6-T07 Build the reconciliation poller that rebuilds state from GitHub [ME] 3h
-- [ ] P6-T08 Add the QA signal wait with a timeout [ME] 2h
+- [x] P6-T05 Build the FastAPI webhook endpoint with HMAC signature verification [PAIR] 2h
+- [x] P6-T06 Treat webhooks as hints: enqueue a reconcile and return immediately [ME] 1h
+- [x] P6-T07 Build the reconciliation poller that rebuilds state from GitHub [ME] 3h
+- [x] P6-T08 Add the QA signal wait with a timeout [ME] 2h
 
 ## Week 23 — P6 (21 h scheduled)
 
-- [ ] P6-T09 Add MRTR elicitation for the QA approval step [ME] 3h
-- [ ] P6-T10 Add the plain GitHub review-comment fallback for QA approval [PAIR] 1h
-- [ ] P6-T11 Set up Neon free Postgres with reconnect handling for scale-to-zero [CLAUDE] 2h
-- [ ] P6-T12 Deploy the FastAPI and DBOS service to Render free [CLAUDE] 3h
-- [ ] P6-T13 Measure the Render cold start against the 10 s webhook timeout [ME] 2h
+- [x] P6-T09 Add MRTR elicitation for the QA approval step [ME] 3h
+- [x] P6-T10 Add the plain GitHub review-comment fallback for QA approval [PAIR] 1h
+- [x] P6-T11 Set up Neon free Postgres with reconnect handling for scale-to-zero [CLAUDE] 2h
+- [x] P6-T12 Deploy the FastAPI and DBOS service to Render free [CLAUDE] 3h
+- [x] P6-T13 Measure the Render cold start against the 10 s webhook timeout [ME] 2h
 - [ ] P6-T14 Measure Neon CU-hours with DBOS polling over 48 hours [ME] 2h
-- [ ] P6-T15 Write ADR-020: DBOS vs Temporal (decision only) [ME] 2h
-- [ ] P6-T16 Write ADR-021: Webhooks as hints with reconciliation [ME] 1h
+- [x] P6-T15 Write ADR-020: DBOS vs Temporal (decision only) [ME] 2h
+- [x] P6-T16 Write ADR-021: Webhooks as hints with reconciliation [ME] 1h
 - [ ] P6-T17 Write ADR-022: Free-tier deployment topology [ME] 1h
-- [ ] P6-T18 Write ADR-023: QA signal via MRTR or review comments [ME] 1h
-- [ ] P6-T19 Run crash-recovery experiment: kill the process at each step boundary [ME] 3h
+- [x] P6-T18 Write ADR-023: QA signal via MRTR or review comments [ME] 1h
+- [x] P6-T19 Run crash-recovery experiment: kill the process at each step boundary [ME] 3h
 
 ## Week 24 — P6, P7 (20 h scheduled)
 
-- [ ] P6-T20 Add CI job for flow tests with a Postgres service container, no LLM [CLAUDE] 2h
-- [ ] P6-T21 Break it: kill the worker after the PR is opened but before state is saved [ME] 2h
-- [ ] P6-T22 Break it: deliver the same webhook twice [ME] 2h
-- [ ] P6-T23 Break it: let Render sleep and drop a webhook [ME] 2h
-- [ ] P6-T24 Break it: suspend Neon mid-run [ME] 2h
-- [ ] P6-T25 Write package README and phase report against P5 [CLAUDE] 1h
+- [x] P6-T20 Add CI job for flow tests with a Postgres service container, no LLM [CLAUDE] 2h
+- [x] P6-T21 Break it: kill the worker after the PR is opened but before state is saved [ME] 2h
+- [x] P6-T22 Break it: deliver the same webhook twice [ME] 2h
+- [x] P6-T23 Break it: let Render sleep and drop a webhook [ME] 2h
+- [x] P6-T24 Break it: suspend Neon mid-run [ME] 2h
+- [x] P6-T25 Write package README and phase report against P5 [CLAUDE] 1h
 - [ ] P7-T00 Re-verify pinned versions via web search [CLAUDE] 1h
 - [ ] P7-T01 Read the OWASP agentic top 10 and the Firecracker paper, write notes [ME] 1h
 - [ ] P7-T02 Write the threat model: assets, trust boundaries, data flows and ASI01 to ASI10 mapping [ME] 3h

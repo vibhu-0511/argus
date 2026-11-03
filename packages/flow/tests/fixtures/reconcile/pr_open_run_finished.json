@@ -1,0 +1,68 @@
+{
+  "ticket": "acme/shop#12",
+  "expect": "opening-pr",
+  "why": "Verify concluded success and a draft PR exists, but the awaiting-qa label and comment never landed.",
+  "issue": {
+    "number": 12,
+    "title": "Checkout total is wrong",
+    "state": "open",
+    "labels": [],
+    "html_url": "https://github.com/acme/shop/issues/12"
+  },
+  "pulls": [
+    {
+      "number": 31,
+      "state": "open",
+      "draft": true,
+      "merged_at": null,
+      "head": {
+        "ref": "argus/acme-shop-12-f2775f9c"
+      },
+      "html_url": "https://github.com/acme/shop/pull/31",
+      "title": "Argus fix for acme/shop#12"
+    }
+  ],
+  "ref": {
+    "ref": "refs/heads/argus/acme-shop-12-f2775f9c",
+    "object": {
+      "sha": "0000000000000000000000000000000000000001",
+      "type": "commit"
+    }
+  },
+  "runs": {
+    "total_count": 3,
+    "workflow_runs": [
+      {
+        "id": 903,
+        "name": "argus-dispatch",
+        "display_title": "argus:acme/shop#12:dispatch-verify:1",
+        "event": "workflow_dispatch",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-11-01T10:10:00Z",
+        "head_branch": "main"
+      },
+      {
+        "id": 902,
+        "name": "argus-dispatch",
+        "display_title": "argus:acme/shop#12:dispatch-fix:1",
+        "event": "workflow_dispatch",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-11-01T10:05:00Z",
+        "head_branch": "main"
+      },
+      {
+        "id": 901,
+        "name": "argus-dispatch",
+        "display_title": "argus:acme/shop#12:dispatch-repro:1",
+        "event": "workflow_dispatch",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-11-01T10:00:00Z",
+        "head_branch": "main"
+      }
+    ]
+  },
+  "comments": []
+}

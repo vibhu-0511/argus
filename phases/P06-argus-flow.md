@@ -61,28 +61,42 @@ Run the pipeline as a durable workflow, deployed free on Render and Neon, with G
 | P6-T25 | Write package README and phase report against P5 | [CLAUDE] | doc | 1 | P6-T18 | README shows deploy and run steps; phase report has previous-phase, this-phase and delta rows filled |
 
 ## Break it on purpose
-1. **Crash between side effect and state save (P6-T21).** *Induced failure:* kill the worker right after the PR is opened and before the step result is stored. *Expected signal:* on restart the step runs again but finds the existing PR through its idempotency key; exactly one PR exists. *Fix:* make "open PR" a find-or-create on one stable branch, draft until QA, with no `closes #N` commit heuristic; a lookup error leaves the existing PR untouched.
+1. **Crash between side effect and state save (P6-T21).** *Induced failure:* kill the worker right after the PR is opened and before the step result is stored. *Expected signal:* on restart the step runs again but finds the existing PR through its idempotency key; exactly one PR exists. *Fix:* make "open PR" a find-or-create on one stable branch, draft until QA, with no `closes #N` commit heuristic; a lookup error leaves the existing PR untouched. *Observed (P6-T21, 2026-11-01, local process kill, fake GitHub with a durable ledger):* the kill landed with the draft PR created and `open_pr_step` not stored; the restart ran the step again, its lookup found the PR, `create_draft_pr` was called once in the whole run, and the run reached `done` (10 of 10 kills, 0 duplicate effects, repeated calls exactly the push and the lookup). With the lookup raising, the existing PR stayed a draft and nothing was created. No `closes #N` text is built or searched anywhere in the code. See `docs/notes/p6-t21-break-it.md`.
 2. **Duplicate webhook (P6-T22).** *Induced failure:* replay the same delivery id twice. *Expected signal:* the second delivery is dropped as already seen; one workflow exists. *Fix:* store the delivery id as a hint-dedup record only, and key the workflow by ticket id.
-3. **Render sleeps and a webhook is lost (P6-T23).** *Induced failure:* let the free service idle past its sleep time and send a webhook that times out at GitHub. *Expected signal:* no immediate reaction, then the poller finds the new ticket and starts the workflow. *Fix:* reconciliation on a schedule, reading GitHub rather than trusting delivery.
+3. **Render sleeps and a webhook is lost (P6-T23).** *Induced failure:* let the free service idle past its sleep time and send a webhook that times out at GitHub. *Expected signal:* no immediate reaction, then the poller finds the new ticket and starts the workflow. *Fix:* reconciliation on a schedule, reading GitHub rather than trusting delivery. *Observed (P6-T23, 2026-11-03, real Render and GitHub):* the service had slept (its poll lines stopped at 09:16 IST); an issue created at 09:46:19 sent two webhooks that GitHub marked failed after 10 s; the woken instance (up at 09:46:50) still answered both 202, its first poll at 09:46:54 reported `started 1`, and the workflow's comment and label appeared at 09:47:00, 41 s after creation; a redelivery 9 minutes later was answered 202 and left one comment. The webhook was what woke the service, so the poller was not shown recovering a hint that never arrived; and a sleeping service polls nothing. See `docs/notes/p6-t23-break-it.md`.
 4. **Neon suspended (P6-T24).** *Induced failure:* wait for or force the database to suspend during a step. *Expected signal:* the first query fails, the service reconnects and the workflow resumes. *Fix:* connection retry with backoff and a short wake-up timeout.
 
 ## Ablation
 **Hypothesis:** a durable DBOS workflow completes every run after a crash with no duplicated side effects, while the same pipeline without durability loses runs or duplicates effects. The DBOS-vs-Temporal question is an ADR only; no Temporal variant is built.
 **Variants:** A = same pipeline as a plain function, no durability; B = DBOS durable workflow.
 **Metric:** runs completed after a crash, duplicate side effects, recovery time p50 and p95 per kill.
+**Result (P6-T19, 2026-11-01):** 10 hard kills at each of 15 kill points per variant (150 each), fake runners and GitHub client with a durable ledger, find-before-act the same in A and B. Both variants completed every run; the plain function repeats every earlier call after a restart (4.47 per kill against 0.93 for DBOS) and set the `done` label twice in the 10 kills after it. No model was run, so the last three columns stay empty. Details and limits: `docs/notes/p6-t19.md`.
 
 | Variant | Completed after crash | Duplicate side effects | Recovery p50 | Recovery p95 | Resolve rate (95% CI) | Tokens/bug (in, out, cached) | $-equivalent/bug |
 |---|---|---|---|---|---|---|---|
-| A | — | — | — | — | — | — | — |
-| B | — | — | — | — | — | — | — |
+| A | 150 of 150 | 20 (all at one kill point, a label set twice) | 3.03 s | 6.01 s | — | — | — |
+| B | 150 of 150 | 0 | 4.92 s | 6.05 s | — | — | — |
 
 **Phase report (against previous phase):**
 
 | Report | Resolve rate | Tokens/bug | $-equivalent | p50 latency | p95 latency |
 |---|---|---|---|---|---|
-| Previous phase | — | — | — | — | — |
-| This phase | — | — | — | — | — |
+| Previous phase (P5) | 71.4% (20/28) [52.9%, 84.7%] | 34,940 | $0.0694 | 1617.0 s | 5097.5 s |
+| This phase (P6) | — | — | — | — | — |
 | Delta | — | — | — | — | — |
+
+*Previous-phase row filled on 2026-11-03 (P6-T25) from P5's final numbers. This-phase and delta rows are dashes on purpose.*
+- **Previous phase (P5) = the routed pipeline of the P5 ablation, variant B** (Claude sessions, sonnet strong tier and haiku cheap tier, one run per task on 29 seeded Canvas tasks, 20 of 28 scored; `seed-h09` excluded by the scorer). It is the row P5's own report calls "This phase" in `phases/P05-argus-eval.md`. Each cell, and where it comes from:
+  - Resolve rate 71.4% (20/28) [52.9%, 84.7%]: `packages/eval/results/ablation-B.json`, `resolve_rate` (`rate` 0.714286, `ci_low` 0.529404, `ci_high` 0.847462, Wilson 95%).
+  - Tokens/bug 34,940 = tokens in 34,471 + tokens out 468 per task: `ablation-B.json`, `tokens.per_task` (34471.071 and 468.429; cached 0). They are chars/4 estimates of the messages, not a bill.
+  - $-equivalent $0.0694: `ablation-B.json`, `$_equivalent` 1.944574 over 28 scored runs.
+  - p50 1617.0 s and p95 5097.5 s: `ablation-B.json`, `latency_s` (1617.05 and 5097.535, n = 28). P5's note says these are not comparable between its own rows (live repro scripts, several runs on one machine, reruns after Docker trouble): `docs/notes/p5-t14-results.md`.
+  - The same numbers are in the P5 phase report in `phases/P05-argus-eval.md` and in `docs/notes/p5-t14-results.md`.
+- **This phase (P6): every cell is a dash.** No model ran in P6. The crash-recovery experiment used fake runners (`docs/notes/p6-t19.md`) and nothing has been deployed, so P6 has no resolve rate, no tokens/bug and no $-equivalent. It has no per-bug latency either: the DBOS recovery p50 of 4.92 s and p95 of 6.05 s (variant B above; plain function A: 3.03 s and 6.01 s) are the time from restarting a killed process to its `DONE` line, over 150 kills, on fakes. They answer a different question from P5's time per bug on a real model, so they are not put in this row. They stay in the experiment table above.
+- **Delta: dashes**, because the P6 cell is a dash in every column. P5 measured routing on a real model; P6 measured crash recovery on fakes with no model. Subtracting one from the other would be a number about nothing.
+- Not measured in P6, so not in the table: Render cold start (T13), Neon CU-hours (T14), any real GitHub round trip, any ticket run through `flow.agent_job` on Actions. Nothing is deployed (`packages/flow/README.md`, Status).
+- **What would fill the P6 row:** a real ticket run end to end through the deployed pipeline (T04 acceptance run, T12 deploy), counted as resolved by the bench scorer, with tokens and wall time recorded. P6-T25 is ticked on the owner's decision of 2026-11-03 that dashes with a reason per cell count as filled: [docs/notes/p6-t25.md](../docs/notes/p6-t25.md).
+- P5 also ran the 15-task SWE-bench Multimodal dev subset (argus fix loop, 7 of 14 solved, `packages/eval/results/p5-t20-multimodal-argus.json`). That is a different benchmark from the seeded Canvas tasks of the ablation, so it is not in this table.
 
 ## ADRs to write
 All [ME].

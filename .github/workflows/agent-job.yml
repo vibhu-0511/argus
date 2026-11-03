@@ -1,0 +1,149 @@
+name: agent-job
+
+# Execution plane of the ticket workflow (P6-T04). Dispatched by flow.actions.ActionsRunner, one run
+# per pipeline step. Not triggered by push, so the two repository references below (model key, platform read token) are never exposed to a fork's pull request.
+# Contract with the runner: the run title is the run key (the runner finds the run by it), and the job
+# uploads one artifact `argus-result` holding result.json, plus patch.diff and trajectory.jsonl when made.
+# Inputs reach the shell only through env, never through ${{ }} inside a script.
+run-name: ${{ inputs.run_key }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      ticket_id:
+        description: Ticket id, owner/repo#number
+        required: true
+        type: string
+      step:
+        description: Pipeline step to run
+        required: true
+        type: choice
+        options: [repro, fix, verify]
+      run_key:
+        description: Idempotency key argus:<ticket_id>:dispatch-<step>:<attempt>
+        required: true
+        type: string
+      upstream:
+        description: Output of the step before (repro script for fix, patch for verify); may be empty
+        required: false
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+# One running and one pending run per key: a second dispatch of the same key waits behind the first.
+concurrency:
+  group: argus-${{ inputs.run_key }}
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ARGUS_TICKET_ID: ${{ inputs.ticket_id }}
+      ARGUS_STEP: ${{ inputs.step }}
+      ARGUS_RUN_KEY: ${{ inputs.run_key }}
+      ARGUS_UPSTREAM: ${{ inputs.upstream }}
+      ARGUS_OUT: ${{ github.workspace }}/argus-out
+      ARGUS_PLATFORM_REPO: ${{ github.workspace }}/platform
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: uv sync --all-packages --locked
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @argus/bench exec playwright install --with-deps chromium
+
+      # The platform repository is private. Its read-only token is used by this checkout only (the step that
+      # runs the model never gets it) and is not kept in the clone's git config. An empty variable means the
+      # default branch; set the repository variable ARGUS_PLATFORM_REF to pin the commit the seeded patches apply to.
+      - name: Check out the platform repository
+        uses: actions/checkout@v4
+        with:
+          repository: dcortex-ai/dcortex-platform
+          token: ${{ secrets.ARGUS_PLATFORM_TOKEN }}
+          ref: ${{ vars.ARGUS_PLATFORM_REF }}
+          path: platform
+          persist-credentials: false
+
+      # fix runs its commands in a small image (no network); verify needs no image and no rig.
+      - name: Build the fix sandbox image
+        if: inputs.step == 'fix'
+        run: docker build -t argus-fix-sandbox:p3 packages/fix-loop/docker
+
+      # repro needs the rig: Canvas served by Vite from the platform checkout, the repro image, and a proxy
+      # container on an internal Docker network. repro_agent.trees.up() is written for Docker Desktop
+      # (host.docker.internal, a loopback-only Vite), so the proxy and a relay are started here for Linux and
+      # trees.up() then only starts Vite.
+      - name: Install the platform's dependencies
+        if: inputs.step == 'repro'
+        working-directory: platform
+        run: pnpm install --frozen-lockfile
+
+      - name: Build the repro image
+        if: inputs.step == 'repro'
+        run: |
+          df -h /
+          docker build -t argus-repro:p1 packages/repro-agent/docker
+          df -h /
+
+      - name: Start the repro rig
+        if: inputs.step == 'repro'
+        run: |
+          set -euo pipefail
+          # names, port and the proxy script come from the code, so this step cannot drift from it
+          eval "$(uv run --package repro-agent python -c 'from repro_agent import trees as t; print(f"NET={t.NET} PROXY={t.PROXY} ALIAS={t.ALIAS} PORT={t.PORT}")')"
+          FORWARD="$(uv run --package repro-agent python -c 'from repro_agent.trees import FORWARD; print(FORWARD)')"
+          GATEWAY="$(docker network inspect bridge -f '{{(index .IPAM.Config 0).Gateway}}')"
+          # host side of the proxy's hop: Vite listens on 127.0.0.1 only, containers reach the host at the docker0 gateway
+          PORT="$PORT" GATEWAY="$GATEWAY" nohup node -e 'const net=require("node:net");const port=+process.env.PORT;net.createServer((c)=>{const u=net.connect(port,"127.0.0.1");c.pipe(u);u.pipe(c);c.on("error",()=>u.destroy());u.on("error",()=>c.destroy());}).listen(port,process.env.GATEWAY);' > "$RUNNER_TEMP/relay.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/relay.pid"
+          docker network create --internal "$NET"
+          docker run -d --name "$PROXY" --add-host host.docker.internal:host-gateway --entrypoint node argus-repro:p1 --input-type=module -e "$FORWARD"
+          docker network connect --alias "$ALIAS" "$NET" "$PROXY"
+          uv run --package repro-agent python -m repro_agent.trees up
+          # the whole path once, from inside the internal network, before any model call is spent
+          docker run --rm --network "$NET" --entrypoint node argus-repro:p1 -e 'fetch(process.argv[1]).then((r)=>{console.log(r.status);process.exit(r.status===200?0:1)}).catch((e)=>{console.error(String(e));process.exit(1)})' "http://$ALIAS:$PORT/"
+
+      - name: Run the step in the sandbox
+        env:
+          ARGUS_MODEL_API_KEY: ${{ secrets.ARGUS_MODEL_API_KEY }}
+        run: |
+          mkdir -p "$ARGUS_OUT"
+          printf '%s' "$ARGUS_UPSTREAM" > "$ARGUS_OUT/upstream.txt"
+          # Entry point contract: read ARGUS_STEP and upstream.txt, run repro, fix or verify, write
+          # result.json ({"ok": bool, "output": str}), patch.diff and trajectory.jsonl into ARGUS_OUT.
+          uv run --package flow python -m flow.agent_job
+
+      # A failed or missing step still leaves a result the runner can read.
+      - name: Write a failure result if the step wrote none
+        if: always()
+        run: |
+          mkdir -p "$ARGUS_OUT"
+          [ -f "$ARGUS_OUT/result.json" ] || python3 -c 'import json, os; json.dump({"ok": False, "output": "the step ended before it wrote a result"}, open(os.path.join(os.environ["ARGUS_OUT"], "result.json"), "w"))'
+
+      - name: Stop the repro rig
+        if: always() && inputs.step == 'repro'
+        run: |
+          tail -n 40 /tmp/argus-t14-vite.log 2>/dev/null || true
+          uv run --package repro-agent python -m repro_agent.trees down || true
+          kill "$(cat "$RUNNER_TEMP/relay.pid" 2>/dev/null)" 2>/dev/null || true
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: argus-result
+          path: |
+            ${{ github.workspace }}/argus-out/result.json
+            ${{ github.workspace }}/argus-out/patch.diff
+            ${{ github.workspace }}/argus-out/trajectory.jsonl
+          if-no-files-found: error
+          retention-days: 7
