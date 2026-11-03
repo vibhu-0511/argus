@@ -26,6 +26,7 @@ from pathlib import Path
 from fix_loop import sandbox
 
 from guard import egress
+from guard.auditlog import AuditLog
 
 PIDS_LIMIT = 128
 FORK_COUNT = 300  # bounded on purpose: even with no cap the loop stops here, so it cannot take the host down
@@ -41,6 +42,7 @@ class Probe:
     what: str
     script: str
     expected: str = "blocked"
+    queries: tuple[str, ...] = ()  # names the probe asks a resolver for; goes into the audit record
 
 
 def host_candidates(path: Path) -> list[str]:
@@ -68,7 +70,7 @@ def probes(canary_file: Path) -> list[Probe]:
     return [
         Probe("network-tcp", "TCP connect to an external IP", _net("tcp")),
         Probe("network-https", "HTTPS request to an external IP", _net("https")),
-        Probe("dns-lookup", "DNS lookup of an external name", _net("dns")),
+        Probe("dns-lookup", "DNS lookup of an external name", _net("dns"), queries=(egress.HOST,)),
         Probe(
             "metadata-address", "HTTP to the cloud metadata address 169.254.169.254",
             f'command -v wget >/dev/null 2>&1 || {{ echo "ERROR wget missing, cannot tell"; exit 0; }}; '
@@ -197,7 +199,7 @@ def run_probe(tier: str, probe: Probe, work: Path, checks: Path, runtime: str | 
     return run_one(docker_argv(name, work, checks, probe.script, runtime if tier == "gvisor" else None, extra), name, timeout)
 
 
-def run_suite(tier: str, runtime: str | None, launcher: str | None, timeout: int = 60) -> dict:
+def run_suite(tier: str, runtime: str | None, launcher: str | None, timeout: int = 60, audit: AuditLog | None = None) -> dict:
     if tier != "firecracker" and not egress._image_present():
         sandbox.build_image()
     results = []
@@ -212,6 +214,9 @@ def run_suite(tier: str, runtime: str | None, launcher: str | None, timeout: int
         for probe in probes(canary):
             status, detail = run_probe(tier, probe, work, checks, runtime, launcher, timeout)
             results.append({"id": probe.id, "what": probe.what, "expected": probe.expected, "status": status, "detail": detail})
+            if audit:  # P7-T17: every probe outcome is a record
+                audit.append("policy_event", {"source": "escape", "tier": tier, "probe": probe.id, "expected": probe.expected,
+                                              "status": status, "detail": detail, "queries": list(probe.queries)})
     count = {s: sum(r["status"] == s for r in results) for s in ("pass", "fail", "error")}
     return {
         "suite": "escape", "tier": tier,
@@ -241,13 +246,14 @@ def main(argv: list[str] | None = None) -> int:
                     help="firecracker tier: command prefix; it gets `sh -c <probe>` and must give the guest /work (rw) and /checks (ro)")
     ap.add_argument("--timeout", type=int, default=60, help="hard timeout per probe, seconds")
     ap.add_argument("--out", help="write the result JSON here")
+    ap.add_argument("--audit-log", help="append one hash-chained record per probe to this file (guard verify-log checks it)")
     args = ap.parse_args(argv)
 
     why = unavailable(args.tier, args.runtime, args.launcher)
     if why:
         print(f"escape suite: tier={args.tier}\ntier not available here: {why}\nNo probe ran. This is not a pass.")
         return EXIT_UNAVAILABLE
-    report = run_suite(args.tier, args.runtime, args.launcher, args.timeout)
+    report = run_suite(args.tier, args.runtime, args.launcher, args.timeout, AuditLog(args.audit_log) if args.audit_log else None)
     print(format_report(report))
     if args.out:
         Path(args.out).parent.mkdir(parents=True, exist_ok=True)
