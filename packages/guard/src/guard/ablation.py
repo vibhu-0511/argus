@@ -138,7 +138,7 @@ def measure_microvm(n: int, fc: dict, timeout: int = 120) -> dict:
             if r.get("status") == "pass":
                 total.append(r["wall_seconds"])
             else:
-                failures.append({"start": i + 1, "detail": r.get("detail")})
+                failures.append({"start": i + 1, "detail": r.get("detail"), "console_tail": (r.get("console") or "")[-600:], "stderr": r.get("stderr")})
     return {"starts_requested": n, "starts_ok": len(total), "starts_failed": failures, "cold_start_ms": None, "fixture_run_ms": None,
             "total_ms": stats(total), "cold_start_samples_ms": []}
 

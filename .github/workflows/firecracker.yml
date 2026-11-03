@@ -98,7 +98,7 @@ jobs:
           uv run --all-packages python -m guard.firecracker_run
           --firecracker ./firecracker --kernel "$KERNEL_NAME" --rootfs rootfs.ext4 --checks checks.ext4
           --out results/firecracker-run.json
-      - name: Ablation row C on this runner (microVM, 30 boots)
+      - name: Ablation row C on this runner (microVM, 30 boots; a failed boot keeps the end of the guest console)
         run: |
           # the first run of this step said /dev/kvm was not readable although the boot step had just used it: show and re-apply the ACL
           ls -l /dev/kvm; getfacl /dev/kvm || true; id
