@@ -96,7 +96,7 @@ def measure_starts(tier: str, n: int, timeout: int = 120) -> dict:
                 run.append(r["run_s"])
                 total.append(r["total_s"])
             else:
-                failures.append({"start": i + 1, "detail": detail})
+                failures.append({"start": i + 1, "detail": detail, "returncode": r["returncode"], "stdout": r["stdout"][-400:], "stderr": r["stderr"][-300:]})
     return {
         "starts_requested": n, "starts_ok": len(cold), "starts_failed": failures,
         "cold_start_ms": stats(cold), "fixture_run_ms": stats(run), "total_ms": stats(total),

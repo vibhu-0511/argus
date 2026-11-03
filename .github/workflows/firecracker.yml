@@ -116,6 +116,13 @@ jobs:
           uv run --all-packages python -m guard.ablation --tier docker --n 30 --out results/ablation-docker-fc-runner.json || rc=$?
           cat results/ablation-docker-fc-runner.json
           exit $rc
+      - name: Docker start check, 200 starts (about 1 start in 30 failed the read-only check on the runner; keep the output of a failed one)
+        if: always()
+        run: |
+          rc=0
+          uv run --all-packages python -m guard.ablation --tier docker --n 200 --out results/ablation-docker-200.json || rc=$?
+          python3 -c "import json;d=json.load(open('results/ablation-docker-200.json'));print('starts ok',d['starts_ok'],'of',d['starts_requested']);[print(f) for f in d['starts_failed']]"
+          exit $rc
       - name: Show the results
         if: always()
         run: |
