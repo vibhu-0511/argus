@@ -358,10 +358,10 @@ flowchart LR
   style S4 fill:none,stroke:#c2410c,stroke-width:1.5px
   classDef p5 fill:#fce7f3,stroke:#be185d,stroke-width:1.5px,color:#111827
   style S5 fill:none,stroke:#be185d,stroke-width:1.5px
-  classDef p55 fill:#ede9fe,stroke:#6d28d9,stroke-width:1.5px,color:#111827
-  style S55 fill:none,stroke:#6d28d9,stroke-width:1.5px
-  classDef p6 fill:#ccfbf1,stroke:#0f766e,stroke-width:1.5px,color:#111827
-  style S6 fill:none,stroke:#0f766e,stroke-width:1.5px
+  classDef p55 fill:#e7e5e4,stroke:#57534e,stroke-width:1.5px,color:#111827
+  style S55 fill:none,stroke:#57534e,stroke-width:1.5px
+  classDef p6 fill:#ede9fe,stroke:#6d28d9,stroke-width:1.5px,color:#111827
+  style S6 fill:none,stroke:#6d28d9,stroke-width:1.5px
   classDef p7 fill:#fee2e2,stroke:#b91c1c,stroke-width:4px,color:#111827
   style S7 fill:none,stroke:#b91c1c,stroke-width:4px
   classDef ext fill:#ffffff,stroke:#6b7280,color:#111827,stroke-dasharray: 4 3
@@ -375,17 +375,16 @@ flowchart LR
 | Base | `stack/p6-flow` |
 | Head | `stack/p7-guard` |
 | Previous PRs | [#12](https://github.com/vibhu-0511/argus/pull/12) P6 flow (draft, open); [#14](https://github.com/vibhu-0511/argus/pull/14) P5.5 skills, [#13](https://github.com/vibhu-0511/argus/pull/13) and [#11](https://github.com/vibhu-0511/argus/pull/11) P5 (merged into `main`) |
-| Size of P7's own work | 92 files, +9,646 and -75 lines, measured against the P5.5 merge commit `3422aa3` |
-| Size against `stack/p6-flow` | 477 files, +20,185 and -122 lines, because this branch also merges the local `stack/p5.5-skills` (the P5.5 code P7 red-teams) |
+| Size against `origin/stack/p6-flow` (`3b34a7a`) | 99 files, +10,258 and -93 lines |
 
 Notes on the stack:
-- The local `stack/p5.5-skills` is 12 commits behind `origin/stack/p5.5-skills` (P5 follow-up data and a merge of `main`; nothing under `packages/skills`). The local branch was merged.
-- The local `stack/p6-flow` is 2 commits ahead of `origin/stack/p6-flow`; push it first or the base is stale.
-- Because P5.5 is already in `main`, the diff against `stack/p6-flow` shows the P5.5 merge too. Retarget to `main` after #12 lands, or review only the P7 commits.
+- P7 was cut from the local `stack/p6-flow` with the P5.5 skills merged in. Before pushing, `origin/stack/p6-flow` (which has `main` merged in) was merged into it, so the merge base with the base branch is its current tip.
+- The local `stack/p6-flow` has one commit that is **not** on `origin/stack/p6-flow`: `059e422` "Prepare the agent-job workflow to check out the platform and start the repro rig". It is in this PR's diff. It was not pushed to the P6 branch; whether it belongs to #12 is the owner's call.
+- Conflicts in the last merge were in `.gitignore`, `pyproject.toml` and the architecture overview; the overview keeps the colours of the P6 branch (P5.5 stone, P6 violet) and adds P7 in red.
 
 ## Tests
 
-All run one package at a time on 2026-11-03 on Windows 11 (`uv run --all-packages python -m pytest packages/<name>/tests -q`).
+All run one package at a time on 2026-11-03 on Windows 11 (`uv run --all-packages python -m pytest packages/<name>/tests -q`), re-run after merging `origin/stack/p6-flow`.
 
 | Command | Result |
 |---|---|
