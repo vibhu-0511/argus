@@ -1,6 +1,6 @@
 # ADR-025: Sandbox tier selection
 
-Status: proposed (P7-T15), drafted by Claude at the owner's request, for the owner to review. It is accepted when the owner approves it. **Only one of the three tiers was measured.** Row A of the ablation (Docker with `--network none`) was run; row B (gVisor) and row C (Firecracker) were not run, and there is no comparison between tiers in this ADR because none exists. Everything said about gVisor and Firecracker below is a claim from a source, labelled as such, not a result from this repo. Revisit when rows B and C exist (owner steps in `docs/notes/p7-t13.md`), when the live issue adapter is built, or when the scorer moves into the sandbox.
+Status: proposed (P7-T15), drafted by Claude at the owner's request, for the owner to review. It is accepted when the owner approves it. All three tiers now have a real run on GitHub-hosted Linux runners (2026-11-03), but the runs are few, on shared runners, with a fixture and not a real fix-loop task. The numbers say what each tier costs. They do not show that one tier is safer than another, because the escape suite tests how a sandbox is configured and does not try kernel exploits. Everything said about what a tier adds beyond that is a claim from a source, labelled as such.
 
 ## Context
 
@@ -8,40 +8,50 @@ The fix loop runs model-written shell commands. They run in a container started 
 
 | Tier | What it is | Where it was run |
 |---|---|---|
-| A | Docker container, `--network none` (runc) | Yes, on this Windows 11 machine with Docker Desktop (WSL2) |
-| B | Docker with the gVisor runtime (`runsc`, [gvisor.dev](https://gvisor.dev)) | No |
-| C | Firecracker microVM on a KVM host | No |
+| A | Docker container, `--network none` (runc) | Yes: Windows 11 with Docker Desktop (one run, kept as a plumbing check), and four GitHub-hosted `ubuntu-24.04` runs |
+| B | Docker with the gVisor runtime (`runsc` release-20261026.0, [gvisor.dev](https://gvisor.dev)) | Yes: four GitHub-hosted runs, on the same runner as the A rows next to it |
+| C | Firecracker v1.17.0 microVM | Yes: three GitHub-hosted runs, 30 boots each. `/dev/kvm` was present on the hosted `ubuntu-24.04` runner |
 
-## What was measured and what was not
+## What was measured
 
-**Row A**, from `packages/guard/results/ablation-docker.json` (`guard ablation --tier docker`, one run, 2026-11-03):
+The runs are listed with their ids in `docs/notes/p7-github-tier-runs.md`. Cold start is `docker run` launched until the fixture prints its first line. Launch to exit is the whole run, including the fixture and removal. For the microVM only launch to exit exists (the guest console has no timestamps): firecracker launched until the process exited, which includes booting a guest kernel, the fixture and shutdown.
 
-| Item | Value |
-|---|---|
-| Starts | 30 requested, 30 passed the fixture check |
-| Cold start p50 / p95 | 264.9 ms / 319.5 ms (min 221.2 ms, max 405.4 ms; nearest-rank, so p95 is the 29th of 30 values) |
-| Fixture run time p50 / p95 | 182.4 ms / 228.9 ms. This is the time after the first line until the container exited and was removed; there is no bare-host baseline here, so it is not a ratio |
-| Escape probes passed | 12 of 12 (the 12-probe suite: TCP, HTTPS, DNS, metadata address, host file read, write to the read-only mount, docker socket, fork bomb, symlink, secrets in env, host processes, `mount`) |
-| Later check | After the two DNS probes were added in T21 the suite has 14 probes; the stored T21 output (`packages/guard/results/dns-exfil-local.txt`) shows 14 of 14 on the docker tier. This is a separate run from the ablation, not part of row A |
+**A against B, on the same runner in the same job (four runs, 30 starts each, nearest-rank percentiles):**
 
-What the row A numbers can bear:
+| Run | A cold start p50 | B cold start p50 | B minus A | A launch to exit p50 | B launch to exit p50 | B minus A |
+|---|---|---|---|---|---|---|
+| 1 | 81.0 ms | 89.9 ms | +8.9 | 116.9 ms | 146.0 ms | +29.1 |
+| 2 | 84.7 ms | 96.1 ms | +11.4 | 123.6 ms | 154.4 ms | +30.8 |
+| 3 | 98.8 ms | 109.6 ms | +10.8 | 135.9 ms | 176.3 ms | +40.4 |
+| 4 | 103.8 ms | 112.6 ms | +8.8 | 143.2 ms | 183.3 ms | +40.1 |
 
-- **The machine is not a Linux runner.** Docker Desktop runs Linux containers in a WSL2 VM, so the cold start includes that boundary. The number is not comparable with a Linux host and not with any other tier measured elsewhere. Load on the machine during the run was not measured.
-- **One run, N = 30, no repeat of the whole experiment, no confidence interval.**
-- **The escape suite and the fix-loop sandbox differ by one flag.** The suite adds `--pids-limit 128`; `fix_loop/sandbox.py` does not. The same fork probe through `fix_loop.sandbox.run` found 301 processes alive (T12). So "12 of 12 on the Docker tier" holds for the suite's flags, and the real fix-loop container passes the fork probe only if the flag is added to the sandbox. This was not done (see Consequences).
-- **The fixture is a few `echo`, `cat`, `uname` and `dmesg` commands.** It says nothing about overhead on a real fix-loop task.
-- The probes were checked to be able to fail: a test weakens the container on purpose and requires a fail from six of them. Three were given no positive control (read-only mount write, docker socket, metadata address).
+The gap between the tiers is steadier than the level of either one: the level moves by about 20 ms from run to run, because the runner is shared and, in run 4, was an AMD EPYC 7763.
 
-**Rows B and C are empty, and that means "not run", not zero.**
+**C (three runs, 30 boots each, all 30 of 30 passed):** launch to exit p50 1061, 1013 and 1056 ms; p95 1130, 1114 and 1121 ms. On the same runners, Docker's launch to exit p50 was 127.0, 117.2 and 119.9 ms. So a microVM run took about 8 to 9 times as long as a container run, on a fixture of a few `echo` commands. CPUs seen: AMD EPYC 9V74 and Intel Xeon Platinum 8370C.
 
-- B: this machine has no `runsc` and gVisor runs on Linux only (Linux 5.6 or newer, x86_64 or ARM64, per the install guide). The plumbing exists (`ARGUS_SANDBOX_RUNTIME`, `guard sandbox-run`, `guard escape --tier gvisor`, `.github/workflows/gvisor.yml`) and was tested with Docker replaced. `ablation-gvisor.json` says `status: not_run`; `sandbox-run-runsc.json` says `unavailable`. `gvisor.yml` never ran.
-- C: this machine has no `/dev/kvm`. No microVM has booted. `.github/workflows/firecracker.yml` never ran. Whether a GitHub-hosted runner has `/dev/kvm` is **not confirmed** by any source read (T00): GitHub calls nested virtualization unsupported. Two things for the escape suite and cold start on this tier do not exist yet: a launcher for `guard escape --tier firecracker` and a cold-start harness for N boots. `ablation-firecracker.json` says `status: not_run`.
-- The phase says that if Firecracker is cut, row C stays empty and this ADR says why. The reason row C is empty is: no KVM here, no confirmed KVM on a hosted runner, no launcher, no harness. Whether to take the cut formally or to keep trying a KVM runner is the owner's call.
-- Because row B has no run, the task that fills the ablation (P7-T13) is not complete, and the hypothesis of the phase ("stronger tiers pass more probes at a higher cold start; the cheapest tier that passes is the default") **was not tested**.
+**Escape probes (the 14-probe suite):**
+
+- A: 14 of 14 in every suite run on Linux.
+- B: 14 of 14 in 16 stand-alone suite runs. Inside `guard ablation --tier gvisor` the suite reported 13 of 14 in 4 of 4 runs: the `fork-bomb` probe ended as an `error` ("no verdict line (exit 2)"), not as an escape. The same suite run as separate processes straight after the ablation passed 3 of 3 times, with no `runsc` process left. The cause is not known; it happens only inside the ablation process. B is therefore reported as 14 of 14 when run alone and 13 of 14 inside the ablation, not as one clean number.
+- C: **not run.** The probes run in containers and have not been ported into the microVM. The guest was seen to run the fixture and to mount `/checks` read-only; that is not the suite.
+
+**Other results that matter:**
+
+- Docker's first measured start failures (1 start in 30) were a bug in the timing code (`readline` then `communicate` lost lines on Linux), not a sandbox fault: stderr said `Read-only file system`. After the fix, 400 of 400 starts passed.
+- Boots 2 to 30 of the microVM first failed with `Permission denied` on `/dev/kvm`, because an ACL set with `setfacl` is lost after the first microVM exits. A udev rule fixed it. This matters for anyone setting up a runner.
+- The Windows run (Docker Desktop in a WSL2 VM: cold start p50 264.9 ms, p95 319.5 ms, 12 of 12 probes) is not comparable with the Linux runs and is not used below.
+
+What these numbers cannot bear:
+
+- **Few, shared runners.** Four runs for A and B, three for C, no confidence intervals, no control of the neighbours.
+- **The fixture is a few commands.** It says nothing about overhead on a real fix-loop task, where the sandbox runs `npm`, a build and tests.
+- **The suite does not separate A from B.** Both pass what can be run. The probes check network, mounts, sockets, limits and symlinks. They cannot show that no kernel flaw lets code out of a container, and so cannot show what gVisor or Firecracker add.
+- **The escape suite and the fix-loop sandbox differ by one flag.** The suite adds `--pids-limit 128`; `fix_loop/sandbox.py` does not. The same fork probe through `fix_loop.sandbox.run` found 301 processes alive (T12).
+- **Row C has no probes**, so it cannot be compared with A and B on pass rate.
 
 ## Decision
 
-**The default sandbox tier is Docker with `--network none` (tier A).** The reason is narrow: it is the tier the pipeline uses today, and it is the only one with evidence here (12 of 12 probes, and 14 of 14 on the later suite, on one Windows machine). It is not chosen because it was shown to be as safe as the others, or cheaper than them: no such comparison was made. The escape suite tests how a container is configured; it cannot show that no kernel flaw lets code out of a container.
+**The default sandbox tier stays Docker with `--network none` (tier A).** It is the tier the pipeline uses today. It is the cheapest of the three by the measured cost (about 9 to 11 ms less cold start and 29 to 40 ms less total than gVisor, and about 9 times faster than a microVM run on the fixture). It passes the suite as every tier that can run the suite does, so on this evidence nothing is bought by the more expensive tiers. That last point is a limit of the suite, not a proof that the tiers are equal.
 
 Requirement that goes with the default: the production sandbox flags must include a pids limit, and a cap drop, before this default is called tested. At present only the suite adds a pids limit.
 
@@ -49,10 +59,10 @@ Requirement that goes with the default: the production sandbox flags must includ
 
 These conditions are the proposal. The properties of the tiers are claims from sources, not measurements from this repo.
 
-| Tier | What it adds (claim, source) | Use it when |
-|---|---|---|
-| gVisor | A user-space kernel intercepts the sandbox's system calls, so less of the host kernel is exposed (the Firecracker paper's description of the approach, NSDI '20 section 2; [gvisor.dev](https://gvisor.dev)). The paper also says rich interfaces such as `/proc` made leak and covert-channel prevention hard for it. Cost is not claimed here; it was not measured | Code from authors Argus does not control reaches `run_cmd` (the live issue adapter is built and the tracker is not owner-only), **and** a container escape would land on a host that holds more than a throwaway runner VM |
-| Firecracker | A hardware boundary: each sandbox is a microVM with its own guest kernel, one process per VM, a small device model, and a jailer (the paper's claims for v0.20; today's v1.17.0 code was not checked). The paper's own figures are boot to application code under 125 ms and under 5 MB overhead, **on its bare-metal test setup, not on Argus** | The same as for gVisor, and the code must be hostile enough that a kernel-level flaw is a real concern (for example the scorer or the repro container runs patched code from strangers on a shared host). It needs `/dev/kvm`, which is not confirmed on hosted runners, so it means a self-hosted or other KVM-capable Linux runner |
+| Tier | What it adds (claim, source) | Cost seen here | Use it when |
+|---|---|---|---|
+| gVisor | A user-space kernel intercepts the sandbox's system calls, so less of the host kernel is exposed (the Firecracker paper's description of the approach, NSDI '20 section 2; [gvisor.dev](https://gvisor.dev)). The paper also says rich interfaces such as `/proc` made leak and covert-channel prevention hard for it | about +10 ms cold start and +30 to +40 ms total over A on a hosted runner, same fixture | Code from authors Argus does not control reaches `run_cmd` (the live issue adapter is built and the tracker is not owner-only), **and** a container escape would land on a host that holds more than a throwaway runner VM. Its cost is small enough on the fixture that this is the first step up |
+| Firecracker | A hardware boundary: each sandbox is a microVM with its own guest kernel, one process per VM, a small device model, and a jailer (the paper's claims for v0.20; today's v1.17.0 code was not checked). The paper's own figures are boot to application code under 125 ms and under 5 MB overhead, **on its bare-metal test setup, not on Argus** | about 1 s launch to exit for the fixture on a hosted runner (boot of a guest kernel included); `/dev/kvm` was present there, needs a udev rule, and the escape probes are not ported | The same as for gVisor, and the code must be hostile enough that a kernel-level flaw is a real concern (for example the scorer or the repro container runs patched code from strangers on a shared host). On a hosted runner it is possible; whether hosted runners keep `/dev/kvm` was seen on a few runs and is not a guarantee |
 
 Other triggers, in either direction:
 
@@ -62,24 +72,22 @@ Other triggers, in either direction:
 
 ### What must be measured before the default is revisited
 
-1. Row B on a Linux host: install `runsc` (`docs/notes/p7-t10.md`), run `guard ablation --tier gvisor --n 30`, and keep the result.
-2. Row A **again on the same Linux host**, so A and B are compared on one machine. The Windows numbers stay as a separate file.
-3. Escape probes on B (needs only the `runsc` runtime) and, if row C is attempted, a launcher for the Firecracker tier and a cold-start harness for N boots (neither exists).
-4. A real fix-loop task under each tier, not only the fixture, for run-time overhead.
-5. A repeat of the whole run, to see the spread between runs.
-6. For C: a run of `firecracker.yml` that prints the `/dev/kvm` line, or a statement that no KVM runner is available (which would be the reason to cut it).
-7. The decision rule, written before the numbers: the owner sets the limit on cold start and overhead that is acceptable. This ADR does not invent one.
+1. A real fix-loop task under each tier, not only the fixture, for run-time overhead.
+2. The escape probes inside the microVM (a launcher for `guard escape --tier firecracker` that runs the probes in the guest), so row C has a pass count.
+3. Why the `fork-bomb` probe errors inside `guard ablation --tier gvisor` and not when the suite runs alone.
+4. More runs, on more than one runner type, to put a spread on the A against B gap.
+5. The decision rule, written before the numbers: the owner sets the limit on cold start and overhead that is acceptable. This ADR does not invent one.
 
 ## Alternatives
 
-- **gVisor as the default.** Not chosen: it was not run once; the install, the registration with Docker and the behaviour of the fix-loop image under it are unseen. It may be right on a Linux host; this ADR cannot say.
-- **Firecracker as the default.** Not chosen: no microVM has booted, no KVM was seen on any machine used, and the hosted-runner question is open. It would also need a launcher and a harness that do not exist.
-- **No default until all three are measured.** Not chosen: the pipeline already runs in Docker. Naming it the default and listing what is missing is more honest than leaving the question open.
-- **Pick the default by the paper's numbers.** Rejected: they are from 2020, from bare metal, for serverless workloads.
+- **gVisor as the default.** Not chosen: the suite does not show a benefit over A, it costs about 10 to 40 ms more per start on the fixture, and one probe errors inside the ablation for a reason not yet known. It may be right once untrusted code reaches `run_cmd`; the table above says when.
+- **Firecracker as the default.** Not chosen: about 8 to 9 times the run time of a container on the fixture, no probes ported, and a KVM device that needed a udev rule on the runner.
+- **No default until all three are fully measured.** Not chosen: the pipeline already runs in Docker, and the three tiers now have real runs.
+- **Pick the default by the paper's numbers.** Rejected: they are from 2020, from bare metal, for serverless workloads. The runs above are on a hosted runner.
 
 ## Consequences
 
 - The default stays as it is. The only change this ADR asks for is the pids limit and a cap drop in `fix_loop/sandbox.py`, then a re-run of the suite through the real flags. Not done here.
-- The phase's ablation table has one filled row. Anyone reading it must not read the dashes in B and C as a result.
-- If the owner takes the Firecracker cut, the unbuilt launcher and harness for C can stay unbuilt, and `firecracker.yml` and `firecracker_run.py` stay as written-but-unrun code.
-- The row A numbers are tied to Windows and Docker Desktop. They are useful for the plumbing (the harness works, 30 starts pass) and not as a Linux figure.
+- The phase's ablation table has three filled rows. Row C has no probe count and its cold start is a dash; the table says so.
+- `gvisor.yml` and `firecracker.yml` now also run on a pull request that changes them, so they can run before they reach `main`; they can also be dispatched by hand once on `main`.
+- The numbers are from one day and a few runs. Re-run them before quoting them.

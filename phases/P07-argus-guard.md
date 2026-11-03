@@ -71,17 +71,21 @@ Write the threat model for the pipeline, harden it (secrets, token scope, egress
 
 | Variant | Cold start p50 | Cold start p95 | Escape probes passed | Run-time overhead | Resolve rate (95% CI) | Tokens/bug (in, out, cached) | $-equivalent/bug |
 |---|---|---|---|---|---|---|---|
-| A | 264.9 ms | 319.5 ms | 12 of 12 | 182.4 ms (fixture run p50, see below) | — | — | — |
-| B | — | — | — | — | — | — | — |
-| C | — | — | — | — | — | — | — |
+| A | 103.8 ms | 111.9 ms | 14 of 14 | launch to exit 143.2 ms (fixture run 39.0 ms) | — | — | — |
+| B | 112.6 ms | 120.7 ms | 14 of 14 run alone (16 of 16 suites); 13 of 14 inside `guard ablation` (4 of 4 runs: the fork-bomb probe errored) | launch to exit 183.3 ms (fixture run 69.2 ms) | — | — | — |
+| C | — (no timestamps in the guest console) | — | — (probes not ported into the microVM) | launch to exit 1056 ms, p95 1121 ms (30 of 30 boots) | — | — | — |
 
-Row A source: `packages/guard/results/ablation-docker.json`, from `guard ablation --tier docker` (N = 30 starts, one run, 2026-11-03). Only the first four measured columns are filled. The Resolve rate, Tokens/bug and $-equivalent/bug columns stay dashes on purpose: this ablation starts the sandbox and runs the fixture and the escape suite; it does not run the fix loop.
-- Sample size: 30 container starts for the cold start (30 of 30 passed the fixture check); p50 and p95 are nearest-rank, so the p95 is the 29th of 30 values. Min 221.2 ms, max 405.4 ms. One run only, no repeat of the whole experiment, no confidence interval.
-- Cold start = `docker run` launched until the first line the fixture prints. Run-time overhead is the time from that first line until the container has exited and been removed (the fixture task: a few `echo`, `cat`, `uname`, `dmesg`). There is no bare-host baseline on this machine, so it is the fixture run time under this tier, not a ratio against another setup.
-- Machine: Windows 11 with Docker Desktop (server 29.5.3), which runs Linux containers in a WSL2 VM. The cold start therefore includes the VM boundary and is NOT comparable with a Linux runner. The machine was not isolated for the run (other sessions and containers may have been active); its load was not measured.
-- Flags were the fix-loop sandbox ones: `--network none`, 1 CPU, 512m, `/checks` read-only. The escape suite was the 12-probe `guard escape` suite on the same tier.
-- Rows B and C are not run. B (gVisor): Docker here has no `runsc` runtime and gVisor is Linux only (`ablation-gvisor.json`, `status: not_run`). C (Firecracker): this machine has no `/dev/kvm`, the microVM tier has never booted, and no cold-start harness for it exists (`ablation-firecracker.json`, `status: not_run`). The dashes in those rows mean "not run", not zero.
-- Owner steps to fill B and C: `docs/notes/p7-t13.md`.
+Rows A and B: run 41572865817 of the `gvisor` workflow on a GitHub-hosted `ubuntu-24.04` runner (AMD EPYC 7763), 30 starts each, on the same runner in the same job. Row C: run 41572547937 of the `firecracker` workflow (AMD EPYC 9V74), 30 boots; on that runner Docker's launch to exit p50 was 119.9 ms, so the microVM run took about 9 times as long for the fixture. The Resolve rate, Tokens/bug and $-equivalent/bug columns stay dashes on purpose: this ablation starts the sandbox, runs a fixture and the escape suite, and does not run the fix loop on a model.
+
+- Spread: A against B was run four times (runs in `docs/notes/p7-github-tier-runs.md`). B was slower than A on the same runner by 8.8 to 11.4 ms of cold start p50 and by 29.1 to 40.4 ms of launch to exit p50 every time. The level of both moves by about 20 ms from run to run. C was run three times: launch to exit p50 1013 to 1061 ms.
+- Sample size: 30 starts (or boots) per row per run; nearest-rank percentiles; no confidence interval. Docker was also started 400 times in one run (400 of 400 passed).
+- Cold start = `docker run` launched until the first line the fixture prints. Launch to exit = the whole run including the fixture and removal. For C only launch to exit exists: firecracker launched until the process exited (a guest kernel boot, the fixture and shutdown), so it is not the same quantity as the container cold start and the two are not compared.
+- Machine: shared GitHub-hosted runners; the CPU differs between jobs and sometimes between runs of the same job (EPYC 7763, EPYC 9V74, Xeon 8370C). Only rows from the same job are compared. The earlier Windows 11 / Docker Desktop run (cold start p50 264.9 ms, 12 of 12 probes, `ablation-docker.json`) is a different machine class and is not used.
+- Flags were the fix-loop sandbox ones: `--network none`, 1 CPU, 512m, `/checks` read-only; the escape suite adds `--pids-limit 128`.
+- Row C probes: not run. The escape probes run in containers and were not ported into the microVM. The guest was seen to run the fixture with `/checks` read-only; that is not the suite.
+- Row B probes: the `fork-bomb` probe ended as an `error` ("no verdict line (exit 2)") in the suite that runs inside `guard ablation --tier gvisor` in 4 of 4 runs, and passed in 16 of 16 suites run as separate processes (3 of them straight after an ablation, with no `runsc` process left). Cause not known.
+- The suite tests how a sandbox is configured. It does not separate A from B (both pass what can run), so these rows show cost, not a difference in safety. No conclusion about the best tier is drawn here; see ADR-025.
+- Notes on the runs, including the harness bugs found along the way: `docs/notes/p7-github-tier-runs.md`.
 
 **Phase report (against previous phase):**
 

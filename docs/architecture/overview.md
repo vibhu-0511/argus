@@ -128,16 +128,16 @@ flowchart LR
     RSCAN["secret scan<br/>check_no_secrets.py, remote-URL check, secret-scan.yml green on GitHub"]:::p7
     AUDIT["audit log<br/>hash chain, guard verify-log, not wired into fix-loop"]:::p7
     EGRESS["egress probe<br/>tcp, https, dns; ran locally and on a GitHub runner"]:::p7
-    ESCAPE["escape suite<br/>14 probes, docker tier 14 of 14 blocked, gvisor and firecracker not run"]:::p7
+    ESCAPE["escape suite<br/>14 probes, docker 14 of 14, gvisor 14 of 14 alone, firecracker probes not ported"]:::p7
     APPTOK["App token<br/>flow.app_token, minimum permissions, one repo, mock transport, no App created"]:::p7
     REDTEAM["promptfoo red-team<br/>3 static cases: ticket, repo file, skill; deterministic checks"]:::p7
     RTRES["red-team results<br/>gemma4:e4b local, 15 runs each way, not the production model"]:::p7
     HARDEN["mitigations<br/>untrusted-data blocks, tool allowlist, output filter, off by default"]:::p7
-    SBRUN["sandbox runtime setting<br/>guard sandbox-run, runc ran, runsc unavailable here"]:::p7
-    GVWF["gvisor.yml<br/>manual dispatch, never run"]:::p7
+    SBRUN["sandbox runtime setting<br/>guard sandbox-run; runsc ran on a GitHub runner"]:::p7
+    GVWF["gvisor.yml<br/>ran on a GitHub runner"]:::p7
     GUARDCI["guard.yml<br/>escape suite, secret scan, verify-log, head hash in run summary; green on GitHub"]:::p7
-    FCRUN["Firecracker tier<br/>firecracker-run and firecracker.yml; no KVM here, never booted"]:::p7
-    ABLATION["tier ablation<br/>guard ablation; tier A 30 starts, B and C not run"]:::p7
+    FCRUN["Firecracker tier<br/>firecracker-run and firecracker.yml; booted on a GitHub runner, 30 of 30, probes not ported"]:::p7
+    ABLATION["tier ablation<br/>guard ablation; A, B and C run on GitHub runners, C has no probes"]:::p7
     BREAKS7["P7 break-its<br/>env dump, edited log, DNS lookup; App push on a mock only"]:::p7
     ADRS7["ADR-024, 025, 026<br/>proposed: threat model, sandbox tier (only Docker measured), secrets and token scopes"]:::p7
     GREADME["guard README and phase report<br/>controls listed, state of each; report cells are dashes"]:::p7
@@ -307,7 +307,7 @@ flowchart LR
   HARDEN -- "filters output" --> REDACT
   RTRES -. "baseline against hardened" .-> HARDEN
   SBRUN -- "runtime flag" --> WT
-  GVWF -. "never run" .-> SBRUN
+  GVWF -. "ran on a runner" .-> SBRUN
   ESCAPE -. "gvisor tier" .-> SBRUN
   TM -. "ASI03 control" .-> APPTOK
   TM -. "ASI01 control" .-> HARDEN
@@ -315,9 +315,9 @@ flowchart LR
   GUARDCI -. "runs" .-> RSCAN
   GUARDCI -- "verifies" --> AUDIT
   ESCAPE -- "each probe is a record" --> AUDIT
-  FCRUN -. "tier C, never booted" .-> SBRUN
+  FCRUN -. "tier C, booted on a runner" .-> SBRUN
   ABLATION -- "cold start and probes" --> ESCAPE
-  ABLATION -. "tier A ran, B and C not" .-> SBRUN
+  ABLATION -. "all tiers ran on a runner" .-> SBRUN
   BREAKS7 -- "env dump" --> HARDEN
   BREAKS7 -- "edited line" --> AUDIT
   BREAKS7 -- "DNS lookup" --> EGRESS
@@ -399,8 +399,8 @@ Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink, P5.5 stone, 
 - `guard.egress` and `guard.escape`: the no-egress probe ran locally against the fix-loop sandbox (the control container reached the host, the sandbox did not). `guard escape --tier docker` ran 12 probes, all blocked; the gVisor and Firecracker tiers print "not available" and never pass. `egress.yml` ran on a GitHub runner: the sandbox could not connect, the control could (Docker tier only).
 - Wave 3: `flow.app_token` mints a one-hour installation token for one repository with an explicit minimum permission list (`docs/notes/p7-t04-app-permissions.md`); a policy check refuses a broader request before any HTTP call. It runs on a mock transport only: no GitHub App exists, and GitHub's real refusals and branch protection were not checked. `flow.agent_job.scrub` now goes through the redactor.
 - The promptfoo red-team: three static cases (ticket, repo file, skill file) with deterministic checks. Real run on the local `gemma4:e4b` only (15 runs, 5 per case): at baseline the canary was copied into a file in 3 of 5 ticket runs and 1 of 5 repo-file runs, and 0 of 5 skill runs, but the skill text reached the model in only 2 of 5 runs, so the skill path is untested. With the T09 mitigations (untrusted-data blocks, tool allowlist, output filter) 0 of 15 runs. The gain cannot be credited to one mitigation, the sample is small, and the model is not the production model. The mitigations are off by default and no caller turns them on yet.
-- `ARGUS_SANDBOX_RUNTIME` and `guard sandbox-run`: a runtime setting in the fix-loop sandbox; a missing runtime is an error, never a silent run on runc. `runc` ran the fixture here; `runsc` is not installed on this machine, so nothing was measured under gVisor (P7-T10 stays unticked); `gvisor.yml` is written and never run.
-- Wave 4: `guard ablation --tier docker` ran for real (30 container starts, one run): cold start p50 264.9 ms and p95 319.5 ms, 12 of 12 escape probes, on Windows 11 with Docker Desktop in a WSL2 VM, so the numbers are not comparable with a Linux runner. Tier B (gVisor) and tier C (Firecracker) did not run; their cells are dashes. `firecracker.yml` is written and has never run; `guard.yml` ran green on GitHub (14 of 14 probes, both audit logs verified). P7-T11 and T13 stay unticked.
+- `ARGUS_SANDBOX_RUNTIME` and `guard sandbox-run`: a runtime setting in the fix-loop sandbox; a missing runtime is an error, never a silent run on runc. `runc` ran the fixture on this Windows machine, where `runsc` is not installed. On a GitHub-hosted runner `runsc` ran the fixture and the escape suite (P7-T10, ticked); `gvisor.yml` also runs on a pull request that changes it.
+- Wave 4 and after, on GitHub-hosted Linux runners: all three sandbox tiers ran. Docker and gVisor were compared on the same runner four times (30 starts each): gVisor was slower by 8.8 to 11.4 ms of cold start p50 and by 29.1 to 40.4 ms of launch to exit p50 every time, with 14 of 14 escape probes passed when the suite runs alone (13 of 14 inside `guard ablation`, where the `fork-bomb` probe errors for a reason not known). Firecracker booted a microVM 30 of 30 times in three runs (launch to exit p50 about 1 s, about 9 times a container run); `/dev/kvm` was present on `ubuntu-24.04` and needs a udev rule; its escape probes were not ported into the microVM. `secret-scan`, `egress` and `guard` also ran green. P7-T10, T11, T13, T03, T05 and T17 are ticked on this evidence, with the limits written in the phase doc and ADR-025. Only T20 (needs a real GitHub App) is unticked.
 - Break-its: a scripted model obeys a ticket that asks it to print the environment; the sandbox holds no secrets, so none reached the model, the trajectory, the patch or the reply (T18). One edited line in a 10-record log is named by `guard verify-log`; a full consistent rewrite passes unless the head hash was shipped elsewhere (T19). A DNS lookup from the sandbox fails and the attempt is a record in the audit log (T21). The App-token push to the default branch is refused on a mock only; GitHub's own response was not seen (T20 stays unticked). Finding: `run_fix` without an `execute=` argument runs commands on the host with the host environment.
 - Wave 5 (docs): ADR-024 (threat model and trust boundaries, with the open residual risks: `run_fix` without `execute=` runs commands on the host; the mitigations are off by default), ADR-025 (sandbox tier: Docker with `--network none` is the default because it is the only tier measured; gVisor and Firecracker are not measured here) and ADR-026 (secret lifetimes, the App token permission list, rotation), all proposed. `packages/guard/README.md` lists each control with its state; the P7 phase report cells are dashes because P7 does not run the fix loop for resolve rate, tokens or latency and P6's row is also empty.
 - Per-task detail: `docs/architecture/p7.md`.

@@ -8,24 +8,24 @@ Run everything from the repo root. `guard <sub-command>` is the console script; 
 
 ## The controls
 
-State words: **tested locally** = there is a test or a stored result from a run on this machine. **never run on GitHub** = the workflow or step is written, nothing on GitHub has run it. **not run** = it was not run at all, anywhere.
+State words: **tested locally** = there is a test or a stored result from a run on this machine. **ran on GitHub** = a run on a GitHub-hosted runner was seen (run ids in `docs/notes/p7-github-runs.md` and `p7-github-tier-runs.md`). **never run on GitHub** = the workflow or step is written, nothing on GitHub has run it. **not run** = it was not run at all, anywhere.
 
 | Control | What it does | File or command | State |
 |---|---|---|---|
 | Threat model | Assets, trust boundaries, data-flow diagram, ASI01 to ASI10 rows, injection paths, gaps | [`threat-model.md`](threat-model.md), ADR-024 | Written by Claude, owner has not read it |
 | Secrets inventory | Each secret, where it lives, who can read it (names only) | [`secrets-inventory.md`](secrets-inventory.md), ADR-026 | Written |
 | Redaction | Masks secret-named env values and token shapes in trajectories and spans | `argus_core.redact`, `Trajectory.to_jsonl`, `RedactingExporter`; `tests/test_redact.py` | Tested locally |
-| Secret scan | Fails on a token in a tracked file or in a git remote URL | `python .github/workflows/check_no_secrets.py`; `.github/workflows/secret-scan.yml` | Tested locally (prints `clean`); workflow never run on GitHub |
+| Secret scan | Fails on a token in a tracked file or in a git remote URL | `python .github/workflows/check_no_secrets.py`; `.github/workflows/secret-scan.yml` | Tested locally (prints `clean`); **ran on GitHub, green, on 2026-11-03** (two runs) |
 | App token | Least-privilege, one-hour installation token, one repository, refuses anything above the list | `packages/flow/src/flow/app_token.py`; ADR-026 | Tested locally on a **mock** GitHub only. The App does not exist, the minter is not wired into the clients |
-| No-egress probe | TCP, HTTPS and DNS from the sandbox; a control run with the network on | `uv run --all-packages python -m guard.egress --context local --control --out FILE`; `.github/workflows/egress.yml` | Local result stored (`results/egress-local.json`); workflow never run on GitHub, so no `egress-actions.json` exists |
-| Escape suite | 14 probes, each expects "blocked" | `guard escape --tier docker` | Docker tier tested locally. **gVisor and Firecracker: not run** (see below) |
+| No-egress probe | TCP, HTTPS and DNS from the sandbox; a control run with the network on | `uv run --all-packages python -m guard.egress --context local --control --out FILE`; `.github/workflows/egress.yml` | Local result stored (`results/egress-local.json`); **ran on GitHub**: the sandbox could not connect over TCP, HTTPS or DNS and the control could (log excerpt in `docs/notes/p7-github-runs.md`; the uploaded artifact was not downloaded) |
+| Escape suite | 14 probes, each expects "blocked" | `guard escape --tier docker` | Docker tier 14 of 14 locally and on GitHub runners. gVisor tier 14 of 14 when run alone on a GitHub runner (16 suites); 13 of 14 inside `guard ablation` (fork-bomb probe errors, cause not known). **Firecracker: probes not ported into the microVM** |
 | Audit log | Append-only, hash-chained records; `verify-log` names the first bad line | `guard verify-log FILE [--head HASH]`; `src/guard/auditlog.py` | Tested locally. Not wired into the fix loop's own tool calls (only the escape suite and egress probe write to it) |
-| Guard CI job | Escape suite, secret scan and log verification, no model, no secret; writes the log head hash to the run summary | `.github/workflows/guard.yml`; `python -m guard` | Same commands passed locally; each failure mode turned a command red. **Never run on GitHub** |
+| Guard CI job | Escape suite, secret scan and log verification, no model, no secret; writes the log head hash to the run summary | `.github/workflows/guard.yml`; `python -m guard` | Same commands passed locally; each failure mode turned a command red locally. **Ran on GitHub, green, on 2026-11-03** (14 of 14 probes; both audit logs verified); the failure modes were not run on GitHub |
 | Red-team | 3 static injection cases (ticket, repo file, skill), deterministic checks, no LLM rubric | `redteam/` (promptfoo 0.125.1 through `npx`), `guard redteam` | Run locally on `gemma4:e4b` only: 15 runs baseline, 15 hardened. Not on the production model |
 | Mitigations | Data and instruction separation, tool allowlist, output filter | `run_fix(harden=True)` in `fix-loop`; `fix-loop/tests/test_harden.py` | Tested locally. **Off by default; no caller turns it on** |
-| gVisor runner | Runs the fixture under `runsc` | `guard sandbox-run --runtime runsc`; `.github/workflows/gvisor.yml` | **Not run.** Prints "not available" and exits 3; workflow never run |
-| Firecracker runner | Boots a microVM and runs the fixture | `guard firecracker-run`; `.github/workflows/firecracker.yml` | **Not run.** No KVM here; no microVM ever booted; workflow never run |
-| Ablation | Cold start and escape probes per tier | `guard ablation --tier docker\|gvisor\|firecracker` | Docker (row A) run locally. **gVisor (B) and Firecracker (C) not run** |
+| gVisor runner | Runs the fixture under `runsc` | `guard sandbox-run --runtime runsc`; `.github/workflows/gvisor.yml` | **Ran on a GitHub runner**: `runsc` release-20261026.0, fixture passed under gVisor. On this Windows machine it prints "not available" and exits 3 |
+| Firecracker runner | Boots a microVM and runs the fixture | `guard firecracker-run`; `.github/workflows/firecracker.yml` | **Ran on a GitHub runner**: `/dev/kvm` present on `ubuntu-24.04`, microVM booted and ran the fixture (30 of 30 boots in three runs). Needs a udev rule for `/dev/kvm`. No KVM on this Windows machine |
+| Ablation | Cold start and escape probes per tier | `guard ablation --tier docker\|gvisor\|firecracker` | Rows A, B and C have real runs on GitHub runners (`docs/notes/p7-github-tier-runs.md`). Row C has launch to exit only and no probes |
 | Break-its | T18 environment dump, T19 edited log, T21 DNS exfiltration | `tests/test_break_envdump.py`, `test_break_auditlog.py`, `test_dns_exfil.py`; write-ups in `docs/notes/p7-break-its.md`, `p7-t21.md` | Tested locally |
 | Break-it T20 | Use the App token to push to the default branch | `packages/flow/tests/test_break_app_push.py` | **Mock only.** GitHub's real refusal was not seen; box unticked |
 
@@ -111,8 +111,9 @@ uv run --all-packages python -m pytest packages/guard/tests -q
 
 ## What did not run
 
-- Any workflow on GitHub Actions: `guard`, `secret-scan`, `egress`, `gvisor`, `firecracker`.
-- gVisor (rows B of the ablation and `sandbox-run-runsc.json` say not run / unavailable) and Firecracker (row C, `firecracker-run.json` says unavailable).
+- The escape probes inside the microVM (they run in containers and were not ported), and a real fix-loop task under any tier.
+- Why the gVisor `fork-bomb` probe errors inside `guard ablation` but passes alone.
+- The failure modes of `guard.yml` on GitHub (they were shown locally).
 - A GitHub App, branch protection, and GitHub's real answer to a push to the default branch.
 - The red-team on the production model; the skill case barely reached the model (loaded in 2 of 5 baseline runs).
 - The fix loop for resolve rate, tokens or latency: P7 does not measure those (see the phase report).
