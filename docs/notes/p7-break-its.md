@@ -91,3 +91,46 @@ Five variables, none from the host. `docker run` forwards nothing from the calle
 **Fix.** Pass no secrets into the sandbox (already so: `docker_argv` has no env flag) and redact on the way out (T03 on trajectory writes, T09 behind `harden`). Kept as the guard: the five tests in `test_break_envdump.py`. Not done: turn `harden` on in `fix_step` (its cost to the fix rate is not measured, see T09), and the `baseline.py` executor.
 
 Run: `uv run --all-packages python -m pytest packages/guard/tests/test_break_envdump.py -v -s` -> 5 passed (the two Docker cases start two containers each, one per `run_cmd`).
+
+## P7-T19 edited audit log
+
+Test: `packages/guard/tests/test_break_auditlog.py`. No model, no Docker, no network. The log is built with `AuditLog` (the T06 helper) with a counter as the clock, so the head hashes below are the same on every run. Every check runs the real command line in a subprocess (`guard.cli.main`, the same entry point as `uv run --all-packages guard verify-log`), so the exit code and the text are the command's. Text goes to stderr on failure and stdout on success; the lines below show both.
+
+**Induced failure.** A log of 12 records. Record 6 (line 6) is a `policy_event`: `read_file`, error `outside-worktree`, message `../host-secret.txt is outside the worktree`. It is the line someone covering a refused read would change. Its head hash when the run ended is `9a2d50f5cd8a3dbff263870597f06a8959cd4336d8b199882092c34249046459`; this is the value that should have been shipped to a second place (the workflow run summary).
+
+**Expected signal.** `guard verify-log` exits 1 and names line 6. A full rewrite is caught only with the shipped head hash.
+
+**What happened.**
+
+```
+$ guard verify-log audit.jsonl                                   (control, untouched)
+OK 12 records, head 9a2d50f5cd8a3dbff263870597f06a8959cd4336d8b199882092c34249046459
+(exit 0)
+```
+
+| Experiment | Command and output | Exit |
+|---|---|---|
+| 1. One field edited in place in record 6 (`outside-worktree` -> `none-refused-xx`, same length) | `guard verify-log audit.jsonl` -> `BAD line 6: edited content (hash does not match the record)` | 1 |
+| 2. Same edit, and only that record's `hash` recomputed | `guard verify-log audit.jsonl` -> `BAD line 7: broken link (a line was deleted, inserted or moved)` | 1 |
+| 3. Record 6 edited, then `hash` and `prev` recomputed for records 6 to 12 (a consistent rewrite from the edit onward; lines 1 to 5 byte-identical) | `guard verify-log audit.jsonl` -> `OK 12 records, head 6f90a6db5cf15edd5cc12d9e60005d39515436e2ba951ba2aa691e9c70b490d9` | **0** |
+| 3b. Same file, against the head shipped at the end of the run | `guard verify-log audit.jsonl --head 9a2d50f5cd8a3dbff263870597f06a8959cd4336d8b199882092c34249046459` -> `BAD head: file ends at 6f90a6db5cf15edd5cc12d9e60005d39515436e2ba951ba2aa691e9c70b490d9, expected 9a2d50f5cd8a3dbff263870597f06a8959cd4336d8b199882092c34249046459 (tail cut or log rewritten)` | 1 |
+| 4. Last 3 records cut (9 left) | `guard verify-log audit.jsonl` -> `OK 9 records, head eb7c29d8968113411408045daa57ac3e9034a8e3f404282b8b3b56f1bdf36041`; with `--head 9a2d50f5cd8a3dbff263870597f06a8959cd4336d8b199882092c34249046459` -> `BAD head: file ends at eb7c29d8968113411408045daa57ac3e9034a8e3f404282b8b3b56f1bdf36041, expected ...` | 0, then 1 |
+| 5. As 3, but the attacker also replaces the shipped head with the new one | `guard verify-log audit.jsonl --head 6f90a6db5cf15edd5cc12d9e60005d39515436e2ba951ba2aa691e9c70b490d9` -> `OK 12 records, head 6f90a6db5cf15edd5cc12d9e60005d39515436e2ba951ba2aa691e9c70b490d9` | **0** |
+
+**What is detected and what is not, plainly.**
+
+- **Detected by the chain alone:** one record changed (experiment 1, names the edited line); a record changed and re-hashed on its own (experiment 2, **names the line after it**, 7, because the break shows at the next record's `prev`; the edited one is line 6); a deleted, inserted or swapped line; bad JSON (T06 tests cover these).
+- **Not detected by `verify-log` alone:** a rewrite that recomputes the chain from the edit to the end (experiment 3) and a cut tail (experiment 4). Both verify as `OK`. The hash function and the record layout are in the repo, so an attacker with write access to the file can do experiment 3.
+- **Detected with a head hash kept elsewhere:** experiments 3 and 4 fail with `BAD head`. This is the fix in the phase doc. It works only if the second copy is out of the attacker's reach: experiment 5 shows that if the shipped head is replaced too, the check passes.
+- The head is not shipped anywhere yet. `guard verify-log` prints it on success and takes `--head`, but nothing in the workflow stores it (the T17 CI job is meant to write it to the run summary). Until that exists, experiments 3 and 4 are not caught in practice.
+- The log is written by the process it records. Whoever controls that process can write false records with a valid chain from the start; the chain proves nothing about what was true when written.
+
+**Not verified.**
+
+- Not run in GitHub Actions; the run summary is not wired, so no head hash was ever shipped. The shipped head in these tests is a Python variable.
+- A real fix-loop run was not logged: `audited(...)` is not wired into `run_fix` (T06 says so). The records are written by hand through `AuditLog.append`, in the shape `audited` writes.
+- The edits are byte edits and record rewrites in Python; a text editor that changes line endings or encoding was not tried (a CRLF edit would also show as bad JSON or an edited line, but I did not run it).
+
+**Fix.** Keep the chain (T06), and ship the head hash from the process that wrote the log to a place the log's writer cannot edit (the workflow run summary, T17). Added: nothing in `src`. Kept as the guard: the six tests in `test_break_auditlog.py`.
+
+Run: `uv run --all-packages python -m pytest packages/guard/tests/test_break_auditlog.py -v -s` -> 6 passed.
