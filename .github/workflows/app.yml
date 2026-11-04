@@ -1,0 +1,87 @@
+name: app
+
+# P8-T20. Tests of the Argus App and a lint of the reusable workflow. No model call, no cloud account, no credential of
+# any kind: the database password below is a throwaway value for the container that lives as long as the job, and the job
+# token can only read. What runs:
+#  1. lint of the reusable workflow (pinned actionlint, see "Lint" below),
+#  2. the token-minting and intake (label permission) tests of the flow package,
+#  3. the budget assertion (P8-T07: ledger and tenant ledger),
+#  4. every test of packages/app (the workflow files, the tenant config, the runner, PR creation).
+# The tests parse the workflow files; nothing here starts a tenant run. Pull request titles never reach a shell here: the job
+# reads no event field, and packages/app/tests/test_ci_workflow.py checks that for this file and for the reusable workflow.
+# To see this job run before it reaches main: the pull_request trigger includes this file, so a pull request that touches it
+# starts it (docs/notes/p8-t20-owner-steps.md).
+on:
+  push:
+    paths:
+      - "packages/app/**"
+      - "packages/flow/**"
+      - "packages/argus-core/**"
+      - "packages/fix-loop/**"
+      - "packages/guard/**"
+      - ".github/workflows/app.yml"
+      - ".github/workflows/argus-reusable.yml"
+      - "uv.lock"
+      - "pyproject.toml"
+  pull_request:
+    paths:
+      - "packages/app/**"
+      - "packages/flow/**"
+      - "packages/argus-core/**"
+      - "packages/fix-loop/**"
+      - "packages/guard/**"
+      - ".github/workflows/app.yml"
+      - ".github/workflows/argus-reusable.yml"
+      - "uv.lock"
+      - "pyproject.toml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  APP_CI_PG_PASSWORD: app-ci-throwaway-not-a-token
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      ARGUS_FLOW_DATABASE_URL: postgresql://postgres:${{ env.APP_CI_PG_PASSWORD }}@localhost:5432/argus_app_test
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: ${{ env.APP_CI_PG_PASSWORD }}
+          POSTGRES_DB: argus_app_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d argus_app_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      # Lint. actionlint is pinned by its release image tag (1.7.7). The structural checks that do not need it (triggers,
+      # permissions, secrets, no step that pushes, no event field in a script) are tests in packages/app/tests and run below.
+      - name: Lint the reusable workflow and this one
+        run: docker run --rm -v "$PWD:/repo:ro" -w /repo rhysd/actionlint:1.7.7 -color .github/workflows/argus-reusable.yml .github/workflows/app.yml
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+      - run: uv sync --all-packages --locked
+
+      # `-k` picks the files by name, so the step keeps working whichever of them a branch has.
+      - name: Token minting and label permission tests
+        run: uv run --all-packages python -m pytest packages/flow/tests -q -k "test_app_token or test_installations or test_intake"
+
+      - name: Budget assertion (per-tenant quota)
+        run: uv run --all-packages python -m pytest packages/argus-core/tests/test_ledger.py packages/flow/tests/test_tenant_ledger.py -q
+
+      - name: App tests
+        run: uv run --all-packages python -m pytest packages/app/tests -q
