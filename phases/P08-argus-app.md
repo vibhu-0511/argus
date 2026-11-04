@@ -82,9 +82,24 @@ Package Argus as a public GitHub App where each tenant runs a reusable workflow 
 
 | Report | Resolve rate | Tokens/bug | $-equivalent | p50 latency | p95 latency |
 |---|---|---|---|---|---|
-| Previous phase | — | — | — | — | — |
-| This phase | — | — | — | — | — |
+| Previous phase (P7) | — | — | — | — | — |
+| This phase (P8) | — | — | — | — | — |
 | Delta | — | — | — | — | — |
+
+*Every cell is a dash on purpose; filled on 2026-11-04 (P8-T25) from stored results only, and no stored result exists for these columns.*
+- **Previous phase (P7): dashes.** P7 has no resolve-rate, token or latency numbers: it measured sandbox cold start, escape probes and a red-team on a small local model, not the fix loop (see its report in `phases/P07-argus-guard.md`). No P7 baseline was made up.
+- **This phase (P8): dashes.** The only P8 task that would give these columns is P8-T12 (single agent vs planner, 20 tasks). It ran 0 of 20 tasks for either variant: no Ollama server, no `ollama` binary and no `gemma4:e4b` on the build machine (checked again on 2026-11-04: no answer on `http://localhost:11434`, no `packages/eval/results/p8-t12/`), and the rules allow no other model for it (`docs/notes/p8-t12.md`). No other P8 task runs the fix loop against a model: the runner tests use a fake fix agent and nothing has run on GitHub. A resolve rate from those would be invented.
+- **Delta: dashes**, because both sides are dashes. When T12 runs, `python -m eval.ablation table A.json B.json` fills the Ablation table above; `python -m eval report <previous.json> <this.json>` fills this one, and needs a P7 results file that does not exist, so its previous row stays dashes unless P7 is measured.
+- **What P8 did measure, kept out of the table because it answers other questions:**
+
+| Measure | Value | Source and limit |
+|---|---|---|
+| App package tests | 248 passed in 787 s | `uv run --all-packages python -m pytest packages/app/tests -q`, run on 2026-11-04 on Windows 11, no Postgres set; no test calls a model |
+| Ledger, planner and ablation-harness tests | 30 passed (`argus-core` ledger and `fix-loop` planner together), 7 passed (`eval` ablation run) | same day; stub models only |
+| Flow tests for token minting, intake and the label break-it | 80 passed | `test_app_token.py`, `test_intake.py`, `test_break_it_t24.py`; mock GitHub; the Postgres-backed installation and tenant-ledger tests were not run for this report |
+| Tenant at its budget while another runs | refused with a typed message; the second tenant finished with `submit` | `packages/app/tests/test_break_tenant_quota.py`; scripted fake model, not a real provider |
+| Release checklist | 2 of 4 items done | `docs/release-checklist.md`: secret scan and quota limits done; licence and the private-data sweep of `docs/` open |
+| Open P8 tasks | T02, T03, T04, T06, T12, T16, T17, T18, T19, T20 | each needs an owner step or a real GitHub run; see `TASKS.md` and `packages/app/README.md` |
 
 ## ADRs to write
 All [ME].

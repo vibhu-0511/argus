@@ -350,7 +350,7 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 - [x] P8-T22 Break it: install on a repo with no test command configured [ME] 2h
 - [x] P8-T23 Break it: force a cherry-pick conflict in a backport [ME] 2h
 - [x] P8-T24 Break it: add the intake label as a user without write access [ME] 2h
-- [ ] P8-T25 Write package README and phase report against P7 [CLAUDE] 1h
+- [x] P8-T25 Write package README and phase report against P7 [CLAUDE] 1h `packages/app/README.md` shows App setup, workflow usage, the commands and a table of every control (tested locally / never run on GitHub / not run) with each owner-only step linked. The phase report rows are all dashes: P7 has no resolve-rate, token or latency numbers, and P8-T12 ran 0 of 20 tasks (no local model on the machine). Its dependency P8-T19 is still open (licence and `docs/` sweep are the owner's).
 - [ ] P9-T00 Re-verify pinned versions via web search [CLAUDE] 1h
 - [ ] P9-T01 Read the SWE-agent paper and the ast-grep docs, write notes [ME] 1h
 - [ ] P9-T02 Define the backend Task variant: event, request payload and failing pytest as the check [ME] 3h
