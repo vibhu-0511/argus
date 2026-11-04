@@ -1,0 +1,10 @@
+# A second, tiny target: a flat Python package, one port, stdlib only. Its layout shares nothing with the dcortex monorepo.
+start: python -m tinysite 18765
+test: python -m unittest discover -s tests -p "check_*.py"
+base_url: http://127.0.0.1:18765
+routes:
+  - /
+  - /about
+budget:
+  max_tokens: 50000
+  max_steps: 10

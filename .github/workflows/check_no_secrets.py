@@ -39,7 +39,9 @@ MARKERS = (
 # agent-job.yml runs the agent on dispatch only (never on push or pull_request) and names the one
 # model secret it needs; nothing else is allowed there. P6-T04.
 # golden.yml (manual dispatch only) checks out the private platform repo with the read-only token PLATFORM_REPO_TOKEN. P0.
-ALLOWED = {"agent-job.yml": ("ARGUS_MODEL_API_KEY", "secrets."), "golden.yml": ("secrets.",)}
+# argus-reusable.yml (P8-T04) is called from a tenant's repo and names the tenant's own model key; its pull_request trigger is limited to its own
+# file and the step that holds the key is skipped there (packages/app/tests/test_reusable_workflow.py checks both).
+ALLOWED = {"agent-job.yml": ("ARGUS_MODEL_API_KEY", "secrets."), "golden.yml": ("secrets.",), "argus-reusable.yml": ("ARGUS_MODEL_API_KEY", "secrets.")}
 
 
 def markers_in(text: str, name: str = "") -> list[str]:

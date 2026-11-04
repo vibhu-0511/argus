@@ -324,7 +324,7 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 
 - [ ] P8-T03 Build installation flow and installation-token minting in the flow service [PAIR] 3h
 - [ ] P8-T04 Write the reusable workflow that runs the agent job in the tenant's repo [CLAUDE] 3h
-- [ ] P8-T05 Define the tenant config file and write the onboarding doc [PAIR] 3h
+- [x] P8-T05 Define the tenant config file and write the onboarding doc [PAIR] 3h
 - [ ] P8-T06 Make the runner target-agnostic using the tenant config [PAIR] 3h
 - [ ] P8-T07 Add per-tenant quota budgets to the ledger with a fair-share rule [ME] 3h
 - [ ] P8-T08 Build ticket intake: a labelled issue starts a workflow [PAIR] 2h
