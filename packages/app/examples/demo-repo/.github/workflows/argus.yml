@@ -1,0 +1,5 @@
+on: {issues: {types: [labeled]}}
+jobs:
+  argus:
+    uses: vibhu-0511/argus/.github/workflows/argus-reusable.yml@main
+    secrets: {ARGUS_MODEL_API_KEY: "${{ secrets.ARGUS_MODEL_API_KEY }}"}
