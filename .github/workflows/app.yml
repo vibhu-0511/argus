@@ -39,20 +39,18 @@ on:
 permissions:
   contents: read
 
-env:
-  APP_CI_PG_PASSWORD: app-ci-throwaway-not-a-token
-
 jobs:
   tests:
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    # The `env` context is not available in a job-level `env`, so the throwaway password is written out here and in the service below.
     env:
-      ARGUS_FLOW_DATABASE_URL: postgresql://postgres:${{ env.APP_CI_PG_PASSWORD }}@localhost:5432/argus_app_test
+      ARGUS_FLOW_DATABASE_URL: postgresql://postgres:app-ci-throwaway-not-a-token@localhost:5432/argus_app_test
     services:
       postgres:
         image: postgres:16
         env:
-          POSTGRES_PASSWORD: ${{ env.APP_CI_PG_PASSWORD }}
+          POSTGRES_PASSWORD: app-ci-throwaway-not-a-token
           POSTGRES_DB: argus_app_test
         ports:
           - 5432:5432

@@ -108,6 +108,7 @@ def test_the_flow_tests_get_a_postgres_service_with_a_health_check():
     assert pg["image"].startswith("postgres:") and "pg_isready" in pg["options"]
     assert job["env"]["ARGUS_FLOW_DATABASE_URL"].startswith("postgresql://postgres:")
     assert "localhost:5432" in job["env"]["ARGUS_FLOW_DATABASE_URL"]
+    assert all("${{ env." not in str(v) for v in job["env"].values())  # GitHub has no `env` context in a job-level `env`
 
 
 def test_dependencies_are_installed_from_the_lock_before_any_test():
