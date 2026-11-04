@@ -326,7 +326,7 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 - [ ] P8-T04 Write the reusable workflow that runs the agent job in the tenant's repo [CLAUDE] 3h
 - [x] P8-T05 Define the tenant config file and write the onboarding doc [PAIR] 3h
 - [ ] P8-T06 Make the runner target-agnostic using the tenant config [PAIR] 3h
-- [ ] P8-T07 Add per-tenant quota budgets to the ledger with a fair-share rule [ME] 3h
+- [x] P8-T07 Add per-tenant quota budgets to the ledger with a fair-share rule [ME] 3h
 - [x] P8-T08 Build ticket intake: a labelled issue starts a workflow [PAIR] 2h
 - [x] P8-T09 Build PR creation with verdict, trajectory link and before and after screenshots [PAIR] 3h
 
@@ -336,7 +336,7 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 - [x] P8-T11 Build the planner and subagents variant of the loop [ME] 4h
 - [ ] P8-T12 Run ablation: single agent vs planner and subagents on 20 tasks [ME] 4h
 - [x] P8-T13 Write ADR-027: Tenancy via a reusable workflow in the tenant's repo [ME] 1h (written by Claude, status proposed, owner to decide) Compares the tenant repo with our servers on quota, trust boundary and cost (no cost figure measured) and says the backport head is a branch the tenant workflow is allowed to test.
-- [ ] P8-T14 Write ADR-028: Per-tenant quota budgets [ME] 1h
+- [x] P8-T14 Write ADR-028: Per-tenant quota budgets [ME] 1h
 - [ ] P8-T15 Write ADR-029: Single agent vs planner and subagents [ME] 1h
 - [ ] P8-T16 Install the App on one of your own public repos and run one issue end to end [PAIR] 3h
 - [ ] P8-T17 Write the landing README: what it does, quickstart, limits, security model, free-tier caveat [CLAUDE] 3h
@@ -346,7 +346,7 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 - [ ] P8-T18 Record the demo video including one failure and its recovery [PAIR] 2h
 - [ ] P8-T19 Complete the public release checklist [CLAUDE] 2h
 - [ ] P8-T20 Add CI job for app tests and reusable-workflow lint, no LLM [CLAUDE] 2h
-- [ ] P8-T21 Break it: let one tenant exhaust its budget while another runs [ME] 2h
+- [x] P8-T21 Break it: let one tenant exhaust its budget while another runs [ME] 2h
 - [x] P8-T22 Break it: install on a repo with no test command configured [ME] 2h
 - [ ] P8-T23 Break it: force a cherry-pick conflict in a backport [ME] 2h
 - [ ] P8-T24 Break it: add the intake label as a user without write access [ME] 2h
