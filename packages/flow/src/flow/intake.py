@@ -4,7 +4,8 @@ A tenant puts the intake label (default `argus`, env `ARGUS_INTAKE_LABEL`) on an
 `labeled` to the webhook. `flow.webhook` verifies the HMAC, answers 202 and hands the payload to `Intake.handle`
 after the response (ADR-021: the webhook is a hint, it makes no GitHub call before it answers). `handle` then:
 
-1. drops everything that is not the intake label being added to an issue (another label, another action);
+1. drops everything that is not the intake label being added to an issue (another label, another action); the intake
+   label on a pull request, or with a repo or login that GitHub would not allow, is ignored and logged (P8-T24);
 2. asks GitHub whether the person who added the label has write access to the repo
    (`GET /repos/{repo}/collaborators/{login}/permission`, with an installation token that only reads, ADR-026);
 3. on `admin`, `maintain` or `write`: `enqueue_reconcile(ticket_id)`, the same call the poller makes;
@@ -29,6 +30,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 from collections.abc import Callable
 from typing import NamedTuple
 
@@ -41,6 +43,8 @@ DEFAULT_LABEL = "argus"
 EVENTS = frozenset({"issues"})
 WRITE_ROLES = frozenset({"admin", "maintain", "write"})
 API_URL = "https://api.github.com"
+LOGIN = re.compile(r"[A-Za-z0-9][A-Za-z0-9-]{0,38}(\[bot\])?")
+REPO = re.compile(r"(?!\.+/)[A-Za-z0-9_.-]{1,100}/(?!\.+$)[A-Za-z0-9_.-]{1,100}")
 
 log = logging.getLogger("flow.intake")
 
@@ -80,6 +84,9 @@ class Intake:
         who = _who(payload, self.label)
         if who is None:
             return Decision("ignored", "not the intake label being added")
+        if isinstance(who, str):  # the intake label, but the event cannot be trusted: ignored, and said so (P8-T24)
+            self._ignored(_shown(_field(payload, "repository", "full_name")), _shown(_field(payload, "sender", "login")), who)
+            return Decision("ignored", who)
         repo, number, actor = who
         ticket_id = f"{repo}#{number}"
         if delivery_id and not self._dedup.first_time(delivery_id):
@@ -126,14 +133,27 @@ class Intake:
             self._audit("intake_ignored", record)
 
 
-def _who(payload: dict, label: str) -> tuple[str, int, str] | None:
-    """(repo, issue number, login of the person who added the label), only for the intake label being added to an issue."""
-    added = (payload.get("label") or {}).get("name")
-    repo = (payload.get("repository") or {}).get("full_name")
-    number = (payload.get("issue") or {}).get("number")
-    actor = (payload.get("sender") or {}).get("login")
+def _field(payload: dict, *path: str) -> object:
+    for key in path:
+        payload = payload.get(key) if isinstance(payload, dict) else None
+    return payload
+
+
+def _shown(value: object) -> str:
+    return str(value)[:100] if value is not None else "?"
+
+
+def _who(payload: dict, label: str) -> tuple[str, int, str] | str | None:
+    """(repo, issue number, login) of the intake label being added to an issue; None for any other event; a reason
+    (str) when it is the intake label but the event has no usable repo, number or login, or is on a pull request.
+    The login and the repo go into a URL path, so only what GitHub itself allows is let through (a `/`, `..`, `?` or
+    `#` in a login would send the permission call to another user's page)."""
+    added = _field(payload, "label", "name")
     if payload.get("action") != "labeled" or not isinstance(added, str) or added.casefold() != label:
         return None
-    if not (repo and isinstance(number, int) and actor) or "pull_request" in payload["issue"]:
-        return None
+    repo, number, actor = _field(payload, "repository", "full_name"), _field(payload, "issue", "number"), _field(payload, "sender", "login")
+    if _field(payload, "issue", "pull_request") is not None:
+        return "the label is on a pull request, not an issue"
+    if not (isinstance(repo, str) and REPO.fullmatch(repo) and type(number) is int and number > 0 and isinstance(actor, str) and LOGIN.fullmatch(actor)):
+        return "the event has no usable repo, issue number or login"
     return repo, number, actor
