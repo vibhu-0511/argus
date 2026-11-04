@@ -332,7 +332,7 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 
 ## Week 29 — P8 (20 h scheduled)
 
-- [ ] P8-T10 Build the backport bot with conflict handling [PAIR] 3h
+- [x] P8-T10 Build the backport bot with conflict handling [PAIR] 3h
 - [x] P8-T11 Build the planner and subagents variant of the loop [ME] 4h
 - [ ] P8-T12 Run ablation: single agent vs planner and subagents on 20 tasks [ME] 4h
 - [ ] P8-T13 Write ADR-027: Tenancy via a reusable workflow in the tenant's repo [ME] 1h

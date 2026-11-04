@@ -190,12 +190,13 @@ class HttpGitHubClient:
         pr = self._pr_json(branch)
         return _pr(pr) if pr else None
 
-    def create_draft_pr(self, branch: str, title: str, body: str) -> PullRequest:
+    def create_draft_pr(self, branch: str, title: str, body: str, base: str | None = None) -> PullRequest:
+        """`base` is the branch the PR targets; the default branch when None (a backport PR names its own, P8-T10)."""
         response = self._call(
             "POST",
             self._repo_path("/pulls"),
             ok=(201, 422),
-            json={"title": title, "head": branch, "base": self._default_branch(), "body": body, "draft": True},
+            json={"title": title, "head": branch, "base": base or self._default_branch(), "body": body, "draft": True},
         )
         if response.status_code == 201:
             return _pr(response.json())

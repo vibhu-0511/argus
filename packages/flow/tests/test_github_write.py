@@ -154,6 +154,11 @@ def test_update_pr_edits_an_open_pr_once_and_leaves_a_closed_one(client, api):
     assert api.pulls[0]["body"] == "b2"
 
 
+def test_create_draft_pr_can_name_its_base_branch(client, api):
+    client.create_draft_pr(BRANCH, "t", "b", base="release")
+    assert api.pulls[0]["base"] == "release" and api.pulls[0]["draft"] is True
+
+
 def test_update_pr_without_a_pr_raises(client):
     with pytest.raises(GitHubWriteError, match="no PR"):
         client.update_pr(BRANCH, "t", "b")
