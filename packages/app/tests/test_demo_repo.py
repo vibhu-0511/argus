@@ -11,6 +11,7 @@ from argus_app.config import load_config
 from argus_app.runner import build_steps, run
 
 DEMO = Path(__file__).parents[1] / "examples" / "demo-repo"
+SCRIPT = Path(__file__).parents[1] / "examples" / "demo-script"  # P8-T18 rehearsal files
 TICKET = "acme/demo#1"
 BUG, FIX = "count = len(cart)", "count = sum(qty for _, qty in cart)"
 
@@ -90,3 +91,17 @@ def test_repro_fix_and_verify_run_on_the_demo_with_a_fake_fix_agent(tmp_path):
     assert "routes answered: /, /cart" in out["repro"]["output"] and "exited 1" in out["repro"]["output"]  # the bug is seen
     assert BUG in out["fix"]["output"] and FIX in out["fix"]["output"]
     assert out["verify"]["ok"] and "exited 0" in out["verify"]["output"]
+
+
+def test_the_rehearsal_patches_apply_and_one_fixes_the_bug_and_one_does_not(tmp_path):
+    for name, passes in (("good", True), ("bad", False)):
+        repo = copy(tmp_path / name)
+        subprocess.run(["git", "apply", str(SCRIPT / f"{name}.diff")], cwd=repo, check=True, capture_output=True)  # works outside a repo too
+        assert (unittest_run(repo).returncode == 0) is passes, name
+
+
+def test_the_quota_rehearsal_refuses_before_a_second_request_is_sent():
+    out = subprocess.run([sys.executable, str(SCRIPT / "quota_refusal.py")], capture_output=True, text=True, check=True).stdout
+    assert "REFUSED before sending" in out and out.count("call allowed") >= 1
+    refused = [line for line in out.splitlines() if "REFUSED" in line]
+    assert all("requests sent so far: 1)" in line for line in refused[:1])  # nothing was sent for the refused call

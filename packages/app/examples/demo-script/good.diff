@@ -1,0 +1,13 @@
+diff --git a/shopsite/pages.py b/shopsite/pages.py
+index 284ce42..8d340b4 100644
+--- a/shopsite/pages.py
++++ b/shopsite/pages.py
+@@ -18,7 +18,7 @@ def cart_page(cart: list[tuple[str, int]] = CART) -> str:
+     prices = {sku: (name, price) for sku, name, price in CATALOG}
+     rows = "".join(f"<li>{qty} x {escape(prices[sku][0])}</li>" for sku, qty in cart)
+     total = sum(prices[sku][1] * qty for sku, qty in cart)
+-    count = len(cart)
++    count = sum(qty for _, qty in cart)
+     return (f"<h1>Cart <span class='badge' id='cart-count'>{count} items</span></h1><ul id='lines'>{rows}</ul>"
+             f"<p id='total'>Total {money(total)}</p><a href='/'>Keep shopping</a>")
+ 
