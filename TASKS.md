@@ -346,7 +346,7 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 - [ ] P8-T18 Record the demo video including one failure and its recovery [PAIR] 2h
 - [ ] P8-T19 Complete the public release checklist [CLAUDE] 2h
 - [ ] P8-T20 Add CI job for app tests and reusable-workflow lint, no LLM [CLAUDE] 2h
-- [ ] P8-T21 Break it: let one tenant exhaust its budget while another runs [ME] 2h
+- [x] P8-T21 Break it: let one tenant exhaust its budget while another runs [ME] 2h
 - [ ] P8-T22 Break it: install on a repo with no test command configured [ME] 2h
 - [ ] P8-T23 Break it: force a cherry-pick conflict in a backport [ME] 2h
 - [ ] P8-T24 Break it: add the intake label as a user without write access [ME] 2h
