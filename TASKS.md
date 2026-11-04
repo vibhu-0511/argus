@@ -348,8 +348,8 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 - [ ] P8-T20 Add CI job for app tests and reusable-workflow lint, no LLM [CLAUDE] 2h
 - [x] P8-T21 Break it: let one tenant exhaust its budget while another runs [ME] 2h
 - [x] P8-T22 Break it: install on a repo with no test command configured [ME] 2h
-- [ ] P8-T23 Break it: force a cherry-pick conflict in a backport [ME] 2h
-- [ ] P8-T24 Break it: add the intake label as a user without write access [ME] 2h
+- [x] P8-T23 Break it: force a cherry-pick conflict in a backport [ME] 2h
+- [x] P8-T24 Break it: add the intake label as a user without write access [ME] 2h
 - [ ] P8-T25 Write package README and phase report against P7 [CLAUDE] 1h
 - [ ] P9-T00 Re-verify pinned versions via web search [CLAUDE] 1h
 - [ ] P9-T01 Read the SWE-agent paper and the ast-grep docs, write notes [ME] 1h

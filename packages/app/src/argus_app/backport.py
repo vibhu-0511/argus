@@ -27,7 +27,8 @@ Safety rules, each with a test in `tests/test_backport.py`:
 
 - Every git call is an argument list to `subprocess.run`; there is no shell and no string is built into a command.
 - No git subcommand outside `ALLOWED`; no `--force`, `-f`, `--delete`, `-d`, `-D`, `--mirror`, `--prune`, no refspec that
-  starts with `+` or `:`; so nothing the bot does can force-push, delete or reset a branch.
+  starts with `+` or `:` or has a `:` in a push; and no option at all except the ones in `SAFE_FLAGS` (git also accepts
+  `-fu` and `--forc`, P8-T23), so nothing the bot does can force-push, delete or reset a branch.
 - The installation token goes to git only as `http.extraHeader` through the `GIT_CONFIG_*` environment variables, so
   it is in no argument list, no file and (the output is scrubbed) no message. It is used only for `https://` URLs.
 - A tenant cannot make the bot run a command on a conflict: `BackportConfig.from_mapping` refuses `conflict_command`
@@ -64,6 +65,7 @@ from flow.workflow import PullRequest
 TARGET_ENV = "ARGUS_BACKPORT_BRANCH"
 ALLOWED = frozenset({"clone", "checkout", "cherry-pick", "rev-list", "rev-parse", "merge-base", "cat-file", "diff", "push"})
 FORBIDDEN = frozenset({"--force", "-f", "--force-with-lease", "--delete", "-d", "-D", "--mirror", "--prune", "--all"})
+SAFE_FLAGS = frozenset({"--", "-b", "-x", "-m", "-n", "-e", "--branch", "--abort", "--parents", "--verify", "--quiet", "--is-ancestor", "--name-only", "--diff-filter=U"})  # the only options the bot passes
 COMMAND_FIELDS = frozenset({"conflict_command", "on_conflict", "conflict_cmd", "resolve_command", "command", "script", "hook"})
 BRANCH = re.compile(r"[A-Za-z0-9][A-Za-z0-9._/-]{0,99}")
 SHA = re.compile(r"[0-9a-f]{40}")
@@ -145,8 +147,10 @@ def check_args(args: Sequence[str], keep_away: Sequence[str] = ()) -> None:
     if not args or args[0] not in ALLOWED:
         raise Refused(f"git {args[0] if args else ''!r} is not one of the commands the bot may run")
     for arg in args[1:]:
-        if arg in FORBIDDEN or arg.startswith(("+", ":")):
-            raise Refused(f"git argument {arg!r} is refused: the bot never forces, deletes or resets")
+        # An option that is not in SAFE_FLAGS is refused whatever it is called: git accepts `-fu`, `--forc` and
+        # `--force-with-lease=x` for a force, `--upload-pack=cmd` runs a command, and a push refspec `a:b` writes any branch.
+        if arg in FORBIDDEN or arg.startswith(("+", ":")) or (arg.startswith("-") and arg not in SAFE_FLAGS) or (args[0] == "push" and ":" in arg):
+            raise Refused(f"git argument {arg!r} is refused: the bot never forces, deletes or resets, and passes only the options it knows")
         if "refs/pull" in arg or arg in keep_away:
             raise Refused(f"git argument {arg!r} is refused: a pull request head is never fetched or checked out")
 
