@@ -76,6 +76,8 @@ Package Argus as a public GitHub App where each tenant runs a reusable workflow 
 | A | — | — | — | — | — | — | — |
 | B | — | — | — | — | — | — | — |
 
+**Status (2026-11-04):** not measured, 0 of 20 tasks run for either variant. The local `gemma4:e4b` is not installed on the build machine. The harness, configs and owner steps are in `docs/notes/p8-t12.md`. When filled, say the model (`gemma4:e4b`, a small local model, not the production model) and the run counts.
+
 **Phase report (against previous phase):**
 
 | Report | Resolve rate | Tokens/bug | $-equivalent | p50 latency | p95 latency |
