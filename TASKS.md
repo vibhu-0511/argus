@@ -335,7 +335,7 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 - [ ] P8-T10 Build the backport bot with conflict handling [PAIR] 3h
 - [x] P8-T11 Build the planner and subagents variant of the loop [ME] 4h
 - [ ] P8-T12 Run ablation: single agent vs planner and subagents on 20 tasks [ME] 4h
-- [ ] P8-T13 Write ADR-027: Tenancy via a reusable workflow in the tenant's repo [ME] 1h
+- [x] P8-T13 Write ADR-027: Tenancy via a reusable workflow in the tenant's repo [ME] 1h (written by Claude, status proposed, owner to decide) Compares the tenant repo with our servers on quota, trust boundary and cost (no cost figure measured) and says the backport head is a branch the tenant workflow is allowed to test.
 - [ ] P8-T14 Write ADR-028: Per-tenant quota budgets [ME] 1h
 - [ ] P8-T15 Write ADR-029: Single agent vs planner and subagents [ME] 1h
 - [ ] P8-T16 Install the App on one of your own public repos and run one issue end to end [PAIR] 3h
