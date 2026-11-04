@@ -35,6 +35,7 @@ from dataclasses import dataclass
 
 import httpx
 import psycopg
+from argus_core.ledger import Ledger, TenantLedger
 
 from flow.app_token import API_URL, APP_ID_ENV, KEY_ENV, AppTokenMinter, InstallationToken
 from flow.db_wake import wait_for_database
@@ -143,6 +144,11 @@ class InstallationStore:
     def repos(self, installation_id: int) -> list[str]:
         with self._connect() as conn:
             return [r[0] for r in conn.execute("select repo from argus_installation_repos where installation_id = %s order by repo", (installation_id,))]
+
+
+def ledger_for_repo(store: InstallationStore, repo: str, ledger: Ledger) -> TenantLedger:
+    """The quota ledger bound to the tenant that installed the App on `repo` (P8-T07). Unknown repo: `RepoNotInstalled`."""
+    return ledger.for_tenant(store.find(repo).tenant_id)
 
 
 def mint_for_repo(
