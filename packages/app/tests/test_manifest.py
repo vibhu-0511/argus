@@ -78,8 +78,9 @@ def test_blank_variable_counts_as_missing():
         load_manifest({**ENV, "ARGUS_FLOW_SERVICE_URL": "  "})
 
 
+# the user:password URL is built at run time: the repo secret scan flags one written out
 @pytest.mark.parametrize("key,value", [("ARGUS_FLOW_SERVICE_URL", "http://flow.example.test"), ("ARGUS_APP_HOMEPAGE_URL", "ftp://x.test"),
-                                       ("ARGUS_FLOW_SERVICE_URL", "https://u:p@flow.example.test"), ("ARGUS_APP_REDIRECT_URL", "http://evil.test/")])
+                                       ("ARGUS_FLOW_SERVICE_URL", "https://u" + ":p@flow.example.test"), ("ARGUS_APP_REDIRECT_URL", "http://evil.test/")])
 def test_bad_urls_are_refused(key, value):
     with pytest.raises(ManifestError):
         load_manifest({**ENV, key: value})

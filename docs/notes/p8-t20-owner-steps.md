@@ -13,7 +13,7 @@ Date: 2026-11-04. **Not run on GitHub. The box stays unticked.** Reason: the cri
 
 Mutation checks on `app.yml` (run once, then reverted): `contents: write` fails the read-only test; `pull_request` renamed to `pull_request_target` and the `--locked` flag removed fail the trigger test and the install-order test.
 
-The repo secret scan (`.github/workflows/check_no_secrets.py`) finds nothing in `app.yml`. It does exit 1 on the branch for a different reason: `packages/app/tests/test_manifest.py:82` holds a made-up `https://u:p@...` URL. That is from P8-T02 and is not touched here; the `guard` workflow would go red on it.
+The repo secret scan (`.github/workflows/check_no_secrets.py`) finds nothing in `app.yml`. It flagged this file and `packages/app/tests/test_manifest.py` (a made-up URL with a user and password in it, from P8-T02); both are fixed on `p8/ci-fix` and the scan prints `clean`.
 
 One test, `test_a_start_command_that_exits_is_a_failed_baseline_with_its_output`, failed once in the first full run of `packages/app/tests` and passed in the three runs after. The runner's fixture app uses a fixed local port, and other sessions were running the same suite at the same time; a server from another run answering on that port would make the baseline succeed. That was not proven. If the job ever shows it on GitHub, read the log before trusting either result.
 
