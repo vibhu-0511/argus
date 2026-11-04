@@ -149,6 +149,20 @@ flowchart LR
     MANIFEST["App manifest<br/>argus_app.manifest, five permissions equal ADR-026, URLs from env; App not registered"]:::p8
     PLANNER["planner and subagents<br/>fix_loop.planner, 1 to 5 typed sub-tasks, own token cap each; one smoke run"]:::p8
     VARIANT["variant switch<br/>params.variant in eval.ablation, single or planner"]:::p8
+    INSTALL["installation flow<br/>flow.installations, token for one installed repo; mock GitHub only, real App not run"]:::p8
+    TCONF["tenant config<br/>.argus.yml, argus_app.config, onboarding doc; typed errors"]:::p8
+    RWF["reusable workflow<br/>argus-reusable.yml; never run on GitHub, actionlint not run"]:::p8
+    TRUNNER["target-agnostic runner<br/>argus_app.runner; fixture repo ran for real, dcortex not run"]:::p8
+    TQUOTA["tenant quota<br/>TenantBudget, Ledger.for_tenant, fair share; budgets not built into the service"]:::p8
+    INTAKE["ticket intake<br/>flow.intake, label plus write access; mock GitHub only"]:::p8
+    CFGINT["config check at intake<br/>argus_app.config_intake, typed comment, mock GitHub only"]:::p8
+    PRBUILD["PR with evidence<br/>argus_app.pr; not called by the workflow yet"]:::p8
+    BACKPORT["backport bot<br/>argus_app.backport; real git on local repos, mock GitHub, not on a webhook"]:::p8
+    ABLRUN["ablation run<br/>harness built, nothing ran: no Ollama on the machine"]:::p8
+    APPCI["app.yml<br/>App tests and lint, no model; not run on GitHub"]:::p8
+    ADRS8["ADR-027, 028, 029<br/>proposed: tenancy, tenant budgets, planner vs single (no decision, no numbers)"]:::p8
+    BREAKS8["P8 break-its<br/>T21 quota, T22 no test command, T23 conflict, T24 read-only label; mocks and local git"]:::p8
+    PREP8["demo repo, script, README, checklist<br/>preparation only: no public repo, video or timed install"]:::p8
   end
 
   BUGSMITH --> FILTER
@@ -346,6 +360,36 @@ flowchart LR
   PLANNER -- "tier per call" --> ROUTER
   VARIANT -- "selects planner or single" --> PLANNER
   VARIANT -- "agent under test" --> RUNNER
+  WEBHOOK -- "installation events" --> INSTALL
+  INSTALL -- "mints, one repo" --> APPTOK
+  MANIFEST -. "events it subscribes to" .-> INSTALL
+  TCONF -- "commands and routes" --> TRUNNER
+  RWF -- "runs" --> TRUNNER
+  TRUNNER -- "wraps" --> AGENTJOB
+  RWF -. "token profile write" .-> APPTOK
+  INSTALL -- "tenant id" --> TQUOTA
+  TQUOTA -- "extends" --> LEDGER
+  WEBHOOK -- "label event" --> INTAKE
+  INTAKE -- "one workflow per ticket" --> ENQ
+  INTAKE -- "read token" --> INSTALL
+  INTAKE -- "reads .argus.yml" --> CFGINT
+  CFGINT -- "validates" --> TCONF
+  PRBUILD -- "find before act" --> GHWRITE
+  PRBUILD -. "reads verdict.json" .-> CHECKS
+  BACKPORT -- "opens the PR" --> GHWRITE
+  BACKPORT -. "write token" .-> APPTOK
+  ABLRUN -. "would run" .-> VARIANT
+  ABLRUN -. "would write results" .-> RUNNER
+  APPCI -. "lints" .-> RWF
+  APPCI -. "tests" .-> TRUNNER
+  ADRS8 -. "decides" .-> RWF
+  ADRS8 -. "decides" .-> TQUOTA
+  ADRS8 -. "keeps single agent" .-> PLANNER
+  BREAKS8 -. "tenant over budget" .-> TQUOTA
+  BREAKS8 -. "no test command" .-> CFGINT
+  BREAKS8 -. "cherry-pick conflict" .-> BACKPORT
+  BREAKS8 -. "read-only label" .-> INTAKE
+  PREP8 -. "first install target" .-> RWF
 
   classDef p0 fill:#dbeafe,stroke:#1d4ed8,stroke-width:1.5px,color:#111827
   style S0 fill:none,stroke:#1d4ed8,stroke-width:1.5px
@@ -368,7 +412,7 @@ flowchart LR
   classDef p8 fill:#ccfbf1,stroke:#0f766e,stroke-width:4px,color:#111827
   style S8 fill:none,stroke:#0f766e,stroke-width:4px
   classDef ext fill:#ffffff,stroke:#6b7280,color:#111827,stroke-dasharray: 4 3
-  linkStyle 181,182,183,184,185,186,187,188,189,190 stroke-width:3px
+  linkStyle 181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220 stroke-width:3px
 ```
 
 ## How to read it
@@ -433,6 +477,12 @@ Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink, P5.5 stone, 
 - `docs/notes/p8-t01-multi-agent-notes.md`: the multi-agent post claims about 4 times the tokens of a chat for an agent and about 15 times for a multi-agent system, and names coding as a poor fit. These are Anthropic's numbers for research, not measured on Argus.
 - `argus_app.manifest`: the GitHub App manifest. Its five permissions must equal `flow.app_token.MINIMUM` and the ADR-026 table; the URLs come from environment variables. The App was not registered (owner steps in `docs/notes/p8-t02-owner-steps.md`).
 - `fix_loop.planner`: a planner turns the ticket into 1 to 5 typed sub-tasks and each runs the single-agent loop with its own message history and token cap; every call lands in one ledger. `params.variant` in `eval.ablation` selects it. One smoke run on a local model; no ablation numbers yet (T12).
+- Installation flow (`flow.installations`, T03): records installation events and mints a token for one installed repo. Tested against a mock GitHub only; the real App was never installed.
+- Reusable workflow (`argus-reusable.yml`, T04), tenant config (`.argus.yml`, `argus_app.config`, T05) and the target-agnostic runner (`argus_app.runner`, T06): the runner went through repro, fix and verify on a fixture repo with a fake fix agent. Never run on GitHub, `actionlint` not run, not run on the dcortex repo.
+- Per-tenant quota (`TenantBudget`, `Ledger.for_tenant`, T07): fair-share rule in the ledger, tested with a real Postgres installation store. The running service builds no budgets yet.
+- Ticket intake (`flow.intake`, T08): a label from someone with write access starts one workflow. PR creation (`argus_app.pr`, T09): verdict, judge label, trajectory link and images; the running workflow does not call it yet. Backport bot (`argus_app.backport`, T10): real git on local repos, mock GitHub, no webhook call. Config check at intake (`argus_app.config_intake`, T22).
+- Ablation (T12): the harness is built and nothing ran, because Ollama is not on the machine. App CI (`app.yml`, T20): written, not run on GitHub. ADR-027, 028 and 029 (T13, T14, T15): proposed; ADR-029 draws no decision because there are no measured rows.
+- Break-its (T21 to T24, index in `docs/notes/p8-break-its.md`): all on mocks, scripted models or local git. Preparation only: demo repo, script, landing README and release checklist (T16 to T19); nothing is public and no install was timed.
 - Per-task detail: `docs/architecture/p8.md`.
 
 ## What P5 added
