@@ -24,6 +24,8 @@ ALLOWED_MATCHES = frozenset(
         "gsk_abcdefghijklmnopqrstuvwxyz0123",
         "ghp_write-token-not-real-7c1e",
         "Bearer s3cret-token",
+        "ghp_fake-token-for-tests-not-real-0000",  # P8-T22 test value, in packages/app/tests/test_config_intake.py
+        "https://u:p@",  # P8-T02 test value (a manifest URL with a user must be refused), packages/app/tests/test_manifest.py
     }
 )
 REMOTE_WITH_USERINFO = re.compile(r"^https?://[^/\s@]+@", re.IGNORECASE)
