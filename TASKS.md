@@ -328,7 +328,7 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 - [ ] P8-T06 Make the runner target-agnostic using the tenant config [PAIR] 3h
 - [ ] P8-T07 Add per-tenant quota budgets to the ledger with a fair-share rule [ME] 3h
 - [x] P8-T08 Build ticket intake: a labelled issue starts a workflow [PAIR] 2h
-- [ ] P8-T09 Build PR creation with verdict, trajectory link and before and after screenshots [PAIR] 3h
+- [x] P8-T09 Build PR creation with verdict, trajectory link and before and after screenshots [PAIR] 3h
 
 ## Week 29 — P8 (20 h scheduled)
 

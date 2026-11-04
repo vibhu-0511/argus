@@ -137,7 +137,7 @@ class FakeGitHubApi:
             return self._json(pr, 201)
         if m := re.fullmatch(base + r"/pulls/(\d+)", path):
             pr = self.pulls[int(m[1]) - 1]
-            pr["state"] = body["state"]
+            pr.update({k: body[k] for k in ("state", "title", "body") if k in body})
             return self._json(pr)
         if (method, path) == ("POST", "/graphql"):
             if self.graphql_error:

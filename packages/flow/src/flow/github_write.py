@@ -16,6 +16,7 @@ Every method finds before it acts, so DBOS repeating a step changes nothing (the
 - `find_pr` / `create_draft_pr`: the PR is found by head `<owner>:<branch>` with `state=all`. A lookup
   error raises, so nothing is created. A 422 on create (the PR appeared between find and create) is
   answered by looking the PR up again and returning it.
+- `update_pr` (P8-T09): PATCH title and body of an open PR, skipped when they are unchanged or the PR is closed.
 - `ready_pr` / `close_pr`: skipped when the PR is already ready / closed. REST cannot mark a draft
   ready, so `ready_pr` uses the GraphQL mutation `markPullRequestReadyForReview`.
 - `post_comment`: lists the issue comments and skips when the hidden marker of the key is there.
@@ -202,6 +203,16 @@ class HttpGitHubClient:
         if found is None:
             raise GitHubWriteError(self._scrub(f"POST /pulls -> 422 and no PR for {branch}: {response.text[:200]}"))
         return found
+
+    def update_pr(self, branch: str, title: str, body: str) -> PullRequest:
+        """Set title and body of the PR of `branch` (P8-T09). Only an open PR is edited: a closed or merged one is left as it is.
+
+        Title and body travel as JSON fields. A PR that already has this title and body is not written again.
+        """
+        pr = self._need_pr(branch)
+        if pr["state"] == "open" and (pr.get("title"), pr.get("body")) != (title, body):
+            pr = self._json("PATCH", self._repo_path(f"/pulls/{pr['number']}"), json={"title": title, "body": body})
+        return _pr(pr)
 
     def ready_pr(self, branch: str) -> None:
         pr = self._need_pr(branch)
