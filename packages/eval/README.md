@@ -20,6 +20,7 @@ uv run pytest packages/eval/tests -q
 - `report`: the phase report table (Previous phase, This phase, Delta) from two results files. One file is read as this phase; no file prints the empty template. Tokens/bug is in + out per task; $-equivalent is per task.
 - `scripts/run_noise.py`: run-to-run noise of one variant from the five stored draws per task, and the gate rules on every pair of draws. The figures behind `gate.toml` (ADR-017).
 - `eval.ablation`: the P5-T14 routing ablation harness (policies in `policies/`, agent factories, the table). Commands and open points: `docs/notes/p5-t14.md`.
+- `eval.ablation:local` and `policies/p8-t12-*.agent.json`: the P8-T12 single-agent vs planner ablation on the local `gemma4:e4b` (`python -m eval.ablation tasks --count 20`). Not run yet; steps: `docs/notes/p8-t12.md`.
 - `multimodal`: the SWE-bench Multimodal dev-subset adapter (T19) and the T20 run pieces: checkout + prompt, patch capture, harness predictions file, results table. A patch no harness has graded is `excluded: patch produced, not scored`, never solved. Findings and owner steps: `docs/notes/p5-t20.md`.
 - `schema`: prints the results JSON Schema (committed at `schemas/results.schema.json`; a test fails if the file and the models drift).
 

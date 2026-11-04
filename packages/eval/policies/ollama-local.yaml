@@ -1,0 +1,10 @@
+# P8-T12 ablation: every stage runs on the local Ollama model gemma4:e4b, no fallback. Variant A (single agent) and
+# variant B (planner and subagents) use this same policy; only params.variant differs (factory eval.ablation:local).
+stages:
+  repro: strong
+  localize: strong
+  fix: strong
+tiers:
+  strong:
+    primary: {host: ollama, model: "gemma4:e4b"}
+fallback_on: [quota_exceeded, http_429]

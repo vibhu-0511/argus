@@ -16,6 +16,9 @@ task directory -> repro tree runner; `repro_agent.trees:live` is the live one, i
 (`none` or `cap`), `variant` (`single`, the default, or `planner`: P8-T11, planner plus subagents; then `context` is the repo context
 the planner sees). Same config, same tasks, so P8-T12 flips one param.
 
+P8-T12: factory `local` runs every stage on the local gemma4:e4b (`policies/ollama-local.yaml`; the two configs `policies/p8-t12-{A,B}.agent.json` differ only in `variant`).
+A malformed plan scores as unresolved and keeps the planner's tokens. The table has a subagent-calls column.
+
 ponytail: `localize` is in both policies but nothing in the pipeline makes a chat call for it (dom2src locates with
 embeddings). Quota charge is recomputed from trajectories with the ledger's rule because the ledger file resets each
 day; a test checks the two agree.
@@ -27,6 +30,7 @@ import argparse
 import importlib
 import json
 import os
+import shutil
 import subprocess
 import sys
 from dataclasses import dataclass, field, replace
@@ -45,6 +49,8 @@ from eval.runner import AgentConfig, Outcome
 ROOT = Path(__file__).resolve().parents[4]
 POLICIES = Path(__file__).resolve().parents[2] / "policies"
 STRONG_ONLY = POLICIES / "strong-only.yaml"
+LOCAL_ONLY = POLICIES / "ollama-local.yaml"  # P8-T12: every stage on the local gemma4:e4b
+LOCAL_QUOTAS = POLICIES / "ollama-quotas.md"
 QUOTAS = ROOT / "docs" / "quotas.md"
 SEEDED = ROOT / "packages" / "bench" / "tasks" / "seeded"
 DASH = "—"
@@ -61,6 +67,11 @@ def strong_only(config: AgentConfig):
 
 def routed(config: AgentConfig):
     return _agent(config, ROUTING_PATH)
+
+
+def local(config: AgentConfig):
+    """P8-T12: one local model for every stage. `params.variant` picks single agent or planner."""
+    return _agent(config, LOCAL_ONLY, LOCAL_QUOTAS)
 
 
 # --- the agent ---------------------------------------------------------------------------------------------
@@ -129,8 +140,8 @@ def _git_head() -> str:
     return proc.stdout.strip() or "unknown"
 
 
-def _agent(config: AgentConfig, policy_path: Path):
-    from fix_loop.planner import select
+def _agent(config: AgentConfig, policy_path: Path, quotas_path: Path = QUOTAS):
+    from fix_loop.planner import PlanError, select
     from fix_loop.strategies import cap_strategy
     from fix_loop.turn import PROTOCOL, STEP_CAP, TOKEN_CAP
     from repro_agent.loop import TreeRun, run_repro
@@ -139,7 +150,7 @@ def _agent(config: AgentConfig, policy_path: Path):
     stub = bool(p.get("stub"))
     out_dir = Path(p["out_dir"])
     policy = load_policy(policy_path)
-    quotas = load_quotas(Path(p.get("quotas", QUOTAS)))
+    quotas = load_quotas(Path(p.get("quotas", quotas_path)))
     if stub:  # a stub answers in microseconds, so the per-minute caps would end the run; the per-day caps stay real
         quotas = {m: replace(q, requests_per_minute=10**9, tokens_per_minute=10**9) for m, q in quotas.items()}
     router = Router(policy, Ledger(Path(p.get("ledger", out_dir / "ledger.json")), quotas), _clients(p, policy))
@@ -176,26 +187,38 @@ def _agent(config: AgentConfig, policy_path: Path):
                     run_id=task.id, host=config.host, git_commit=commit, router=router, stage="repro",
                 )
                 script, paths = repro.script, [repro.trajectory_path]
-            fix = run_fix(
-                worktree=tree, model=config.model, host=config.host, router=router, stage="fix", out_dir=work / "fix",
-                step_cap=int(p.get("step_cap", STEP_CAP)), token_cap=int(p.get("token_cap", TOKEN_CAP)), run_id=task.id,
-                git_commit=commit, task_id=task.id, system=PROTOCOL, execute=execute,
-                user=f"Ticket:\n{task.ticket.text}\n\nRepro: {script or 'not-run'}\nLocate: none\n",
-                context_budget=budget, strategy=strategy if budget else None, **extra,
-            )
-            paths.append(fix.trajectory_path)
-            verdict = _stub_score(task, p) if stub else _live_score(task, tree)
+            try:
+                fix = run_fix(
+                    worktree=tree, model=config.model, host=config.host, router=router, stage="fix", out_dir=work / "fix",
+                    step_cap=int(p.get("step_cap", STEP_CAP)), token_cap=int(p.get("token_cap", TOKEN_CAP)), run_id=task.id,
+                    git_commit=commit, task_id=task.id, system=PROTOCOL, execute=execute,
+                    user=f"Ticket:\n{task.ticket.text}\n\nRepro: {script or 'not-run'}\nLocate: none\n",
+                    context_budget=budget, strategy=strategy if budget else None, **extra,
+                )
+                fix_path, stop, reason = fix.trajectory_path, fix.stop_reason.value, None
+                verdict = _stub_score(task, p) if stub else _live_score(task, tree)
+            except PlanError as exc:  # the planner's call is already in the ledger and on disk, so it still costs tokens in the table
+                fix_path, stop, reason, verdict = _plan_failed(work / "fix"), None, f"PlanError: {exc.reason}", "unresolved"
+            paths.append(fix_path)
         finally:
             if not stub:
                 _live_cleanup(tree)
         tin, tout, tcached, dollars = _totals(paths)
-        steps = len(Trajectory.from_jsonl(fix.trajectory_path.read_text(encoding="utf-8")).steps)
+        steps = len(Trajectory.from_jsonl(fix_path.read_text(encoding="utf-8")).steps)
         return Outcome(
-            verdict, reason="scorer exit 2" if verdict == "excluded" else None, stop_reason=fix.stop_reason.value, steps=steps,
-            tokens_in=tin, tokens_out=tout, tokens_cached=tcached, trajectory=str(fix.trajectory_path), dollars=dollars,
+            verdict, reason=reason or ("scorer exit 2" if verdict == "excluded" else None), stop_reason=stop, steps=steps,
+            tokens_in=tin, tokens_out=tout, tokens_cached=tcached, trajectory=str(fix_path), dollars=dollars,
+            unpriced=dollars is None and bool(tin or tout),
         )
 
     return agent
+
+
+def _plan_failed(out: Path) -> Path:
+    """No sub-agent ran, so there is no merged trajectory: the planner's one step stands in for it."""
+    merged = out / "trajectory.jsonl"
+    shutil.copyfile(out / "planner" / "trajectory.jsonl", merged)
+    return merged
 
 
 def _totals(paths: list[Path]) -> tuple[int, int, int, float | None]:
@@ -260,6 +283,7 @@ class Use:
 class Measured:
     results: Results
     use: dict[tuple[str, str], Use] | None = field(default=None)  # (tier, model) -> Use; None when not measurable
+    sub_calls: int | None = None  # model calls made by planner-variant subagents over all scored tasks; None when not measurable
 
 
 def _resolve(path: str, base: Path) -> Path:
@@ -295,6 +319,21 @@ def tier_usage(results: Results, base: Path, quotas: dict[str, ModelQuota]) -> d
     return use if seen == (total.tokens_in, total.tokens_out, total.tokens_cached) else None
 
 
+def subagent_calls(results: Results, base: Path) -> int | None:
+    """Model calls by subagents (`sub-N/` next to the fix trajectory), 0 for the single agent. The planner's own call is not one."""
+    calls = 0
+    for row in results.tasks:
+        if row.verdict == "excluded":
+            continue
+        if row.trajectory is None:
+            if row.tokens.tokens_in or row.tokens.tokens_out:
+                return None
+            continue
+        for file in _resolve(row.trajectory, base).parent.glob("sub-*/trajectory.jsonl"):
+            calls += sum(1 for s in Trajectory.from_jsonl(file.read_text(encoding="utf-8")).steps if s.tokens_in or s.tokens_out)
+    return calls
+
+
 def quota_share(m: Measured, quotas: dict[str, ModelQuota]) -> float | None:
     """Largest share of one model's daily token cap used per bug, over the models the variant touched."""
     bugs = m.results.resolve_rate.total
@@ -319,12 +358,13 @@ def _cells(m: Measured, quotas: dict[str, ModelQuota]) -> list[str]:
         DASH if share is None else f"{share:.1%}",
         DASH if lat.p50 is None else f"{lat.p50:.1f} s",
         DASH if lat.p95 is None else f"{lat.p95:.1f} s",
+        DASH if m.sub_calls is None or not rr.total else f"{m.sub_calls / rr.total:.2f}",
     ]
 
 
 HEADER = (
-    "| Variant | Resolve rate (95% CI) | Tokens/bug (in / out / cached) | $-equivalent/bug | Quota share/bug | p50 latency | p95 latency |\n"
-    "|---|---|---|---|---|---|---|"
+    "| Variant | Resolve rate (95% CI) | Tokens/bug (in / out / cached) | $-equivalent/bug | Quota share/bug | p50 latency | p95 latency | Subagent calls/bug |\n"
+    "|---|---|---|---|---|---|---|---|"
 )
 
 
@@ -355,14 +395,18 @@ def table(path_a: Path, path_b: Path, quotas_path: Path = QUOTAS) -> str:
     measured = []
     for path in (path_a, path_b):
         results = Results.model_validate_json(path.read_text(encoding="utf-8"))
-        measured.append(Measured(results, tier_usage(results, path.parent, quotas)))
+        measured.append(Measured(results, tier_usage(results, path.parent, quotas), subagent_calls(results, path.parent)))
     return render(measured[0], measured[1], quotas)
 
 
-def task_list(root: Path = SEEDED, exclude: tuple[str, ...] = ("bug-17",)) -> list[dict]:
+def task_list(root: Path = SEEDED, exclude: tuple[str, ...] = ("bug-17",), count: int | None = None) -> list[dict]:
     from argus_bench.task_dir import load_task_dir
 
     dirs = sorted(d for d in root.iterdir() if d.is_dir() and (d / "meta.json").is_file() and d.name not in exclude)
+    if count is not None:  # evenly spaced over the sorted ids, so easy, medium and hard stay in the mix and a re-run picks the same ones
+        if not 0 < count <= len(dirs):
+            raise ValueError(f"count must be between 1 and {len(dirs)}, not {count}")
+        dirs = [dirs[i * len(dirs) // count] for i in range(count)]
     return [load_task_dir(d).model_dump(mode="json") for d in dirs]
 
 
@@ -377,11 +421,12 @@ def main(argv: list[str] | None = None) -> int:
     tasks.add_argument("--out", type=Path, required=True)
     tasks.add_argument("--root", type=Path, default=SEEDED)
     tasks.add_argument("--exclude", nargs="*", default=["bug-17"], help="task directory names to leave out")
+    tasks.add_argument("--count", type=int, help="keep this many, evenly spaced over the sorted task ids (P8-T12 uses 20)")
     args = parser.parse_args(argv)
     if args.command == "table":
         print(table(args.a, args.b, args.quotas), end="")
     else:
-        found = task_list(args.root, tuple(args.exclude))
+        found = task_list(args.root, tuple(args.exclude), args.count)
         args.out.write_text(json.dumps(found, indent=2) + "\n", encoding="utf-8")
         print(f"wrote {len(found)} tasks to {args.out}")
     return 0
