@@ -1,0 +1,15 @@
+{
+  "name": "p8-t12-B-planner",
+  "model": "gemma4:e4b",
+  "host": "ollama",
+  "factory": "eval.ablation:local",
+  "params": {
+    "out_dir": "packages/eval/results/p8-t12/B",
+    "variant": "planner",
+    "repro": false,
+    "step_cap": 20,
+    "token_cap": 150000,
+    "context_budget": 12000,
+    "strategy": "cap"
+  }
+}

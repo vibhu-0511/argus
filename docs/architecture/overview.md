@@ -1,6 +1,6 @@
-# Architecture overview (P0 to P7)
+# Architecture overview (P0 to P8)
 
-As-built view of Argus after phases P5.5, P6 and P7 (so far). Later phases are not drawn. This file grows by one phase in each stacked pull request; the diagram source is the same text the PR description shows.
+As-built view of Argus after phases P5.5, P6, P7 and P8 (so far). Later phases are not drawn. This file grows by one phase in each stacked pull request; the diagram source is the same text the PR description shows.
 
 ```mermaid
 flowchart LR
@@ -119,7 +119,7 @@ flowchart LR
     NEONUSE["Neon usage probe<br/>CU-hours against polling, not run"]:::p6
   end
 
-  subgraph S7 ["P7 guard (NEW IN THIS PR)"]
+  subgraph S7 ["P7 guard"]
     VERS["version re-check<br/>promptfoo, gVisor, Firecracker, App token, 2026-11-03"]:::p7
     OWASPN["OWASP ASI01 to ASI10 and Firecracker notes<br/>names from the launch post, PDF not read"]:::p7
     TM["threat model<br/>assets, trust boundaries, data flow, 10 ASI rows"]:::p7
@@ -141,6 +141,28 @@ flowchart LR
     BREAKS7["P7 break-its<br/>env dump, edited log, DNS lookup; App push refused 422 on a real throwaway repo"]:::p7
     ADRS7["ADR-024, 025, 026<br/>proposed: threat model, sandbox tier (only Docker measured), secrets and token scopes"]:::p7
     GREADME["guard README and phase report<br/>controls listed, state of each; report cells are dashes"]:::p7
+  end
+
+  subgraph S8 ["P8 app (NEW IN THIS PR)"]
+    VERS8["version re-check<br/>App, reusable-workflow and free-tier limits, 2026-11-03"]:::p8
+    MANOTES["multi-agent notes<br/>about 4x tokens per agent, about 15x multi-agent; coding is a bad fit"]:::p8
+    MANIFEST["App manifest<br/>argus_app.manifest, five permissions equal ADR-026, URLs from env; App registered 2026-11-10 (id 5699242), installed on no repo"]:::p8
+    PLANNER["planner and subagents<br/>fix_loop.planner, 1 to 5 typed sub-tasks, own token cap each; one smoke run"]:::p8
+    VARIANT["variant switch<br/>params.variant in eval.ablation, single or planner"]:::p8
+    INSTALL["installation flow<br/>flow.installations, token for one installed repo; mock GitHub only, real App not run"]:::p8
+    TCONF["tenant config<br/>.argus.yml, argus_app.config, onboarding doc; typed errors"]:::p8
+    RWF["reusable workflow<br/>argus-reusable.yml; never run on GitHub, actionlint not run"]:::p8
+    TRUNNER["target-agnostic runner<br/>argus_app.runner; fixture repo ran for real, dcortex not run"]:::p8
+    TQUOTA["tenant quota<br/>TenantBudget, Ledger.for_tenant, fair share; budgets not built into the service"]:::p8
+    INTAKE["ticket intake<br/>flow.intake, label plus write access; mock GitHub only"]:::p8
+    CFGINT["config check at intake<br/>argus_app.config_intake, typed comment, mock GitHub only"]:::p8
+    PRBUILD["PR with evidence<br/>argus_app.pr; not called by the workflow yet"]:::p8
+    BACKPORT["backport bot<br/>argus_app.backport; real git on local repos, mock GitHub, not on a webhook"]:::p8
+    ABLRUN["ablation run<br/>harness built, nothing ran: no Ollama on the machine"]:::p8
+    APPCI["app.yml<br/>App tests and lint, no model; not run on GitHub"]:::p8
+    ADRS8["ADR-027, 028, 029<br/>proposed: tenancy, tenant budgets, planner vs single (no decision, no numbers)"]:::p8
+    BREAKS8["P8 break-its<br/>T21 quota, T22 no test command, T23 conflict, T24 read-only label; mocks and local git"]:::p8
+    PREP8["demo repo, script, README, checklist<br/>preparation only: no public repo, video or timed install"]:::p8
   end
 
   BUGSMITH --> FILTER
@@ -327,6 +349,48 @@ flowchart LR
   ADRS7 -. "token scopes" .-> APPTOK
   GREADME -. "lists the controls" .-> ESCAPE
 
+  %% P8 links
+  VERS8 -. "limits" .-> MANIFEST
+  MANIFEST -. "permission list equals" .-> APPTOK
+  MANIFEST -. "webhook URL is service/webhook" .-> WEBHOOK
+  MANIFEST -. "registers on, not run" .-> GITHUB
+  MANOTES -. "overhead and keep rule" .-> PLANNER
+  PLANNER -- "each subagent runs the loop" --> FIX
+  PLANNER -- "every agent's calls counted" --> LEDGER
+  PLANNER -- "tier per call" --> ROUTER
+  VARIANT -- "selects planner or single" --> PLANNER
+  VARIANT -- "agent under test" --> RUNNER
+  WEBHOOK -- "installation events" --> INSTALL
+  INSTALL -- "mints, one repo" --> APPTOK
+  MANIFEST -. "events it subscribes to" .-> INSTALL
+  TCONF -- "commands and routes" --> TRUNNER
+  RWF -- "runs" --> TRUNNER
+  TRUNNER -- "wraps" --> AGENTJOB
+  RWF -. "token profile write" .-> APPTOK
+  INSTALL -- "tenant id" --> TQUOTA
+  TQUOTA -- "extends" --> LEDGER
+  WEBHOOK -- "label event" --> INTAKE
+  INTAKE -- "one workflow per ticket" --> ENQ
+  INTAKE -- "read token" --> INSTALL
+  INTAKE -- "reads .argus.yml" --> CFGINT
+  CFGINT -- "validates" --> TCONF
+  PRBUILD -- "find before act" --> GHWRITE
+  PRBUILD -. "reads verdict.json" .-> CHECKS
+  BACKPORT -- "opens the PR" --> GHWRITE
+  BACKPORT -. "write token" .-> APPTOK
+  ABLRUN -. "would run" .-> VARIANT
+  ABLRUN -. "would write results" .-> RUNNER
+  APPCI -. "lints" .-> RWF
+  APPCI -. "tests" .-> TRUNNER
+  ADRS8 -. "decides" .-> RWF
+  ADRS8 -. "decides" .-> TQUOTA
+  ADRS8 -. "keeps single agent" .-> PLANNER
+  BREAKS8 -. "tenant over budget" .-> TQUOTA
+  BREAKS8 -. "no test command" .-> CFGINT
+  BREAKS8 -. "cherry-pick conflict" .-> BACKPORT
+  BREAKS8 -. "read-only label" .-> INTAKE
+  PREP8 -. "first install target" .-> RWF
+
   classDef p0 fill:#dbeafe,stroke:#1d4ed8,stroke-width:1.5px,color:#111827
   style S0 fill:none,stroke:#1d4ed8,stroke-width:1.5px
   classDef p1 fill:#cffafe,stroke:#0e7490,stroke-width:1.5px,color:#111827
@@ -343,10 +407,12 @@ flowchart LR
   style S55 fill:none,stroke:#57534e,stroke-width:1.5px
   classDef p6 fill:#ede9fe,stroke:#6d28d9,stroke-width:1.5px,color:#111827
   style S6 fill:none,stroke:#6d28d9,stroke-width:1.5px
-  classDef p7 fill:#fee2e2,stroke:#b91c1c,stroke-width:4px,color:#111827
-  style S7 fill:none,stroke:#b91c1c,stroke-width:4px
+  classDef p7 fill:#fee2e2,stroke:#b91c1c,stroke-width:1.5px,color:#111827
+  style S7 fill:none,stroke:#b91c1c,stroke-width:1.5px
+  classDef p8 fill:#ccfbf1,stroke:#0f766e,stroke-width:4px,color:#111827
+  style S8 fill:none,stroke:#0f766e,stroke-width:4px
   classDef ext fill:#ffffff,stroke:#6b7280,color:#111827,stroke-dasharray: 4 3
-  linkStyle 134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180 stroke-width:3px
+  linkStyle 181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220 stroke-width:3px
 ```
 
 ## How to read it
@@ -359,7 +425,7 @@ flowchart LR
 | Dotted arrow | a stored input (`fixture`), a test-only link or an advisory link, not a live call |
 | Thick arrow | a link added in this phase |
 
-Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink, P5.5 stone, P6 violet, P7 red.
+Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink, P5.5 stone, P6 violet, P7 red, P8 teal.
 
 ## What P5.5 adds
 
@@ -404,6 +470,20 @@ Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink, P5.5 stone, 
 - Break-its: a scripted model obeys a ticket that asks it to print the environment; the sandbox holds no secrets, so none reached the model, the trajectory, the patch or the reply (T18). One edited line in a 10-record log is named by `guard verify-log`; a full consistent rewrite passes unless the head hash was shipped elsewhere (T19). A DNS lookup from the sandbox fails and the attempt is a record in the audit log (T21). The App-token push to the default branch was refused by GitHub itself with 422 "Changes must be made through a pull request." on a throwaway repository with classic branch protection (T20, real run 2026-11-03). Finding: `run_fix` without an `execute=` argument runs commands on the host with the host environment.
 - Wave 5 (docs): ADR-024 (threat model and trust boundaries, with the open residual risks: `run_fix` without `execute=` runs commands on the host; the mitigations are off by default), ADR-025 (sandbox tier: Docker with `--network none` is the default because it is the only tier measured; gVisor and Firecracker are not measured here) and ADR-026 (secret lifetimes, the App token permission list, rotation), all proposed. `packages/guard/README.md` lists each control with its state; the P7 phase report cells are dashes because P7 does not run the fix loop for resolve rate, tokens or latency and P6's row is also empty.
 - Per-task detail: `docs/architecture/p7.md`.
+
+## What P8 adds
+
+- Wave 1: `docs/notes/p8-t00-versions.md` re-checks the App, reusable-workflow and free-tier rows (a tenant workflow can call 50 unique reusable workflows, 10 levels deep; `env` is not passed into a called workflow; the called workflow's `GITHUB_TOKEN` is the caller's and can only be reduced). Some free-tier rows are marked not confirmed.
+- `docs/notes/p8-t01-multi-agent-notes.md`: the multi-agent post claims about 4 times the tokens of a chat for an agent and about 15 times for a multi-agent system, and names coding as a poor fit. These are Anthropic's numbers for research, not measured on Argus.
+- `argus_app.manifest`: the GitHub App manifest. Its five permissions must equal `flow.app_token.MINIMUM` and the ADR-026 table; the URLs come from environment variables. The owner registered the App on 2026-11-10 (id 5699242, slug `argus-fixer`); it is installed on no repository yet (see `docs/notes/p8-t02-owner-steps.md`).
+- `fix_loop.planner`: a planner turns the ticket into 1 to 5 typed sub-tasks and each runs the single-agent loop with its own message history and token cap; every call lands in one ledger. `params.variant` in `eval.ablation` selects it. One smoke run on a local model; no ablation numbers yet (T12).
+- Installation flow (`flow.installations`, T03): records installation events and mints a token for one installed repo. Tested against a mock GitHub only; the real App was never installed.
+- Reusable workflow (`argus-reusable.yml`, T04), tenant config (`.argus.yml`, `argus_app.config`, T05) and the target-agnostic runner (`argus_app.runner`, T06): the runner went through repro, fix and verify on a fixture repo with a fake fix agent. Never run on GitHub, `actionlint` not run, not run on the dcortex repo.
+- Per-tenant quota (`TenantBudget`, `Ledger.for_tenant`, T07): fair-share rule in the ledger, tested with a real Postgres installation store. The running service builds no budgets yet.
+- Ticket intake (`flow.intake`, T08): a label from someone with write access starts one workflow. PR creation (`argus_app.pr`, T09): verdict, judge label, trajectory link and images; the running workflow does not call it yet. Backport bot (`argus_app.backport`, T10): real git on local repos, mock GitHub, no webhook call. Config check at intake (`argus_app.config_intake`, T22).
+- Ablation (T12): the harness is built and nothing ran, because Ollama is not on the machine. App CI (`app.yml`, T20): written, not run on GitHub. ADR-027, 028 and 029 (T13, T14, T15): proposed; ADR-029 draws no decision because there are no measured rows.
+- Break-its (T21 to T24, index in `docs/notes/p8-break-its.md`): all on mocks, scripted models or local git. Preparation only: demo repo, script, landing README and release checklist (T16 to T19); nothing is public and no install was timed.
+- Per-task detail: `docs/architecture/p8.md`.
 
 ## What P5 added
 

@@ -42,6 +42,7 @@ from fastapi.responses import JSONResponse
 
 from flow.actions import ActionsRunner
 from flow.actions import TOKEN_ENV as DISPATCH_TOKEN_ENV
+from flow.app_token import APP_ID_ENV, KEY_ENV
 from flow.config import DATABASE_URL_ENV, FlowSettings
 from flow.db_wake import DatabaseUnavailable, wait_for_database
 from flow.dbos_runtime import launch, shutdown
@@ -50,6 +51,8 @@ from flow.github_read import TOKEN_ENV as READ_TOKEN_ENV
 from flow.github_read import HttpGitHubReader
 from flow.github_write import TOKEN_ENV as WRITE_TOKEN_ENV
 from flow.github_write import HttpGitHubClient
+from flow.installations import InstallationStore, mint_for_repo
+from flow.intake import Intake
 from flow.reconcile import REPO_ENV, DbosLookup, PollConfig, Reconciler, poll_forever
 from flow.review_comment import ReviewSignal, send_review_signal
 from flow.webhook import SECRET_ENV as WEBHOOK_SECRET_ENV
@@ -105,6 +108,7 @@ class _State:
         self.engine: Engine | None = None
         self.failed = False
         self.database_url = ""
+        self.installations: InstallationStore | None = None
 
     def engine_or_wait(self) -> Engine:
         if not self.ready.wait(ENGINE_WAIT_SECONDS) or self.engine is None:
@@ -128,6 +132,10 @@ def create_service_app(
         state.engine_or_wait()
         send_review_signal(signal)
 
+    def record_installation(event: str, payload: dict, delivery_id: str | None) -> None:
+        assert state.installations is not None  # set in the lifespan, before the first request
+        state.installations.apply(event, payload, delivery_id)
+
     async def run_engine(cfg: ServiceConfig, quit_: asyncio.Event) -> None:
         try:
             state.engine = await asyncio.to_thread(start, cfg)
@@ -144,6 +152,7 @@ def create_service_app(
     async def lifespan(_: FastAPI):
         cfg = load()  # raises: the service does not start with a missing setting
         state.database_url = cfg.settings.database_url
+        state.installations = InstallationStore(cfg.settings.database_url)
         quit_ = asyncio.Event()
         task = asyncio.create_task(run_engine(cfg, quit_))
         yield
@@ -152,7 +161,16 @@ def create_service_app(
         if state.engine is not None:
             await asyncio.to_thread(stop)
 
-    app = create_app(LateEnqueuer(), qa_send=qa_send)
+    def read_token(repo: str) -> str:
+        assert state.installations is not None
+        return mint_for_repo(state.installations, repo, "read").token.token
+
+    # Intake (P8-T08) is on only when the App is configured; without it `issues` events stay plain hints.
+    intake = Intake(LateEnqueuer(), read_token) if os.environ.get(APP_ID_ENV) and os.environ.get(KEY_ENV) else None
+
+    app = create_app(
+        LateEnqueuer(), qa_send=qa_send, on_installation=record_installation, on_intake=intake.handle if intake else None
+    )
     app.router.lifespan_context = lifespan
 
     @app.get("/health")

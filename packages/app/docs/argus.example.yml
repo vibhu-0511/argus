@@ -1,0 +1,8 @@
+start: npm run dev
+test: npm test
+routes:
+  - /
+  - /login
+budget:
+  max_tokens: 200000
+  max_steps: 20

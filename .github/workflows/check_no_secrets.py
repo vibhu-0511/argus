@@ -24,6 +24,8 @@ ALLOWED_MATCHES = frozenset(
         "gsk_abcdefghijklmnopqrstuvwxyz0123",
         "ghp_write-token-not-real-7c1e",
         "Bearer s3cret-token",
+        "ghp_fake-token-for-tests-not-real-0000",  # P8-T22 test value, in packages/app/tests/test_config_intake.py
+        "https://u:p@",  # P8-T02 test value (a manifest URL with a user must be refused), packages/app/tests/test_manifest.py
     }
 )
 REMOTE_WITH_USERINFO = re.compile(r"^https?://[^/\s@]+@", re.IGNORECASE)
@@ -39,7 +41,9 @@ MARKERS = (
 # agent-job.yml runs the agent on dispatch only (never on push or pull_request) and names the one
 # model secret it needs; nothing else is allowed there. P6-T04.
 # golden.yml (manual dispatch only) checks out the private platform repo with the read-only token PLATFORM_REPO_TOKEN. P0.
-ALLOWED = {"agent-job.yml": ("ARGUS_MODEL_API_KEY", "secrets."), "golden.yml": ("secrets.",)}
+# argus-reusable.yml (P8-T04) is called from a tenant's repo and names the tenant's own model key; its pull_request trigger is limited to its own
+# file and the step that holds the key is skipped there (packages/app/tests/test_reusable_workflow.py checks both).
+ALLOWED = {"agent-job.yml": ("ARGUS_MODEL_API_KEY", "secrets."), "golden.yml": ("secrets.",), "argus-reusable.yml": ("ARGUS_MODEL_API_KEY", "secrets.")}
 
 
 def markers_in(text: str, name: str = "") -> list[str]:

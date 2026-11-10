@@ -1,0 +1,10 @@
+# Tenant config for the demo shop (P8-T16). One flat Python package, stdlib only, one port: nothing to install on the runner.
+start: python -m shopsite 18770
+test: python -m unittest discover -s tests -p "check_*.py"
+base_url: http://127.0.0.1:18770
+routes:
+  - /
+  - /cart
+budget:
+  max_tokens: 60000
+  max_steps: 12

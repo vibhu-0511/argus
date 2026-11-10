@@ -1,0 +1,17 @@
+# The dcortex repo (config/platform.md) described as a tenant config (P8-T06). It does not live in that repo: the repo is
+# private and nothing here edits it. NOT RUN: no dcortex checkout was used. The commands come from config/platform.md and
+# packages/fix-loop/AGENTS.md and have not been checked on a machine that has the repo.
+# Known gaps: `docker compose up` takes minutes (set ARGUS_START_TIMEOUT), and stopping the start command does not stop the
+# containers (run `docker compose --profile copa-local down` afterwards).
+start: docker compose --profile copa-local up --build
+test: cd apps/canvas && npm run test
+base_url: http://localhost:19080
+routes:
+  - /login
+  - /ops/radar
+  - /desk?sel=console
+  - /admin/users
+  - /admin/audit
+budget:
+  max_tokens: 400000
+  max_steps: 20

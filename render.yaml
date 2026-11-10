@@ -23,6 +23,10 @@ services:
         sync: false
       - key: GITHUB_TOKEN # read-only, for the poller
         sync: false
+      - key: ARGUS_GITHUB_APP_ID # the GitHub App's id (P8-T03); not a secret, set by the owner after registering the App
+        sync: false
+      - key: ARGUS_GITHUB_APP_PRIVATE_KEY # the App's PEM key (P8-T03); paste in Render only, never in a file, chat or command line
+        sync: false
       - key: ARGUS_FLOW_REPO # owner/name of the repository whose issues are tickets
         sync: false
       - key: ARGUS_FLOW_QA_REVIEWERS # comma separated GitHub logins allowed to approve; unset allows nobody

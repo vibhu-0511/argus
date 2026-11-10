@@ -13,7 +13,10 @@ sent, and returns 202. It makes no GitHub call and waits for nothing, so it
 answers well inside GitHub's 10 s timeout. See `flow.enqueue` for the workflow
 id contract. A review comment from an allowed reviewer that carries `/argus approve` or `/argus reject`
 (P6-T10, `flow.review_comment`) is the one event that is more than a hint: it is parsed from the
-payload alone, handed to `qa_send` after the response and not enqueued. Architecture: docs/architecture/p6.md.
+payload alone, handed to `qa_send` after the response and not enqueued. So are the GitHub App's `installation`
+and `installation_repositories` events (P8-T03, `flow.installations`): recorded after the response by
+`on_installation`, with no GitHub call and no enqueue. With `on_intake` set (P8-T08, `flow.intake`) an `issues` event is
+no longer a plain hint: `labeled` is handed to intake after the 202 and every other action is ignored. Architecture: docs/architecture/p6.md, p8.md.
 """
 import hashlib
 import hmac
@@ -25,6 +28,8 @@ from collections.abc import Callable
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Request
 
 from flow.enqueue import Enqueuer, HintDedup
+from flow.installations import EVENTS as INSTALLATION_EVENTS
+from flow.intake import EVENTS as INTAKE_EVENTS
 from flow.review_comment import EVENTS as REVIEW_EVENTS
 from flow.review_comment import ReviewSignal, parse_review_event
 
@@ -65,7 +70,11 @@ def ticket_id_of(payload: dict) -> str | None:
 
 
 def create_app(
-    enqueuer: Enqueuer, dedup: HintDedup | None = None, qa_send: Callable[[ReviewSignal], None] | None = None
+    enqueuer: Enqueuer,
+    dedup: HintDedup | None = None,
+    qa_send: Callable[[ReviewSignal], None] | None = None,
+    on_installation: Callable[[str, dict, str | None], object] | None = None,
+    on_intake: Callable[[dict, str | None], object] | None = None,
 ) -> FastAPI:
     app = FastAPI(title="argus-flow webhook")
     dedup = dedup if dedup is not None else HintDedup()
@@ -84,6 +93,18 @@ def create_app(
         except Exception:  # e.g. no workflow for the ticket yet; the signal key makes a second try safe
             log.exception("QA signal for %s was not delivered", signal.ticket_id)
 
+    def record_installation(event: str, payload: dict, delivery_id: str | None) -> None:
+        try:
+            on_installation(event, payload, delivery_id)
+        except Exception as e:  # the type only: a driver message can carry the host; GitHub's redelivery tries again
+            log.error("installation event %s was not recorded (%s)", event, type(e).__name__)
+
+    def run_intake(payload: dict, delivery_id: str | None) -> None:
+        try:
+            on_intake(payload, delivery_id)
+        except Exception as e:  # Intake.handle does not raise; this is a net for a custom callback
+            log.error("intake failed (%s)", type(e).__name__)
+
     @app.post("/webhook", status_code=202)
     async def webhook(request: Request, background: BackgroundTasks) -> dict[str, str]:
         body = await verified_body(request)
@@ -97,6 +118,15 @@ def create_app(
         if signal is not None:
             background.add_task(send_qa, signal)
             return {"status": "qa-signal", "event": event, "ticket": signal.ticket_id, "decision": signal.decision}
+        if on_installation and event in INSTALLATION_EVENTS and isinstance(payload, dict):
+            background.add_task(record_installation, event, payload, delivery_id)
+            return {"status": "installation", "event": event, "action": str(payload.get("action"))}
+        if on_intake and event in INTAKE_EVENTS and isinstance(payload, dict):
+            # With intake on, only the intake label starts a workflow: an opened, edited or unlabelled issue is not a hint.
+            if payload.get("action") != "labeled":
+                return {"status": "ignored", "event": event}
+            background.add_task(run_intake, payload, delivery_id)
+            return {"status": "intake", "event": event, "action": "labeled"}
         ticket_id = ticket_id_of(payload) if isinstance(payload, dict) else None
         if ticket_id is None:
             return {"status": "ignored", "event": event}

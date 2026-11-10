@@ -109,7 +109,7 @@ Mistral no longer publishes its free-tier numbers. **P0-T06 measures every limit
 | Dashboard | GitHub Pages, static |
 | Sandboxes | Docker `--network none` locally and on Actions, then gVisor, then Firecracker on the Actions KVM runner. Each tier is measured in P7 and written up in ADR-025 |
 
-### Versions checked on 2026-11-03 (promptfoo, gVisor, Firecracker, App token and OWASP rows), 2026-11-01 (tracing rows, and the DBOS, MCP, Render, Neon and GitHub rows) and 2026-10-30 (the rest)
+### Versions checked on 2026-11-03 (Tailwind, `@playwright/mcp`, gVisor, promptfoo, Firecracker, App token and OWASP rows), 2026-11-01 (tracing rows, and the DBOS, MCP, Render, Neon and GitHub rows) and 2026-10-30 (the rest)
 
 Each phase's T00 task re-checks this table before work starts. The source table is in [`PLAN.md`](PLAN.md).
 
@@ -117,16 +117,16 @@ Each phase's T00 task re-checks this table before work starts. The source table 
 |---|---|
 | React | 19.3.1 |
 | Vite | 8.3.5 (npm description: "Native-ESM powered web dev build tool". README: the production build bundles with Rolldown) |
-| Tailwind | 4.3.3 |
+| Tailwind | 4.3.4 (npm, published 2026-11-02; checked 2026-11-03) |
 | Playwright | 1.64.1 (npm dependencies: `playwright-core` only. Whether `playwright-core` embeds an MCP server is not stated. MCP is the separate `@playwright/mcp` package) |
-| `@playwright/mcp` | 0.0.83 |
+| `@playwright/mcp` | 0.0.84 (npm, published 2026-10-31; checked 2026-11-03) |
 | MCP spec | **2026-07-28**: stateless core, MRTR `input_required` / `inputResponses`, Tasks moved to the `io.modelcontextprotocol/tasks` extension |
 | MCP Python SDK | 2.3.0 |
 | DBOS Python | 3.x (PyPI `dbos` 3.4.0, checked 2026-11-01) |
 | promptfoo | 0.125.1 (npm `latest`, MIT, published 2026-10-25, needs Node >= 22.22.0; checked 2026-11-03) |
-| gVisor (`runsc`) | release 20261026.0 (GitHub, published 2026-10-28; needs Linux 5.6+, x86_64 or ARM64; checked 2026-11-03) |
+| gVisor (`runsc`) | release 20261102.0 (GitHub, published 2026-11-02; needs Linux 5.6+, x86_64 or ARM64; checked 2026-11-03) |
 | Firecracker | v1.17.0 (GitHub, published 2026-09-10, Apache 2.0; needs read/write on `/dev/kvm`; checked 2026-11-03) |
-| GitHub App installation token | Expires after one hour; can be narrowed with `repositories` and `permissions`; new tokens may use the `ghs_APPID_JWT` format, not 40 characters (checked 2026-11-03) |
+| GitHub App installation token | Expires after one hour; can be narrowed with `repositories` and `permissions`; new tokens may use the `ghs_APPID_JWT` format, not 40 characters; manifest flow: three steps within one hour; webhook: answer 2XX within 10 s, 25 MB cap (checked 2026-11-03) |
 | OWASP agentic top 10 | OWASP Top 10 for Agentic Applications for 2026, dated 2025-12-09, ids ASI01 to ASI10 (checked 2026-11-03) |
 | OTel GenAI semconv | `model/manifest.yaml` stability: development. Manifest `schema_url`: `https://opentelemetry.io/schemas/gen-ai-dev/1.42.0-dev`. README schema URL: TODO. Core semconv dependency: v1.44.0. Core semconv v1.42.0 (2026-06-12) moved `gen_ai.*` to this repo. README: "This repository extends the OpenTelemetry Semantic Conventions with GenAI-specific conventions." |
 | `opentelemetry-api`, `opentelemetry-sdk`, `opentelemetry-exporter-otlp-proto-http` | 1.45.2 each (PyPI, uploaded 2026-10-29) |
@@ -142,6 +142,8 @@ Each phase's T00 task re-checks this table before work starts. The source table 
 2026-11-01, P6-T00: DBOS, MCP, Render, Neon and GitHub rows re-checked. DBOS Python stays 3.x (PyPI `dbos` 3.4.0, MIT, uploaded 2026-10-28; Postgres recommended, SQLite allowed; `use_listen_notify` defaults to True and must not change after the system database is created; recovery needs a stable executor id and a pinned application version; Conductor is optional and off without a `conductor_key`). MCP spec is still 2026-07-28 and the Python SDK is still 2.3.0. Render Free web service: spins down after 15 minutes idle, cold start "about one minute" ("30 to 60" is not stated), 750 free instance hours per workspace per month. Neon Free: 100 CU-hours/project, scale to zero after 5 minutes and cannot be disabled; the Compute section of the plans page says "/project/month", the table does not. GitHub webhook: respond with a 2XX within 10 seconds. P6-T00's dependency P5.5-T17 is waived. Sources and the full tables: `docs/notes/p6-t00-versions.md`.
 
 2026-11-03, P7-T00: promptfoo 0.125.1, gVisor release 20261026.0, Firecracker v1.17.0, the GitHub App token facts and the OWASP edition checked. Hosted-runner KVM is not confirmed: GitHub says nested virtualization on its runners is not officially supported, and the claim that Linux runners have exposed `/dev/kvm` since October 2025 was not found in any source, so it is removed. The T11 workflow must print `ls -l /dev/kvm` and the Firecracker tier is cut if it is absent. P7-T00's dependency P6-T25 is waived. Sources and the full tables: `docs/notes/p7-t00-versions.md`.
+
+2026-11-03, P8-T00: Tailwind 4.3.4, `@playwright/mcp` 0.0.84 and gVisor release 20261102.0 are new pins; the other rows are unchanged. Reusable workflows (GitHub Free/Pro/Team/Enterprise Cloud): 10 levels deep, 50 unique called workflows per file, `env` is not passed to a called workflow, the called workflow's `GITHUB_TOKEN` is the caller's and can only be reduced. App manifest flow: three steps inside one hour, conversion returns the private key and webhook secret. Webhook: 2XX within 10 seconds, 25 MB cap. Free-tier models: OpenRouter `:free` is 20 requests/minute and 50 (or 1,000 with 10 credits) per day; Groq's table is unchanged from `docs/quotas.md`; Gemini per-model free limits, the Groq Free-plan table, the Mistral Free tier and `workflow_dispatch` input limits are not confirmed. P8-T00's dependency is met (P7 is complete). Sources and the full tables: `docs/notes/p8-t00-versions.md`.
 
 Re-check the React 19.2 removal of `source` and `self` from `jsxDEV` against React 19.3.1. The build-time `data-src` attribute remains the P2 route (ADR-006). Checked 2026-10-29: Babel's jsx-development docs still say those arguments were removed in React 19.2, and the React 19.3 changelog index lists no reversal. Checked again 2026-10-30 for P2-T00: Babel's `sourceSelf` option still says those arguments were removed since React 19.2. The React 19.3 blog's notable-changes list does not mention `jsxDEV` or `_debugSource`.
 

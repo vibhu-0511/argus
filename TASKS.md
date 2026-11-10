@@ -316,28 +316,28 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 - [x] P7-T20 Break it: use the App token to push to the default branch [ME] 2h Real run on 2026-11-03 against a throwaway repo with classic branch protection: the non-force move of `main` was refused with 422 "Changes must be made through a pull request."; the probe branch was allowed (201, 204); a write on another repo was 404. Result `packages/guard/results/app-push-real.json`, write-up in `docs/notes/p7-break-its.md`.
 - [x] P7-T21 Break it: try DNS exfiltration from the sandbox [ME] 2h
 - [x] P7-T22 Write package README and phase report against P6 [CLAUDE] 1h `packages/guard/README.md` lists the controls (tested locally / never run on GitHub / not run), the escape-suite command and the other commands. The phase-report rows are filled as far as real data allows: every cell is a dash, because P6 has no numbers (P6-T25 open) and P7 does not run the fix loop for resolve rate, tokens or latency; the real P7 measurements are in a second table with their limits.
-- [ ] P8-T00 Re-verify pinned versions via web search [CLAUDE] 1h
-- [ ] P8-T01 Read the multi-agent and building-effective-agents posts, write notes [ME] 1h
-- [ ] P8-T02 Create the GitHub App manifest with the P7 least-privilege permissions [PAIR] 3h
+- [x] P8-T00 Re-verify pinned versions via web search [CLAUDE] 1h
+- [x] P8-T01 Read the multi-agent and building-effective-agents posts, write notes [ME] 1h
+- [x] P8-T02 Create the GitHub App manifest with the P7 least-privilege permissions [PAIR] 3h Registered by the owner on 2026-11-10 from the manifest (App id 5699242, slug `argus-fixer`, owner `vibhu-0511`, public). GitHub's public App record shows exactly the five permissions of ADR-026 and the four events; the webhook URL is the P6 service on Render, and the owner saw a redelivered `ping` answered 202 after the secret was set (a first delivery got 401 until the secret was fixed). Not installed on any repository yet: that is P8-T03.
 
 ## Week 28 — P8 (20 h scheduled)
 
 - [ ] P8-T03 Build installation flow and installation-token minting in the flow service [PAIR] 3h
 - [ ] P8-T04 Write the reusable workflow that runs the agent job in the tenant's repo [CLAUDE] 3h
-- [ ] P8-T05 Define the tenant config file and write the onboarding doc [PAIR] 3h
+- [x] P8-T05 Define the tenant config file and write the onboarding doc [PAIR] 3h
 - [ ] P8-T06 Make the runner target-agnostic using the tenant config [PAIR] 3h
-- [ ] P8-T07 Add per-tenant quota budgets to the ledger with a fair-share rule [ME] 3h
-- [ ] P8-T08 Build ticket intake: a labelled issue starts a workflow [PAIR] 2h
-- [ ] P8-T09 Build PR creation with verdict, trajectory link and before and after screenshots [PAIR] 3h
+- [x] P8-T07 Add per-tenant quota budgets to the ledger with a fair-share rule [ME] 3h
+- [x] P8-T08 Build ticket intake: a labelled issue starts a workflow [PAIR] 2h
+- [x] P8-T09 Build PR creation with verdict, trajectory link and before and after screenshots [PAIR] 3h
 
 ## Week 29 — P8 (20 h scheduled)
 
-- [ ] P8-T10 Build the backport bot with conflict handling [PAIR] 3h
-- [ ] P8-T11 Build the planner and subagents variant of the loop [ME] 4h
+- [x] P8-T10 Build the backport bot with conflict handling [PAIR] 3h
+- [x] P8-T11 Build the planner and subagents variant of the loop [ME] 4h
 - [ ] P8-T12 Run ablation: single agent vs planner and subagents on 20 tasks [ME] 4h
-- [ ] P8-T13 Write ADR-027: Tenancy via a reusable workflow in the tenant's repo [ME] 1h
-- [ ] P8-T14 Write ADR-028: Per-tenant quota budgets [ME] 1h
-- [ ] P8-T15 Write ADR-029: Single agent vs planner and subagents [ME] 1h
+- [x] P8-T13 Write ADR-027: Tenancy via a reusable workflow in the tenant's repo [ME] 1h (written by Claude, status proposed, owner to decide) Compares the tenant repo with our servers on quota, trust boundary and cost (no cost figure measured) and says the backport head is a branch the tenant workflow is allowed to test.
+- [x] P8-T14 Write ADR-028: Per-tenant quota budgets [ME] 1h
+- [x] P8-T15 Write ADR-029: Single agent vs planner and subagents [ME] 1h (written by Claude, status proposed, owner to decide) States the keep rule (must win on both resolve rate and tokens per bug). **The T12 rows are dashes (0 of 20 tasks run), so the rule cannot be evaluated: no decision is drawn and the single agent stays the default.** See `docs/adr/0029-single-agent-vs-planner.md`.
 - [ ] P8-T16 Install the App on one of your own public repos and run one issue end to end [PAIR] 3h
 - [ ] P8-T17 Write the landing README: what it does, quickstart, limits, security model, free-tier caveat [CLAUDE] 3h
 
@@ -346,11 +346,11 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 - [ ] P8-T18 Record the demo video including one failure and its recovery [PAIR] 2h
 - [ ] P8-T19 Complete the public release checklist [CLAUDE] 2h
 - [ ] P8-T20 Add CI job for app tests and reusable-workflow lint, no LLM [CLAUDE] 2h
-- [ ] P8-T21 Break it: let one tenant exhaust its budget while another runs [ME] 2h
-- [ ] P8-T22 Break it: install on a repo with no test command configured [ME] 2h
-- [ ] P8-T23 Break it: force a cherry-pick conflict in a backport [ME] 2h
-- [ ] P8-T24 Break it: add the intake label as a user without write access [ME] 2h
-- [ ] P8-T25 Write package README and phase report against P7 [CLAUDE] 1h
+- [x] P8-T21 Break it: let one tenant exhaust its budget while another runs [ME] 2h
+- [x] P8-T22 Break it: install on a repo with no test command configured [ME] 2h
+- [x] P8-T23 Break it: force a cherry-pick conflict in a backport [ME] 2h
+- [x] P8-T24 Break it: add the intake label as a user without write access [ME] 2h
+- [x] P8-T25 Write package README and phase report against P7 [CLAUDE] 1h `packages/app/README.md` shows App setup, workflow usage, the commands and a table of every control (tested locally / never run on GitHub / not run) with each owner-only step linked. The phase report rows are all dashes: P7 has no resolve-rate, token or latency numbers, and P8-T12 ran 0 of 20 tasks (no local model on the machine). Its dependency P8-T19 is still open (licence and `docs/` sweep are the owner's).
 - [ ] P9-T00 Re-verify pinned versions via web search [CLAUDE] 1h
 - [ ] P9-T01 Read the SWE-agent paper and the ast-grep docs, write notes [ME] 1h
 - [ ] P9-T02 Define the backend Task variant: event, request payload and failing pytest as the check [ME] 3h
