@@ -1,0 +1,8 @@
+/* Styles of the History screen only; history.js adds this file when the screen opens (style.css belongs to the shell). */
+.note { color: var(--muted); }
+table.metrics, table.tenants, table.runs { border-collapse: collapse; width: 100%; margin: 0.75rem 0; font-size: 0.875rem; }
+table.metrics th, table.metrics td, table.tenants th, table.tenants td, table.runs th, table.runs td {
+  border: 1px solid var(--line); padding: 0.25rem 0.5rem; text-align: left; vertical-align: top; overflow-wrap: anywhere;
+}
+.badge { padding: 0 0.4rem; border: 1px solid var(--warn); border-radius: 4px; font-size: 0.75rem; font-weight: 600; color: var(--warn); }
+.badge.replay { border-color: var(--accent); color: var(--accent); }
