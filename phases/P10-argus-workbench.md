@@ -65,4 +65,25 @@ None. The workbench runs on 127.0.0.1 only. A hosted workbench, a login, and a r
 | This phase (P10) | — | — | — | — | — |
 | Delta | — | — | — | — | — |
 
-*Every cell is a dash until P10-T16 fills it from stored results only. P8 has no resolve rate, tokens or latency (see its report), and P10 makes no model run, so P10 has none either.*
+*Every cell is a dash on purpose; filled on 2026-11-10 (P10-T16) from stored results only, and no stored result of P8 or P10 exists for these columns.*
+
+- **Previous phase (P8): dashes.** P8 has no resolve rate, tokens or latency. Its only task that would give them (P8-T12, single agent vs planner, 20 tasks) ran 0 of 20 tasks, and no other P8 task ran the fix loop against a model (see its report in `phases/P08-argus-app.md`). No P8 baseline was made up.
+- **This phase (P10): dashes.** P10 makes no model run, in code or in tests (`tests/test_no_model.py`). Every run the workbench makes is SIMULATED or REPLAY, its steps and token counts are the illustrative `sim` block of the spec, and it is in no aggregate. Nothing the workbench produces is a measurement, so there is no P10 resolve rate, token count or latency.
+- **Delta: dashes**, because both sides are dashes.
+- **What the History screen showed, and why it is not in the table.** The screen reads real result files only. With the default file list it showed (`packages/workbench/docs/shots/history-desktop.png`, and the file itself checked on 2026-11-10): resolve rate 71.4% (20 of 28 tasks, Wilson 95% 52.9% to 84.7%), tokens per bug 34,471 in, 468 out, 0 cached, latency p50 1617.0 s and p95 5097.5 s, all from `packages/eval/results/ablation-B.json` (run `ablation-B-claude-routed`, model `claude-sonnet-5-5`, one more task excluded). That file is the **P5-T14 routing ablation** from a Claude session (tokens are a chars/4 estimate; latency is wall clock with several tasks at once). It is not a P10 result and not a P8 result, so it stays out of the This-phase row. Quota share showed a dash (no ledger file with a tenant dimension on this machine). The three SIMULATED rows on the screen were in none of those numbers.
+- **What P10 did measure, kept out of the table because it answers other questions.** All run on 2026-11-10 on Windows 11, no Postgres, no network, no model.
+
+| Measure | From -> to | Source and limit |
+|---|---|---|
+| Workbench tests per run | 370 passed at the browser run (T14) -> **607 passed in 65 s**, 23 test files, none skipped | `uv run --all-packages python -m pytest packages/workbench/tests -q`. The increase is the break-it files and parametrised cases that merged after T14 |
+| Break-it files, share of those tests | 237 of 607 (T10: 59, T11: 33, T12: 131, T13: 14) | the same run; all pass on the real build |
+| Break-it 1, inert rendering (T10) | 59 pass -> **4 failed, 55 passed** with `'unsafe-inline'` added to the script CSP | one mutated `security.py`, restored with `git checkout` after |
+| Break-it 2, hostile uploads (T11) | 33 pass -> **5 failed, 28 passed** with the upload cap raised from 5 MiB to 20 MiB | one mutated `routes/issues.py`, restored |
+| Break-it 3, forged requests (T12) | 131 pass -> **29 failed, 102 passed** with the token check made always-true | one mutated `security.py`, restored |
+| Break-it 4, double approve (T13) | 14 pass -> **4 failed, 10 passed** with both process locks (`decisions`, `pull_request`) replaced by a no-op | two mutated files, restored. The exclusive create of `decision.json` was left in place, so this shows the lock matters, not that the create alone is unsafe |
+| Browser run | 0 -> 23 screenshots, 5 scenarios walked, 6 HTTP-level walk tests | `docs/notes/p10-t14.md`; Chromium only |
+| Model calls | 0 | `tests/test_no_model.py` (no key, token or model name read at import, no model client named in the source) |
+| Real PRs | 0 | the PR screen only talks to an in-memory mock GitHub; the App is not registered |
+| P10 boxes still unticked in `TASKS.md` | 3 of 17 (T03, T07, T10) | T03 (bench-validate reading), T07 (Request changes and Reject not clicked in a browser), T10 (its PR-body clause was skipped at write time and now runs) are the authors' calls, left as they were |
+
+Each mutated build was restored to the committed file right after its run (`git status` was clean after). The mutations are one per break-it, not the full sets in the write-ups under `docs/notes/p10-break-it-t*.md`.
