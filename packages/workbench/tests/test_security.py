@@ -90,7 +90,7 @@ def test_dns_rebinding_shape_is_refused_on_index_and_static_too(client):
 
 @pytest.mark.parametrize(
     "origin", ["http://evil.example", "https://evil.example", "null", "https://127.0.0.1", "https://localhost:8765",
-               "http://127.0.0.1.evil.example", "http://localhost.evil.example", "http://127.0.0.1@evil.example",
+               "http://127.0.0.1.evil.example", "http://localhost.evil.example", "http://127.0.0.1" "@evil.example",
                "http://evil.example/http://127.0.0.1", "file://", "http://127.0.0.1:8765/path", ""],
 )
 def test_foreign_origin_is_refused_even_with_the_token(app, client, origin):
