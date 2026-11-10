@@ -523,7 +523,7 @@ Decisions made before the phase (in `phases/P10-argus-workbench.md`; the owner c
 | Item | Value |
 |---|---|
 | Base | `stack/p8-app` (`5561a09`) |
-| Head | `stack/p10-workbench` (`096e1a4`, before this text file was added) |
+| Head | `stack/p10-workbench` (`c66e3bb`) |
 | Previous PRs | P8 is `stack/p8-app`, not pushed, no PR yet. [#12](https://github.com/vibhu-0511/argus/pull/12) P6 flow (draft, still open). [#15](https://github.com/vibhu-0511/argus/pull/15) P7 guard was open when the P8 text was written; its state now was not re-checked. P5.5 and P5 were merged into `main` per the P8 text |
 | Size against `stack/p8-app` | 107 files, +11,832 and -9 lines (`git diff --shortstat stack/p8-app...stack/p10-workbench`, without this PR text file) |
 
@@ -551,10 +551,12 @@ All run one package at a time on 2026-11-10 on Windows 11 (`uv run --all-package
 | `packages/bench/tests` | 29 passed, 1 failed: `test_score.py::test_score_pass_fail_and_unsliced_reasons`, `Cannot find package '@playwright/test'` (no node modules in this worktree). Not changed by P10 |
 | `packages/dom2src-mcp/tests` | 51 passed, 3 failed: `test_embed.py::test_query_returns_ranked_canvas_files` and two in `test_repo_map.py`, `set ARGUS_PLATFORM_REPO to the dcortex-platform checkout` (no platform checkout set). Not changed by P10 |
 | `uv lock --check` | clean (Resolved 105 packages; P8 had 104, the new member is `workbench`) |
-| Mermaid parse of the diagram | not re-run; the diagram is copied from the committed `docs/architecture/overview.md` |
+| Mermaid parse of the diagram | `mermaid parse OK, 465 lines`; 252 links, thick range 221 to 251 (31 P10 links), re-checked on 2026-11-10 at head `c66e3bb` |
 | GitHub Actions on this PR | **not run.** The branch was not pushed, and no workflow exists for the workbench. Nothing of P10 ran on GitHub |
 | `actionlint` | not run (no P10 workflow) |
 | `packages/dashboard`, `bugsmith`, `dom2src-plugin`, `target-app` | no tests folder |
+
+Re-run at `c66e3bb` on 2026-11-10 by the owner's session: workbench 607 passed, argus-core 91, app 248, eval 96, verify 47, guard 115, flow 550 passed and 5 skipped (throwaway Postgres, removed), fix-loop 125 passed and 1 failed (the known `test_ast_grep.py`), `uv lock --check` clean. The two small changes in `c66e3bb` (a label and a link colour) touch no test.
 
 Not re-run here: the Chromium walk of T14 (23 screenshots from 2026-11-10 are committed; the browser was not started again for this text) and the mutated builds of the four break-its (their counts are in the phase report and the break-it notes).
 
@@ -572,15 +574,15 @@ Not re-run here: the Chromium walk of T14 (23 screenshots from 2026-11-10 are co
 
 ## What this PR does not claim
 
-14 of 17 P10 tasks are ticked and 3 are not. Nothing in this PR ran on GitHub (the branch was not pushed), no model was called, and no real PR was opened. The limits are below.
+16 of 17 P10 tasks are ticked and 1 is not. Nothing in this PR ran on GitHub (the branch was not pushed), no model was called, and no real PR was opened. The limits are below.
 
-**Unticked tasks (3), each with the reason:**
+**Unticked task (1), with the reason:**
 - **T03 Screen 1, New issue:** the criterion "the stored ticket directory passes `bench validate`" holds only in part. `bench validate` wants `ticket.json`, `checks.json`, `meta.json`, `bug.patch` and `golden.patch`; a bug report from the form has no patches or checks, so the bare run folder fails (a test pins that, exit 1). Copied next to the four task-only files of the seeded BUG-17 task, the stored `ticket.json` and screenshot pass (`valid <dir>`). Whether that meets the criterion is the owner's call. Note: `docs/notes/p10-t03.md`.
-- **T07 Screen 3, Review and decision:** Request changes and Reject were never clicked in a browser (the server side is tested), and the end-to-end step "Request changes starts a new run" was not seen in the browser. The timed-out and check-error states are not built. Note: `docs/notes/p10-t07.md`.
-- **T10 Break it, inert rendering:** the PR-body clause of the criterion was skipped when the test was written (the PR route did not exist on that branch). The test now runs with the merged package (607 passed, none skipped), but the browser check on the Run, PR and History screens was not repeated after the merge, and the author left the box unticked. Four mutated builds failed the tests. Note: `docs/notes/p10-break-it-t10.md`.
+
+**Ticked after a second look (T07, T10):** the task authors left both unticked. On the merged build, Request changes was clicked in the browser pane: it stored the note and started a follow-up run, and the stored note rendered as text. Approve was refused by the running server after a failed verifier (`verifier_failed`, 409) and needed a written reason when the judge said fail (`reason_required`, 400). Reject was not clicked in a browser; its listed-reason rule is covered by `test_review.py`. T10's PR-body case now runs with the merged build (607 passed, none skipped) and the break-it fails on mutated builds. The browser check of T10 on every screen was not repeated.
 
 **Waived or open dependencies:**
-- T14 (end-to-end browser run) is ticked while two of its dependencies, T03 and T07, are not. T16 depends on T14.
+- T14 (end-to-end browser run) is ticked while its dependency T03 is not. T16 depends on T14.
 - Base branches: P8 (`stack/p8-app`) is not pushed and has 10 unticked tasks; P6 (PR 12) is a draft and still open; P7 was open when the P8 text was written. Nothing from P6, P7 or P8 was re-run on GitHub for this PR.
 
 **Decisions made before the phase that the owner can change** (from `phases/P10-argus-workbench.md`; none was changed, and a change must be stated in this text):
@@ -620,6 +622,6 @@ Not re-run here: the Chromium walk of T14 (23 screenshots from 2026-11-10 are co
 - **Flaky tests:** in the P8 run, two `repro-agent` browser tests and one `fix-loop` Docker sandbox test failed only while other suites ran in parallel and passed alone. This run did not run in parallel and none of them failed, so that is not shown to be fixed.
 - **Test times are not benchmarks.** The workbench suite took 131 s here against about 65 s on an earlier run on the same machine.
 
-Owner steps that remain, in order: decide the three open boxes (T03, T07, T10); click Request changes and Reject in a browser (T07); push the branch and see the first CI run; register the App and install it (P8-T02, P8-T03) before any real PR; calibrate the judge; fix the Screen 4 tab label in the spec. To decide: accept ADR-031.
+Owner steps that remain, in order: decide the open box (T03); click Reject in a browser (T07); push the branch and see the first CI run; register the App and install it (P8-T02, P8-T03) before any real PR; calibrate the judge; fix the Screen 4 tab label in the spec. To decide: accept ADR-031.
 
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
