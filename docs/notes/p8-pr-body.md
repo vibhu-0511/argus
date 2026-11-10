@@ -170,7 +170,7 @@ flowchart LR
   subgraph S8 ["P8 app (NEW IN THIS PR)"]
     VERS8["version re-check<br/>App, reusable-workflow and free-tier limits, 2026-11-03"]:::p8
     MANOTES["multi-agent notes<br/>about 4x tokens per agent, about 15x multi-agent; coding is a bad fit"]:::p8
-    MANIFEST["App manifest<br/>argus_app.manifest, five permissions equal ADR-026, URLs from env; App not registered"]:::p8
+    MANIFEST["App manifest<br/>argus_app.manifest, five permissions equal ADR-026, URLs from env; App registered 2026-11-10 (id 5699242), installed on no repo"]:::p8
     PLANNER["planner and subagents<br/>fix_loop.planner, 1 to 5 typed sub-tasks, own token cap each; one smoke run"]:::p8
     VARIANT["variant switch<br/>params.variant in eval.ablation, single or planner"]:::p8
     INSTALL["installation flow<br/>flow.installations, token for one installed repo; mock GitHub only, real App not run"]:::p8
@@ -486,10 +486,9 @@ All run one package at a time on 2026-11-04 on Windows 11 (`uv run --all-package
 
 ## What this PR does not claim
 
-16 of 26 P8 tasks are ticked and 10 are not. Nothing in this PR ran on GitHub: the branch was not pushed, the App is not registered, and no model was called. The limits are below.
+17 of 26 P8 tasks are ticked and 9 are not. The App is registered (id 5699242, 2026-11-10) but installed on no repository, and the PR code paths and workflows never ran against it. No model was called. The limits are below.
 
-**Unticked tasks (10), each with the reason:**
-- **T02 App manifest:** the criterion "the App registers from the manifest" was never tried. Registering needs the owner's GitHub account. The manifest is built and checked locally (permissions equal ADR-026). Steps: `docs/notes/p8-t02-owner-steps.md`.
+**Unticked tasks (9), each with the reason:**
 - **T03 installation flow and token minting:** "mints a token for that repo only, a call on another repo fails" was never seen on the real GitHub, because there is no registered App. It is tested against a mock GitHub, with a real Postgres for the store. Steps: `p8-t03-owner-steps.md`.
 - **T04 reusable workflow:** needs a real Actions run (no push, no tenant repo, no real App). The file is parsed and checked locally. `actionlint` was not run. The dependency P6-T04 is waived.
 - **T06 target-agnostic runner:** not run on the real dcortex repo (no checkout used), and the real fix agent never ran. It ran on a second small fixture repo with a fake fix agent.

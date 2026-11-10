@@ -146,7 +146,7 @@ flowchart LR
   subgraph S8 ["P8 app (NEW IN THIS PR)"]
     VERS8["version re-check<br/>App, reusable-workflow and free-tier limits, 2026-11-03"]:::p8
     MANOTES["multi-agent notes<br/>about 4x tokens per agent, about 15x multi-agent; coding is a bad fit"]:::p8
-    MANIFEST["App manifest<br/>argus_app.manifest, five permissions equal ADR-026, URLs from env; App not registered"]:::p8
+    MANIFEST["App manifest<br/>argus_app.manifest, five permissions equal ADR-026, URLs from env; App registered 2026-11-10 (id 5699242), installed on no repo"]:::p8
     PLANNER["planner and subagents<br/>fix_loop.planner, 1 to 5 typed sub-tasks, own token cap each; one smoke run"]:::p8
     VARIANT["variant switch<br/>params.variant in eval.ablation, single or planner"]:::p8
     INSTALL["installation flow<br/>flow.installations, token for one installed repo; mock GitHub only, real App not run"]:::p8
@@ -475,7 +475,7 @@ Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink, P5.5 stone, 
 
 - Wave 1: `docs/notes/p8-t00-versions.md` re-checks the App, reusable-workflow and free-tier rows (a tenant workflow can call 50 unique reusable workflows, 10 levels deep; `env` is not passed into a called workflow; the called workflow's `GITHUB_TOKEN` is the caller's and can only be reduced). Some free-tier rows are marked not confirmed.
 - `docs/notes/p8-t01-multi-agent-notes.md`: the multi-agent post claims about 4 times the tokens of a chat for an agent and about 15 times for a multi-agent system, and names coding as a poor fit. These are Anthropic's numbers for research, not measured on Argus.
-- `argus_app.manifest`: the GitHub App manifest. Its five permissions must equal `flow.app_token.MINIMUM` and the ADR-026 table; the URLs come from environment variables. The App was not registered (owner steps in `docs/notes/p8-t02-owner-steps.md`).
+- `argus_app.manifest`: the GitHub App manifest. Its five permissions must equal `flow.app_token.MINIMUM` and the ADR-026 table; the URLs come from environment variables. The owner registered the App on 2026-11-10 (id 5699242, slug `argus-fixer`); it is installed on no repository yet (see `docs/notes/p8-t02-owner-steps.md`).
 - `fix_loop.planner`: a planner turns the ticket into 1 to 5 typed sub-tasks and each runs the single-agent loop with its own message history and token cap; every call lands in one ledger. `params.variant` in `eval.ablation` selects it. One smoke run on a local model; no ablation numbers yet (T12).
 - Installation flow (`flow.installations`, T03): records installation events and mints a token for one installed repo. Tested against a mock GitHub only; the real App was never installed.
 - Reusable workflow (`argus-reusable.yml`, T04), tenant config (`.argus.yml`, `argus_app.config`, T05) and the target-agnostic runner (`argus_app.runner`, T06): the runner went through repro, fix and verify on a fixture repo with a fake fix agent. Never run on GitHub, `actionlint` not run, not run on the dcortex repo.

@@ -10,7 +10,7 @@ Do not fill one with a guess. Details: docs/notes/p8-t17.md.
 
 Argus fixes UI bugs. You label a GitHub issue `argus`. It reproduces the bug, writes a fix, checks the fix, and opens a **draft pull request** with the evidence. A person reads it and decides.
 
-> **Status, read this first.** Argus is built and tested on one machine. It has **not** yet run end to end on GitHub: the GitHub App is not registered, the reusable workflow has never run in a tenant repo, and no real issue has become a real pull request. The code that opens the PR after a finished run is built and tested but is not called by the running service yet. The "one real run" table below is empty for that reason. Nobody has timed the install, so "under 10 minutes" is a goal, not a measurement.
+> **Status, read this first.** Argus is built and tested on one machine. It has **not** yet run end to end on GitHub: the GitHub App is registered (id 5699242) but installed on no repository, the reusable workflow has never run in a tenant repo, and no real issue has become a real pull request. The code that opens the PR after a finished run is built and tested but is not called by the running service yet. The "one real run" table below is empty for that reason. Nobody has timed the install, so "under 10 minutes" is a goal, not a measurement.
 
 ## What it does
 
@@ -33,7 +33,7 @@ The work runs in **your** repo, on **your** GitHub Actions minutes, with **your*
 
 Needs: a GitHub repo with Actions on, an app that you can start with one command and that answers on localhost, and a model key (Groq, per the workflow).
 
-1. **Install the Argus GitHub App** on the repo: OWNER TO FILL (App page URL; the App is not registered yet, steps are in `docs/notes/p8-t02-owner-steps.md`).
+1. **Install the Argus GitHub App** on the repo: https://github.com/apps/argus-fixer (the page answered 200 on 2026-11-10; nobody has installed the App on a repo yet, see `docs/notes/p8-t16-owner-steps.md`).
 2. **Add `.github/workflows/argus.yml`** (five lines):
 
    ```yaml
