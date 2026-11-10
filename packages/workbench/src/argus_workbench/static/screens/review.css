@@ -1,0 +1,19 @@
+/* Screen 3 (Review). Status is always written as text; colour only adds to it. */
+.review .card { border: 1px solid var(--line); border-radius: 6px; padding: 0.5rem 1rem; margin: 0.75rem 0; }
+.review h3 { margin: 0.25rem 0; font-size: 1rem; }
+.review .tag { font-weight: 600; color: var(--warn); }
+.review .note { color: var(--muted); font-size: 0.875rem; }
+.checks { list-style: none; margin: 0; padding: 0; }
+.check { display: grid; grid-template-columns: 6rem 5rem 1fr; gap: 0.5rem; padding: 0.25rem 0; border-top: 1px solid var(--line); }
+.check-name { font-weight: 600; }
+.check.fail .check-status { color: var(--err); font-weight: 700; }
+.check.not-run { color: var(--muted); }
+.verdict-fail { color: var(--err); font-weight: 700; }
+.judge-fail { border-color: var(--err); }
+.judge-label { font-weight: 700; }
+iframe.report { width: 100%; height: 22rem; border: 1px solid var(--line); background: #fff; }
+.buttons { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.decide-form { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.75rem; max-width: 40rem; }
+.decide button, .decide select, .decide textarea { font: inherit; }
+.decide button:disabled { cursor: not-allowed; }
+@media (max-width: 40rem) { .check { grid-template-columns: 1fr; } }
