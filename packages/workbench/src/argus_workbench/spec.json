@@ -1,0 +1,1216 @@
+{
+  "meta": {
+    "asOf": "2026-10-30",
+    "lane": "final-product",
+    "title": "Argus finished product: five screens, one flow",
+    "honesty": "Nothing on these screens is a model result. P0 (bench) and P1 (repro, fixture replay) are the only built phases. Every screen is labelled BUILT TODAY, PARTLY BUILT or PLANNED (Pn). Mock values carry an ILLUSTRATIVE or SIMULATED tag. Metrics are '—' unless a run id backs them. No real PR is ever created by the prototype.",
+    "ownerFlow": "Owner types an issue (text, optionally a screenshot) -> agent returns an HTML report with before and after on the UI -> owner verifies -> on satisfaction the agent raises the PR.",
+    "planFlow": "Labelled GitHub issue -> webhook hint -> durable DBOS workflow (Render + Neon) -> job on GitHub Actions -> draft PR -> QA signal (MRTR or review comment) -> ready PR -> backport bot.",
+    "sources": [
+      "PLAN.md",
+      "PROJECT.md",
+      "phases/P06-argus-flow.md",
+      "phases/P08-argus-app.md",
+      "phases/P05-argus-eval.md",
+      "phases/P04-verify.md",
+      "production.html",
+      "142-fix.html",
+      "analysis/swarm/ops-console.json",
+      "packages/argus-core/schemas/*.json"
+    ]
+  },
+  "triggers": [
+    {
+      "id": "typed",
+      "label": "Type it here",
+      "tag": "OWNER FLOW",
+      "built": "not in any phase",
+      "blurb": "Text box plus optional screenshot. Not scheduled in PLAN.md. Needs an HTTP endpoint on the P6 FastAPI service and a page (the P5 dashboard is a static GitHub Pages site and cannot post a form)."
+    },
+    {
+      "id": "github",
+      "label": "Labelled GitHub issue",
+      "tag": "PLAN (P8-T08)",
+      "built": "PLANNED P6 + P8",
+      "blurb": "Someone adds the label `argus` to an issue on an installed repo. The webhook is a hint (returns 202); the reconcile poller rebuilds state from GitHub. A label from a user without write access is ignored and logged (P8-T24).",
+      "cite": "phases/P08-argus-app.md:44"
+    }
+  ],
+  "stages": [
+    {
+      "id": "reproduce",
+      "label": "Reproduce",
+      "phase": "P1",
+      "built": "fixture",
+      "badge": "BUILT TODAY (fixture replay)",
+      "note": "repro-agent writes a Playwright spec from the ticket; kept only if it fails on the buggy tree and passes on the golden tree. Today every reply is canned (host=fixture).",
+      "cite": "packages/repro-agent/README.md"
+    },
+    {
+      "id": "locate",
+      "label": "Locate",
+      "phase": "P2",
+      "built": "planned",
+      "badge": "PLANNED P2",
+      "note": "Vite plugin stamps data-src=file:line:col; locate() maps a selector to source candidates.",
+      "cite": "PROJECT.md:16"
+    },
+    {
+      "id": "fix",
+      "label": "Fix",
+      "phase": "P3",
+      "built": "planned",
+      "badge": "PLANNED P3",
+      "note": "From-scratch agent loop in a git worktree + Docker --network none; gates run before submit.",
+      "cite": "PROJECT.md:17"
+    },
+    {
+      "id": "verify",
+      "label": "Verify",
+      "phase": "P4",
+      "built": "planned",
+      "badge": "PLANNED P4",
+      "note": "Pixel, overflow, axe, console checks first; cross-family judge second; judge never overrides a passed check run.",
+      "cite": "PROJECT.md:18"
+    }
+  ],
+  "workflowStates": {
+    "status": "PROPOSED. P6-T02 owns the real state list. Only awaiting-qa and done are named in the phase files.",
+    "cite": "phases/P06-argus-flow.md:39,44",
+    "states": [
+      "queued",
+      "reproducing",
+      "locating",
+      "fixing",
+      "verifying",
+      "awaiting-qa",
+      "pr-draft",
+      "done",
+      "failed",
+      "stuck",
+      "quota-wait",
+      "timed-out-qa"
+    ],
+    "stopReasonEnum": [
+      "submit",
+      "step-cap",
+      "token-cap",
+      "QuotaExceeded",
+      "stuck",
+      "consecutive-timeout",
+      "retry-cap",
+      "tool-unavailable"
+    ],
+    "stopReasonCite": "packages/argus-core/schemas/trajectory.schema.json (StopReason)"
+  },
+  "scenarios": [
+    {
+      "id": "normal",
+      "label": "Normal",
+      "effect": "All four stages finish; four checks pass; judge label pass. Approve is enabled.",
+      "cite": "PROJECT.md:13-19"
+    },
+    {
+      "id": "quota",
+      "label": "Quota exhausted",
+      "effect": "Run stops in Fix with stop_reason QuotaExceeded. State quota-wait. Retry is disabled until the UTC reset; no retry spam.",
+      "cite": "PLAN.md:288; packages/argus-core/src/argus_core/ledger.py (QuotaExceeded message)"
+    },
+    {
+      "id": "stuck",
+      "label": "Stuck",
+      "effect": "Run repeats one tool call in Locate until stop_reason stuck. Stop and Retry (new run_id) are offered; the old run is never mutated.",
+      "cite": "trajectory.schema.json StopReason; ops-console.md section 2 'Stuck run'"
+    },
+    {
+      "id": "verifier",
+      "label": "Verifier failed",
+      "effect": "Overflow check fails on a second route (collateral damage). Verdict is fail, Approve is disabled, no PR is offered; one retry with the reason in context is allowed.",
+      "cite": "phases/P04-verify.md:60 (P4-T25), :57 (P4-T22)"
+    },
+    {
+      "id": "judge",
+      "label": "Judge disagrees",
+      "effect": "All four checks pass, judge says fail. The judge does not override a passed check run, so Approve stays enabled but needs a written reason; the card says advisory while alpha is not calibrated.",
+      "cite": "phases/P04-verify.md:6,12"
+    }
+  ],
+  "sim": {
+    "tag": "SIMULATED",
+    "tick_ms": 700,
+    "note": "Timeline events, token counts and timings below are ILLUSTRATIVE placeholders so the screen shape can be judged. They are not measurements.",
+    "stages": [
+      {
+        "id": "reproduce",
+        "events": [
+          {
+            "tool": "navigate",
+            "msg": "open the page named in the ticket at 375 px",
+            "in": 1180,
+            "out": 40,
+            "cached": 0
+          },
+          {
+            "tool": "snapshot",
+            "msg": "read the accessibility tree",
+            "in": 2210,
+            "out": 60,
+            "cached": 900
+          },
+          {
+            "tool": "write-spec",
+            "msg": "write repro.spec.ts from the ticket text",
+            "in": 1650,
+            "out": 310,
+            "cached": 900
+          },
+          {
+            "tool": "run-spec",
+            "msg": "spec fails on the buggy tree and passes on the golden tree: verdict valid",
+            "in": 420,
+            "out": 20,
+            "cached": 900
+          }
+        ]
+      },
+      {
+        "id": "locate",
+        "events": [
+          {
+            "tool": "locate",
+            "msg": "map the failing selector to data-src candidates",
+            "in": 1400,
+            "out": 90,
+            "cached": 0
+          },
+          {
+            "tool": "read-file",
+            "msg": "open the top candidate",
+            "in": 3100,
+            "out": 40,
+            "cached": 1400
+          },
+          {
+            "tool": "locate",
+            "msg": "one source location remains",
+            "in": 600,
+            "out": 30,
+            "cached": 1400
+          }
+        ]
+      },
+      {
+        "id": "fix",
+        "events": [
+          {
+            "tool": "read-file",
+            "msg": "read the component and its stylesheet",
+            "in": 3800,
+            "out": 50,
+            "cached": 0
+          },
+          {
+            "tool": "edit",
+            "msg": "edit the stylesheet in the worktree",
+            "in": 2100,
+            "out": 380,
+            "cached": 3800
+          },
+          {
+            "tool": "run-gates",
+            "msg": "build, typecheck, lint, unit tests, bench checks: green",
+            "in": 900,
+            "out": 40,
+            "cached": 3800
+          },
+          {
+            "tool": "submit",
+            "msg": "submit patch",
+            "in": 500,
+            "out": 120,
+            "cached": 3800
+          }
+        ]
+      },
+      {
+        "id": "verify",
+        "events": [
+          {
+            "tool": "check:pixel",
+            "msg": "pixel diff on the ticketed route",
+            "in": 0,
+            "out": 0,
+            "cached": 0
+          },
+          {
+            "tool": "check:overflow",
+            "msg": "scroll width and off-viewport elements at 375 px",
+            "in": 0,
+            "out": 0,
+            "cached": 0
+          },
+          {
+            "tool": "check:axe",
+            "msg": "new axe violations versus the clean baseline",
+            "in": 0,
+            "out": 0,
+            "cached": 0
+          },
+          {
+            "tool": "check:console",
+            "msg": "new console errors",
+            "in": 0,
+            "out": 0,
+            "cached": 0
+          },
+          {
+            "tool": "judge",
+            "msg": "cross-family vision judge reads ticket, before, after",
+            "in": 5200,
+            "out": 80,
+            "cached": 0
+          }
+        ]
+      }
+    ],
+    "scenario": {
+      "normal": {},
+      "quota": {
+        "haltStage": "fix",
+        "afterEvent": 1,
+        "stop_reason": "QuotaExceeded",
+        "state": "quota-wait",
+        "msg": "openai/gpt-oss-20b would exceed tokens_per_day: 199,400 of 200,000",
+        "msgNote": "Message shape is real (ledger QuotaExceeded: '{model} would exceed {limit}: {used} of {cap}'); the used figure is ILLUSTRATIVE.",
+        "meterUsed": 199400
+      },
+      "stuck": {
+        "haltStage": "locate",
+        "afterEvent": 1,
+        "stop_reason": "stuck",
+        "state": "stuck",
+        "repeat": {
+          "tool": "locate",
+          "msg": "same locate() call repeated with identical arguments",
+          "times": 3
+        },
+        "msg": "stop_reason=stuck after the same tool call three times"
+      },
+      "verifier": {
+        "checks": [
+          {
+            "name": "pixel",
+            "status": "pass",
+            "route": "/ops/radar",
+            "detail": "changed-pixel ratio under the named limit"
+          },
+          {
+            "name": "overflow",
+            "status": "fail",
+            "route": "/ops/horizon",
+            "detail": "element wider than the 375 px viewport after the patch (another route)"
+          },
+          {
+            "name": "axe",
+            "status": "pass",
+            "route": "/ops/radar",
+            "detail": "no new violations"
+          },
+          {
+            "name": "console",
+            "status": "skipped",
+            "route": "-",
+            "detail": "short-circuited after first hard failure"
+          }
+        ],
+        "firstFailure": "overflow on /ops/horizon",
+        "shortCircuited": true,
+        "judge": {
+          "label": "not run",
+          "note": "pipeline short-circuited"
+        }
+      },
+      "judge": {
+        "checks": [
+          {
+            "name": "pixel",
+            "status": "pass",
+            "route": "/ops/radar",
+            "detail": "changed-pixel ratio under the named limit"
+          },
+          {
+            "name": "overflow",
+            "status": "pass",
+            "route": "/ops/radar",
+            "detail": "no element wider than the viewport"
+          },
+          {
+            "name": "axe",
+            "status": "pass",
+            "route": "/ops/radar",
+            "detail": "no new violations"
+          },
+          {
+            "name": "console",
+            "status": "pass",
+            "route": "/ops/radar",
+            "detail": "no new errors"
+          }
+        ],
+        "firstFailure": null,
+        "shortCircuited": false,
+        "judge": {
+          "label": "fail",
+          "note": "judge reads the fix as incomplete (text under 12 px may remain on routes the ticket also names)"
+        }
+      }
+    },
+    "normalVerdict": {
+      "checks": [
+        {
+          "name": "pixel",
+          "status": "pass",
+          "route": "/ops/radar",
+          "detail": "changed-pixel ratio under the named limit"
+        },
+        {
+          "name": "overflow",
+          "status": "pass",
+          "route": "/ops/radar",
+          "detail": "no element wider than the viewport"
+        },
+        {
+          "name": "axe",
+          "status": "pass",
+          "route": "/ops/radar",
+          "detail": "no new violations"
+        },
+        {
+          "name": "console",
+          "status": "pass",
+          "route": "/ops/radar",
+          "detail": "no new errors"
+        }
+      ],
+      "firstFailure": null,
+      "shortCircuited": false,
+      "judge": {
+        "label": "pass",
+        "note": "fix matches the ticket, no collateral change seen"
+      }
+    },
+    "judgeCard": {
+      "family": "Gemma (cross-family, not the fixer's family)",
+      "model": "gemma4:e4b via local Ollama",
+      "alpha": "—",
+      "alphaNote": "No calibration run exists. Krippendorff alpha >= 0.80 on the 100-pair set is the bar; below it the judge is advisory only (ADR-013).",
+      "orderDisagreement": "—",
+      "cite": "PLAN.md:33; phases/P04-verify.md:12"
+    },
+    "ci": {
+      "checks": [
+        "build",
+        "typecheck",
+        "lint",
+        "unit tests",
+        "argus gate (stored results, no LLM)"
+      ],
+      "note": "Tenant CI belongs to the target repo. The Argus gate row is the P5-T17 workflow and runs on Argus's own repo; shown here only to name both."
+    },
+    "backport": {
+      "targetBranch": "release/1.x",
+      "targetNote": "ILLUSTRATIVE branch name. Configured per tenant (P8-T10).",
+      "conflictNote": "On cherry-pick conflict the bot comments and does nothing destructive (P8-T23)."
+    }
+  },
+  "targets": {
+    "repos": [
+      {
+        "id": "dcortex",
+        "label": "dcortex-platform, synthetic copa-local cell",
+        "note": "config/platform.md. The target the bench and repro run against today.",
+        "built": true
+      },
+      {
+        "id": "shop-ui",
+        "label": "you/shop-ui, own public repo (illustrative)",
+        "note": "Worked example in production.html. P8 install target must be one of your own public repos.",
+        "built": false
+      }
+    ],
+    "routes": [
+      "/ops/radar",
+      "/ops/operations",
+      "/ops/launchpad",
+      "/ops/rules",
+      "/desk",
+      "/admin/users",
+      "/admin/audit",
+      "/login"
+    ],
+    "routesCite": "config/platform.md (five flows)",
+    "viewport": "375 px",
+    "viewportCite": "phases/P04-verify.md:38 (P4-T03 checks overflow at 375 px)",
+    "maxFileMB": 5,
+    "maxFileNote": "PROPOSED limit; no schema or phase sets one.",
+    "reasons": {
+      "changes": [
+        "Wrong element or file fixed",
+        "Collateral change on another route",
+        "Does not match what the ticket asked",
+        "After image still shows the bug",
+        "Other (say what)"
+      ],
+      "reject": [
+        "Not a bug",
+        "Out of scope for Argus",
+        "Patch looks unsafe",
+        "Duplicate of another issue",
+        "Other (say what)"
+      ]
+    }
+  },
+  "screens": [
+    {
+      "id": "issue",
+      "n": 1,
+      "title": "New issue",
+      "short": "Issue",
+      "purpose": "Turn a bug report into a Ticket. Text is required. A screenshot is optional. Pick the repo and the route to test, and acknowledge that only public or synthetic code goes through free tiers.",
+      "built": {
+        "label": "PARTLY BUILT",
+        "level": "partial",
+        "detail": "The Ticket schema and 30 seeded tickets exist (P0). No intake UI and no endpoint exist."
+      },
+      "delivery": [
+        {
+          "phase": "P0",
+          "status": "built",
+          "what": "Ticket schema (id, text, optional screenshot); 30 seeded tickets; `bench validate <dir>` checks a task directory",
+          "cite": "packages/argus-core/schemas/ticket.schema.json; packages/bench/README.md"
+        },
+        {
+          "phase": "P1",
+          "status": "built",
+          "what": "Screenshot-in-ticket variant (text-plus-image) runs through repro, as fixture replay",
+          "cite": "PLAN.md:352 (ADR-005); packages/repro-agent/README.md"
+        },
+        {
+          "phase": "P8",
+          "status": "planned",
+          "what": "Labelled-issue intake (P8-T08); `.argus.yml` config with start command, test command, routes, budget (P8-T05); least-privilege App (P8-T02/T03)",
+          "cite": "phases/P08-argus-app.md:38-44"
+        },
+        {
+          "phase": "P6",
+          "status": "planned",
+          "what": "Webhook as hint, 202 return, reconcile poller (P6-T05..T07)",
+          "cite": "phases/P06-argus-flow.md:41-43"
+        },
+        {
+          "phase": "none",
+          "status": "gap",
+          "what": "Typed-issue form with screenshot drop zone: no task owns it",
+          "cite": "DESIGN-product.md owner flow"
+        }
+      ],
+      "fields": [
+        {
+          "name": "ticket.id",
+          "kind": "real",
+          "source": "ticket.schema.json: string, minLength 1, required"
+        },
+        {
+          "name": "ticket.text",
+          "kind": "real",
+          "source": "ticket.schema.json: string, minLength 1, required"
+        },
+        {
+          "name": "ticket.screenshot.media_type",
+          "kind": "real",
+          "source": "ticket.schema.json Screenshot: string, minLength 1"
+        },
+        {
+          "name": "ticket.screenshot.path",
+          "kind": "real",
+          "source": "ticket.schema.json Screenshot: string, minLength 1; relative to the task directory"
+        },
+        {
+          "name": "repo",
+          "kind": "proposed",
+          "source": "P8-T05 .argus.yml / config/platform.md binding"
+        },
+        {
+          "name": "target.route / viewport",
+          "kind": "proposed",
+          "source": "checks.json params.flow (e.g. /ops/radar); P4-T03 checks at 375 px"
+        },
+        {
+          "name": "meta.tier / archetype / source",
+          "kind": "real",
+          "source": "task.schema.json TaskMeta; set by bench, not by the person filing the issue"
+        },
+        {
+          "name": "ack.public_or_synthetic",
+          "kind": "proposed",
+          "source": "PLAN.md:14 free-tier training caveat"
+        }
+      ],
+      "actions": [
+        "Type or paste the issue text",
+        "Attach or drop a screenshot (read locally, never uploaded)",
+        "Pick repo and route",
+        "Switch trigger: type here / labelled GitHub issue",
+        "Load the real BUG-17 ticket",
+        "Start run (disabled until text and acknowledgement exist)"
+      ],
+      "states": [
+        {
+          "id": "empty",
+          "text": "Start disabled; hint names what is missing (text, acknowledgement)."
+        },
+        {
+          "id": "filled",
+          "text": "Ticket JSON preview shows exactly the schema fields that would be written."
+        },
+        {
+          "id": "bad-file",
+          "text": "Non-image or oversized file is refused with the reason; the form keeps the text."
+        },
+        {
+          "id": "github",
+          "text": "Trigger = labelled issue: no form; shows the label, the webhook-as-hint note and the reconcile fallback."
+        },
+        {
+          "id": "waking",
+          "text": "Render cold start (about one minute): 'service waking', not an error (PLAN.md:302)."
+        }
+      ],
+      "edgeCases": [
+        "Ticket text is untrusted data for every later prompt; render as plain text, never HTML (ops-console E-notes; production.html:186).",
+        "A ticket that contains `$(...)` or markup must not be executed or rendered (P8-T09 fixture).",
+        "Screenshot may contain PII; free-tier prompts may be used for training, so the acknowledgement is mandatory on the personal profile.",
+        "Duplicate submit of the same text: one workflow, keyed by ticket id (P6-T06 SetWorkflowID).",
+        "Missing .argus.yml field (e.g. no test command): typed config error, no guessing (P8-T22).",
+        "File size limit is not in any schema. 5 MB in the prototype is a proposal."
+      ],
+      "differs": [
+        {
+          "note": "Owner flow types the issue here. PLAN.md has no typed intake; the labelled GitHub issue is the only intake (P8-T08).",
+          "cite": "phases/P08-argus-app.md:44"
+        },
+        {
+          "note": "Pre-flight acknowledgement is not in the owner's description; it is forced by the free-tier training caveat.",
+          "cite": "PLAN.md:14"
+        }
+      ],
+      "sources": [
+        "packages/argus-core/schemas/ticket.schema.json",
+        "packages/bench/tasks/seeded/bug-17/ticket.json",
+        "phases/P08-argus-app.md",
+        "PLAN.md"
+      ]
+    },
+    {
+      "id": "run",
+      "n": 2,
+      "title": "Live run",
+      "short": "Run",
+      "purpose": "Show where the run is: Reproduce, Locate, Fix, Verify. Step timeline with tool, tokens and stop reason, a quota meter, and Stop / Retry. Make stuck and quota-exhausted visible and different.",
+      "built": {
+        "label": "PARTLY BUILT",
+        "level": "partial",
+        "detail": "Trajectory schema, StopReason enum, quota ledger and the repro stage exist today (fixture replay). Locate, Fix, Verify, workflow state and any UI do not."
+      },
+      "delivery": [
+        {
+          "phase": "P0",
+          "status": "built",
+          "what": "Trajectory schema (meta + steps, tokens_in/out/cached, stop_reason); quota ledger that hard-stops before a provider limit",
+          "cite": "packages/argus-core/schemas/trajectory.schema.json; packages/argus-core/src/argus_core/ledger.py"
+        },
+        {
+          "phase": "P1",
+          "status": "built",
+          "what": "Reproduce stage as fixture replay (host=fixture); real files: trajectory.jsonl, repro.spec.ts, verdict.json",
+          "cite": "packages/repro-agent/runs/text-only/bug-17/"
+        },
+        {
+          "phase": "P2",
+          "status": "planned",
+          "what": "Locate stage: data-src plugin + locate() MCP server",
+          "cite": "PLAN.md:218"
+        },
+        {
+          "phase": "P3",
+          "status": "planned",
+          "what": "Fix stage: agent loop, worktree + Docker sandbox, gates, context manager",
+          "cite": "PLAN.md:219"
+        },
+        {
+          "phase": "P4",
+          "status": "planned",
+          "what": "Verify stage",
+          "cite": "PLAN.md:220"
+        },
+        {
+          "phase": "P5",
+          "status": "planned",
+          "what": "Trajectory metrics, OTel spans, Langfuse trace link (P5-T07)",
+          "cite": "PLAN.md:221"
+        },
+        {
+          "phase": "P6",
+          "status": "planned",
+          "what": "Durable workflow and state machine; run list needs the FastAPI backend; stop and retry are workflow signals",
+          "cite": "phases/P06-argus-flow.md:38-39"
+        }
+      ],
+      "fields": [
+        {
+          "name": "meta.run_id / task_id",
+          "kind": "real",
+          "source": "trajectory.schema.json TrajectoryMeta"
+        },
+        {
+          "name": "meta.model / host / prompt_hash / git_commit / seed",
+          "kind": "real",
+          "source": "TrajectoryMeta; host=fixture marks a replay"
+        },
+        {
+          "name": "step.index / tool_name / tool_error / message / raw_response",
+          "kind": "real",
+          "source": "TrajectoryStep"
+        },
+        {
+          "name": "step.tokens_in / tokens_out / tokens_cached",
+          "kind": "real",
+          "source": "TrajectoryStep; cached defaults 0"
+        },
+        {
+          "name": "step.stop_reason",
+          "kind": "real",
+          "source": "StopReason enum: submit, step-cap, token-cap, QuotaExceeded, stuck, consecutive-timeout, retry-cap, tool-unavailable"
+        },
+        {
+          "name": "ledger.models[model].requests / tokens / cached",
+          "kind": "real",
+          "source": "packages/repro-agent/runs/text-only/ledger.json; limits in docs/quotas.md"
+        },
+        {
+          "name": "workflow.state",
+          "kind": "proposed",
+          "source": "P6-T02 owns the list; only awaiting-qa and done are named"
+        },
+        {
+          "name": "run.attempt / elapsed / next_reset_utc",
+          "kind": "proposed",
+          "source": "ledger rolls on the UTC date (ledger.py)"
+        }
+      ],
+      "actions": [
+        "Stop run (confirm)",
+        "Retry (new run_id; the old run is never mutated)",
+        "Open a stage to see its step detail",
+        "Copy run_id",
+        "Skip to end (prototype only)"
+      ],
+      "states": [
+        {
+          "id": "normal",
+          "text": "Stages advance; tokens and meter update per step."
+        },
+        {
+          "id": "quota",
+          "text": "stop_reason QuotaExceeded; meter red; state quota-wait; Retry disabled with 'resets 00:00 UTC'."
+        },
+        {
+          "id": "stuck",
+          "text": "Repeated identical tool call highlighted; stop_reason stuck; Stop and Retry offered."
+        },
+        {
+          "id": "stopped",
+          "text": "Owner stopped the run: state failed with reason 'stopped by owner'."
+        },
+        {
+          "id": "replay",
+          "text": "host=fixture shows a permanent REPLAY badge and 'token counts not real'."
+        }
+      ],
+      "edgeCases": [
+        "Last step with null stop_reason: run still live or crashed; check freshness before saying running.",
+        "Day roll (UTC midnight) in flight: meters show two segments.",
+        "Duplicate webhook: one run row, toast 'duplicate delivery ignored'.",
+        "Reconciled state differs from the webhook's: tag 'reconciled from GitHub'.",
+        "Unknown model: ledger refuses, board says 'no quota row', not 0%.",
+        "raw_response may carry page text: render as text only.",
+        "Retry after quota exhaustion before reset is refused by the ledger, not by the button alone."
+      ],
+      "differs": [
+        {
+          "note": "Plan runs the job on GitHub Actions; the owner's flow shows it live in one UI. A live feed from an Actions job to this page is not designed (the control plane is P6; artifacts return at the end, P6-T04).",
+          "cite": "phases/P06-argus-flow.md:40"
+        },
+        {
+          "note": "Quota meter and quota-wait are on this screen; PLAN.md treats quota as a ledger and a doc, with a dashboard tile at P5.",
+          "cite": "PLAN.md:288"
+        }
+      ],
+      "sources": [
+        "packages/argus-core/schemas/trajectory.schema.json",
+        "packages/repro-agent/runs/text-only/bug-17/trajectory.jsonl",
+        "docs/quotas.md",
+        "analysis/swarm/ops-console.md"
+      ]
+    },
+    {
+      "id": "review",
+      "n": 3,
+      "title": "Review",
+      "short": "Review",
+      "purpose": "Give the owner enough to decide: the structured verdict (four checks), the judge label and its limits, the before/after fix report, then Approve, Request changes or Reject with reasons.",
+      "built": {
+        "label": "PARTLY BUILT",
+        "level": "partial",
+        "detail": "Two real verdict types exist (bench scorer, repro). The four-check verifier verdict, judge and QA signal are planned."
+      },
+      "delivery": [
+        {
+          "phase": "P0",
+          "status": "built",
+          "what": "Bench Verdict {task_id, ok, checks[{type, ok, reason}], log}; scorer exit 0/1/2",
+          "cite": "packages/bench/src/argus_bench/verdict.py:13-24"
+        },
+        {
+          "phase": "P1",
+          "status": "built",
+          "what": "Repro verdict enum valid | passes-on-bug | fails-on-golden | error",
+          "cite": "packages/repro-agent/src/repro_agent/verify.py:16-20"
+        },
+        {
+          "phase": "P4",
+          "status": "planned",
+          "what": "Structured verdict with per-check results and first-failure reason (P4-T06); judge (P4-T13/T14); best-of-k (P4-T19); retry on rejection (P4-T22)",
+          "cite": "phases/P04-verify.md:41"
+        },
+        {
+          "phase": "P6",
+          "status": "planned",
+          "what": "QA signal wait with timeout and idempotency key (P6-T08); MRTR elicitation (P6-T09) or review-comment fallback (P6-T10); ADR-023 picks",
+          "cite": "phases/P06-argus-flow.md:44-46"
+        },
+        {
+          "phase": "P8",
+          "status": "planned",
+          "what": "Before and after screenshots in the PR (P8-T09)",
+          "cite": "phases/P08-argus-app.md:45"
+        },
+        {
+          "phase": "lane",
+          "status": "planned",
+          "what": "Standalone HTML fix report, designed in the fix-report lane",
+          "cite": "#plan/report; 142-fix.html (hand-made sample)"
+        }
+      ],
+      "fields": [
+        {
+          "name": "verdict.checks[].name",
+          "kind": "proposed",
+          "source": "P4-T06: pixel | overflow | axe | console"
+        },
+        {
+          "name": "verdict.checks[].status",
+          "kind": "proposed",
+          "source": "pass | fail | error | skipped; error is never shown green (P4-T28)"
+        },
+        {
+          "name": "verdict.checks[].route / detail / rule_ids",
+          "kind": "proposed",
+          "source": "P4-T04 axe rule ids; P4-T25 names the route"
+        },
+        {
+          "name": "verdict.first_failure / short_circuited",
+          "kind": "proposed",
+          "source": "P4-T06"
+        },
+        {
+          "name": "verdict.checks[].type / ok / reason",
+          "kind": "real",
+          "source": "bench Verdict: pixel_diff | bounding_box | computed_style"
+        },
+        {
+          "name": "judge.label / family / model",
+          "kind": "proposed",
+          "source": "PLAN.md:33; label pass | fail | error"
+        },
+        {
+          "name": "judge.alpha / order_disagreement",
+          "kind": "proposed",
+          "source": "P4-T14; shown as '—' until a calibration run exists"
+        },
+        {
+          "name": "qa.decision / reason / reviewer / idempotency_key / ts",
+          "kind": "proposed",
+          "source": "P6-T08: signal carries an idempotency key"
+        }
+      ],
+      "actions": [
+        "Approve (optional note; required note when the judge disagrees)",
+        "Request changes (reason required; re-runs with your note)",
+        "Reject (reason required, min 10 characters)",
+        "Choose the QA signal channel: MRTR or review comment (ADR-023)",
+        "Open the fix report (#plan/report)",
+        "Open the trajectory (screen 2)"
+      ],
+      "states": [
+        {
+          "id": "normal",
+          "text": "Four checks pass; judge pass labelled advisory until alpha is calibrated; Approve enabled."
+        },
+        {
+          "id": "verifier",
+          "text": "A check fails: verdict fail, first failure named with its route, Approve disabled; one retry or Reject."
+        },
+        {
+          "id": "judge",
+          "text": "Checks pass, judge fails: red judge card, Approve needs a written reason; the verdict itself is not changed by the judge."
+        },
+        {
+          "id": "error",
+          "text": "A check or the judge is `error` (backend down): amber, never green; decide on checks only."
+        },
+        {
+          "id": "timed-out",
+          "text": "awaiting-qa past the QA timeout: buttons replaced by 'Re-request review' (P6-T08)."
+        },
+        {
+          "id": "decided",
+          "text": "409: another reviewer already decided; show the winner and close the pane."
+        }
+      ],
+      "edgeCases": [
+        "Judge disagrees with passed checks: label shown, verdict unchanged (P4 goal).",
+        "alpha below 0.80: judge card says advisory only (ADR-013).",
+        "Font-loading flake: pixel diff red but the diff shows text only: offer one re-run and count it (P4-T26).",
+        "Missing before or after image: the check is `error`, never `pass`.",
+        "Ticket text carrying an injected instruction is shown as plain text; flagged if the judge output echoes it (P4-T27).",
+        "Confidence limits: a resolve rate on n tasks is shown with its Wilson interval; a difference smaller than the interval is 'no difference' (PLAN.md:286)."
+      ],
+      "differs": [
+        {
+          "note": "Owner reviews a before/after HTML report before any PR exists. In the plan the review happens on a draft PR via MRTR or a review comment.",
+          "cite": "phases/P06-argus-flow.md:44-46,57"
+        },
+        {
+          "note": "'Request changes' has no task; the plan's QA signal is approve or reject.",
+          "cite": "phases/P06-argus-flow.md:44"
+        },
+        {
+          "note": "Before/after in the owner's description is on the production UI. The plan screenshots the synthetic dcortex cell; see D4.",
+          "cite": "config/platform.md; PLAN.md:14"
+        }
+      ],
+      "sources": [
+        "analysis/swarm/ops-console.md section 4",
+        "phases/P04-verify.md",
+        "phases/P06-argus-flow.md",
+        "142-fix.html"
+      ]
+    },
+    {
+      "id": "pr",
+      "n": 4,
+      "title": "PR raised",
+      "short": "PR",
+      "purpose": "After approval, show the pull request the agent raises: title, one stable branch, body with verdict, judge label, trajectory link and before/after, CI state, and the backport follow-up.",
+      "built": {
+        "label": "PLANNED P8",
+        "level": "planned",
+        "detail": "No PR-creation code exists. The prototype never calls GitHub."
+      },
+      "delivery": [
+        {
+          "phase": "P8",
+          "status": "planned",
+          "what": "PR creation through the API with title and body as JSON fields; one stable branch; one creator that is not the agent; draft until QA; no PR when the patch is empty; re-run updates the same PR (P8-T09)",
+          "cite": "phases/P08-argus-app.md:45"
+        },
+        {
+          "phase": "P6",
+          "status": "planned",
+          "what": "find-or-create PR on one stable branch, survives a crash between side effect and state save (P6-T21)",
+          "cite": "phases/P06-argus-flow.md:57"
+        },
+        {
+          "phase": "P8",
+          "status": "planned",
+          "what": "Backport bot: PR to a configured branch on a merged fix; comment on conflict, never force (P8-T10, P8-T23)",
+          "cite": "phases/P08-argus-app.md:46,59"
+        },
+        {
+          "phase": "P7",
+          "status": "planned",
+          "what": "Least-privilege token scopes, audit log (ADR-026)",
+          "cite": "PLAN.md:373"
+        }
+      ],
+      "fields": [
+        {
+          "name": "pr.title / pr.body",
+          "kind": "proposed",
+          "source": "P8-T09: JSON fields, never shell-interpolated"
+        },
+        {
+          "name": "pr.branch",
+          "kind": "proposed",
+          "source": "P6-T21 / P8-T09: one stable branch"
+        },
+        {
+          "name": "pr.draft",
+          "kind": "proposed",
+          "source": "P6-T21: draft until QA"
+        },
+        {
+          "name": "pr.body.verdict / judge label / trajectory link / before / after",
+          "kind": "proposed",
+          "source": "PROJECT.md:19; P8-T09"
+        },
+        {
+          "name": "pr.ci[]",
+          "kind": "proposed",
+          "source": "tenant CI; Argus gate P5-T17"
+        },
+        {
+          "name": "backport.target / status / conflict",
+          "kind": "proposed",
+          "source": "P8-T10, P8-T23"
+        }
+      ],
+      "actions": [
+        "Mark ready for review (owner flow step)",
+        "Open the trajectory link",
+        "Simulate: owner merges the PR",
+        "Backport to a configured branch (simulated; conflict toggle)",
+        "Back to history"
+      ],
+      "states": [
+        {
+          "id": "no-pr",
+          "text": "Rejected, not approved, or empty patch: 'No PR'; no PR is created for an empty patch (P8-T09)."
+        },
+        {
+          "id": "draft",
+          "text": "Draft PR; CI pending/running/passed (simulated)."
+        },
+        {
+          "id": "ready",
+          "text": "Ready for review; merge is the owner's action, not Argus's."
+        },
+        {
+          "id": "merged",
+          "text": "Backport button becomes available."
+        },
+        {
+          "id": "conflict",
+          "text": "Backport conflict: the bot comments and leaves branches untouched."
+        }
+      ],
+      "edgeCases": [
+        "Re-running updates the same PR; no second PR (P8-T09, P6-T21).",
+        "A lookup error leaves the existing PR untouched (P6-T21).",
+        "PR title containing `$(...)` is not executed (P8-T09, P8-T20).",
+        "Worker crash after the PR is opened but before state is saved: restart finds the PR by its stable branch (P6-T21).",
+        "Backport head is a branch the tenant workflow is allowed to test (ADR-027)."
+      ],
+      "differs": [
+        {
+          "note": "Owner flow raises the PR after approval. The plan opens the PR as a draft before QA and QA happens on it.",
+          "cite": "phases/P06-argus-flow.md:57; P08:45"
+        },
+        {
+          "note": "No task makes Argus merge. Merge is shown as the owner's action.",
+          "cite": "phases/P08-argus-app.md:34-62 (no merge task)"
+        }
+      ],
+      "sources": [
+        "phases/P08-argus-app.md",
+        "phases/P06-argus-flow.md",
+        "production.html"
+      ]
+    },
+    {
+      "id": "history",
+      "n": 5,
+      "title": "History + dashboard",
+      "short": "History",
+      "purpose": "Past runs with their stop reasons, and the four contract metrics with their limits. Everything is '—' unless a real run backs it. Simulated runs are listed but excluded from every aggregate.",
+      "built": {
+        "label": "PARTLY BUILT",
+        "level": "partial",
+        "detail": "One real aggregate exists (P0 one-shot baseline). Wilson interval code exists in bench. The dashboard (P5), regression gate (P5-T16) and run list (P6) do not."
+      },
+      "delivery": [
+        {
+          "phase": "P0",
+          "status": "built",
+          "what": "Wilson 95% interval in batch scoring; one-shot baseline row 0/10; quota ledger.json",
+          "cite": "phases/P00-argus-bench.md:85; analysis/swarm/ops-console.md section 5"
+        },
+        {
+          "phase": "P1",
+          "status": "built",
+          "what": "Repro batch verdicts (fixture replay) under a REPLAY badge",
+          "cite": "packages/repro-agent/runs/"
+        },
+        {
+          "phase": "P5",
+          "status": "planned",
+          "what": "Results JSON (P5-T04), report generator (P5-T05), regression gate (P5-T16/T17), static dashboard (P5-T21), GitHub Pages (P5-T22)",
+          "cite": "phases/P05-argus-eval.md:42,53-54,58-59"
+        },
+        {
+          "phase": "P6",
+          "status": "planned",
+          "what": "Run board with ticket states needs the FastAPI backend; the static dashboard cannot list live runs",
+          "cite": "analysis/swarm/ops-console.md section 7"
+        },
+        {
+          "phase": "P8",
+          "status": "planned",
+          "what": "Per-tenant quota share per bug",
+          "cite": "phases/P08-argus-app.md:74"
+        }
+      ],
+      "fields": [
+        {
+          "name": "resolve rate (resolved/attempted) + Wilson 95% CI",
+          "kind": "real",
+          "source": "PLAN.md:278; batch.py"
+        },
+        {
+          "name": "tokens/bug in, out, cached (separate)",
+          "kind": "real",
+          "source": "PLAN.md:279"
+        },
+        {
+          "name": "$-equivalent",
+          "kind": "proposed",
+          "source": "'—' until P5-T11 (prices.json)"
+        },
+        {
+          "name": "p50 / p95 latency",
+          "kind": "real",
+          "source": "PLAN.md:281; quota wait excluded"
+        },
+        {
+          "name": "regression gate result",
+          "kind": "proposed",
+          "source": "P5-T16: fails below baseline lower bound"
+        },
+        {
+          "name": "run.run_id / task_id / model / host / stop_reason",
+          "kind": "real",
+          "source": "trajectory.schema.json"
+        }
+      ],
+      "actions": [
+        "Open a run (drawer)",
+        "Include simulated runs in the table (never in aggregates)",
+        "Filter by host (live / replay / simulated)",
+        "Start another issue"
+      ],
+      "states": [
+        {
+          "id": "empty",
+          "text": "All cells '—' with the banner 'no run id backs any number yet' (P5-T05 empty template)."
+        },
+        {
+          "id": "partial",
+          "text": "Real P0 row and P1 replay row shown, each with its label."
+        },
+        {
+          "id": "gate-fail",
+          "text": "Gate red names the rule and numbers; no override unless ADR-017 names who."
+        },
+        {
+          "id": "stale",
+          "text": "Static dashboard older than the latest results commit: stale pill."
+        }
+      ],
+      "edgeCases": [
+        "n too small: 0/1 gives [0.000, 0.793]; a difference smaller than the interval is 'no difference' (PLAN.md:286).",
+        "Recorded -0.000000 lower bound is clamped at 0 on screen.",
+        "Fixture replay must never be merged with live runs in an aggregate (ops-console E1).",
+        "Mixed hosts in one table: split by host.",
+        "Cached tokens appear in their own column even when they do not count against the cap.",
+        "Quota resets on the UTC date while the provider's daily window may differ (docs/quotas.md); show both."
+      ],
+      "differs": [
+        {
+          "note": "The plan's dashboard is a static GitHub Pages site; a live run history from the product needs the P6 backend, so History and Dashboard are two surfaces in the plan.",
+          "cite": "PLAN.md:45; analysis/swarm/ops-console.md section 7"
+        },
+        {
+          "note": "Owner flow puts history next to the issue form; the plan places it at P5, before the workflow exists.",
+          "cite": "phases/P05-argus-eval.md:58"
+        }
+      ],
+      "sources": [
+        "phases/P05-argus-eval.md",
+        "phases/P00-argus-bench.md",
+        "PLAN.md metrics contract",
+        "analysis/swarm/ops-console.md"
+      ]
+    }
+  ],
+  "differsFromPlan": [
+    {
+      "id": "D1",
+      "title": "Trigger",
+      "ownerFlow": "Owner types the issue in Argus.",
+      "plan": "A labelled GitHub issue on an installed repo is the only intake.",
+      "cite": "phases/P08-argus-app.md:44; PROJECT.md:11",
+      "action": "Shown as a two-way trigger switch on screen 1. Typed intake has no task and needs a backend (the dashboard is static)."
+    },
+    {
+      "id": "D2",
+      "title": "Where the report goes",
+      "ownerFlow": "Owner reads an HTML before/after report first, then PR is raised.",
+      "plan": "The PR body carries verdict, judge label, trajectory link and two screenshots; the report file is attached to the PR.",
+      "cite": "phases/P08-argus-app.md:45; production.html:377",
+      "action": "Screen 3 links the report lane (#plan/report) as a pre-PR artifact; screen 4 shows the plan's PR body."
+    },
+    {
+      "id": "D3",
+      "title": "PR timing",
+      "ownerFlow": "PR is raised after the owner approves.",
+      "plan": "PR is opened as a draft by one stable branch find-or-create and stays draft until the QA signal.",
+      "cite": "phases/P06-argus-flow.md:57; P08:45",
+      "action": "Screen 4 opens the PR on approve as a draft with a 'Mark ready' step, and names the plan's earlier-draft alternative."
+    },
+    {
+      "id": "D4",
+      "title": "'Production UI' vs the synthetic-only rule",
+      "ownerFlow": "Before and after are shown on the production UI.",
+      "plan": "Free-tier prompts may be used for training, so only synthetic or public code goes through them; the P8 target is one of your own public repos; bench runs the dcortex synthetic cell.",
+      "cite": "PLAN.md:14; config/platform.md; phases/P08-argus-app.md:94",
+      "action": "Screen 1 requires a 'public or synthetic only' acknowledgement. Real production screenshots would break this rule; this is a gap to decide, not to hide."
+    },
+    {
+      "id": "D5",
+      "title": "Request changes",
+      "ownerFlow": "Owner can ask for changes.",
+      "plan": "The QA signal is approve or reject. Only one verifier-driven retry exists inside the loop.",
+      "cite": "phases/P06-argus-flow.md:44; phases/P04-verify.md:57",
+      "action": "'Request changes' re-runs with the reviewer note as extra context. It is new; no task owns it."
+    },
+    {
+      "id": "D6",
+      "title": "Quota is a first-class screen state",
+      "ownerFlow": "Not mentioned.",
+      "plan": "A shared ledger hard-stops a run before a provider limit; P8 adds per-tenant budgets.",
+      "cite": "PLAN.md:288; phases/P08-argus-app.md:57",
+      "action": "Screen 2 shows a quota meter and the quota-wait state."
+    }
+  ]
+}

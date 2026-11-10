@@ -380,7 +380,7 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 Local web UI with five screens, run from scripted or replayed runs. Spec: `docs/notes/p10-spec.json`; tasks: `phases/P10-argus-workbench.md`. No model calls. Ticks only for criteria that were seen holding.
 
 - [x] P10-T00 Copy the spec, write the phase file and the waves note [CLAUDE] 1h
-- [ ] P10-T01 Scaffold packages/workbench, the run store and the run record [CLAUDE] 3h
+- [x] P10-T01 Scaffold packages/workbench, the run store and the run record [CLAUDE] 3h
 - [ ] P10-T02 API server and page shell [CLAUDE] 3h
 - [ ] P10-T03 Screen 1: New issue (typed intake) [CLAUDE] 3h
 - [ ] P10-T04 Runner protocol, ScriptedRunner, ReplayRunner, scenarios [CLAUDE] 4h
