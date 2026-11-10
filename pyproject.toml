@@ -14,7 +14,7 @@ argus-bench = { workspace = true }
 fix-loop = { workspace = true }
 
 [tool.uv.workspace]
-members = ["packages/argus-core", "packages/bench", "packages/repro-agent", "packages/dom2src-mcp", "packages/fix-loop", "packages/verify", "packages/eval", "packages/flow", "packages/skills", "packages/guard", "packages/app"]
+members = ["packages/argus-core", "packages/bench", "packages/repro-agent", "packages/dom2src-mcp", "packages/fix-loop", "packages/verify", "packages/eval", "packages/flow", "packages/skills", "packages/guard", "packages/app", "packages/workbench"]
 
 [dependency-groups]
 dev = ["pytest>=8"]

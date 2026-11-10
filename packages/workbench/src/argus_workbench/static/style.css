@@ -1,0 +1,19 @@
+:root { --fg: #1b1f24; --bg: #ffffff; --muted: #57606a; --line: #d0d7de; --accent: #0b5cad; --warn: #8a4b00; --err: #b3261e; }
+@media (prefers-color-scheme: dark) {
+  :root { --fg: #e6edf3; --bg: #0d1117; --muted: #9da7b3; --line: #30363d; --accent: #58a6ff; --warn: #e3a54a; --err: #ff7b72; }
+}
+* { box-sizing: border-box; }
+a { color: var(--accent); }
+body { margin: 0; font: 15px/1.5 system-ui, "Segoe UI", sans-serif; color: var(--fg); background: var(--bg); }
+header, main { max-width: 64rem; margin: 0 auto; padding: 0.75rem 1rem; }
+h1 { margin: 0; font-size: 1.25rem; }
+.banner { margin: 0.25rem 0 0; color: var(--muted); font-size: 0.875rem; }
+nav { display: flex; flex-wrap: wrap; gap: 0.5rem; max-width: 64rem; margin: 0 auto; padding: 0 1rem; border-bottom: 1px solid var(--line); }
+.tab { display: flex; flex-direction: column; padding: 0.5rem 0.75rem; border: 1px solid var(--line); border-bottom: 0; border-radius: 6px 6px 0 0; color: var(--fg); text-decoration: none; }
+.tab[aria-current="page"] { border-color: var(--accent); box-shadow: inset 0 3px 0 var(--accent); }
+.tab-name { font-weight: 600; }
+.tab-label { font-size: 0.75rem; font-weight: 600; color: var(--accent); }
+.tab.planned .tab-label { color: var(--warn); }
+.tab-status { font-size: 0.75rem; color: var(--muted); }
+.error { color: var(--err); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }

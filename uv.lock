@@ -14,6 +14,7 @@ members = [
     "argus-app",
     "argus-bench",
     "argus-core",
+    "argus-workbench",
     "dom2src-mcp",
     "eval",
     "fix-loop",
@@ -137,6 +138,39 @@ requires-dist = [
     { name = "opentelemetry-sdk", specifier = ">=1.45.2" },
     { name = "pydantic", specifier = ">=2.14.1" },
     { name = "pyyaml", specifier = ">=6.0.3" },
+]
+
+[[package]]
+name = "argus-workbench"
+version = "0.1.0"
+source = { editable = "packages/workbench" }
+dependencies = [
+    { name = "argus-app" },
+    { name = "argus-core" },
+    { name = "eval" },
+    { name = "fastapi" },
+    { name = "fix-loop" },
+    { name = "flow" },
+    { name = "httpx" },
+    { name = "pydantic" },
+    { name = "python-multipart" },
+    { name = "uvicorn" },
+    { name = "verify" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "argus-app", editable = "packages/app" },
+    { name = "argus-core", editable = "packages/argus-core" },
+    { name = "eval", editable = "packages/eval" },
+    { name = "fastapi", specifier = ">=0.115" },
+    { name = "fix-loop", editable = "packages/fix-loop" },
+    { name = "flow", editable = "packages/flow" },
+    { name = "httpx", specifier = ">=0.28.1" },
+    { name = "pydantic", specifier = ">=2.14.1" },
+    { name = "python-multipart", specifier = ">=0.0.9" },
+    { name = "uvicorn", specifier = ">=0.30" },
+    { name = "verify", editable = "packages/verify" },
 ]
 
 [[package]]
