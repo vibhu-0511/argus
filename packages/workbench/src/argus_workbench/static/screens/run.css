@@ -1,0 +1,37 @@
+/* Screen 2 (Live run). Loaded by screens/run.js. Colours come from the :root tokens of style.css. */
+.run .run-title { margin: 0.25rem 0; }
+.badge { display: inline-block; padding: 0 0.5rem; border: 1px solid var(--line); border-radius: 4px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em; }
+.badge-simulated { border-color: var(--accent); color: var(--accent); }
+.badge-replay { border-color: var(--warn); color: var(--warn); }
+.badge-illustrative { border-style: dashed; color: var(--muted); margin-left: 0.5rem; }
+.pill { display: inline-block; padding: 0 0.5rem; border-radius: 999px; border: 1px solid var(--line); font-size: 0.8125rem; }
+.pill.state-quota-wait { border-color: var(--warn); color: var(--warn); font-weight: 700; }
+.pill.state-stuck, .pill.state-failed { border-color: var(--err); color: var(--err); font-weight: 700; }
+.reason { margin: 0.75rem 0; padding: 0.5rem 0.75rem; border: 1px solid var(--line); border-left-width: 6px; border-radius: 4px; }
+.reason p { margin: 0.25rem 0 0; }
+.reason.kind-quota { border-color: var(--warn); }
+.reason.kind-stuck { border-color: var(--err); border-left-style: double; border-left-width: 8px; }
+.reason.kind-stopped, .reason.kind-failed, .reason.kind-verifier { border-color: var(--muted); }
+.controls { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.75rem 0 0.25rem; }
+button { font: inherit; padding: 0.25rem 0.75rem; border: 1px solid var(--line); border-radius: 4px; background: var(--bg); color: var(--fg); cursor: pointer; }
+button:disabled { color: var(--muted); border-style: dashed; cursor: not-allowed; }
+.hint, .note { color: var(--muted); font-size: 0.875rem; margin: 0.25rem 0; }
+.stages { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: 0.5rem; list-style: none; margin: 1rem 0; padding: 0; }
+.stage { display: flex; flex-direction: column; padding: 0.5rem; border: 1px solid var(--line); border-radius: 4px; }
+.stage-status { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; }
+.stage-count { font-size: 0.75rem; color: var(--muted); }
+.stage.s-running { border-color: var(--accent); box-shadow: inset 0 3px 0 var(--accent); }
+.stage.s-done { border-color: var(--accent); }
+.stage.s-failed { border-color: var(--err); box-shadow: inset 0 3px 0 var(--err); }
+.stage.s-stopped { border-style: dashed; border-color: var(--muted); }
+.stage.s-pending { color: var(--muted); }
+.meter-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 0.25rem 0; }
+.meter-row.over .meter-name { color: var(--err); font-weight: 700; }
+.meter-row meter { width: 12rem; }
+.meter-empty { margin: 0.25rem 0; font-size: 1.125rem; }
+table.steps { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+.steps th, .steps td { text-align: left; padding: 0.25rem 0.5rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+.steps .num { text-align: right; font-variant-numeric: tabular-nums; }
+.steps tr.repeat td { background: color-mix(in srgb, var(--err) 14%, transparent); font-weight: 600; }
+.steps tfoot th, .steps tfoot td { font-weight: 700; }
+@media (max-width: 40rem) { .steps { display: block; overflow-x: auto; } }

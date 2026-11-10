@@ -23,6 +23,7 @@ import os
 import re
 import secrets
 import shutil
+import time
 from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
@@ -259,6 +260,21 @@ def _serialise(kind: str, value: Any) -> bytes:
     return value.encode("utf-8")
 
 
+def _retry_if_busy(action: Callable[[], Any]) -> Any:
+    """Run a file action; on Windows a file that another thread has open raises PermissionError for a moment.
+
+    The live-run screen reads trajectory.jsonl while the runner replaces it, so a read can block the replace
+    (and the replace can block a read). Retry for about half a second; a real permission problem still raises.
+    ponytail: retry loop, not a lock; a lock across the readers is needed if a run writes in big bursts.
+    """
+    for _ in range(50):
+        try:
+            return action()
+        except PermissionError:
+            time.sleep(0.01)
+    return action()
+
+
 def write_file(run_id: str, name: str, value: Any, *, overwrite: bool = True, root: Path | str | None = None) -> Any:
     """Validate `value` (a model, a dict, a Trajectory, JSONL text or plain text by file) and write it.
 
@@ -279,7 +295,7 @@ def write_file(run_id: str, name: str, value: Any, *, overwrite: bool = True, ro
         return checked
     tmp = folder / f".{name}.{secrets.token_hex(4)}.tmp"
     tmp.write_bytes(data)
-    os.replace(tmp, target)
+    _retry_if_busy(lambda: os.replace(tmp, target))
     return checked
 
 
@@ -288,7 +304,7 @@ def read_file(run_id: str, name: str, *, root: Path | str | None = None) -> Any:
     kind, schema = _file_spec(name)
     target = _existing_dir(run_id, root) / name
     try:
-        raw = target.read_bytes().decode("utf-8")
+        raw = _retry_if_busy(target.read_bytes).decode("utf-8")
     except FileNotFoundError:
         raise WorkbenchError("missing_file", f"{name} does not exist for this run", field="file", status=404) from None
     except UnicodeDecodeError:
