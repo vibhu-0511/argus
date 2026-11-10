@@ -393,7 +393,7 @@ Local web UI with five screens, run from scripted or replayed runs. Spec: `docs/
 - [x] P10-T08 Screen 4: PR raised [CLAUDE] 3h
 - [ ] P10-T09 Screen 5: History and dashboard [CLAUDE] 3h
 - [ ] P10-T10 Break it: script and markup render inert [CLAUDE] 2h
-- [ ] P10-T11 Break it: hostile uploads [CLAUDE] 2h
+- [x] P10-T11 Break it: hostile uploads [CLAUDE] 2h
 - [ ] P10-T12 Break it: forged requests [CLAUDE] 2h
 - [ ] P10-T13 Break it: double approve [CLAUDE] 2h
 - [ ] P10-T14 End-to-end browser run [CLAUDE] 3h

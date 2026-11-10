@@ -22,6 +22,7 @@ from pathlib import Path
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.exceptions import HTTPException
 
 from argus_workbench import routes as routes_pkg
 from argus_workbench import security
@@ -29,6 +30,19 @@ from argus_workbench.errors import install_handlers
 
 STATIC = Path(__file__).with_name("static")
 TOKEN_MARK = "{{ARGUS_TOKEN}}"
+
+
+class SafeStaticFiles(StaticFiles):
+    """A path the file system cannot even look up (on Windows `<`, `>`, `|`, `"` or `?` in a name) is a typed 404, not a 500.
+
+    Found by the T10 break-it test: GET /static/<script>... raised OSError (WinError 123) out of StaticFiles.
+    """
+
+    def lookup_path(self, path: str):
+        try:
+            return super().lookup_path(path)
+        except OSError:
+            raise HTTPException(status_code=404) from None
 
 
 def include_route_modules(app: FastAPI, package) -> list[str]:
@@ -54,6 +68,6 @@ def create_app(*, token: str | None = None) -> FastAPI:
         page = (STATIC / "index.html").read_text(encoding="utf-8").replace(TOKEN_MARK, html.escape(app.state.token, quote=True))
         return HTMLResponse(page)
 
-    app.mount("/static", StaticFiles(directory=STATIC), name="static")
+    app.mount("/static", SafeStaticFiles(directory=STATIC), name="static")
     security.install(app, app.state.token)  # added last, so it is the outermost middleware
     return app
