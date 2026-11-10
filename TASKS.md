@@ -318,7 +318,7 @@ Totals: 255 core tasks (556 h, P0 to P8) plus 17 optional P9 tasks (40 h).
 - [x] P7-T22 Write package README and phase report against P6 [CLAUDE] 1h `packages/guard/README.md` lists the controls (tested locally / never run on GitHub / not run), the escape-suite command and the other commands. The phase-report rows are filled as far as real data allows: every cell is a dash, because P6 has no numbers (P6-T25 open) and P7 does not run the fix loop for resolve rate, tokens or latency; the real P7 measurements are in a second table with their limits.
 - [x] P8-T00 Re-verify pinned versions via web search [CLAUDE] 1h
 - [x] P8-T01 Read the multi-agent and building-effective-agents posts, write notes [ME] 1h
-- [ ] P8-T02 Create the GitHub App manifest with the P7 least-privilege permissions [PAIR] 3h
+- [x] P8-T02 Create the GitHub App manifest with the P7 least-privilege permissions [PAIR] 3h Registered by the owner on 2026-11-10 from the manifest (App id 5699242, slug `argus-fixer`, owner `vibhu-0511`, public). GitHub's public App record shows exactly the five permissions of ADR-026 and the four events; the webhook URL is the P6 service on Render, and the owner saw a redelivered `ping` answered 202 after the secret was set (a first delivery got 401 until the secret was fixed). Not installed on any repository yet: that is P8-T03.
 
 ## Week 28 — P8 (20 h scheduled)
 

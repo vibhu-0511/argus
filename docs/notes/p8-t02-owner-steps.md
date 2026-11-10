@@ -1,6 +1,6 @@
 # P8-T02 GitHub App manifest: owner steps
 
-Date: 2026-11-03. **Not run: "the App registers from the manifest" was never tested.** GitHub was not called. The manifest is built and validated locally (`packages/app`, 22 tests); registering it needs the owner's GitHub account, so the `P8-T02` box stays unticked. What the manifest page says about the flow is in `docs/notes/p8-t00-versions.md` ("GitHub App: manifest flow"). Screen names marked "from memory" were not checked.
+Date: 2026-11-10. **Done: the App is registered (id 5699242, slug `argus-fixer`) and `P8-T02` is ticked.** The registration ran from `manifest --form` in a browser; GitHub accepted the localhost redirect. Lessons from the run: (1) sign in to GitHub before you click, or GitHub drops the manifest and shows an empty form; (2) in PowerShell use `$env:NAME = ...`, `curl.exe` and `Set-Clipboard -Value (python -c ...)`; `print | clip` adds a line break and the webhook secret then fails with 401. The text below is the original plan, written for Git Bash.
 
 ## What is built
 
