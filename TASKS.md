@@ -381,7 +381,7 @@ Local web UI with five screens, run from scripted or replayed runs. Spec: `docs/
 
 - [x] P10-T00 Copy the spec, write the phase file and the waves note [CLAUDE] 1h
 - [x] P10-T01 Scaffold packages/workbench, the run store and the run record [CLAUDE] 3h
-- [ ] P10-T02 API server and page shell [CLAUDE] 3h
+- [x] P10-T02 API server and page shell [CLAUDE] 3h
 - [ ] P10-T03 Screen 1: New issue (typed intake) [CLAUDE] 3h
 - [ ] P10-T04 Runner protocol, ScriptedRunner, ReplayRunner, scenarios [CLAUDE] 4h
 - [ ] P10-T05 FixLoopRunner adapter (scripted model only) [CLAUDE] 2h
