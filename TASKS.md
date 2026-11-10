@@ -386,10 +386,10 @@ Local web UI with five screens, run from scripted or replayed runs. Spec: `docs/
 - [x] P10-T04 Runner protocol, ScriptedRunner, ReplayRunner, scenarios [CLAUDE] 4h
 - [x] P10-T05 FixLoopRunner adapter (scripted model only) [CLAUDE] 2h
 - [x] P10-T06 Screen 2: Live run [CLAUDE] 3h
-- [ ] P10-T07 Screen 3: Review and decision [CLAUDE] 4h
+- [x] P10-T07 Screen 3: Review and decision [CLAUDE] 4h
 - [x] P10-T08 Screen 4: PR raised [CLAUDE] 3h
 - [x] P10-T09 Screen 5: History and dashboard [CLAUDE] 3h
-- [ ] P10-T10 Break it: script and markup render inert [CLAUDE] 2h
+- [x] P10-T10 Break it: script and markup render inert [CLAUDE] 2h
 - [x] P10-T11 Break it: hostile uploads [CLAUDE] 2h
 - [x] P10-T12 Break it: forged requests [CLAUDE] 2h
 - [x] P10-T13 Break it: double approve [CLAUDE] 2h

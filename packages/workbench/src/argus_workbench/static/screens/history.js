@@ -25,7 +25,7 @@ function metricRows(m) {
     ['Tokens per bug', ...(tk.value === null ? dash(tk)
       : [`in ${num(tk.tokens_in)}, out ${num(tk.tokens_out)}, cached ${num(tk.tokens_cached)}`, 'cached shown apart', backing(tk.source)])],
     ['Latency', ...(lt.value === null ? dash(lt)
-      : [`p50 ${lt.p50.toFixed(1)} s, p95 ${lt.p95 === null ? DASH : lt.p95.toFixed(1) + ' s'}`, 'quota wait excluded', backing(lt.source)])],
+      : [`p50 ${lt.p50.toFixed(1)} s, p95 ${lt.p95 === null ? DASH : lt.p95.toFixed(1) + ' s'}`, 'wall clock per task, coordinator waits included; several tasks ran at once (as the result file says)', backing(lt.source)])],
     ['Quota share', ...(qs.value === null ? dash(qs)
       : [`${qs.tenants.length} tenant${qs.tenants.length === 1 ? '' : 's'}, ${num(qs.total_tokens)} tokens`, `ledger day ${qs.day}`, backing(qs.source)])],
   ];
