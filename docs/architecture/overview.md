@@ -1,6 +1,6 @@
-# Architecture overview (P0 to P8)
+# Architecture overview (P0 to P10)
 
-As-built view of Argus after phases P5.5, P6, P7 and P8 (so far). Later phases are not drawn. This file grows by one phase in each stacked pull request; the diagram source is the same text the PR description shows.
+As-built view of Argus after phases P5.5, P6, P7, P8 and P10 (so far). P9 is not drawn. This file grows by one phase in each stacked pull request; the diagram source is the same text the PR description shows.
 
 ```mermaid
 flowchart LR
@@ -143,7 +143,7 @@ flowchart LR
     GREADME["guard README and phase report<br/>controls listed, state of each; report cells are dashes"]:::p7
   end
 
-  subgraph S8 ["P8 app (NEW IN THIS PR)"]
+  subgraph S8 ["P8 app"]
     VERS8["version re-check<br/>App, reusable-workflow and free-tier limits, 2026-11-03"]:::p8
     MANOTES["multi-agent notes<br/>about 4x tokens per agent, about 15x multi-agent; coding is a bad fit"]:::p8
     MANIFEST["App manifest<br/>argus_app.manifest, five permissions equal ADR-026, URLs from env; App not registered"]:::p8
@@ -163,6 +163,26 @@ flowchart LR
     ADRS8["ADR-027, 028, 029<br/>proposed: tenancy, tenant budgets, planner vs single (no decision, no numbers)"]:::p8
     BREAKS8["P8 break-its<br/>T21 quota, T22 no test command, T23 conflict, T24 read-only label; mocks and local git"]:::p8
     PREP8["demo repo, script, README, checklist<br/>preparation only: no public repo, video or timed install"]:::p8
+  end
+
+  subgraph S10 ["P10 workbench (NEW IN THIS PR)"]
+    WSTORE["run store<br/>argus_workbench.store, one folder per run, typed state.json; local files, no database"]:::p10
+    WSERVER["API server<br/>FastAPI on 127.0.0.1 only, no login, calls no model"]:::p10
+    WSEC["request guards<br/>per-start token, Host and Origin check, CSP, typed errors"]:::p10
+    WSCR1["screen 1 New issue<br/>typed intake, screenshot by signature, 5 MiB cap"]:::p10
+    WSCR2["screen 2 Live run<br/>polls the run; quota-wait and stuck views; meter is ILLUSTRATIVE"]:::p10
+    WSCR3["screen 3 Review<br/>checks, judge note, sandboxed report; Request changes and Reject not clicked in a browser, T07 not ticked"]:::p10
+    WSCR4["screen 4 PR raised<br/>mock GitHub only; tab label still reads PLANNED P8"]:::p10
+    WSCR5["screen 5 History<br/>run list with SIMULATED and REPLAY badges; metrics from stored P5 results only"]:::p10
+    WSCRIPT["ScriptedRunner<br/>five scenarios, every file tagged SIMULATED; no model"]:::p10
+    WREPLAY["ReplayRunner<br/>plays a stored trajectory as REPLAY; no patch, no verdict"]:::p10
+    WFIXRUN["FixLoopRunner<br/>run_fix with a scripted model; tests only, not reachable over HTTP, never run on a real model"]:::p10
+    WDECIDE["review and decision<br/>Approve, Request changes, Reject; idempotency key; failed verifier refuses Approve"]:::p10
+    WMOCKPR["PR step<br/>pull_request.py on an in-memory mock GitHub; no real PR was opened"]:::p10
+    WHISTM["history metrics<br/>history_metrics.py; simulated and replay runs are never counted"]:::p10
+    WBREAKS10["P10 break-its<br/>T10 markup inert, T11 hostile uploads, T12 forged requests, T13 double approve; T10 not ticked"]:::p10
+    WE2E["end-to-end run<br/>HTTP walk test; browser walk with screenshots, some buttons not clicked"]:::p10
+    WADR["ADR-031<br/>proposed: local, file-backed, unauthenticated; owner to decide"]:::p10
   end
 
   BUGSMITH --> FILTER
@@ -391,6 +411,39 @@ flowchart LR
   BREAKS8 -. "read-only label" .-> INTAKE
   PREP8 -. "first install target" .-> RWF
 
+  %% P10 links
+  WSERVER -- "guards every request" --> WSEC
+  WSERVER -- "routes read and write runs" --> WSTORE
+  WSTORE -- "Ticket, Trajectory, StopReason" --> CORE
+  WSTORE -- "only the allowed transitions" --> STATES
+  WSTORE -- "check order" --> CHECKS
+  WSCR1 -- "creates the run folder" --> WSTORE
+  WSCR2 -- "quota meter reads" --> LEDGER
+  WSCRIPT -- "quota scenario is charged through" --> LEDGER
+  WSCRIPT -- "state changes" --> WSTORE
+  WREPLAY -- "plays a stored" --> TRAJ
+  WFIXRUN -- "runs the loop" --> FIX
+  WFIXRUN -- "calls counted" --> LEDGER
+  WSCR3 -- "decides with" --> WDECIDE
+  WDECIDE -- "Approve and Reject events" --> STATES
+  WDECIDE -- "reads verdict.json" --> CHECKS
+  WDECIDE -. "judge note, advisory" .-> JUDGE
+  WDECIDE -- "approve hook" --> WMOCKPR
+  WSCR4 -- "raises" --> WMOCKPR
+  WMOCKPR -- "find before act, draft PR" --> PRBUILD
+  WMOCKPR -- "client over a mock transport" --> GHWRITE
+  WMOCKPR -- "one branch per ticket" --> STATES
+  WSCR5 -- "lists runs" --> WSTORE
+  WSCR5 -- "numbers from" --> WHISTM
+  WHISTM -- "result file list" --> DASH
+  WHISTM -- "Results and Wilson interval" --> RUNNER
+  WHISTM -- "tenant share of tokens" --> LEDGER
+  WBREAKS10 -. "markup, uploads, forged requests" .-> WSEC
+  WBREAKS10 -. "double approve" .-> WDECIDE
+  WE2E -. "walks the five screens" .-> WSERVER
+  WADR -. "decides the trust model" .-> WSEC
+  WADR -. "builds on" .-> ADRS7
+
   classDef p0 fill:#dbeafe,stroke:#1d4ed8,stroke-width:1.5px,color:#111827
   style S0 fill:none,stroke:#1d4ed8,stroke-width:1.5px
   classDef p1 fill:#cffafe,stroke:#0e7490,stroke-width:1.5px,color:#111827
@@ -409,10 +462,12 @@ flowchart LR
   style S6 fill:none,stroke:#6d28d9,stroke-width:1.5px
   classDef p7 fill:#fee2e2,stroke:#b91c1c,stroke-width:1.5px,color:#111827
   style S7 fill:none,stroke:#b91c1c,stroke-width:1.5px
-  classDef p8 fill:#ccfbf1,stroke:#0f766e,stroke-width:4px,color:#111827
-  style S8 fill:none,stroke:#0f766e,stroke-width:4px
+  classDef p8 fill:#ccfbf1,stroke:#0f766e,stroke-width:1.5px,color:#111827
+  style S8 fill:none,stroke:#0f766e,stroke-width:1.5px
+  classDef p10 fill:#fae8ff,stroke:#a21caf,stroke-width:4px,color:#111827
+  style S10 fill:none,stroke:#a21caf,stroke-width:4px
   classDef ext fill:#ffffff,stroke:#6b7280,color:#111827,stroke-dasharray: 4 3
-  linkStyle 181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220 stroke-width:3px
+  linkStyle 221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250,251 stroke-width:3px
 ```
 
 ## How to read it
@@ -425,7 +480,7 @@ flowchart LR
 | Dotted arrow | a stored input (`fixture`), a test-only link or an advisory link, not a live call |
 | Thick arrow | a link added in this phase |
 
-Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink, P5.5 stone, P6 violet, P7 red, P8 teal.
+Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink, P5.5 stone, P6 violet, P7 red, P8 teal, P10 fuchsia.
 
 ## What P5.5 adds
 
@@ -470,6 +525,15 @@ Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink, P5.5 stone, 
 - Break-its: a scripted model obeys a ticket that asks it to print the environment; the sandbox holds no secrets, so none reached the model, the trajectory, the patch or the reply (T18). One edited line in a 10-record log is named by `guard verify-log`; a full consistent rewrite passes unless the head hash was shipped elsewhere (T19). A DNS lookup from the sandbox fails and the attempt is a record in the audit log (T21). The App-token push to the default branch was refused by GitHub itself with 422 "Changes must be made through a pull request." on a throwaway repository with classic branch protection (T20, real run 2026-11-03). Finding: `run_fix` without an `execute=` argument runs commands on the host with the host environment.
 - Wave 5 (docs): ADR-024 (threat model and trust boundaries, with the open residual risks: `run_fix` without `execute=` runs commands on the host; the mitigations are off by default), ADR-025 (sandbox tier: Docker with `--network none` is the default because it is the only tier measured; gVisor and Firecracker are not measured here) and ADR-026 (secret lifetimes, the App token permission list, rotation), all proposed. `packages/guard/README.md` lists each control with its state; the P7 phase report cells are dashes because P7 does not run the fix loop for resolve rate, tokens or latency and P6's row is also empty.
 - Per-task detail: `docs/architecture/p7.md`.
+
+## What P10 adds
+
+- `packages/workbench` (module `argus_workbench`, command `argus-workbench serve`): a local web UI with five screens over scripted and replayed runs. It binds 127.0.0.1, has no login and calls no model. Every run it makes is tagged SIMULATED or REPLAY and is in no aggregate. Per-task detail: `docs/architecture/p10.md`.
+- Run store and server (T01, T02): one folder per run, with a typed `state.json` whose moves are the `flow.states` transitions. The server checks a per-start token, Host and Origin, and sends a CSP. ADR-031 (T15) records this trust model and is proposed, not decided.
+- Screens: New issue (T03), Live run (T06), Review and decision (T07), PR raised (T08), History (T09). Screen 3 is not ticked: Request changes and Reject were not clicked in a browser, and the timed-out and check-error states are not built. The PR tab still reads `PLANNED P8`.
+- Runners (T04, T05): `ScriptedRunner` plays five scenarios, `ReplayRunner` replays a stored trajectory, `FixLoopRunner` wraps `fix_loop.run_fix` with a scripted model and is not reachable over HTTP. No model was called and no real GitHub PR was opened.
+- PR step (T08): `argus_app.pr.open_or_update_pr` and `flow.github_write.HttpGitHubClient` run over an in-memory mock GitHub. History (T09) reads only stored result files through the dashboard file list and `eval.results`; the quota share is a dash because the repo has no tenant ledger.
+- Break-its (T10 to T13, index in `docs/notes/p10-break-its.md`) and the end-to-end run (T14, `docs/notes/p10-t14.md`). T10 is not ticked: its browser check was not repeated after the merge.
 
 ## What P8 adds
 
@@ -517,4 +581,4 @@ Colours: P0 blue, P1 cyan, P2 green, P3 yellow, P4 orange, P5 pink, P5.5 stone, 
 
 ## Sources
 
-Built from `PLAN.md` (Architecture) and, where they exist, the `docs/architecture/pN.md` "As built" sections. Edges not stated word for word there: `RVERIFY --> SCORER` (the verifier runs a script on a task's buggy and golden trees); `SEEDED -.-> ABL` (retrievers are scored by the golden patch's file); `GATES --> SCORER` (the `bench` gate); `BOK --> FIX` (best-of-k picks among fix-loop candidates, `phases/P04-verify.md` T19).
+Built from `PLAN.md` (Architecture) and, where they exist, the `docs/architecture/pN.md` "As built" sections. Edges not stated word for word there: `RVERIFY --> SCORER` (the verifier runs a script on a task's buggy and golden trees); `SEEDED -.-> ABL` (retrievers are scored by the golden patch's file); `GATES --> SCORER` (the `bench` gate); `BOK --> FIX` (best-of-k picks among fix-loop candidates, `phases/P04-verify.md` T19). The P10 links are taken from the "Links to existing code" lines of `docs/architecture/p10.md`; `WSTORE --> CHECKS` is the check order read from `verify.pipeline`.
