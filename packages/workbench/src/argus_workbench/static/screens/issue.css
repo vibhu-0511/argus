@@ -1,0 +1,23 @@
+/* Screen 1, New issue. Loaded by screens/issue.js; uses the colour variables of style.css. */
+[hidden] { display: none !important; }
+.issue fieldset { border: 1px solid var(--line); border-radius: 6px; margin: 0 0 1rem; padding: 0.5rem 0.75rem; }
+.issue fieldset label { margin-right: 1.5rem; }
+.chip { font-size: 0.75rem; border: 1px solid var(--line); border-radius: 4px; padding: 0 0.35rem; color: var(--muted); }
+.issue .field { margin: 0 0 1rem; }
+.issue label { display: block; font-weight: 600; margin-bottom: 0.25rem; }
+.issue label.ack, .issue fieldset label { font-weight: 400; }
+.issue textarea, .issue select { width: 100%; max-width: 100%; font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 0.5rem; }
+.issue [aria-invalid="true"] { border-color: var(--err); outline: 1px solid var(--err); }
+.field-error { color: var(--err); margin: 0.25rem 0 0; min-height: 0; }
+.field-error:empty { display: none; }
+.note { color: var(--muted); font-size: 0.875rem; margin: 0.25rem 0; }
+.drop { border: 2px dashed var(--line); border-radius: 6px; padding: 0.75rem; }
+.drop.over { border-color: var(--accent); }
+.drop .note { display: block; }
+.preview { overflow: auto; max-height: 14rem; margin: 0 0 1rem; padding: 0.5rem; border: 1px solid var(--line); border-radius: 6px; white-space: pre-wrap; word-break: break-word; }
+.issue button { font: inherit; padding: 0.4rem 0.9rem; border-radius: 6px; border: 1px solid var(--accent); color: var(--accent); background: var(--bg); cursor: pointer; }
+.issue button:disabled { opacity: 0.5; cursor: not-allowed; }
+.issue button[type="submit"]:not(:disabled) { background: var(--accent); color: var(--bg); }
+.issue button.link { border: 0; padding: 0; text-decoration: underline; }
+.actions { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
+.github-panel { border: 1px solid var(--line); border-radius: 6px; padding: 0.5rem 1rem; }
