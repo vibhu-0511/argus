@@ -384,7 +384,7 @@ Local web UI with five screens, run from scripted or replayed runs. Spec: `docs/
 - [x] P10-T02 API server and page shell [CLAUDE] 3h
 - [ ] P10-T03 Screen 1: New issue (typed intake) [CLAUDE] 3h
 - [x] P10-T04 Runner protocol, ScriptedRunner, ReplayRunner, scenarios [CLAUDE] 4h
-- [ ] P10-T05 FixLoopRunner adapter (scripted model only) [CLAUDE] 2h
+- [x] P10-T05 FixLoopRunner adapter (scripted model only) [CLAUDE] 2h
 - [ ] P10-T06 Screen 2: Live run [CLAUDE] 3h
 - [ ] P10-T07 Screen 3: Review and decision [CLAUDE] 4h
 - [ ] P10-T08 Screen 4: PR raised [CLAUDE] 3h
