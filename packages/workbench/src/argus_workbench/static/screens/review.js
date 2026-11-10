@@ -58,7 +58,7 @@ function decisionPanel(data, ctx, runId, reload) {
   const form = el('div', { class: 'decide-form' });
   const msg = el('p', { class: 'error', role: 'alert' });
   box.append(el('div', { class: 'buttons' }, approve, changes, reject),
-    data.approve.enabled ? null : el('p', { class: 'note', text: `Approve is disabled: ${data.approve.disabled_reason}` }), form, msg);
+    ...(data.approve.enabled ? [] : [el('p', { class: 'note', text: `Approve is disabled: ${data.approve.disabled_reason}` })]), form, msg); // native append would print a null as text
 
   function open(action) {
     clear(form);
@@ -102,7 +102,7 @@ function decisionPanel(data, ctx, runId, reload) {
         else msg.textContent = e.message;
       }
     });
-    form.append(select ? el('label', { for: 'decision-reason', text: 'Reason' }) : null, select,
+    form.append(...(select ? [el('label', { for: 'decision-reason', text: 'Reason' }), select] : []), // native append prints a null as text
       el('label', { for: 'decision-note', text: label }), note, confirm);
   }
   approve.addEventListener('click', () => open('approve'));
