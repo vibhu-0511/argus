@@ -147,6 +147,7 @@ source = { editable = "packages/workbench" }
 dependencies = [
     { name = "argus-app" },
     { name = "argus-core" },
+    { name = "eval" },
     { name = "fastapi" },
     { name = "fix-loop" },
     { name = "flow" },
@@ -161,6 +162,7 @@ dependencies = [
 requires-dist = [
     { name = "argus-app", editable = "packages/app" },
     { name = "argus-core", editable = "packages/argus-core" },
+    { name = "eval", editable = "packages/eval" },
     { name = "fastapi", specifier = ">=0.115" },
     { name = "fix-loop", editable = "packages/fix-loop" },
     { name = "flow", editable = "packages/flow" },

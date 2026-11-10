@@ -10,6 +10,7 @@ dependencies = [
     "argus-app",
     "fix-loop",
     "verify",
+    "eval",
     "fastapi>=0.115",
     "uvicorn>=0.30",
     "python-multipart>=0.0.9",
@@ -26,6 +27,7 @@ flow = { workspace = true }
 argus-app = { workspace = true }
 fix-loop = { workspace = true }
 verify = { workspace = true }
+eval = { workspace = true }
 
 [build-system]
 requires = ["uv_build>=0.12.2,<0.13.0"]
