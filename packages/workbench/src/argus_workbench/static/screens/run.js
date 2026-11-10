@@ -81,6 +81,7 @@ function build(view, ctx) {
   const cancel = el('button', { type: 'button', text: 'Cancel', hidden: true });
   const retry = el('button', { type: 'button', text: 'Retry (new run)' });
   const hint = el('p', { class: 'note hint' });
+  const next = el('p', { class: 'next', hidden: true });
   let confirming = false;
   const setConfirming = (on) => {
     confirming = on;
@@ -107,7 +108,7 @@ function build(view, ctx) {
 
   view.append(
     el('h2', { text: 'Live run' }), title, originNote, reason,
-    el('div', { class: 'controls' }, start, stop, cancel, retry), hint, message,
+    el('div', { class: 'controls' }, start, stop, cancel, retry), hint, message, next,
     stages, meterBox,
     el('h3', { text: 'Steps' }), empty,
     el('table', { class: 'steps' },
@@ -153,6 +154,10 @@ function build(view, ctx) {
       el('td', { class: 'num', text: n(d.totals.tokens_in) }), el('td', { class: 'num', text: n(d.totals.tokens_out) }),
       el('td', { class: 'num', text: n(d.totals.tokens_cached) }), el('td')));
 
+    // T14: a way forward from this screen (the tabs carry no run id). Only a run that has a verdict to review gets it.
+    const reviewable = ['awaiting-qa', 'done', 'rejected'].includes(run.state) || (d.reason && d.reason.kind === 'verifier');
+    next.hidden = !reviewable;
+    clear(next).append(el('a', { href: `#/review/${run.run_id}`, text: 'Open the review of this run' }));
     const a = d.actions;
     start.hidden = run.state !== 'received';
     start.disabled = !a.start.enabled;

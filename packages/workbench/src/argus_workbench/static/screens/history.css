@@ -6,3 +6,9 @@ table.metrics th, table.metrics td, table.tenants th, table.tenants td, table.ru
 }
 .badge { padding: 0 0.4rem; border: 1px solid var(--warn); border-radius: 4px; font-size: 0.75rem; font-weight: 600; color: var(--warn); }
 .badge.replay { border-color: var(--accent); color: var(--accent); }
+/* T14: at 375 px the cells wrapped letter by letter. Each table scrolls sideways inside itself instead; the page does not. */
+@media (max-width: 600px) {
+  table.metrics, table.tenants, table.runs { display: block; overflow-x: auto; }
+  table.metrics th, table.metrics td, table.tenants th, table.tenants td, table.runs th, table.runs td { overflow-wrap: normal; }
+  table.runs th, table.runs td { white-space: nowrap; }
+}

@@ -113,7 +113,7 @@ function draw(view, opts, ctx) {
     drop,
     field('repo', 'Repo', repo, repoNote),
     field('route', 'Route to test (viewport ' + opts.viewport + ')', route),
-    field('scenario', 'Scripted scenario (nothing here calls a model)', scenario, scenarioNote),
+    field('scenario', 'SIMULATED scenario (scripted, nothing here calls a model)', scenario, scenarioNote),
     el('div', { class: 'field' }, ackLabel, errors.ack_public_or_synthetic),
     seeded,
     el('h3', { text: 'Ticket that would be written' }), preview,
